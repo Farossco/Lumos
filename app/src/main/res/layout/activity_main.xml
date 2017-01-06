@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	>
+
+	<TextView
+		android:id="@+id/textViewOnOff"
+		android:layout_width="80dp"
+		android:layout_height="50dp"
+		android:layout_marginTop="16dp"
+		android:text="ON / OFF"
+		android:textAlignment="center"
+		android:textColor="#000000"
+		android:textIsSelectable="false"
+		android:textStyle="bold"
+		/>
+
+	<Switch
+		android:id="@+id/switchOnOff"
+		android:layout_width="wrap_content"
+		android:layout_height="50dp"
+		android:layout_alignParentEnd="false"
+		android:layout_alignParentTop="true"
+		android:layout_marginLeft="8dp"
+		android:layout_toEndOf="@+id/textViewOnOff"
+		/>
+
+	<TextView
+		android:id="@+id/textViewRed"
+		android:layout_width="80dp"
+		android:layout_height="50dp"
+		android:layout_below="@+id/textViewOnOff"
+		android:text="RED"
+		android:textAlignment="center"
+		android:textColor="#FF0000"
+		android:textIsSelectable="false"
+		android:textStyle="bold"
+		/>
+
+	<SeekBar
+		android:id="@+id/seekBarRed"
+		android:layout_width="200dp"
+		android:layout_height="50dp"
+		android:layout_below="@id/switchOnOff"
+		android:layout_toEndOf="@id/textViewRed"
+		android:max="255"
+		/>
+
+	<TextView
+		android:id="@+id/textViewRedValue"
+		android:layout_width="wrap_content"
+		android:layout_height="50dp"
+		android:layout_alignParentEnd="true"
+		android:layout_below="@+id/textViewOnOff"
+		android:layout_toEndOf="@+id/seekBarRed"
+		android:textAlignment="center"
+		android:textColor="#FF0000"
+		android:textIsSelectable="false"
+		android:textStyle="bold"
+		/>
+
+	<TextView
+		android:id="@+id/textViewGreen"
+		android:layout_width="80dp"
+		android:layout_height="50dp"
+		android:layout_below="@+id/textViewRed"
+		android:text="GREEN"
+		android:textAlignment="center"
+		android:textColor="#00FF00"
+		android:textIsSelectable="false"
+		android:textStyle="bold"
+		/>
+
+	<SeekBar
+		android:id="@+id/seekBarGreen"
+		android:layout_width="200dp"
+		android:layout_height="50dp"
+		android:layout_below="@+id/seekBarRed"
+		android:layout_toEndOf="@+id/textViewRed"
+		android:max="255"
+		/>
+
+	<TextView
+		android:id="@+id/textViewGreenValue"
+		android:layout_width="wrap_content"
+		android:layout_height="50dp"
+		android:layout_alignParentEnd="true"
+		android:layout_below="@+id/textViewRed"
+		android:layout_toEndOf="@+id/seekBarGreen"
+		android:textAlignment="center"
+		android:textColor="#00FF00"
+		android:textIsSelectable="false"
+		android:textStyle="bold"
+		/>
+
+	<TextView
+		android:id="@+id/textViewBlue"
+		android:layout_width="80dp"
+		android:layout_height="50dp"
+		android:layout_below="@+id/textViewGreen"
+		android:text="BLUE"
+		android:textAlignment="center"
+		android:textColor="#0000FF"
+		android:textIsSelectable="false"
+		android:textStyle="bold"
+		/>
+
+	<SeekBar
+		android:id="@+id/seekBarBlue"
+		android:layout_width="200dp"
+		android:layout_height="50dp"
+		android:layout_below="@+id/seekBarGreen"
+		android:layout_toEndOf="@+id/textViewGreen"
+		android:max="255"
+		/>
+
+	<TextView
+		android:id="@+id/textViewBlueValue"
+		android:layout_width="wrap_content"
+		android:layout_height="50dp"
+		android:layout_alignParentEnd="true"
+		android:layout_below="@+id/textViewGreen"
+		android:layout_toEndOf="@+id/seekBarBlue"
+		android:textAlignment="center"
+		android:textColor="#0000FF"
+		android:textIsSelectable="false"
+		android:textStyle="bold"
+		/>
+
+	<TextView
+		android:text="TextView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/textViewBlue"
+		android:layout_alignParentStart="true"
+		android:id="@+id/text"
+		android:textAlignment="center"
+		android:textStyle="bold"
+		android:layout_alignParentBottom="true"
+		android:layout_alignParentEnd="true"/>
+
+</RelativeLayout>

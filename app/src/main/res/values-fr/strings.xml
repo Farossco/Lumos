@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">Bed Control</string>
+	<string name="button_send">Envoyer</string>
+	<string name="edit_message">Entrez un message</string>
+</resources>
