@@ -5,21 +5,21 @@ import android.widget.SeekBar;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 
-public class OnSeekBarBlueChangeListener implements SeekBar.OnSeekBarChangeListener
+public class OnSeekBarPowerChangeListener implements SeekBar.OnSeekBarChangeListener
 {
 	@Override
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
 	{
-		MainActivity.blue = progress;
+		MainActivity.power = progress;
 		// Instantiate the RequestQueue.
 		RequestQueue queue = MainActivity.queue;
 
 		// Request a string response from the provided URL.
-		StringRequest stringRequest = new StringRequestRGB(MainActivity.getRgbString(), MainActivity.responseTextView);
+		StringRequest stringRequest = new StringRequestPower(MainActivity.getPowerString(), MainActivity.responseTextView);
 
 		// Add the request to the RequestQueue.
 		queue.add(stringRequest);
-		MainActivity.textViewBlueValue.setText(progress + "/" + MainActivity.seekBarBlue.getMax());
+		MainActivity.textViewPowerValue.setText(progress + "/" + MainActivity.seekBarPower.getMax());
 	}
 
 	@Override

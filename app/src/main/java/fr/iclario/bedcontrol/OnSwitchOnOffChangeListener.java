@@ -16,7 +16,7 @@ public class OnSwitchOnOffChangeListener implements Switch.OnCheckedChangeListen
 		RequestQueue queue = MainActivity.queue;
 
 		// Request a string response from the provided URL.
-		StringRequest stringRequest = new StringRequestON(MainActivity.on ? "1" : "0", MainActivity.textView);
+		StringRequest stringRequest = new StringRequestON(MainActivity.on ? "1" : "0", MainActivity.responseTextView);
 
 		// Add the request to the RequestQueue.
 		queue.add(stringRequest);

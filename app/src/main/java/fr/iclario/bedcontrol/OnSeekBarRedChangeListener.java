@@ -10,12 +10,12 @@ public class OnSeekBarRedChangeListener implements SeekBar.OnSeekBarChangeListen
 	@Override
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
 	{
-		MainActivity.RED = progress;
+		MainActivity.red = progress;
 		// Instantiate the RequestQueue.
 		RequestQueue queue = MainActivity.queue;
 
 		// Request a string response from the provided URL.
-		StringRequest stringRequest = new StringRequestRGB(MainActivity.getRGB(), MainActivity.textView);
+		StringRequest stringRequest = new StringRequestRGB(MainActivity.getRgbString(), MainActivity.responseTextView);
 
 		// Add the request to the RequestQueue.
 		queue.add(stringRequest);

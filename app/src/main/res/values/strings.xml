@@ -2,4 +2,9 @@
 	<string name="app_name">Bed Control</string>
 	<string name="edit_message">Enter a message</string>
 	<string name="button_send">Send</string>
+	<string name="on_off">ON / OFF</string>
+	<string name="power">Power</string>
+	<string name="red">RED</string>
+	<string name="green">GREEN</string>
+	<string name="blue">BLUE</string>
 </resources>
