@@ -164,6 +164,48 @@
 		android:textStyle="bold"
 		/>
 
+	<LinearLayout
+		android:id="@+id/linearLayoutButtons"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/textViewBlue"
+		android:layout_centerHorizontal="true"
+		android:orientation="horizontal"
+		>
+
+		<Button
+			android:id="@+id/buttonModeSmooth"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/ModeSmooth"
+			android:onClick="StringRequestMode"
+			/>
+
+		<Button
+			android:id="@+id/buttonModeFade"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/ModeFade"
+			android:onClick="StringRequestMode"
+			/>
+
+		<Button
+			android:id="@+id/buttonModeStrobe"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/ModeStrobe"
+			android:onClick="StringRequestMode"
+			/>
+
+		<Button
+			android:id="@+id/buttonModeFlash"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/modeFlash"
+			android:onClick="StringRequestMode"
+			/>
+	</LinearLayout>
+
 	<TextView
 		android:id="@+id/text"
 		android:layout_width="wrap_content"
@@ -171,6 +213,7 @@
 		android:layout_alignParentBottom="true"
 		android:layout_alignParentEnd="true"
 		android:layout_alignParentStart="true"
+		android:layout_below="@id/linearLayoutButtons"
 		android:paddingTop="15dp"
 		android:textAlignment="center"
 		android:textStyle="bold"

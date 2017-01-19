@@ -87,4 +87,44 @@ public class MainActivity extends AppCompatActivity
 
 		return string;
 	}
+
+	public static String getPowerString()
+	{
+		String string = Integer.toString(power);
+
+		while (string.length() < 3)
+			string = "0" + string;
+
+		return string;
+	}
+
+	public void StringRequestMode(View view)
+	{
+		String mode = (view.getId() == R.id.buttonModeFlash) ? "1" : (view.getId() == R.id.buttonModeStrobe) ? "2" : (view.getId() == R.id.buttonModeFade) ? "3" : (view.getId() == R.id.buttonModeSmooth) ? "4" : "?";
+
+		RequestQueue queue = MainActivity.queue;
+
+		// Request a string response from the provided URL.
+		StringRequest stringRequest = new StringRequest(Request.Method.GET, Resources.espAddress + "/MOD=" + mode,
+
+				new Response.Listener<String>()
+				{
+					@Override
+					public void onResponse(String response)
+					{
+						responseTextView.setText("Response is: " + response);
+					}
+				},
+				new Response.ErrorListener()
+				{
+					@Override
+					public void onErrorResponse(VolleyError error)
+					{
+						responseTextView.setText("That didn't work!\n\nResponse is: " + error.getMessage());
+					}
+				});
+
+		// Add the request to the RequestQueue.
+		queue.add(stringRequest);
+	}
 }

@@ -12,7 +12,7 @@ public class StringRequestRGB extends StringRequest
 {
 	public StringRequestRGB(String RGBCode, final TextView textView)
 	{
-		super(Request.Method.GET, "http://192.168.31.147/RGB=" + RGBCode,
+		super(Request.Method.GET, Resources.espAddress + "/RGB=" + RGBCode,
 				new Response.Listener<String>()
 				{
 					@Override

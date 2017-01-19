@@ -11,7 +11,7 @@ public class StringRequestON extends StringRequest
 {
 	public StringRequestON(String RGBCode, final TextView textView)
 	{
-		super(Request.Method.GET, "http://192.168.31.147/ON=" + RGBCode,
+		super(Request.Method.GET, Resources.espAddress + "/ON=" + RGBCode,
 				new Response.Listener<String>()
 				{
 					@Override

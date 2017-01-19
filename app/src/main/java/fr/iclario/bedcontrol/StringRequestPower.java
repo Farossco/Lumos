@@ -12,7 +12,7 @@ public class StringRequestPower extends StringRequest
 {
 	public StringRequestPower(String powerString, final TextView textView)
 	{
-		super(Request.Method.GET, "http://192.168.31.147/POW=" + powerString,
+		super(Request.Method.GET, Resources.espAddress + "/POW=" + powerString,
 				new Response.Listener<String>()
 				{
 					@Override
