@@ -1,9 +1,25 @@
 #include <ESP8266WiFi.h>
 #include <Wire.h>
 
-#define DEBUG true
+#define DEBUG false
+
+//Some IDs used for serial reception decrypt
+#define TYPE_ERROR -1
+#define TYPE_RGB 1
+#define TYPE_ON 2
+#define TYPE_POW 3
+#define TYPE_MOD 4
 
 WiFiServer server(80);
+WiFiClient client;
+
+int infoType;
+String request;
+
+// Variables for web request reading
+byte buf[20];
+long value;
+boolean error;
 
 void setup()
 {
@@ -56,18 +72,15 @@ void setup()
 void loop()
 {
   // Check if a client has connected
-  WiFiClient client = server.available();
+  client = server.available();
 
   if (!client) return;
-
-  long result;
-  int infoType;
 
   // Wait until the client sends some data
   while (!client.available()) delay(1);
 
   // Read the first line of the request
-  String request = client.readStringUntil('\r');
+  request = client.readStringUntil('\r');
 
   if (DEBUG)
   {
@@ -80,67 +93,61 @@ void loop()
   // Match the request
   if (request.indexOf("/RGB=") != -1)
   {
-    result = getRGB(request);
-    infoType = 1;
+    getRgb();
+    infoType = TYPE_RGB;
   }
   else if (request.indexOf("/ON=") != -1)
   {
-    result = getON(request);
-    infoType = 2;
+    getOn();
+    infoType = TYPE_ON;
   }
   else if (request.indexOf("/POW=") != -1)
   {
-    result = getPOW(request);
-    infoType = 3;
+    getPow();
+    infoType = TYPE_POW;
   }
   else if (request.indexOf("/MOD=") != -1)
   {
-    result = getMode(request);
-    infoType = 4;
+    getMode();
+    infoType = TYPE_MOD;
   }
   else
   {
-    result = -1;
-    infoType = -1;
+    value = -1;
+    infoType = TYPE_ERROR;
   }
 
   if (DEBUG)
   {
     Serial.println("\n");
-    if (result == -1)
+    if (value == -1)
       Serial.println("CODING ERROR !");
   }
 
-  if (result != -1)
+  if (value != -1)
   {
-    Serial.print(infoType == 1 ? "RGB" : infoType == 2 ? "ON" : infoType == 3 ? "POW" : infoType == 4 ? "MOD" : "");
-    Serial.print(result, infoType == 1 ? HEX : DEC);
+    Serial.print(infoType == TYPE_RGB ? "RGB" : infoType == TYPE_ON ? "ON" : infoType == TYPE_POW ? "POW" : infoType == TYPE_MOD ? "MOD" : "");
+    Serial.print(value, infoType == 1 ? HEX : DEC);
   }
 
   // Return the response
-  if (result == -1)
-    client.println("HTTP/1.1 400 FORMAT ERROR");
-  else
-    client.println("HTTP/1.1 200 OK");
-
+  client.print("HTTP/1.1 ");
+  client.println(value == -1 ? "400 FORMAT ERROR" : "200 OK");
   client.println("Content-Type: text/html");
-  client.println(""); //  do not forget this one
-  if (result == -1)
-  {
+  client.println(""); // Do not forget this one
+  if (value == -1)
     client.println("Format error !");
-  }
   else
-  {
-    client.println(result, infoType == 1 ? HEX : DEC);
-  }
+    client.println(value, infoType == TYPE_RGB ? HEX : DEC);
 }
 
-long getRGB(String request)
+void getRgb()
 {
-  byte buf[16];
-  int value = LOW;
+  value = 0;
+  error = false;
 
   request.getBytes(buf, 16);
+
   if (DEBUG)
   {
     for (int i = 9; i < 15; i++)
@@ -150,8 +157,6 @@ long getRGB(String request)
     }
     Serial.println("\n ----------- ");
   }
-
-  int error = false;
 
   for (int i = 9; i < 15; i++)
   {
@@ -171,50 +176,43 @@ long getRGB(String request)
     }
   }
 
-  long RGB = 0;
-
-  if (error) return -1;
-
   for (int i = 9; i < 15; i++)
   {
-    RGB += buf[i] * pow(16, 5 - (i - 9));
+    value += buf[i] * pow(16, 5 - (i - 9));
   }
 
   if (DEBUG)
   {
     Serial.println();
     Serial.print("RGB = ");
-    Serial.println(RGB, HEX);
+    Serial.println(value, HEX);
   }
 
-  return RGB;
+  if (error)
+    value = -1;
 }
 
-long getON(String request)
+void getOn()
 {
-  byte buf[10];
-  int ON;
-
   request.getBytes(buf, 10);
 
-  ON = buf[8];
-
-  if (ON != '0' && ON != '1') return -1;
+  value = buf[8] - '0';
 
   if (DEBUG)
   {
     Serial.println();
     Serial.print("ON = ");
-    Serial.println(ON - '0');
+    Serial.println(value);
   }
 
-  return ON - '0';
+  if (value != 0 && value != 1)
+    value = -1;
 }
 
-long getPOW(String request)
+void getPow()
 {
-  byte buf[13];
-  int value = LOW;
+  value = 0;
+  error = false;
 
   request.getBytes(buf, 13);
 
@@ -227,8 +225,6 @@ long getPOW(String request)
     }
     Serial.println("\n ----------- ");
   }
-
-  int error = false;
 
   for (int i = 9; i < 12; i++)
   {
@@ -246,44 +242,37 @@ long getPOW(String request)
     }
   }
 
-  if (error) return -1;
-
-  int POW = 0;
-
   for (int i = 9; i < 12; i++)
   {
-    POW += buf[i] * pow(10, 2 - (i - 9));
+    value += buf[i] * pow(10, 2 - (i - 9));
   }
 
   if (DEBUG)
   {
     Serial.println();
     Serial.print("POW = ");
-    Serial.println(POW);
+    Serial.println(value);
   }
 
-  return (POW >= 0 && POW <= 100) ? POW : -1;
+  if (value < 0 || value > 100 || error)
+    value = -1;
 }
 
-long getMode(String request)
+void getMode()
 {
-  byte buf[11];
-  int Mode;
-
   request.getBytes(buf, 11);
 
-  Mode = buf[9];
-
-  if (Mode != '1' && Mode != '2' && Mode != '3' && Mode != '4') return -1;
+  value = buf[9] - '0';
 
   if (DEBUG)
   {
     Serial.println();
     Serial.print("Mode = ");
-    Serial.println(Mode - '0');
+    Serial.println(value);
     Serial.print("Mode (Text) = ");
-    Serial.println(Mode == '1' ? "FLASH" : Mode == '2' ? "STROBE" : Mode == '3' ? "FADE" : "SMOOTH");
+    Serial.println(value == 1 ? "FLASH" : value == 2 ? "STROBE" : value == 3 ? "FADE" : value == 4 ? "SMOOTH" : "UNKNOWN");
   }
 
-  return Mode - '0';
+  if (value != 1 && value != 2 && value != 3 && value != 4)
+    value =  -1;
 }
