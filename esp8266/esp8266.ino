@@ -1,5 +1,6 @@
+#include <TimeLib.h>
 #include <ESP8266WiFi.h>
-#include <Wire.h>
+#include <WiFiUdp.h>
 
 #define DEBUG false
 
@@ -9,6 +10,18 @@
 #define TYPE_ON 2
 #define TYPE_POW 3
 #define TYPE_MOD 4
+
+#define TIME_ZONE 1 // Central European Time
+
+#define LOCAL_PORT 8888 // Local port to listen for UDP packets
+
+// Wi-Fi informations
+#define SSID0 "Patatou"
+#define PASS0 "FD00000000"
+
+WiFiUDP Udp;
+
+IPAddress timeServer(132, 163, 4, 101); // time-a.timefreq.bldrdoc.gov
 
 WiFiServer server(80);
 WiFiClient client;
@@ -37,10 +50,10 @@ void setup()
     Serial.println();
     Serial.println();
     Serial.print("Connecting to ");
-    Serial.println("Patatou");
+    Serial.println(SSID0);
   }
 
-  WiFi.begin("Patatou", "FD00000000");
+  WiFi.begin(SSID0, PASS0);
 
   while (WiFi.status() != WL_CONNECTED)
   {
@@ -67,10 +80,14 @@ void setup()
     Serial.print(WiFi.localIP());
     Serial.println("/");
   }
+
+  sendTime();
 }
 
 void loop()
 {
+  readSerial();
+
   // Check if a client has connected
   client = server.available();
 
@@ -119,15 +136,18 @@ void loop()
 
   if (DEBUG)
   {
-    Serial.println("\n");
     if (value == -1)
       Serial.println("CODING ERROR !");
   }
 
   if (value != -1)
   {
+    if (DEBUG)
+      Serial.print("\nSending to Arduino: ");
     Serial.print(infoType == TYPE_RGB ? "RGB" : infoType == TYPE_ON ? "ON" : infoType == TYPE_POW ? "POW" : infoType == TYPE_MOD ? "MOD" : "");
     Serial.print(value, infoType == 1 ? HEX : DEC);
+    if (DEBUG)
+      Serial.print("\n");
   }
 
   // Return the response
@@ -139,6 +159,66 @@ void loop()
     client.println("Format error !");
   else
     client.println(value, infoType == TYPE_RGB ? HEX : DEC);
+}
+
+void readSerial()
+{
+  if (!Serial.available())
+    return;
+
+  int n;
+  char messageChar[20];
+  String message;
+
+  for (n = 0; Serial.available() && n < 20; n++)
+  {
+    messageChar[n] = Serial.read();
+    delay(1);
+  }
+
+  for (int i = 0; i < n; i++)
+    message += String(messageChar[i]);
+
+  if (message.indexOf("TIMEPLEASE") != -1)
+  {
+    if (DEBUG)
+      Serial.println("\nReceived time request from arduino");
+
+    sendTime();
+  }
+}
+
+void sendTime()
+{
+  if (DEBUG)
+  {
+    Serial.println("\nStarting UDP");
+  }
+
+  Udp.begin(LOCAL_PORT);
+
+  if (DEBUG)
+  {
+    Serial.print("Local port: ");
+    Serial.println(Udp.localPort());
+    Serial.println("waiting for sync");
+  }
+
+  setSyncProvider(getNtpTime);
+
+
+  if (DEBUG)
+  {
+    Serial.print("\nTime is: ");
+    digitalClockDisplay();
+    Serial.print("\nSending time to arduino: ");
+  }
+
+  Serial.print("TIM");
+  Serial.print(now());
+
+  if (DEBUG)
+    Serial.println();
 }
 
 void getRgb()
@@ -184,7 +264,7 @@ void getRgb()
   if (DEBUG)
   {
     Serial.println();
-    Serial.print("RGB = ");
+    Serial.print("\nRGB = ");
     Serial.println(value, HEX);
   }
 
@@ -250,7 +330,7 @@ void getPow()
   if (DEBUG)
   {
     Serial.println();
-    Serial.print("POW = ");
+    Serial.print("\nPOW = ");
     Serial.println(value);
   }
 
@@ -275,4 +355,110 @@ void getMode()
 
   if (value != 1 && value != 2 && value != 3 && value != 4)
     value =  -1;
+}
+
+
+void digitalClockDisplay()
+{
+  // digital clock display of the time
+  printDigits(day());
+  Serial.print("/");
+  printDigits(month());
+  Serial.print("/");
+  Serial.print(year());
+
+  Serial.print(" ");
+
+  printDigits(hour());
+  Serial.print(":");
+  printDigits(minute());
+  Serial.print(":");
+  printDigits(second());
+
+  Serial.println();
+}
+
+
+void printDigits(int digits)
+{
+  // utility for digital clock display: prints preceding colon and leading 0
+  if (digits < 10)
+    Serial.print('0');
+  Serial.print(digits);
+}
+
+
+
+
+
+
+/*-------- NTP code ----------*/
+
+const int NTP_PACKET_SIZE = 48; // NTP time is in the first 48 bytes of message
+byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming & outgoing packets
+
+time_t getNtpTime()
+{
+  int i = 1;
+
+  while (i < 16)
+  {
+    while (Udp.parsePacket() > 0); // discard any previously received packets
+
+    if (DEBUG)
+    {
+      Serial.print("Transmit NTP Request ");
+      Serial.print("(Attempt ");
+      Serial.print(i);
+      Serial.println(")");
+    }
+
+    sendNTPpacket(timeServer);
+    uint32_t beginWait = millis();
+    while (millis() - beginWait < 1500)
+    {
+      int size = Udp.parsePacket();
+      if (size >= NTP_PACKET_SIZE)
+      {
+        if (DEBUG)
+          Serial.println("\nReceive NTP Response !");
+        Udp.read(packetBuffer, NTP_PACKET_SIZE);  // read packet into the buffer
+        unsigned long secsSince1900;
+        // convert four bytes starting at location 40 to a long integer
+        secsSince1900 =  (unsigned long)packetBuffer[40] << 24;
+        secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
+        secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
+        secsSince1900 |= (unsigned long)packetBuffer[43];
+        return secsSince1900 - 2208988800UL + TIME_ZONE * SECS_PER_HOUR;
+      }
+    }
+    i++;
+  }
+
+  if (DEBUG)
+    Serial.println("\nNo NTP Response :-(");
+  return 0; // return 0 if unable to get the time
+}
+
+// send an NTP request to the time server at the given address
+void sendNTPpacket(IPAddress &address)
+{
+  // set all bytes in the buffer to 0
+  memset(packetBuffer, 0, NTP_PACKET_SIZE);
+  // Initialize values needed to form NTP request
+  // (see URL above for details on the packets)
+  packetBuffer[0] = 0b11100011;   // LI, Version, Mode
+  packetBuffer[1] = 0;     // Stratum, or type of clock
+  packetBuffer[2] = 6;     // Polling Interval
+  packetBuffer[3] = 0xEC;  // Peer Clock Precision
+  // 8 bytes of zero for Root Delay & Root Dispersion
+  packetBuffer[12]  = 49;
+  packetBuffer[13]  = 0x4E;
+  packetBuffer[14]  = 49;
+  packetBuffer[15]  = 52;
+  // all NTP fields have been given values, now
+  // you can send a packet requesting a timestamp:
+  Udp.beginPacket(address, 123); //NTP requests are to port 123
+  Udp.write(packetBuffer, NTP_PACKET_SIZE);
+  Udp.endPacket();
 }
