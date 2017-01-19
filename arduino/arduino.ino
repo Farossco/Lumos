@@ -1,25 +1,45 @@
 #include <IRremote.h>
-#define LEDRED 8 // Red LED OUT pin
-#define LEDGREEN 9 // Green LED OUT pin
-#define LEDBLUE 10 // Blue LED OUT pin
-#define INFRARED 11 // Infrared IN pin
+#include <TimeLib.h>
 
-#define DEBUG false // DEBUG Mode
+#define DEBUG true // DEBUG Mode
+#define WAIT_FOR_TIME false // If we have to wait for time sync
 
-#define MINPOWER 5 // Minimum power value
-#define MAXPOWER 100 // Maximum power value
-#define POWERSPEED 5 // Power increasion or dicreasion speed
-#define FADESPEED 1 // Fade increasion or dicreasion speed
+#define LED_RED 8 // Red LED OUT pin
+#define LED_GREEN 9 // Green LED OUT pin
+#define LED_BLUE 10 // Blue LED OUT pin
+#define LED_INFRARED 11 // Infrared IN pin
+
+#define MIN_POWER 5 // Minimum power value
+#define MAX_POWER 100 // Maximum power value
+#define POWER_SPEED 5 // Power increasion or dicreasion speed
+#define FADE_SPEED 1 // Fade increasion or dicreasion speed
+#define WAKEUP_SPEED 0.01 // Power increasion speed for Wakeup mode
 #define N 16 // Number of different colors
-#define MINSTROBE 2 // Minimum Strobe speed
-#define MAXSTROBE 50 // Maximum Strobe speed
-#define STROBESPEED 1 // Strobe increasion or dicreasion speed
+#define MIN_STROBE 2 // Minimum Strobe speed
+#define MAX_STROBE 50 // Maximum Strobe speed
+#define STROBE_SPEED 1 // Strobe increasion or dicreasion speed
 
-#define TYPERGB 3
-#define TYPEON 2
+//Some IDs used for serial reception decrypt
+#define TYPE_TIME 0
+#define TYPE_RGB 1
+#define TYPE_ON 2
+#define TYPE_POW 3
+#define TYPE_MOD 4
+
+// Some IDs used for Mode changing
+#define MODE_DEFAULT 0
+#define MODE_FLASH 1
+#define MODE_STROBE 2
+#define MODE_FADE 3
+#define MODE_SMOOTH 4
+#define MODE_WAKEUP 5
+
+// Time wake up
+#define WAKEUP_HOUR 17
+#define WAKEUP_MINUTE 07
 
 // Infrared reception objects declaration
-IRrecv irrecv(INFRARED);
+IRrecv irrecv(LED_INFRARED);
 decode_results results;
 
 // Infrared codes and corresponding RGB code array
@@ -46,40 +66,61 @@ long color[][3] =
   {0xFF7B92, 0xFFF00F, 0x35A9425F}  //B5
 };
 
+//******* Useful *******//
+int i, n; // Counting variables (used for "for" statements)
+
+//******* Global *******//
 boolean on; // If the leds are ON or OFF (True: ON / False: OFF)
+unsigned long rgb; // Currently displayed RGB value (From 0x000000 to 0xFFFFFF)
+int red; // Currentlty red value including lightning power (From 0 to 255)
+int green; // Currentlty green value including lightning power (From 0 to 255)
+int blue; // Currentlty blue value including lightning power (From 0 to 255)
+int mode; // Current lighting mode (0: Constant lightning / 1: Flash / 2: Strobe / 3: Fade / 4: Smooth / 5: Wakeup)
+float power; // Current lightning power (from MINPOWER to MAXPOWER)
+
+//******* testWakeUpTime *******//
+boolean wokeUp; // Used to set Wakeup mode only once
+boolean timeAsked; // Used to ask time only once every peak time
+
+//******* Modes *******//
+int state; // Current state used by 1 to 4 modes
+/******* action *******/
 int lastMode; // Mode in previous loop - Allows mode initializations
-int mode; // Current lighting mode (0: Constant lightning / 1: Flash / 2: Strobe / 3: Fade / 4: Smooth)
+/******* modeStrobe *******/
 int count; // Strobe delay counting
 int strobeSpeed; // Current Strobe speed (From MINSTROBE to MAXSTROBE)
-unsigned long RGB; // Currently displayed RGB value (From 0x000000 to 0xFFFFFF)
-int RED; // Currentlty red value including lightning power (From 0 to 255)
-int unpoweredRED; // Currentlty red value without lightning power (From 0 to 255)
-int GREEN; // Currentlty green value including lightning power (From 0 to 255)
-int unpoweredGREEN; // Currentlty green value without lightning power (From 0 to 255)
-int BLUE; // Currentlty blue value including lightning power (From 0 to 255)
-int unpoweredBLUE; // Currentlty blue value without lightning power (From 0 to 255)
-int state; // Current state used by 1 to 4 modes
-int i; // Counting variable (used for "for" statements)
-float power; // Current lightning power (from MINPOWER to MAXPOWER)
+/******* modeSmooth *******/
+int unpoweredRed; // Currentlty red value without lightning power (From 0 to 255)
+int unpoweredGreen; // Currentlty green value without lightning power (From 0 to 255)
+int unpoweredBlue; // Currentlty blue value without lightning power (From 0 to 255)
+
+//******* readInfrared *******//
 long lastIRCode; // IR code in previous loop - Allows continious power / strobe speed increasion / dicreasion
 long IRCode; // Current IR code
-byte buff[20];
-int wordLength;
+
+//******* readSerial *******//
+int infoType; // Information type ("Time", "ON", "RGB", "Power" or "Mode")
+int messageLength; // Message length
+char charRgb[7], charPow[4], charTime[11]; // Char arrays for message decrypting with strtol function
+char messageChar[20]; // Received message
+String message; // Received message converted to String
 
 void setup()
 {
+  light(); // Shutting all LEDs down
+
   // pins initialization
-  pinMode(LEDRED, OUTPUT);
-  pinMode(LEDGREEN, OUTPUT);
-  pinMode(LEDBLUE, OUTPUT);
-  pinMode(INFRARED, INPUT);
+  pinMode(LED_RED, OUTPUT);
+  pinMode(LED_GREEN, OUTPUT);
+  pinMode(LED_BLUE, OUTPUT);
+  pinMode(LED_INFRARED, INPUT);
   pinMode(LED_BUILTIN, OUTPUT);
-  Serial.begin(115200); // Initialize serial communication
+  Serial.begin(250000); // Initialize serial communication
   on = false; // LEDs are off on startup
   irrecv.enableIRIn(); // Initialize IR communication
-  RGB = 0xFFFFFF; // Initialize color to white
+  rgb = 0xFFFFFF; // Initialize color to white
   mode = 0; // Initialize mode to constant lightning
-  power = 30; // Initializing power to 10
+  power = 30; // Initializing power to 30
   // Initializing all other variables to 0
   lastMode = 0;
   state = 0;
@@ -87,44 +128,109 @@ void setup()
   IRCode = 0;
   count = 0;
   strobeSpeed = 25;
+  wokeUp = false;
+  timeAsked = false;
+
+  // Gently ask for time
+  i = 5000;
+  do
+  {
+    if (i >= 5000)
+    {
+      askForTime();
+      i = 0;
+    }
+
+    readSerial();
+    i++;
+    delay(1);
+  }
+  while (timeStatus() == timeNotSet && WAIT_FOR_TIME); // Doesn't start if time isn't set (only if WAIT_FOR_TIME = 1)
 }
 
 void loop()
 {
+  testWakeUpTime(); // Test wakeup time and peak hours for resynchronization
+
   readInfrared(); // Read the in-comming IR signal if present
 
-  readSerial();
+  readSerial(); // Receive datas from ESP8266 for Wi-Wi control
 
   action(); // Do something according to current mode
 
   light(); // Finaly display the RGB value
 }
 
+// Test wakeup time and peak hours for resynchronization
+void testWakeUpTime()
+{
+  // If actual time coorespond with wakeup time
+  if (WAKEUP_HOUR == hour() && WAKEUP_MINUTE == minute())
+  {
+    if (!wokeUp) // Double if so else statement is not called
+    {
+      mode = MODE_WAKEUP;
+      wokeUp = true;
+      on = true;
+    }
+  }
+  else
+  {
+    wokeUp = false;
+  }
+
+  // If we are on a peak time, we ask for time to make sure it's right
+  if (minute() == 0)
+  {
+    if (!timeAsked) // Double if so else statement is not called
+    {
+      askForTime();
+      timeAsked = true;
+    }
+  }
+  else
+  {
+    timeAsked = false;
+  }
+}
+
+// Asking for time to the ESP8266 (via internet)
+void askForTime()
+{
+  if (DEBUG)
+    Serial.print("Gently asking for time (");
+
+  Serial.print("TIMEPLEASE");
+
+  if (DEBUG)
+    Serial.println(")\n");
+}
+
 // Display the RGB value
 void light()
 {
-  rgb2color();
+  rgb2color(); // Convert RGB value to Red, Green and Blue values
 
   if (on) // If it's on
   {
     // Envoi un signal carré avec un rapport cyclique de RED / 255
-    for (i = 0; i < RED * 1; i++) digitalWrite(LEDRED, LOW);
-    for (i = 0; i < (255 - RED) * 1; i++) digitalWrite(LEDRED, HIGH);
+    for (i = 0; i < red; i++) digitalWrite(LED_RED, LOW);
+    for (i = 0; i < 255 - red; i++) digitalWrite(LED_RED, HIGH);
 
     // Envoi un signal carré avec un rapport cyclique de GREEN / 255
-    for (i = 0; i < GREEN * 1; i++) digitalWrite(LEDGREEN, LOW);
-    for (i = 0; i < (255 - GREEN) * 1; i++) digitalWrite(LEDGREEN, HIGH);
+    for (i = 0; i < green; i++) digitalWrite(LED_GREEN, LOW);
+    for (i = 0; i < 255 - green; i++) digitalWrite(LED_GREEN, HIGH);
 
     // Envoi un signal carré avec un rapport cyclique de BLUE / 255
-    for (i = 0; i < BLUE * 1; i++) digitalWrite(LEDBLUE, LOW);
-    for (i = 0; i < (255 - BLUE) * 1; i++) digitalWrite(LEDBLUE, HIGH);
+    for (i = 0; i < blue; i++) digitalWrite(LED_BLUE, LOW);
+    for (i = 0; i < 255 - blue; i++) digitalWrite(LED_BLUE, HIGH);
   }
   else // If it's off
   {
     // We shut down all the leds (HIGH = off / LOW = on)
-    digitalWrite(LEDRED, HIGH);
-    digitalWrite(LEDGREEN, HIGH);
-    digitalWrite(LEDBLUE, HIGH);
+    digitalWrite(LED_RED, HIGH);
+    digitalWrite(LED_GREEN, HIGH);
+    digitalWrite(LED_BLUE, HIGH);
   }
 }
 
@@ -132,392 +238,486 @@ void light()
 void rgb2color()
 {
   // Lower is the power, lower is the color value - It allows you to control LEDs light power
-  RED   = ((RGB & 0xFF0000) >> 16) * (power / MAXPOWER);
-  GREEN = ((RGB & 0x00FF00) >> 8)  * (power / MAXPOWER);
-  BLUE  =  (RGB & 0x0000FF)        * (power / MAXPOWER);
+  red   = ((rgb & 0xFF0000) >> 16) * (power / MAX_POWER);
+  green = ((rgb & 0x00FF00) >> 8)  * (power / MAX_POWER);
+  blue  =  (rgb & 0x0000FF)        * (power / MAX_POWER);
 
   // Color values without the power
-  unpoweredRED   = ((RGB & 0xFF0000) >> 16);
-  unpoweredGREEN = ((RGB & 0x00FF00) >> 8);
-  unpoweredBLUE  =  (RGB & 0x0000FF);
+  unpoweredRed   = ((rgb & 0xFF0000) >> 16);
+  unpoweredGreen = ((rgb & 0x00FF00) >> 8);
+  unpoweredBlue  =  (rgb & 0x0000FF);
 }
 
 // Read the in-comming IR signal if present
 void readInfrared()
 {
+  // If something is comming from IR reciever
   if (irrecv.decode(&results))
   {
+    // We save the IR word in IRCode
     IRCode = results.value;
 
-    // REPEAT
+    // REPEAT (When button is press continiously, sent value is 0xFFFFFFFF, so we change it with the latest code that we recieved
     if (IRCode == 0xFFFFFFFF)
       IRCode = lastIRCode;
 
+    // ON
     if (IRCode == 0xFFB04F || IRCode == 0xF0C41643)
     {
       on = true;
-      lastIRCode = 0;
+      lastIRCode = 0; // We don't save value in lastIRCode because don't care if we keep on button pressed
     }
 
-    if (on)
-    {
-      switch (IRCode)
-      {
-        //OFF
-        case 0xFFF807:
-        case 0xE721C0DB:
-          on = false;
-          lastIRCode = 0;
-          break;
-          break;
-
-        //DOWN
-        case 0xFFB847:
-        case 0xA23C94BF:
-          if (mode == 2)
-          {
-            if (strobeSpeed - STROBESPEED >= MINSTROBE) strobeSpeed -= STROBESPEED;
-            else strobeSpeed = MINSTROBE;
-          }
-          else
-          {
-            if (power - POWERSPEED >= MINPOWER) power -= POWERSPEED;
-            else power = MINPOWER;
-          }
-
-          rgb2color();
-          lastIRCode = IRCode;
-          if (DEBUG)
-          {
-            Serial.print("Power: ");
-            Serial.println(power);
-            Serial.print("RED: ");
-            Serial.print(RED);
-            Serial.print(" / GREEN: ");
-            Serial.print(GREEN);
-            Serial.print(" / BLUE: ");
-            Serial.println(BLUE);
-          }
-          break;
-          break;
-
-        //UP
-        case 0xFF906F:
-        case 0xE5CFBD7F:
-          if (mode == 2)
-          {
-            if (strobeSpeed + STROBESPEED <= MAXSTROBE) strobeSpeed += STROBESPEED;
-            else strobeSpeed = MAXSTROBE;
-          }
-          else
-          {
-            if (power + POWERSPEED <= MAXPOWER) power += POWERSPEED;
-            else power = MAXPOWER;
-          }
-          rgb2color();
-          lastIRCode = IRCode;
-          if (DEBUG)
-          {
-            Serial.print("Power: ");
-            Serial.println(power);
-            Serial.print("RED: ");
-            Serial.print(RED);
-            Serial.print(" / GREEN: ");
-            Serial.print(GREEN);
-            Serial.print(" / BLUE: ");
-            Serial.println(BLUE);
-          }
-
-          break;
-          break;
-
-        //STROBE
-        case 0xFF00FF:
-        case 0xFA3F159F:
-          mode = 2;
-          break;
-          break;
-
-        //FADE
-        case 0xFF58A7:
-        case 0xDC0197DB:
-          mode = 3;
-          break;
-          break;
-
-
-        //SMOOTH
-        case 0xFF30CF:
-        case 0x9716BE3F:
-          mode = 4;
-          break;
-          break;
-
-        //COLORS
-        default:
-          lastIRCode = 0;
-          for (i = 0; i < N; i++)
-            if (results.value == color[i][1] || results.value == color[i][2])
-            {
-              mode = 0;
-              lastMode = 0;
-              RGB = color[i][0];
-            }
-          break;
-      }
-    }
+    // [DEBUG] Print the incomming IR value
     if (DEBUG)
     {
       Serial.print("Incomming IR: ");
       Serial.println(IRCode, HEX);
     }
 
+    // If the system is off, ignore incomming infrared (Except ON of course, he is just above)
+    if (!on)
+    {
+      irrecv.resume();
+      return;
+    }
+
+    // Test incomming value
+    switch (IRCode)
+    {
+      //OFF
+      case 0xFFF807:
+      case 0xE721C0DB:
+        on = false;
+        lastIRCode = 0;
+        break;
+        break;
+
+      //DOWN
+      case 0xFFB847:
+      case 0xA23C94BF:
+        if (mode == MODE_STROBE) // If we are in STROBE mode, decrease speed instead of power
+        {
+          if (strobeSpeed - STROBE_SPEED >= MIN_STROBE) strobeSpeed -= STROBE_SPEED;
+          else strobeSpeed = MIN_STROBE;
+        }
+        else
+        {
+          if (power - POWER_SPEED >= MIN_POWER) power -= POWER_SPEED;
+          else power = MIN_POWER;
+        }
+
+        rgb2color();
+        lastIRCode = IRCode;
+
+        // [DEBUG] Print current color and RED, GREEN, BLUE values
+        if (DEBUG)
+        {
+          Serial.print("Power: ");
+          Serial.println(power);
+          Serial.print("RED: ");
+          Serial.print(red);
+          Serial.print(" / GREEN: ");
+          Serial.print(green);
+          Serial.print(" / BLUE: ");
+          Serial.println(blue);
+          Serial.println();
+        }
+        break;
+        break;
+
+      //UP
+      case 0xFF906F:
+      case 0xE5CFBD7F:
+        if (mode == MODE_STROBE) // If we are in STROBE mode, increase speed instead of power
+        {
+          if (strobeSpeed + STROBE_SPEED <= MAX_STROBE) strobeSpeed += STROBE_SPEED;
+          else strobeSpeed = MAX_STROBE;
+        }
+        else
+        {
+          if (power + POWER_SPEED <= MAX_POWER) power += POWER_SPEED;
+          else power = MAX_POWER;
+        }
+
+        rgb2color();
+        lastIRCode = IRCode;
+
+        // [DEBUG] Print current color and RED, GREEN, BLUE values
+        if (DEBUG)
+        {
+          Serial.print("Power: ");
+          Serial.println(power);
+          Serial.print("RED: ");
+          Serial.print(red);
+          Serial.print(" / GREEN: ");
+          Serial.print(green);
+          Serial.print(" / BLUE: ");
+          Serial.println(blue);
+          Serial.println();
+        }
+        break;
+        break;
+
+      //STROBE
+      case 0xFF00FF:
+      case 0xFA3F159F:
+        mode = MODE_STROBE;
+        break;
+        break;
+
+      //FADE
+      case 0xFF58A7:
+      case 0xDC0197DB:
+        mode = MODE_FADE;
+        break;
+        break;
+
+      //SMOOTH
+      case 0xFF30CF:
+      case 0x9716BE3F:
+        mode = MODE_SMOOTH;
+        break;
+        break;
+
+      //COLORS
+      default:
+        lastIRCode = 0;
+        for (i = 0; i < N; i++)
+          if (results.value == color[i][1] || results.value == color[i][2])
+          {
+            mode = MODE_DEFAULT;
+            lastMode = MODE_DEFAULT;
+            rgb = color[i][0];
+          }
+        break;
+    }
     irrecv.resume();
   }
 }
 
+// Receive datas from ESP8266 for Wi-Wi control
 void readSerial()
 {
-  if (!Serial.available()) return;
+  if (!Serial.available()) return; // Waiting for incomming datas
 
-  boolean flag;
-  int infoType, i, n;
-  char charArray[20];
-  char charRgb[7];
-  String str;
-
+  // Reading incomming message
   for (n = 0; Serial.available() && n < 20; n++)
   {
-    charArray[n] = Serial.read();
-    //delay(1);
+    messageChar[n] = Serial.read();
+    delay(1);
   }
 
+  // Converting char array into String
   for (i = 0; i < n; i++)
-    str += String(charArray[i]);
-  /*
-    flag = false;
+    message += String(messageChar[i]);
 
-      for (i = 0; i < str.length(); i++)
-        if (str.charAt(i) < '0' || str.charAt(i) > '9' && str.charAt(i) < 'A' || str.charAt(i) > 'Z' && str.charAt(i) < 'a' || str.charAt(i) > 'z')
-          return;
+  messageLength = message.length(); // Message length
 
-      for (i = 0; i < str.length(); i++)
-        if (str.charAt(i) >= '0' && str.charAt(i) <= '9' || str.charAt(i) >= 'A' && str.charAt(i) <= 'Z')
-          flag = true;
+  // Testing what kind of data we are receiving (Testing if the prefix is at position 0)
+  if (message.indexOf("TIM") == 0)
+    infoType = TYPE_TIME;
+  else if (message.indexOf("ON") == 0)
+    infoType = TYPE_ON;
+  else if (message.indexOf("RGB") == 0)
+    infoType = TYPE_RGB;
+  else if (message.indexOf("POW") == 0)
+    infoType = TYPE_POW;
+  else if (message.indexOf("MOD") == 0)
+    infoType = TYPE_MOD;
+  else return;
 
-      if (!flag) return;
-  */
-
-  if (str.indexOf("ON") != -1)
-    infoType = TYPEON;
-  else if (str.indexOf("RGB") != -1)
-    infoType = TYPERGB;
-  else
+  // Testing if data length is valid
+  if (infoType == TYPE_TIME && messageLength > 13)
+    return;
+  if (infoType == TYPE_ON && messageLength != 3)
+    return;
+  if (infoType == TYPE_RGB && messageLength > 9)
+    return;
+  if (infoType == TYPE_POW && messageLength > 6)
+    return;
+  if (infoType == TYPE_MOD && messageLength != 4)
     return;
 
-  if (infoType == TYPEON && str.length() != 3)
-    return;
-  if (infoType == TYPERGB && (str.length() < 3 || str.length() > 9))
-    return;
-
+  // [DEBUG] Printing full word, world length and infofrmation type
   if (DEBUG)
   {
     Serial.print("Word: ");
-    Serial.println(str);
+    Serial.println(message);
     Serial.print("Length: ");
-    Serial.println(str.length());
+    Serial.println(messageLength);
     Serial.print("Type: ");
-    Serial.println(infoType == TYPEON ? "ON" : "RGB");
+    Serial.println(infoType == TYPE_TIME ? "TIME" : infoType == TYPE_ON ? "ON" : infoType == TYPE_RGB ? "RGB" : infoType == TYPE_POW ? "POW" : infoType == TYPE_MOD ? "MOD" : "UNKNOWN");
   }
 
-  str.remove(0, infoType); // Remove 2 first characters if "ON" type and 3 first ones if "RGB" type
+  message.remove(0, infoType == TYPE_ON ? 2 : 3); // Remove 2 first characters if "ON" type and 3 first ones if "TIME", "RGB", "POW" or "MOD" type
 
+  // [DEBUG] printing information without prefix
   if (DEBUG)
   {
-    Serial.print(infoType == TYPEON ? "ON: " : "RGB: ");
-    Serial.println(infoType == TYPERGB ? str : str == "1" ? "True" : str == "0" ? "False" : "Error");
-    if (infoType == TYPEON)
+    Serial.print(infoType == TYPE_TIME ? "TIME: " : infoType == TYPE_ON ? "ON: " : infoType == TYPE_RGB ? "RGB: " : infoType == TYPE_POW ? "POW: " : infoType == TYPE_MOD ? "MOD: " : "UNKNOWN: ");
+    Serial.println( (infoType == TYPE_ON) ? ( (message == "1") ? "True" : (message == "0") ? "False" : "Error") : (infoType == TYPE_MOD) ? (message.charAt(0) == MODE_FLASH + '0' ? "FLASH (" : message.charAt(0) == MODE_STROBE + '0' ? "STROBE (" : message.charAt(0) == MODE_FADE + '0' ? "FADE (" : message.charAt(0) == MODE_SMOOTH + '0' ? "SMOOTH (" : "UNKNOWN (") + message + ")" : message);
+    if (infoType == TYPE_ON || infoType == TYPE_MOD)
       Serial.println();
   }
 
-  if (infoType == TYPERGB)
-    while (str.length() < 6)
-      str = "0" + str;
+  if (infoType == TYPE_TIME)
+  {
+    message.toCharArray(charTime, 11);
+    setTime(strtol(charTime, NULL, 10));
+  }
+  else if (infoType == TYPE_ON)
+  {
+    on = message.charAt(0) - '0';
+  }
+  else if (infoType == TYPE_RGB)
+  {
+    message.toCharArray(charRgb, 7);
+    rgb = strtol(charRgb, NULL, 16);
+  }
+  else if (infoType == TYPE_POW)
+  {
+    message.toCharArray(charPow, 4);
+
+    if (mode == MODE_STROBE) // If we are in STROBE mode, changing strobe speed instead of power
+      strobeSpeed = strtol(charPow, NULL, 10) / 2;
+    else
+      power = strtol(charPow, NULL, 10);
+  }
+  else if (infoType == TYPE_MOD)
+  {
+    mode = message.charAt(0) - '0';
+  }
 
   if (DEBUG)
   {
-    if (infoType == TYPERGB)
+    if (infoType == TYPE_TIME)
     {
-      Serial.print("Full RGB: ");
-      Serial.println(str);
+      Serial.print("TIME (number): ");
+      Serial.println(now());
+      Serial.print("TIME (readable): ");
+      digitalClockDisplay();
+      Serial.println("\n");
     }
-  }
-
-  if  (infoType == TYPEON)
-  {
-    on = str == "1" ? true : false;
-  }
-  else
-  {
-    str.toCharArray(charRgb, 7);
-    RGB = strtol(charRgb, NULL, 16);
-  }
-
-  if (DEBUG)
-  {
-    if (infoType == TYPERGB)
+    else if (infoType == TYPE_RGB)
     {
       Serial.print("Full RGB (number): ");
-      Serial.println(RGB, HEX);
+      Serial.println(rgb, HEX);
+      Serial.println();
+    }
+    else if (infoType == TYPE_POW)
+    {
+      Serial.print("Full POW (number): ");
+      Serial.println( mode == MODE_STROBE ? (int) strobeSpeed * 2 : (int) power);
       Serial.println();
     }
   }
 }
 
+// Digital clock display of the time
+void digitalClockDisplay()
+{
+  printDigits(day());
+  Serial.print("/");
+  printDigits(month());
+  Serial.print("/");
+  Serial.print(year());
+
+  Serial.print(" ");
+
+  printDigits(hour());
+  Serial.print(":");
+  printDigits(minute());
+  Serial.print(":");
+  printDigits(second());
+}
+
+// Utility for digital clock display: prints preceding colon and leading 0
+void printDigits(int digits)
+{
+  if (digits < 10)
+    Serial.print('0');
+  Serial.print(digits);
+}
+
+// Perform mode action
 void action()
 {
-  if (!on || mode == 0)
-  {
+  // If lightning if off or mode is constant lightnin, don't do anything
+  if (!on || mode == MODE_DEFAULT)
     return;
-  }
 
+  // Calling modes functions
   switch (mode)
   {
-    case 2:
-      if (lastMode != 2)
-        initStrobe();
-      STROBE();
+    case MODE_STROBE:
+      if (lastMode != MODE_STROBE) // If this is first call of the function, we call init function (lastMode will be set in init function)
+        initModeStrobe();
+      modeStrobe();
       break;
 
-    case 3:
-      if (lastMode != 3)
-        initFade();
-      FADE();
+    case MODE_FADE:
+      if (lastMode != MODE_FADE)
+        initModeFade();
+      modeFade();
       break;
 
-    case 4:
-      if (lastMode != 4)
-        initSmooth();
-      SMOOTH();
+    case MODE_SMOOTH:
+      if (lastMode != MODE_SMOOTH)
+        initModeSmooth();
+      modeSmooth();
+      break;
+
+    case MODE_WAKEUP:
+      if (lastMode != MODE_WAKEUP)
+        initModeWakeup();
+      modeWakeup();
       break;
   }
 }
 
-void initStrobe()
+// Strobe mode initialization
+void initModeStrobe()
 {
-  state = 0;
-  RGB = 0xFFFFFF;
-  rgb2color();
-  lastMode = 2;
-  count = 0;
+  state = 0; // Set initial state to 0
+  rgb = 0xFFFFFF; // Set color to white
+  count = 0; // Reseting counter
+  lastMode = MODE_STROBE; // Setting lastMode so we don't call init again
 }
 
-void STROBE()
+// Strobe mode
+void modeStrobe()
 {
-  if (count >= MAXSTROBE - strobeSpeed + MINSTROBE)
+  if (count >= MIN_STROBE + MAX_STROBE - strobeSpeed) // Counting up for a certain amount of time
   {
-    state = !state;
-    count = 0;
+    state = !state; // Inverting state
+    count = 0; // Reseting timer
   }
   else
   {
-    count ++;
+    count ++; // incrementing counter
   }
 
+  rgb = state ? 0xFFFFFF : 0x000000; // Setting color to black then white then black then white...
 
+}
+
+// Fade Mode initialization
+void initModeFade()
+{
+  state = 1; // Setting state to Increasing state
+  rgb = 0xFFFFFF; // Setting color to white
+  power = 0; // Setting power to 0 (LED's shutted down)
+  lastMode = MODE_FADE; // Setting lastMode so we don't call init again
+}
+
+// Fade Mode
+void modeFade()
+{
   if (state)
-    RGB = 0xFFFFFF;
-  else
-    RGB = 0x000000;
-}
-
-
-void initFade()
-{
-  state = 1;
-  RGB = 0xFFFFFF;
-  rgb2color();
-  power = 0;
-  lastMode = 3;
-}
-
-
-void FADE()
-{
-  if (state)
   {
-    power += FADESPEED;
+    power += FADE_SPEED; // Increasing power
   }
   else
   {
-    power -= FADESPEED;
+    power -= FADE_SPEED; // Decreasing power
   }
 
-  if (power >= MAXPOWER - 1)
+  if (power >= MAX_POWER - 1) // If power reach MAX_POWER-1, we start to decrease
   {
-    state = 0;
+    state = 0; // Decreasing state
   }
 
-  if (power <= 1)
+  if (power <= 0) // If power reach 1, we start to increase
   {
-    state = 1;
+    state = 1; // Increasing state
   }
 }
 
-void initSmooth()
+// Smooth Mode Initialization
+void initModeSmooth()
 {
-  state = 0;
-  RGB = 0xFE0000;
-  rgb2color();
-  lastMode = 4;
+  state = 0; // Init state to 0
+  rgb = 0xFE0000; // Init color to red
+  rgb2color(); // Calling rgb2color to generate color values
+  lastMode = MODE_SMOOTH; // Setting lastMode so we don't call init again
 }
 
-void SMOOTH()
+// Smooth Mode
+void modeSmooth()
 {
+  // First, RED is max
+  
+  // Increasing GREEN until max
   if (state == 0)
   {
-    if (unpoweredGREEN >= 254)
+    if (unpoweredGreen >= 254)
       state = 1;
     else
-      RGB += 0x000100;
+      rgb += 0x000100;
   }
+  // Decreasing RED until 0
   else if (state == 1)
   {
-    if (unpoweredRED <= 0)
+    if (unpoweredRed <= 0)
       state = 2;
     else
-      RGB -= 0x010000;
+      rgb -= 0x010000;
   }
+  // Increasing BLUE until max
   else if (state == 2)
   {
-    if (unpoweredBLUE >= 254)
+    if (unpoweredBlue >= 254)
       state = 3;
     else
-      RGB += 0x000001;
+      rgb += 0x000001;
   }
+  // Decreasing GREEN until 0
   else if (state == 3)
   {
-    if (unpoweredGREEN <= 0)
+    if (unpoweredGreen <= 0)
       state = 4;
     else
-      RGB -= 0x000100;
+      rgb -= 0x000100;
   }
+  // Increasing RED until max
   else if (state == 4)
   {
-    if (unpoweredRED >= 254)
+    if (unpoweredRed >= 254)
       state = 5;
     else
-      RGB += 0x010000;
+      rgb += 0x010000;
   }
+  // Decreasing BLUE until 0
   else if (state == 5)
   {
-    if (unpoweredBLUE <= 0)
+    if (unpoweredBlue <= 0)
       state = 0;
     else
-      RGB -= 0x000001;
+      rgb -= 0x000001;
   }
+  // Then, we start over
+  
+  // Error handling
   else
   {
     state = 0;
   }
+}
+
+// Wakeup Mode initialization
+void initModeWakeup()
+{
+  rgb = 0x0000FF; // Setting color to blue
+  power = 0; // Setting power to 0
+  lastMode = MODE_WAKEUP; // Setting lastMode so we don't call init again
+}
+
+// Wakeup Mode
+void modeWakeup()
+{
+  power += WAKEUP_SPEED; // Slowly increase power
+
+  if (power >= MAX_POWER)
+    mode = lastMode = MODE_DEFAULT; // When max power is reached, leaving the mode
 }
