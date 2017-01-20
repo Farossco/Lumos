@@ -2,7 +2,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 
-#define DEBUG_MODE true
+#define BED_DEBUG_MODE true
 
 //Some IDs used for serial reception decrypt
 #define TYPE_ERROR -1
@@ -46,7 +46,7 @@ void setup ()
 	delay (10);
 
 	// Connect to WiFi network
-	if (DEBUG_MODE)
+	if (BED_DEBUG_MODE)
 	{
 		Serial.println ();
 		Serial.println ();
@@ -59,10 +59,10 @@ void setup ()
 	while (WiFi.status () != WL_CONNECTED)
 	{
 		delay (500);
-		if (DEBUG_MODE)
+		if (BED_DEBUG_MODE)
 			Serial.print (".");
 	}
-	if (DEBUG_MODE)
+	if (BED_DEBUG_MODE)
 	{
 		Serial.println ("");
 		Serial.println ("WiFi connected");
@@ -71,7 +71,7 @@ void setup ()
 	// Start the server
 	server.begin ();
 
-	if (DEBUG_MODE)
+	if (BED_DEBUG_MODE)
 	{
 		Serial.println ("Server started");
 
@@ -102,7 +102,7 @@ void loop ()
 	// Read the first line of the request
 	request = client.readStringUntil ('\r');
 
-	if (DEBUG_MODE)
+	if (BED_DEBUG_MODE)
 	{
 		Serial.println ();
 		Serial.println (request);
@@ -137,7 +137,7 @@ void loop ()
 		infoType = TYPE_ERROR;
 	}
 
-	if (DEBUG_MODE)
+	if (BED_DEBUG_MODE)
 	{
 		if (value == -1)
 			Serial.println ("CODING ERROR !");
@@ -145,14 +145,14 @@ void loop ()
 
 	if (value != -1)
 	{
-		if (DEBUG_MODE)
+		if (BED_DEBUG_MODE)
 			Serial.print ("\nSending to Arduino: ");
 		Serial.print (
 				infoType == TYPE_RGB ? "RGB" : infoType == TYPE_ON ? "ON" :
 				infoType == TYPE_POW ? "POW" :
 				infoType == TYPE_MOD ? "MOD" : "");
 		Serial.print (value, infoType == 1 ? HEX : DEC);
-		if (DEBUG_MODE)
+		if (BED_DEBUG_MODE)
 			Serial.print ("\n");
 	}
 
@@ -187,7 +187,7 @@ void readSerial ()
 
 	if (message.indexOf ("TIMEPLEASE") != -1)
 	{
-		if (DEBUG_MODE)
+		if (BED_DEBUG_MODE)
 			Serial.println ("\nReceived time request from arduino");
 
 		sendTime ();
@@ -196,12 +196,12 @@ void readSerial ()
 
 void sendTime ()
 {
-	if (DEBUG_MODE)
+	if (BED_DEBUG_MODE)
 		Serial.println ("\nStarting UDP");
 
 	Udp.begin (LOCAL_PORT);
 
-	if (DEBUG_MODE)
+	if (BED_DEBUG_MODE)
 	{
 		Serial.print ("Local port: ");
 		Serial.println (Udp.localPort ());
@@ -210,27 +210,27 @@ void sendTime ()
 
 	setSyncProvider (getNtpTime);
 
-	if (DEBUG_MODE)
+	if (BED_DEBUG_MODE)
 	{
 		Serial.print ("\nTime is: ");
 		digitalClockDisplay ();
-
 	}
 
 	if (timeStatus () != timeNotSet)
 	{
-		if (DEBUG_MODE)
+		if (BED_DEBUG_MODE)
 		{
 			Serial.print ("\nSending time to arduino: ");
+			delay(1);
 		}
 
 		Serial.print ("TIM");
 		Serial.print (now ());
 	}
-	else if (DEBUG_MODE)
+	else if (BED_DEBUG_MODE)
 		Serial.print ("\nTime not set, not sending time to arduino...");
 
-	if (DEBUG_MODE)
+	if (BED_DEBUG_MODE)
 		Serial.println ();
 }
 
@@ -241,7 +241,7 @@ void getRgb ()
 
 	request.getBytes (buf, 16);
 
-	if (DEBUG_MODE)
+	if (BED_DEBUG_MODE)
 	{
 		for (int i = 9; i < 15; i++)
 		{
@@ -262,7 +262,7 @@ void getRgb ()
 			error = true;
 			break;
 		}
-		if (DEBUG_MODE)
+		if (BED_DEBUG_MODE)
 		{
 			Serial.print (buf[i], HEX);
 			Serial.print (" / ");
@@ -274,7 +274,7 @@ void getRgb ()
 		value += buf[i] * pow (16, 5 - (i - 9));
 	}
 
-	if (DEBUG_MODE)
+	if (BED_DEBUG_MODE)
 	{
 		Serial.println ();
 		Serial.print ("\nRGB = ");
@@ -291,7 +291,7 @@ void getOn ()
 
 	value = buf[8] - '0';
 
-	if (DEBUG_MODE)
+	if (BED_DEBUG_MODE)
 	{
 		Serial.println ();
 		Serial.print ("ON = ");
@@ -309,7 +309,7 @@ void getPow ()
 
 	request.getBytes (buf, 13);
 
-	if (DEBUG_MODE)
+	if (BED_DEBUG_MODE)
 	{
 		for (int i = 9; i < 12; i++)
 		{
@@ -328,7 +328,7 @@ void getPow ()
 			error = true;
 			break;
 		}
-		if (DEBUG_MODE)
+		if (BED_DEBUG_MODE)
 		{
 			Serial.print (buf[i], DEC);
 			Serial.print (" / ");
@@ -340,7 +340,7 @@ void getPow ()
 		value += buf[i] * pow (10, 2 - (i - 9));
 	}
 
-	if (DEBUG_MODE)
+	if (BED_DEBUG_MODE)
 	{
 		Serial.println ();
 		Serial.print ("\nPOW = ");
@@ -357,7 +357,7 @@ void getMode ()
 
 	value = buf[9] - '0';
 
-	if (DEBUG_MODE)
+	if (BED_DEBUG_MODE)
 	{
 		Serial.println ();
 		Serial.print ("Mode = ");
@@ -411,7 +411,7 @@ time_t getNtpTime ()
 		while (Udp.parsePacket () > 0)
 			; // discard any previously received packets
 
-		if (DEBUG_MODE)
+		if (BED_DEBUG_MODE)
 		{
 			Serial.print ("Transmit NTP Request ");
 			Serial.print ("(Attempt ");
@@ -426,7 +426,7 @@ time_t getNtpTime ()
 			int size = Udp.parsePacket ();
 			if (size >= NTP_PACKET_SIZE)
 			{
-				if (DEBUG_MODE)
+				if (BED_DEBUG_MODE)
 					Serial.println ("\nReceive NTP Response !");
 				Udp.read (packetBuffer, NTP_PACKET_SIZE); // read packet into the buffer
 				unsigned long secsSince1900;
@@ -441,7 +441,7 @@ time_t getNtpTime ()
 		i++;
 	}
 
-	if (DEBUG_MODE)
+	if (BED_DEBUG_MODE)
 		Serial.println ("\nNo NTP Response :-(");
 	return 0; // return 0 if unable to get the time
 }

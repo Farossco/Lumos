@@ -1,7 +1,7 @@
 #include <IRremote.h>
 #include <TimeLib.h>
 
-#define DEBUG_MODE true // DEBUG Mode
+#define BED_DEBUG_MODE true // DEBUG Mode
 #define WAIT_FOR_TIME true // If we have to wait for time sync (if true, program will not start until time is synced)
 
 // Time wake up
@@ -200,12 +200,12 @@ void testWakeUpTime ()
 // Asking for time to the ESP8266 (via internet)
 void askForTime ()
 {
-	if (DEBUG_MODE)
+	if (BED_DEBUG_MODE)
 		Serial.print ("Gently asking for time (");
 
 	Serial.print ("TIMEPLEASE");
 
-	if (DEBUG_MODE)
+	if (BED_DEBUG_MODE)
 		Serial.println (")\n");
 }
 
@@ -278,7 +278,7 @@ void readInfrared ()
 		}
 
 		// [DEBUG] Print the incomming IR value
-		if (DEBUG_MODE)
+		if (BED_DEBUG_MODE)
 		{
 			Serial.print ("Incomming IR: ");
 			Serial.println (IRCode, HEX);
@@ -324,7 +324,7 @@ void readInfrared ()
 			lastIRCode = IRCode;
 
 			// [DEBUG] Print current color and RED, GREEN, BLUE values
-			if (DEBUG_MODE)
+			if (BED_DEBUG_MODE)
 			{
 				Serial.print ("Power: ");
 				Serial.println (power);
@@ -361,7 +361,7 @@ void readInfrared ()
 			lastIRCode = IRCode;
 
 			// [DEBUG] Print current color and RED, GREEN, BLUE values
-			if (DEBUG_MODE)
+			if (BED_DEBUG_MODE)
 			{
 				Serial.print ("Power: ");
 				Serial.println (power);
@@ -460,7 +460,7 @@ void readSerial ()
 		return;
 
 	// [DEBUG] Printing full word, world length and infofrmation type
-	if (DEBUG_MODE)
+	if (BED_DEBUG_MODE)
 	{
 		Serial.print ("Word: ");
 		Serial.println (message);
@@ -476,7 +476,7 @@ void readSerial ()
 	message.remove (0, infoType == TYPE_ON ? 2 : 3); // Remove 2 first characters if "ON" type and 3 first ones if "TIME", "RGB", "POW" or "MOD" type
 
 	// [DEBUG] printing information without prefix
-	if (DEBUG_MODE)
+	if (BED_DEBUG_MODE)
 	{
 		Serial.print (
 				infoType == TYPE_TIME ? "TIME: " :
@@ -527,7 +527,7 @@ void readSerial ()
 		mode = message.charAt (0) - '0';
 	}
 
-	if (DEBUG_MODE)
+	if (BED_DEBUG_MODE)
 	{
 		if (infoType == TYPE_TIME)
 		{
