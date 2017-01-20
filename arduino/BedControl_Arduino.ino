@@ -115,7 +115,7 @@ void setup()
   pinMode(LED_BLUE, OUTPUT);
   pinMode(LED_INFRARED, INPUT);
   pinMode(LED_BUILTIN, OUTPUT);
-  Serial.begin(250000); // Initialize serial communication
+  Serial.begin(921600); // Initialize serial communication
   on = false; // LEDs are off on startup
   irrecv.enableIRIn(); // Initialize IR communication
   rgb = 0xFFFFFF; // Initialize color to white
