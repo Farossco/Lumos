@@ -41,7 +41,7 @@ void setup()
   digitalWrite(0, LOW);
   digitalWrite(1, LOW);
 
-  Serial.begin(250000);
+  Serial.begin(921600);
   delay(10);
 
   // Connect to WiFi network
