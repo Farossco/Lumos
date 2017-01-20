@@ -214,12 +214,21 @@ void sendTime ()
 	{
 		Serial.print ("\nTime is: ");
 		digitalClockDisplay ();
-		Serial.print ("\nSending time to arduino: ");
+
 	}
 
+	if (timeStatus () != timeNotSet)
+	{
+		if (DEBUG_MODE)
+		{
+			Serial.print ("\nSending time to arduino: ");
+		}
 
-	Serial.print ("TIM");
-	Serial.print (now ());
+		Serial.print ("TIM");
+		Serial.print (now ());
+	}
+	else if (DEBUG_MODE)
+		Serial.print ("\nTime not set, not sending time to arduino...");
 
 	if (DEBUG_MODE)
 		Serial.println ();
