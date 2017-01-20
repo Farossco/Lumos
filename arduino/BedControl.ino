@@ -2,7 +2,11 @@
 #include <TimeLib.h>
 
 #define DEBUG true // DEBUG Mode
-#define WAIT_FOR_TIME false // If we have to wait for time sync
+#define WAIT_FOR_TIME false // If we have to wait for time sync (if true, program will not start until time is synced)
+
+// Time wake up
+#define WAKEUP_HOUR 17
+#define WAKEUP_MINUTE 07
 
 #define LED_RED 8 // Red LED OUT pin
 #define LED_GREEN 9 // Green LED OUT pin
@@ -33,10 +37,6 @@
 #define MODE_FADE 3
 #define MODE_SMOOTH 4
 #define MODE_WAKEUP 5
-
-// Time wake up
-#define WAKEUP_HOUR 17
-#define WAKEUP_MINUTE 07
 
 // Infrared reception objects declaration
 IRrecv irrecv(LED_INFRARED);
@@ -133,7 +133,7 @@ void setup()
 
   // Gently ask for time
   i = 5000;
-  do
+  while (timeStatus() == timeNotSet && WAIT_FOR_TIME) // Doesn't start if time isn't set (only if WAIT_FOR_TIME = 1)
   {
     if (i >= 5000)
     {
@@ -145,7 +145,6 @@ void setup()
     i++;
     delay(1);
   }
-  while (timeStatus() == timeNotSet && WAIT_FOR_TIME); // Doesn't start if time isn't set (only if WAIT_FOR_TIME = 1)
 }
 
 void loop()
@@ -647,7 +646,7 @@ void initModeSmooth()
 void modeSmooth()
 {
   // First, RED is max
-  
+
   // Increasing GREEN until max
   if (state == 0)
   {
@@ -697,7 +696,7 @@ void modeSmooth()
       rgb -= 0x000001;
   }
   // Then, we start over
-  
+
   // Error handling
   else
   {
