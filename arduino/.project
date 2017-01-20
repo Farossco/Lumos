@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>BedControl</name>
+	<name>BedControl_Arduino</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -45,11 +45,6 @@
 			<name>libraries/IRremote</name>
 			<type>2</type>
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/IRremote/2.0.1</locationURI>
-		</link>
-		<link>
-			<name>libraries/NTPClient</name>
-			<type>2</type>
-			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/NTPClient/3.1.0</locationURI>
 		</link>
 		<link>
 			<name>libraries/Time</name>
