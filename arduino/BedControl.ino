@@ -1,7 +1,7 @@
 #include <IRremote.h>
 #include <TimeLib.h>
 
-#define DEBUG true // DEBUG Mode
+#define DEBUG_MODE true // DEBUG Mode
 #define WAIT_FOR_TIME false // If we have to wait for time sync (if true, program will not start until time is synced)
 
 // Time wake up
@@ -43,7 +43,7 @@ IRrecv irrecv(LED_INFRARED);
 decode_results results;
 
 // Infrared codes and corresponding RGB code array
-long color[][3] =
+unsigned long color[][3] =
   //RGB Code //Code 1  //Code 2
 { {0xFFFFFF, 0xFFA857, 0xA3C8EDDB}, //WHITE
 
@@ -95,8 +95,8 @@ int unpoweredGreen; // Currentlty green value without lightning power (From 0 to
 int unpoweredBlue; // Currentlty blue value without lightning power (From 0 to 255)
 
 //******* readInfrared *******//
-long lastIRCode; // IR code in previous loop - Allows continious power / strobe speed increasion / dicreasion
-long IRCode; // Current IR code
+unsigned long lastIRCode; // IR code in previous loop - Allows continious power / strobe speed increasion / dicreasion
+unsigned long IRCode; // Current IR code
 
 //******* readSerial *******//
 int infoType; // Information type ("Time", "ON", "RGB", "Power" or "Mode")
@@ -196,12 +196,12 @@ void testWakeUpTime()
 // Asking for time to the ESP8266 (via internet)
 void askForTime()
 {
-  if (DEBUG)
+  if (DEBUG_MODE)
     Serial.print("Gently asking for time (");
 
   Serial.print("TIMEPLEASE");
 
-  if (DEBUG)
+  if (DEBUG_MODE)
     Serial.println(")\n");
 }
 
@@ -268,7 +268,7 @@ void readInfrared()
     }
 
     // [DEBUG] Print the incomming IR value
-    if (DEBUG)
+    if (DEBUG_MODE)
     {
       Serial.print("Incomming IR: ");
       Serial.println(IRCode, HEX);
@@ -310,7 +310,7 @@ void readInfrared()
         lastIRCode = IRCode;
 
         // [DEBUG] Print current color and RED, GREEN, BLUE values
-        if (DEBUG)
+        if (DEBUG_MODE)
         {
           Serial.print("Power: ");
           Serial.println(power);
@@ -343,7 +343,7 @@ void readInfrared()
         lastIRCode = IRCode;
 
         // [DEBUG] Print current color and RED, GREEN, BLUE values
-        if (DEBUG)
+        if (DEBUG_MODE)
         {
           Serial.print("Power: ");
           Serial.println(power);
@@ -439,7 +439,7 @@ void readSerial()
     return;
 
   // [DEBUG] Printing full word, world length and infofrmation type
-  if (DEBUG)
+  if (DEBUG_MODE)
   {
     Serial.print("Word: ");
     Serial.println(message);
@@ -452,7 +452,7 @@ void readSerial()
   message.remove(0, infoType == TYPE_ON ? 2 : 3); // Remove 2 first characters if "ON" type and 3 first ones if "TIME", "RGB", "POW" or "MOD" type
 
   // [DEBUG] printing information without prefix
-  if (DEBUG)
+  if (DEBUG_MODE)
   {
     Serial.print(infoType == TYPE_TIME ? "TIME: " : infoType == TYPE_ON ? "ON: " : infoType == TYPE_RGB ? "RGB: " : infoType == TYPE_POW ? "POW: " : infoType == TYPE_MOD ? "MOD: " : "UNKNOWN: ");
     Serial.println( (infoType == TYPE_ON) ? ( (message == "1") ? "True" : (message == "0") ? "False" : "Error") : (infoType == TYPE_MOD) ? (message.charAt(0) == MODE_FLASH + '0' ? "FLASH (" : message.charAt(0) == MODE_STROBE + '0' ? "STROBE (" : message.charAt(0) == MODE_FADE + '0' ? "FADE (" : message.charAt(0) == MODE_SMOOTH + '0' ? "SMOOTH (" : "UNKNOWN (") + message + ")" : message);
@@ -488,7 +488,7 @@ void readSerial()
     mode = message.charAt(0) - '0';
   }
 
-  if (DEBUG)
+  if (DEBUG_MODE)
   {
     if (infoType == TYPE_TIME)
     {
