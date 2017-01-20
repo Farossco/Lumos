@@ -208,7 +208,7 @@ void sendTime ()
 		Serial.println ("waiting for sync");
 	}
 
-	setSyncProvider (ntpTime);
+	setSyncProvider (getNtpTime);
 
 	if (DEBUG_MODE)
 	{
@@ -216,6 +216,7 @@ void sendTime ()
 		digitalClockDisplay ();
 		Serial.print ("\nSending time to arduino: ");
 	}
+
 
 	Serial.print ("TIM");
 	Serial.print (now ());
