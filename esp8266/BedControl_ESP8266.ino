@@ -2,7 +2,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 
-#define DEBUG false
+#define DEBUG true
 
 //Some IDs used for serial reception decrypt
 #define TYPE_ERROR -1
