@@ -216,19 +216,19 @@ void light ()
 
 	if (on) // If it's on
 	{
-		// Envoi un signal carré avec un rapport cyclique de RED / 255
+		// Send square wave with a cyclic ratio of green / 255
 		for (i = 0; i < red; i++)
 			digitalWrite (LED_RED, LOW);
 		for (i = 0; i < 255 - red; i++)
 			digitalWrite (LED_RED, HIGH);
 
-		// Envoi un signal carré avec un rapport cyclique de GREEN / 255
+		// Send square wave with a cyclic ratio of green / 255
 		for (i = 0; i < green; i++)
 			digitalWrite (LED_GREEN, LOW);
 		for (i = 0; i < 255 - green; i++)
 			digitalWrite (LED_GREEN, HIGH);
 
-		// Envoi un signal carré avec un rapport cyclique de BLUE / 255
+		// Send square wave with a cyclic ratio of red / 255
 		for (i = 0; i < blue; i++)
 			digitalWrite (LED_BLUE, LOW);
 		for (i = 0; i < 255 - blue; i++)
