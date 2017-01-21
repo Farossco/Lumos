@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>BedControl_ESP8266</name>
+	<name>esp8266</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -42,19 +42,9 @@
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/variants/generic</locationURI>
 		</link>
 		<link>
-			<name>libraries/ArduinoOTA</name>
-			<type>2</type>
-			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/libraries/ArduinoOTA</locationURI>
-		</link>
-		<link>
 			<name>libraries/ESP8266WiFi</name>
 			<type>2</type>
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/libraries/ESP8266WiFi</locationURI>
-		</link>
-		<link>
-			<name>libraries/ESP8266mDNS</name>
-			<type>2</type>
-			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/libraries/ESP8266mDNS</locationURI>
 		</link>
 		<link>
 			<name>libraries/TimeESP</name>

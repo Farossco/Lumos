@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
-		<cconfiguration id="io.sloeber.core.toolChain.release.79828595">
-			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="io.sloeber.core.toolChain.release.79828595" moduleId="org.eclipse.cdt.core.settings" name="Release">
+		<cconfiguration id="io.sloeber.core.toolChain.release.1541250206">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="io.sloeber.core.toolChain.release.1541250206" moduleId="org.eclipse.cdt.core.settings" name="Release">
 				<externalSettings/>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
@@ -12,51 +12,45 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ProjName}" buildProperties="" description="" id="io.sloeber.core.toolChain.release.79828595" name="Release" parent="org.eclipse.cdt.build.core.emptycfg">
-					<folderInfo id="io.sloeber.core.toolChain.release.79828595.953034784" name="/" resourcePath="">
-						<toolChain id="io.sloeber.core.toolChain.release.1868318234" name="Arduino Toolchain (edition Sloeber)" superClass="io.sloeber.core.toolChain.release">
-							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="io.sloeber.targetplatform.1617011371" name="Arduino Target" osList="all" superClass="io.sloeber.targetplatform"/>
-							<builder buildPath="${workspace_loc:/BedControl_ESP8266}/Release" id="io.sloeber.sketch.builder.351821174" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Arduino sketch builder" superClass="io.sloeber.sketch.builder"/>
-							<tool id="io.sloeber.tool.sketch.compiler.cpp.1713197460" name="Arduino C++ Compiler" superClass="io.sloeber.tool.sketch.compiler.cpp">
-								<option id="io.sloeber.compiler.cpp.sketch.option.incpath.1322197971" name="Include Paths (-I)" superClass="io.sloeber.compiler.cpp.sketch.option.incpath" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BedControl_ESP8266/core/core}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BedControl_ESP8266/core/variant}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BedControl_ESP8266/libraries/ESP8266WiFi}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BedControl_ESP8266/libraries/ESP8266WiFi/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BedControl_ESP8266/libraries/ArduinoOTA}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BedControl_ESP8266/libraries/ESP8266mDNS}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BedControl_ESP8266/libraries/TimeESP}&quot;"/>
+				<configuration artifactName="${ProjName}" buildProperties="" description="" id="io.sloeber.core.toolChain.release.1541250206" name="Release" parent="org.eclipse.cdt.build.core.emptycfg">
+					<folderInfo id="io.sloeber.core.toolChain.release.1541250206.495653200" name="/" resourcePath="">
+						<toolChain id="io.sloeber.core.toolChain.release.551954634" name="Arduino Toolchain (edition Sloeber)" superClass="io.sloeber.core.toolChain.release">
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="io.sloeber.targetplatform.1076086536" name="Arduino Target" osList="all" superClass="io.sloeber.targetplatform"/>
+							<builder buildPath="${workspace_loc:/esp8266}/Release" id="io.sloeber.sketch.builder.678100568" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Arduino sketch builder" superClass="io.sloeber.sketch.builder"/>
+							<tool id="io.sloeber.tool.sketch.compiler.cpp.1671657918" name="Arduino C++ Compiler" superClass="io.sloeber.tool.sketch.compiler.cpp">
+								<option id="io.sloeber.compiler.cpp.sketch.option.incpath.8798105" name="Include Paths (-I)" superClass="io.sloeber.compiler.cpp.sketch.option.incpath" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/esp8266/core/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/esp8266/core/variant}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/esp8266/libraries/ESP8266WiFi}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/esp8266/libraries/ESP8266WiFi/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/esp8266/libraries/TimeESP}&quot;"/>
 								</option>
-								<inputType id="io.sloeber.compiler.cpp.sketch.input.1645928225" name="CPP source files" superClass="io.sloeber.compiler.cpp.sketch.input"/>
+								<inputType id="io.sloeber.compiler.cpp.sketch.input.77743177" name="CPP source files" superClass="io.sloeber.compiler.cpp.sketch.input"/>
 							</tool>
-							<tool id="io.sloeber.tool.compiler.c.1267919098" name="Arduino C Compiler" superClass="io.sloeber.tool.compiler.c">
-								<option id="io.sloeber.compiler.c.sketch.option.incpath.69167187" name="Include Paths (-I)" superClass="io.sloeber.compiler.c.sketch.option.incpath" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BedControl_ESP8266/core/core}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BedControl_ESP8266/core/variant}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BedControl_ESP8266/libraries/ESP8266WiFi}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BedControl_ESP8266/libraries/ESP8266WiFi/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BedControl_ESP8266/libraries/ArduinoOTA}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BedControl_ESP8266/libraries/ESP8266mDNS}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BedControl_ESP8266/libraries/TimeESP}&quot;"/>
+							<tool id="io.sloeber.tool.compiler.c.1636858713" name="Arduino C Compiler" superClass="io.sloeber.tool.compiler.c">
+								<option id="io.sloeber.compiler.c.sketch.option.incpath.134465682" name="Include Paths (-I)" superClass="io.sloeber.compiler.c.sketch.option.incpath" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/esp8266/core/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/esp8266/core/variant}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/esp8266/libraries/ESP8266WiFi}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/esp8266/libraries/ESP8266WiFi/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/esp8266/libraries/TimeESP}&quot;"/>
 								</option>
-								<inputType id="io.sloeber.compiler.c.sketch.input.37034158" name="C Source Files" superClass="io.sloeber.compiler.c.sketch.input"/>
+								<inputType id="io.sloeber.compiler.c.sketch.input.294751352" name="C Source Files" superClass="io.sloeber.compiler.c.sketch.input"/>
 							</tool>
-							<tool id="io.sloeber.tool.sketch.compiler.s.1880759560" name="Arduino Assembler" superClass="io.sloeber.tool.sketch.compiler.s">
-								<option id="io.sloeber.compiler.asm.sketch.option.incpath.1776152602" name="Include Paths (-I)" superClass="io.sloeber.compiler.asm.sketch.option.incpath" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BedControl_ESP8266/core/core}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BedControl_ESP8266/core/variant}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BedControl_ESP8266/libraries/ESP8266WiFi}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BedControl_ESP8266/libraries/ESP8266WiFi/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BedControl_ESP8266/libraries/ArduinoOTA}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BedControl_ESP8266/libraries/ESP8266mDNS}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BedControl_ESP8266/libraries/TimeESP}&quot;"/>
+							<tool id="io.sloeber.tool.sketch.compiler.s.997454411" name="Arduino Assembler" superClass="io.sloeber.tool.sketch.compiler.s">
+								<option id="io.sloeber.compiler.asm.sketch.option.incpath.96055360" name="Include Paths (-I)" superClass="io.sloeber.compiler.asm.sketch.option.incpath" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/esp8266/core/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/esp8266/core/variant}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/esp8266/libraries/ESP8266WiFi}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/esp8266/libraries/ESP8266WiFi/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/esp8266/libraries/TimeESP}&quot;"/>
 								</option>
-								<inputType id="io.sloeber.compiler.S.sketch.input.1897489523" name="Assembly source files" superClass="io.sloeber.compiler.S.sketch.input"/>
+								<inputType id="io.sloeber.compiler.S.sketch.input.431736961" name="Assembly source files" superClass="io.sloeber.compiler.S.sketch.input"/>
 							</tool>
-							<tool id="io.sloeber.tool.ar.68613974" name="Arduino archiver" superClass="io.sloeber.tool.ar"/>
-							<tool id="io.sloeber.tool.combine.1346740229" name="Arduino combiner" superClass="io.sloeber.tool.combine"/>
-							<tool id="io.sloeber.tool.objcopy.eep.885923864" name="Arduino tool Create eeprom" superClass="io.sloeber.tool.objcopy.eep"/>
-							<tool id="io.sloeber.tool.size.1880924820" name="Arduino tool Print Size" superClass="io.sloeber.tool.size"/>
+							<tool id="io.sloeber.tool.ar.32317322" name="Arduino archiver" superClass="io.sloeber.tool.ar"/>
+							<tool id="io.sloeber.tool.combine.1614227046" name="Arduino combiner" superClass="io.sloeber.tool.combine"/>
+							<tool id="io.sloeber.tool.objcopy.eep.1217207656" name="Arduino tool Create eeprom" superClass="io.sloeber.tool.objcopy.eep"/>
+							<tool id="io.sloeber.tool.size.1307873032" name="Arduino tool Print Size" superClass="io.sloeber.tool.size"/>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
@@ -68,7 +62,7 @@
 		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-		<project id="BedControl_ESP8266.null.2132666340" name="BedControl_ESP8266"/>
+		<project id="esp8266.null.591197314" name="esp8266"/>
 	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>

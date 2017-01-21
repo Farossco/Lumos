@@ -2,6 +2,8 @@
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 
+#define BAUD_RATE 250000 // Serial baud rate
+
 #define BED_DEBUG_MODE true
 
 //Some IDs used for serial reception decrypt
@@ -42,7 +44,7 @@ void setup ()
 	digitalWrite (0, LOW);
 	digitalWrite (1, LOW);
 
-	Serial.begin (921600);
+	Serial.begin (BAUD_RATE);
 	delay (10);
 
 	// Connect to WiFi network
