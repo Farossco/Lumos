@@ -17,13 +17,19 @@
 
 #define MIN_POWER 5 // Minimum power value
 #define MAX_POWER 100 // Maximum power value
+#define DEFAULT_POWER 30 // Default power value
 #define POWER_SPEED 5 // Power increasion or dicreasion speed
 #define FADE_SPEED 1 // Fade increasion or dicreasion speed
 #define WAKEUP_SPEED 0.01 // Power increasion speed for Wakeup mode
 #define N 16 // Number of different colors
-#define MIN_STROBE 2 // Minimum Strobe speed
-#define MAX_STROBE 50 // Maximum Strobe speed
+#define MIN_STROBE 2 // Minimum strobe speed
+#define MAX_STROBE 50 // Maximum strobe speed
 #define STROBE_SPEED 1 // Strobe increasion or dicreasion speed
+#define DEFAULT_STROBE_SPEED 25 // Default strobe speed value
+#define MIN_FLASH 2 // Minimum strobe speed
+#define MAX_FLASH 50 // Maximum flash speed
+#define FLASH_SPEED 1 // Flash increasion or dicreasion speed
+#define DEFAULT_FLASH_SPEED 25 // Default flash speed value
 
 //Some IDs used for serial reception decrypt
 #define TYPE_UNKNOWN -1
@@ -87,10 +93,12 @@ boolean timeAsked; // Used to ask time only once every peak time
 
 //******* Modes *******//
 int state; // Current state used by 1 to 4 modes
+int count; // Delay counting
 /******* action *******/
 int lastMode; // Mode in previous loop - Allows mode initializations
+/******* modeFlash ********/
+int flashSpeed;
 /******* modeStrobe *******/
-int count; // Strobe delay counting
 int strobeSpeed; // Current Strobe speed (From MINSTROBE to MAXSTROBE)
 /******* modeSmooth *******/
 int unpoweredRed; // Currentlty red value without lightning power (From 0 to 255)
@@ -110,8 +118,10 @@ String message; // Received message converted to String
 
 void setup ()
 {
+	Serial.begin (BAUD_RATE); // Initialize serial communication
+
 	if (BED_DEBUG_MODE)
-		Serial.println("Program starting\n");
+		Serial.println ("Starting program\n");
 
 	light (); // Shutting all LEDs down
 
@@ -121,19 +131,17 @@ void setup ()
 	pinMode (LED_BLUE, OUTPUT);
 	pinMode (LED_INFRARED, INPUT);
 	pinMode (LED_BUILTIN, OUTPUT);
-	Serial.begin (BAUD_RATE); // Initialize serial communication
+
 	on = false; // LEDs are off on startup
 	irrecv.enableIRIn (); // Initialize IR communication
 	rgb = 0xFFFFFF; // Initialize color to white
-	mode = 0; // Initialize mode to constant lightning
-	power = 30; // Initializing power to 30
-	// Initializing all other variables to 0
-	lastMode = 0;
-	state = 0;
+	mode = MODE_DEFAULT; // Initialize mode to constant lightning
+	lastMode = MODE_DEFAULT; // Initialiazing last mode as well
+	power = DEFAULT_POWER; // Initializing power its default value
+	strobeSpeed = DEFAULT_STROBE_SPEED; // Initializing strobe speed its default value
+	flashSpeed = DEFAULT_FLASH_SPEED; // Initializing flash speed its default value
+
 	lastIRCode = 0;
-	IRCode = 0;
-	count = 0;
-	strobeSpeed = 25;
 	wokeUp = false;
 	timeAsked = false;
 
@@ -153,7 +161,7 @@ void setup ()
 	}
 
 	if (BED_DEBUG_MODE)
-		Serial.println("Program started\n");
+		Serial.println ("Program started\n");
 }
 
 void loop ()
@@ -181,7 +189,7 @@ void testWakeUpTime ()
 			on = true;
 			wokeUp = true;
 			if (BED_DEBUG_MODE)
-				Serial.println("Wake up !\n");
+				Serial.println ("Wake up !\n");
 		}
 	}
 	else
@@ -349,7 +357,14 @@ void readInfrared ()
 				//UP
 			case 0xFF906F:
 			case 0xE5CFBD7F:
-				if (mode == MODE_STROBE) // If we are in STROBE mode, increase speed instead of power
+				if (mode == MODE_FLASH) // If we are in flash mode, increase flash speed instead of power
+				{
+					if (flashSpeed + FLASH_SPEED <= MAX_FLASH)
+						flashSpeed += FLASH_SPEED;
+					else
+						flashSpeed = MAX_FLASH;
+				}
+				if (mode == MODE_STROBE) // If we are in strobe mode, increase strobe speed instead of power
 				{
 					if (strobeSpeed + STROBE_SPEED <= MAX_STROBE)
 						strobeSpeed += STROBE_SPEED;
@@ -367,7 +382,7 @@ void readInfrared ()
 				rgb2color ();
 				lastIRCode = IRCode;
 
-				// [DEBUG] Print current color and RED, GREEN, BLUE values
+				// [DEBUG] Print current color and red, green, blue values
 				if (BED_DEBUG_MODE)
 				{
 					Serial.print ("Power: ");
@@ -523,7 +538,7 @@ void readSerial ()
 		message.toCharArray (charTime, 11);
 		setTime (strtol (charTime, NULL, 10));
 	}
-	else if (infoType == TYPE_ON || infoType == TYPE_MOD)
+	else if (infoType == TYPE_ON)
 	{
 		on = message.charAt (0) - '0';
 	}
@@ -536,11 +551,18 @@ void readSerial ()
 	{
 		message.toCharArray (charPow, 4);
 
-		// If we are in STROBE mode, changing strobe speed instead of power
-		if (mode == MODE_STROBE)
-			strobeSpeed = strtol (charPow, NULL, 10) / 2;
+		if (mode == MODE_FLASH) // If we are in STROBE mode, changing strobe speed instead of power
+			flashSpeed = strtol (charPow, NULL, 10)
+					/ (MAX_POWER / (float) MAX_FLASH);
+		else if (mode == MODE_STROBE) // If we are in STROBE mode, changing strobe speed instead of power
+			strobeSpeed = strtol (charPow, NULL, 10)
+					/ (MAX_POWER / (float) MAX_STROBE);
 		else
 			power = strtol (charPow, NULL, 10);
+	}
+	else if (infoType == TYPE_MOD)
+	{
+		mode = message.charAt (0) - '0';
 	}
 
 	if (BED_DEBUG_MODE)
@@ -563,7 +585,12 @@ void readSerial ()
 		{
 			Serial.print ("Full POW (number): ");
 			Serial.println (
-					mode == MODE_STROBE ? (int) strobeSpeed * 2 : (int) power);
+					mode == MODE_FLASH ?
+							(int) (flashSpeed * (MAX_POWER / (float) MAX_FLASH)) :
+					MODE_STROBE ?
+							(int) (strobeSpeed
+									* (MAX_POWER / (float) MAX_STROBE)) :
+							(int) power);
 			Serial.println ();
 		}
 	}
@@ -605,8 +632,14 @@ void action ()
 	// Calling modes functions
 	switch (mode)
 	{
+		case MODE_FLASH:
+			if (lastMode != MODE_FLASH) // If this is first call of the function, we call init function (lastMode will be set in init function)
+				initModeFlash ();
+			modeFlash ();
+			break;
+
 		case MODE_STROBE:
-			if (lastMode != MODE_STROBE) // If this is first call of the function, we call init function (lastMode will be set in init function)
+			if (lastMode != MODE_STROBE)
 				initModeStrobe ();
 			modeStrobe ();
 			break;
@@ -631,6 +664,37 @@ void action ()
 	}
 }
 
+// Flash mode initialization
+void initModeFlash ()
+{
+	state = 0; // Set initial state to 0
+	rgb = 0xFF0000; // Set color to red
+	count = 0; // Reseting counter
+	lastMode = MODE_FLASH; // Setting lastMode so we don't call init again
+	if (BED_DEBUG_MODE)
+		Serial.println ("Entering Flash mode\n");
+}
+
+// Flash mode
+void modeFlash ()
+{
+	if (count >= MIN_FLASH + MAX_FLASH - flashSpeed) // Counting up for a certain amount of time
+	{
+		if (state >= 2)
+			state = 0;
+		else
+			state++; // Incrementing state
+
+		count = 0; // Reseting timer
+	}
+	else
+	{
+		count++; // incrementing counter
+	}
+
+	rgb = (state == 0 ? 0xFF0000 : state == 1 ? 0x00FF00 : 0x0000FF);
+}
+
 // Strobe mode initialization
 void initModeStrobe ()
 {
@@ -639,7 +703,7 @@ void initModeStrobe ()
 	count = 0; // Reseting counter
 	lastMode = MODE_STROBE; // Setting lastMode so we don't call init again
 	if (BED_DEBUG_MODE)
-		Serial.println("Entering Strobe mode\n");
+		Serial.println ("Entering Strobe mode\n");
 }
 
 // Strobe mode
@@ -667,7 +731,7 @@ void initModeFade ()
 	power = 0; // Setting power to 0 (LED's shutted down)
 	lastMode = MODE_FADE; // Setting lastMode so we don't call init again
 	if (BED_DEBUG_MODE)
-		Serial.println("Entering Fade mode\n");
+		Serial.println ("Entering Fade mode\n");
 }
 
 // Fade Mode
@@ -701,7 +765,7 @@ void initModeSmooth ()
 	rgb2color (); // Calling rgb2color to generate color values
 	lastMode = MODE_SMOOTH; // Setting lastMode so we don't call init again
 	if (BED_DEBUG_MODE)
-		Serial.println("Entering Smooth mode\n");
+		Serial.println ("Entering Smooth mode\n");
 }
 
 // Smooth Mode
@@ -773,7 +837,7 @@ void initModeWakeup ()
 	power = 0; // Setting power to 0
 	lastMode = MODE_WAKEUP; // Setting lastMode so we don't call init again
 	if (BED_DEBUG_MODE)
-		Serial.println("Entering Wakeup mode\n");
+		Serial.println ("Entering Wakeup mode\n");
 }
 
 // Wakeup Mode
