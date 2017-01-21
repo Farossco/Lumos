@@ -1,6 +1,8 @@
 #include <IRremote.h>
 #include <TimeLib.h>
 
+#define BAUD_RATE 250000 // Serial baud rate
+
 #define BED_DEBUG_MODE true // DEBUG Mode
 #define WAIT_FOR_TIME true // If we have to wait for time sync (if true, program will not start until time is synced)
 
@@ -24,6 +26,7 @@
 #define STROBE_SPEED 1 // Strobe increasion or dicreasion speed
 
 //Some IDs used for serial reception decrypt
+#define TYPE_UNKNOWN -1
 #define TYPE_TIME 0
 #define TYPE_RGB 1
 #define TYPE_ON 2
@@ -105,12 +108,11 @@ char charRgb[7], charPow[4], charTime[11]; // Char arrays for message decrypting
 char messageChar[20]; // Received message
 String message; // Received message converted to String
 
-/**
- ** sdvdfbdbgdnfgn
- **
- */
 void setup ()
 {
+	if (BED_DEBUG_MODE)
+		Serial.println("Program starting\n");
+
 	light (); // Shutting all LEDs down
 
 	// pins initialization
@@ -119,7 +121,7 @@ void setup ()
 	pinMode (LED_BLUE, OUTPUT);
 	pinMode (LED_INFRARED, INPUT);
 	pinMode (LED_BUILTIN, OUTPUT);
-	Serial.begin (921600); // Initialize serial communication
+	Serial.begin (BAUD_RATE); // Initialize serial communication
 	on = false; // LEDs are off on startup
 	irrecv.enableIRIn (); // Initialize IR communication
 	rgb = 0xFFFFFF; // Initialize color to white
@@ -149,6 +151,9 @@ void setup ()
 		i++;
 		delay (1);
 	}
+
+	if (BED_DEBUG_MODE)
+		Serial.println("Program started\n");
 }
 
 void loop ()
@@ -173,8 +178,10 @@ void testWakeUpTime ()
 		if (!wokeUp) // Double if so else statement is not called
 		{
 			mode = MODE_WAKEUP;
-			wokeUp = true;
 			on = true;
+			wokeUp = true;
+			if (BED_DEBUG_MODE)
+				Serial.println("Wake up !\n");
 		}
 	}
 	else
@@ -294,121 +301,121 @@ void readInfrared ()
 		// Test incomming value
 		switch (IRCode)
 		{
-		//OFF
-		case 0xFFF807:
-		case 0xE721C0DB:
-			on = false;
-			lastIRCode = 0;
-			break;
-			break;
+			//OFF
+			case 0xFFF807:
+			case 0xE721C0DB:
+				on = false;
+				lastIRCode = 0;
+				break;
+				break;
 
-			//DOWN
-		case 0xFFB847:
-		case 0xA23C94BF:
-			if (mode == MODE_STROBE) // If we are in STROBE mode, decrease speed instead of power
-			{
-				if (strobeSpeed - STROBE_SPEED >= MIN_STROBE)
-					strobeSpeed -= STROBE_SPEED;
-				else
-					strobeSpeed = MIN_STROBE;
-			}
-			else
-			{
-				if (power - POWER_SPEED >= MIN_POWER)
-					power -= POWER_SPEED;
-				else
-					power = MIN_POWER;
-			}
-
-			rgb2color ();
-			lastIRCode = IRCode;
-
-			// [DEBUG] Print current color and RED, GREEN, BLUE values
-			if (BED_DEBUG_MODE)
-			{
-				Serial.print ("Power: ");
-				Serial.println (power);
-				Serial.print ("RED: ");
-				Serial.print (red);
-				Serial.print (" / GREEN: ");
-				Serial.print (green);
-				Serial.print (" / BLUE: ");
-				Serial.println (blue);
-				Serial.println ();
-			}
-			break;
-			break;
-
-			//UP
-		case 0xFF906F:
-		case 0xE5CFBD7F:
-			if (mode == MODE_STROBE) // If we are in STROBE mode, increase speed instead of power
-			{
-				if (strobeSpeed + STROBE_SPEED <= MAX_STROBE)
-					strobeSpeed += STROBE_SPEED;
-				else
-					strobeSpeed = MAX_STROBE;
-			}
-			else
-			{
-				if (power + POWER_SPEED <= MAX_POWER)
-					power += POWER_SPEED;
-				else
-					power = MAX_POWER;
-			}
-
-			rgb2color ();
-			lastIRCode = IRCode;
-
-			// [DEBUG] Print current color and RED, GREEN, BLUE values
-			if (BED_DEBUG_MODE)
-			{
-				Serial.print ("Power: ");
-				Serial.println (power);
-				Serial.print ("RED: ");
-				Serial.print (red);
-				Serial.print (" / GREEN: ");
-				Serial.print (green);
-				Serial.print (" / BLUE: ");
-				Serial.println (blue);
-				Serial.println ();
-			}
-			break;
-			break;
-
-			//STROBE
-		case 0xFF00FF:
-		case 0xFA3F159F:
-			mode = MODE_STROBE;
-			break;
-			break;
-
-			//FADE
-		case 0xFF58A7:
-		case 0xDC0197DB:
-			mode = MODE_FADE;
-			break;
-			break;
-
-			//SMOOTH
-		case 0xFF30CF:
-		case 0x9716BE3F:
-			mode = MODE_SMOOTH;
-			break;
-			break;
-
-			//COLORS
-		default:
-			lastIRCode = 0;
-			for (i = 0; i < N; i++)
-				if (results.value == color[i][1]
-						|| results.value == color[i][2])
+				//DOWN
+			case 0xFFB847:
+			case 0xA23C94BF:
+				if (mode == MODE_STROBE) // If we are in STROBE mode, decrease speed instead of power
 				{
-					mode = MODE_DEFAULT;
-					lastMode = MODE_DEFAULT;
-					rgb = color[i][0];
+					if (strobeSpeed - STROBE_SPEED >= MIN_STROBE)
+						strobeSpeed -= STROBE_SPEED;
+					else
+						strobeSpeed = MIN_STROBE;
 				}
-			break;
+				else
+				{
+					if (power - POWER_SPEED >= MIN_POWER)
+						power -= POWER_SPEED;
+					else
+						power = MIN_POWER;
+				}
+
+				rgb2color ();
+				lastIRCode = IRCode;
+
+				// [DEBUG] Print current color and RED, GREEN, BLUE values
+				if (BED_DEBUG_MODE)
+				{
+					Serial.print ("Power: ");
+					Serial.println (power);
+					Serial.print ("RED: ");
+					Serial.print (red);
+					Serial.print (" / GREEN: ");
+					Serial.print (green);
+					Serial.print (" / BLUE: ");
+					Serial.println (blue);
+					Serial.println ();
+				}
+				break;
+				break;
+
+				//UP
+			case 0xFF906F:
+			case 0xE5CFBD7F:
+				if (mode == MODE_STROBE) // If we are in STROBE mode, increase speed instead of power
+				{
+					if (strobeSpeed + STROBE_SPEED <= MAX_STROBE)
+						strobeSpeed += STROBE_SPEED;
+					else
+						strobeSpeed = MAX_STROBE;
+				}
+				else
+				{
+					if (power + POWER_SPEED <= MAX_POWER)
+						power += POWER_SPEED;
+					else
+						power = MAX_POWER;
+				}
+
+				rgb2color ();
+				lastIRCode = IRCode;
+
+				// [DEBUG] Print current color and RED, GREEN, BLUE values
+				if (BED_DEBUG_MODE)
+				{
+					Serial.print ("Power: ");
+					Serial.println (power);
+					Serial.print ("RED: ");
+					Serial.print (red);
+					Serial.print (" / GREEN: ");
+					Serial.print (green);
+					Serial.print (" / BLUE: ");
+					Serial.println (blue);
+					Serial.println ();
+				}
+				break;
+				break;
+
+				//STROBE
+			case 0xFF00FF:
+			case 0xFA3F159F:
+				mode = MODE_STROBE;
+				break;
+				break;
+
+				//FADE
+			case 0xFF58A7:
+			case 0xDC0197DB:
+				mode = MODE_FADE;
+				break;
+				break;
+
+				//SMOOTH
+			case 0xFF30CF:
+			case 0x9716BE3F:
+				mode = MODE_SMOOTH;
+				break;
+				break;
+
+				//COLORS
+			default:
+				lastIRCode = 0;
+				for (i = 0; i < N; i++)
+					if (results.value == color[i][1]
+							|| results.value == color[i][2])
+					{
+						mode = MODE_DEFAULT;
+						lastMode = MODE_DEFAULT;
+						rgb = color[i][0];
+					}
+				break;
 		}
 		irrecv.resume ();
 	}
@@ -427,13 +434,15 @@ void readSerial ()
 		delay (1);
 	}
 
+	message = "";
+
 	// Converting char array into String
 	for (i = 0; i < n; i++)
 		message += String (messageChar[i]);
 
 	messageLength = message.length (); // Message length
 
-	// Testing what kind of data we are receiving (Testing if the prefix is at position 0)
+	// Testing what kind of data we are receiving (Testing if the prefix is present at position 0)
 	if (message.indexOf ("TIM") == 0)
 		infoType = TYPE_TIME;
 	else if (message.indexOf ("ON") == 0)
@@ -444,22 +453,30 @@ void readSerial ()
 		infoType = TYPE_POW;
 	else if (message.indexOf ("MOD") == 0)
 		infoType = TYPE_MOD;
-	else
-		return;
+	else  // If the prefix correspond to nothing or there is no prefix
+	{
+		// If DEBUG is active, we continue with unkown type
+		if (BED_DEBUG_MODE)
+			infoType = TYPE_UNKNOWN;
+
+		// If not, we stop
+		else
+			return;
+	}
 
 	// Testing if data length is valid
-	if (infoType == TYPE_TIME && messageLength > 13)
+	if (infoType == TYPE_TIME && messageLength > 13 && !BED_DEBUG_MODE)
 		return;
-	if (infoType == TYPE_ON && messageLength != 3)
+	if (infoType == TYPE_ON && messageLength != 3 && !BED_DEBUG_MODE)
 		return;
-	if (infoType == TYPE_RGB && messageLength > 9)
+	if (infoType == TYPE_RGB && messageLength > 9 && !BED_DEBUG_MODE)
 		return;
-	if (infoType == TYPE_POW && messageLength > 6)
+	if (infoType == TYPE_POW && messageLength > 6 && !BED_DEBUG_MODE)
 		return;
-	if (infoType == TYPE_MOD && messageLength != 4)
+	if (infoType == TYPE_MOD && messageLength != 4 && !BED_DEBUG_MODE)
 		return;
 
-	// [DEBUG] Printing full word, world length and infofrmation type
+	// [DEBUG] Printing full word, world length and information type
 	if (BED_DEBUG_MODE)
 	{
 		Serial.print ("Word: ");
@@ -495,7 +512,9 @@ void readSerial ()
 							message.charAt (0) == MODE_SMOOTH + '0' ?
 									"SMOOTH (" : "UNKNOWN (") + message + ")" :
 						message);
-		if (infoType == TYPE_ON || infoType == TYPE_MOD)
+		// This is the end of debuging for these types
+		if (infoType == TYPE_ON || infoType == TYPE_MOD
+				|| infoType == TYPE_UNKNOWN)
 			Serial.println ();
 	}
 
@@ -504,7 +523,7 @@ void readSerial ()
 		message.toCharArray (charTime, 11);
 		setTime (strtol (charTime, NULL, 10));
 	}
-	else if (infoType == TYPE_ON)
+	else if (infoType == TYPE_ON || infoType == TYPE_MOD)
 	{
 		on = message.charAt (0) - '0';
 	}
@@ -517,14 +536,11 @@ void readSerial ()
 	{
 		message.toCharArray (charPow, 4);
 
-		if (mode == MODE_STROBE) // If we are in STROBE mode, changing strobe speed instead of power
+		// If we are in STROBE mode, changing strobe speed instead of power
+		if (mode == MODE_STROBE)
 			strobeSpeed = strtol (charPow, NULL, 10) / 2;
 		else
 			power = strtol (charPow, NULL, 10);
-	}
-	else if (infoType == TYPE_MOD)
-	{
-		mode = message.charAt (0) - '0';
 	}
 
 	if (BED_DEBUG_MODE)
@@ -589,29 +605,29 @@ void action ()
 	// Calling modes functions
 	switch (mode)
 	{
-	case MODE_STROBE:
-		if (lastMode != MODE_STROBE) // If this is first call of the function, we call init function (lastMode will be set in init function)
-			initModeStrobe ();
-		modeStrobe ();
-		break;
+		case MODE_STROBE:
+			if (lastMode != MODE_STROBE) // If this is first call of the function, we call init function (lastMode will be set in init function)
+				initModeStrobe ();
+			modeStrobe ();
+			break;
 
-	case MODE_FADE:
-		if (lastMode != MODE_FADE)
-			initModeFade ();
-		modeFade ();
-		break;
+		case MODE_FADE:
+			if (lastMode != MODE_FADE)
+				initModeFade ();
+			modeFade ();
+			break;
 
-	case MODE_SMOOTH:
-		if (lastMode != MODE_SMOOTH)
-			initModeSmooth ();
-		modeSmooth ();
-		break;
+		case MODE_SMOOTH:
+			if (lastMode != MODE_SMOOTH)
+				initModeSmooth ();
+			modeSmooth ();
+			break;
 
-	case MODE_WAKEUP:
-		if (lastMode != MODE_WAKEUP)
-			initModeWakeup ();
-		modeWakeup ();
-		break;
+		case MODE_WAKEUP:
+			if (lastMode != MODE_WAKEUP)
+				initModeWakeup ();
+			modeWakeup ();
+			break;
 	}
 }
 
@@ -622,6 +638,8 @@ void initModeStrobe ()
 	rgb = 0xFFFFFF; // Set color to white
 	count = 0; // Reseting counter
 	lastMode = MODE_STROBE; // Setting lastMode so we don't call init again
+	if (BED_DEBUG_MODE)
+		Serial.println("Entering Strobe mode\n");
 }
 
 // Strobe mode
@@ -648,6 +666,8 @@ void initModeFade ()
 	rgb = 0xFFFFFF; // Setting color to white
 	power = 0; // Setting power to 0 (LED's shutted down)
 	lastMode = MODE_FADE; // Setting lastMode so we don't call init again
+	if (BED_DEBUG_MODE)
+		Serial.println("Entering Fade mode\n");
 }
 
 // Fade Mode
@@ -680,6 +700,8 @@ void initModeSmooth ()
 	rgb = 0xFE0000; // Init color to red
 	rgb2color (); // Calling rgb2color to generate color values
 	lastMode = MODE_SMOOTH; // Setting lastMode so we don't call init again
+	if (BED_DEBUG_MODE)
+		Serial.println("Entering Smooth mode\n");
 }
 
 // Smooth Mode
@@ -750,6 +772,8 @@ void initModeWakeup ()
 	rgb = 0x0000FF; // Setting color to blue
 	power = 0; // Setting power to 0
 	lastMode = MODE_WAKEUP; // Setting lastMode so we don't call init again
+	if (BED_DEBUG_MODE)
+		Serial.println("Entering Wakeup mode\n");
 }
 
 // Wakeup Mode
