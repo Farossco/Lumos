@@ -7,9 +7,9 @@
 #define WAIT_FOR_TIME true // If we have to wait for time sync (if true, program will not start until time is synced)
 #define INFRARED_ENABLED false // If we allow infrared communication
 
-// Time wake up
-#define WAKEUP_HOUR 17
-#define WAKEUP_MINUTE 07
+// Time wake up (Currently 6:20 AM)
+#define WAKEUP_HOUR 6
+#define WAKEUP_MINUTE 20
 
 #define LED_RED 9 // Red LED OUT pin
 #define LED_GREEN 10 // Green LED OUT pin
@@ -18,7 +18,7 @@
 
 #define MIN_POWER 5 // Minimum power value
 #define MAX_POWER 100 // Maximum power value
-#define DEFAULT_POWER 30 // Default power value
+#define DEFAULT_POWER 50 // Default power value
 #define POWER_SPEED 5 // Power increasion or dicreasion speed
 #define FADE_SPEED 1 // Fade increasion or dicreasion speed
 #define WAKEUP_SPEED 0.01 // Power increasion speed for Wakeup mode
@@ -494,19 +494,27 @@ void readSerial ()
 				infoType == TYPE_ON ? "ON: " : infoType == TYPE_RGB ? "RGB: " :
 				infoType == TYPE_POW ? "POW: " :
 				infoType == TYPE_MOD ? "MOD: " : "UNKNOWN: ");
+
 		Serial.println (
 				(infoType == TYPE_ON) ?
 						((message == "1") ? "True" :
 							(message == "0") ? "False" : "Error") :
 				(infoType == TYPE_MOD) ?
-						(message.charAt (0) == MODE_FLASH + '0' ? "FLASH (" :
+						(message.charAt (0) == MODE_DEFAULT + '0' ?
+								"DEFAULT (" :
+							message.charAt (0) == MODE_FLASH + '0' ? "FLASH (" :
 							message.charAt (0) == MODE_STROBE + '0' ?
 									"STROBE (" :
 							message.charAt (0) == MODE_FADE + '0' ? "FADE (" :
 							message.charAt (0) == MODE_SMOOTH + '0' ?
-									"SMOOTH (" : "UNKNOWN (") + message + ")" :
+									"SMOOTH (" :
+							message.charAt (0) == MODE_WAKEUP + '0' ?
+									"WAKE UP (" : "UNKNOWN (")
+
+						+ message + ") " :
 						message);
-		// This is the end of debuging for these types
+
+		// This is the end of debuging for these types, so we print \n
 		if (infoType == TYPE_ON || infoType == TYPE_MOD
 				|| infoType == TYPE_UNKNOWN)
 			Serial.println ();

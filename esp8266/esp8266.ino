@@ -40,9 +40,9 @@ boolean error;
 void setup ()
 {
 	pinMode (0, OUTPUT);
-	pinMode (1, OUTPUT);
+	pinMode (2, OUTPUT);
 	digitalWrite (0, LOW);
-	digitalWrite (1, LOW);
+	digitalWrite (2, LOW);
 
 	Serial.begin (BAUD_RATE);
 	delay (10);
@@ -366,11 +366,12 @@ void getMode ()
 		Serial.println (value);
 		Serial.print ("Mode (Text) = ");
 		Serial.println (
-				value == 1 ? "FLASH" : value == 2 ? "STROBE" :
-				value == 3 ? "FADE" : value == 4 ? "SMOOTH" : "UNKNOWN");
+				value == 0 ? "DEFAULT" : value == 1 ? "FLASH" :
+				value == 2 ? "STROBE" : value == 3 ? "FADE" :
+				value == 4 ? "SMOOTH" : value == 5 ? "WAKEUP" : "UNKNOWN");
 	}
 
-	if (value != 1 && value != 2 && value != 3 && value != 4)
+	if (value < 0 || value > 5)
 		value = -1;
 }
 
