@@ -10,4 +10,6 @@
 	<string name="ModeFade">Fade</string>
 	<string name="modeFlash">Flash</string>
 	<string name="ModeStrobe">Strobe</string>
+	<string name="ModeDefault">DEFAULT</string>
+	<string name="modeWakeUp">Wake up</string>
 </resources>

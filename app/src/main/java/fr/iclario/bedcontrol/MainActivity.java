@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity
 
 	public void StringRequestMode(View view)
 	{
-		String mode = (view.getId() == R.id.buttonModeFlash) ? "1" : (view.getId() == R.id.buttonModeStrobe) ? "2" : (view.getId() == R.id.buttonModeFade) ? "3" : (view.getId() == R.id.buttonModeSmooth) ? "4" : "?";
+		String mode = (view.getId() == R.id.buttonModeDefault) ? "0" : (view.getId() == R.id.buttonModeFlash) ? "1" : (view.getId() == R.id.buttonModeStrobe) ? "2" : (view.getId() == R.id.buttonModeFade) ? "3" : (view.getId() == R.id.buttonModeSmooth) ? "4" : (view.getId() == R.id.buttonModeWakeUp) ? "5" : "?";
 
 		RequestQueue queue = MainActivity.queue;
 

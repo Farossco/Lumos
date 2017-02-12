@@ -10,15 +10,6 @@ public class OnSeekBarBlueChangeListener implements SeekBar.OnSeekBarChangeListe
 	@Override
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
 	{
-		MainActivity.blue = progress;
-		// Instantiate the RequestQueue.
-		RequestQueue queue = MainActivity.queue;
-
-		// Request a string response from the provided URL.
-		StringRequest stringRequest = new StringRequestRGB(MainActivity.getRgbString(), MainActivity.responseTextView);
-
-		// Add the request to the RequestQueue.
-		queue.add(stringRequest);
 		MainActivity.textViewBlueValue.setText(progress + "/" + MainActivity.seekBarBlue.getMax());
 	}
 
@@ -30,5 +21,17 @@ public class OnSeekBarBlueChangeListener implements SeekBar.OnSeekBarChangeListe
 	@Override
 	public void onStopTrackingTouch(SeekBar seekBar)
 	{
+		int progress = seekBar.getProgress();
+
+		MainActivity.blue = progress;
+		// Instantiate the RequestQueue.
+		RequestQueue queue = MainActivity.queue;
+
+		// Request a string response from the provided URL.
+		StringRequest stringRequest = new StringRequestRGB(MainActivity.getRgbString(), MainActivity.responseTextView);
+
+		// Add the request to the RequestQueue.
+		queue.add(stringRequest);
+		MainActivity.textViewBlueValue.setText(progress + "/" + MainActivity.seekBarBlue.getMax());
 	}
 }
