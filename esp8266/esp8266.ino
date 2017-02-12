@@ -368,7 +368,10 @@ void getMode ()
 		Serial.println (
 				value == 0 ? "DEFAULT" : value == 1 ? "FLASH" :
 				value == 2 ? "STROBE" : value == 3 ? "FADE" :
-				value == 4 ? "SMOOTH" : value == 5 ? "WAKEUP" : "UNKNOWN");
+						value == 4 ?
+										"SMOOTH" :
+						value == 5 ?
+										"WAKEUP" : "UNKNOWN");
 	}
 
 	if (value < 0 || value > 5)

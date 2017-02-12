@@ -229,9 +229,15 @@ void light ()
 {
 	rgb2color (); // Convert RGB value to Red, Green and Blue values
 
-	analogWrite (LED_RED, on ? red : 0);
-	analogWrite (LED_GREEN, on ? green : 0);
-	analogWrite (LED_BLUE, on ? blue : 0);
+	analogWrite (LED_RED, on ?
+								red :
+								0);
+	analogWrite (LED_GREEN, on ?
+									green :
+									0);
+	analogWrite (LED_BLUE, on ?
+								blue :
+								0);
 }
 
 // Convert RGB value to Red, Green and Blue values
@@ -478,41 +484,68 @@ void readSerial ()
 		Serial.print ("Length: ");
 		Serial.println (messageLength);
 		Serial.print ("Type: ");
-		Serial.println (
-				infoType == TYPE_TIME ? "TIME" : infoType == TYPE_ON ? "ON" :
-				infoType == TYPE_RGB ? "RGB" : infoType == TYPE_POW ? "POW" :
-				infoType == TYPE_MOD ? "MOD" : "UNKNOWN");
+		Serial.println (infoType == TYPE_TIME ?
+												"TIME" :
+						infoType == TYPE_ON ?
+												"ON" :
+						infoType == TYPE_RGB ?
+												"RGB" :
+						infoType == TYPE_POW ?
+												"POW" :
+						infoType == TYPE_MOD ?
+												"MOD" :
+												"UNKNOWN");
 	}
 
-	message.remove (0, infoType == TYPE_ON ? 2 : 3); // Remove 2 first characters if "ON" type and 3 first ones if "TIME", "RGB", "POW" or "MOD" type
+	message.remove (0, infoType == TYPE_ON ?
+												2 :
+												3); // Remove 2 first characters if "ON" type and 3 first ones if "TIME", "RGB", "POW" or "MOD" type
 
 	// [DEBUG] printing information without prefix
 	if (DEBUG_ENABLED)
 	{
-		Serial.print (
-				infoType == TYPE_TIME ? "TIME: " :
-				infoType == TYPE_ON ? "ON: " : infoType == TYPE_RGB ? "RGB: " :
-				infoType == TYPE_POW ? "POW: " :
-				infoType == TYPE_MOD ? "MOD: " : "UNKNOWN: ");
+		Serial.print (infoType == TYPE_TIME ?
+												"TIME: " :
+						infoType == TYPE_ON ?
+												"ON: " :
+						infoType == TYPE_RGB ?
+												"RGB: " :
+						infoType == TYPE_POW ?
+												"POW: " :
+						infoType == TYPE_MOD ?
+												"MOD: " :
+												"UNKNOWN: ");
 
 		Serial.println (
 				(infoType == TYPE_ON) ?
-						((message == "1") ? "True" :
-							(message == "0") ? "False" : "Error") :
+										((message == "1") ?
+															"True" :
+											(message == "0") ?
+																"False" :
+																"Error") :
 				(infoType == TYPE_MOD) ?
-						(message.charAt (0) == MODE_DEFAULT + '0' ?
-								"DEFAULT (" :
-							message.charAt (0) == MODE_FLASH + '0' ? "FLASH (" :
-							message.charAt (0) == MODE_STROBE + '0' ?
-									"STROBE (" :
-							message.charAt (0) == MODE_FADE + '0' ? "FADE (" :
-							message.charAt (0) == MODE_SMOOTH + '0' ?
-									"SMOOTH (" :
-							message.charAt (0) == MODE_WAKEUP + '0' ?
-									"WAKE UP (" : "UNKNOWN (")
+											(message.charAt (0)
+														== MODE_DEFAULT + '0' ?
+																				"DEFAULT (" :
+												message.charAt (0)
+														== MODE_FLASH + '0' ?
+																				"FLASH (" :
+												message.charAt (0)
+														== MODE_STROBE + '0' ?
+																				"STROBE (" :
+												message.charAt (0)
+														== MODE_FADE + '0' ?
+																				"FADE (" :
+												message.charAt (0)
+														== MODE_SMOOTH + '0' ?
+																				"SMOOTH (" :
+												message.charAt (0)
+														== MODE_WAKEUP + '0' ?
+																				"WAKE UP (" :
+																				"UNKNOWN (")
 
-						+ message + ") " :
-						message);
+											+ message + ") " :
+											message);
 
 		// This is the end of debuging for these types, so we print \n
 		if (infoType == TYPE_ON || infoType == TYPE_MOD
@@ -583,11 +616,13 @@ void readSerial ()
 			Serial.print ("Full POW (number): ");
 			Serial.println (
 					mode == MODE_FLASH ?
-							(int) (flashSpeed * (MAX_POWER / (float) MAX_FLASH)) :
+											(int) (flashSpeed
+													* (MAX_POWER
+															/ (float) MAX_FLASH)) :
 					MODE_STROBE ?
-							(int) (strobeSpeed
-									* (MAX_POWER / (float) MAX_STROBE)) :
-							(int) power);
+									(int) (strobeSpeed
+											* (MAX_POWER / (float) MAX_STROBE)) :
+									(int) power);
 			Serial.println ();
 		}
 	}
@@ -689,7 +724,11 @@ void modeFlash ()
 		count++; // incrementing counter
 	}
 
-	rgb = (state == 0 ? 0xFF0000 : state == 1 ? 0x00FF00 : 0x0000FF);
+	rgb = (state == 0 ?
+						0xFF0000 :
+			state == 1 ?
+							0x00FF00 :
+							0x0000FF);
 }
 
 // Strobe mode initialization
@@ -716,7 +755,9 @@ void modeStrobe ()
 		count++; // incrementing counter
 	}
 
-	rgb = state ? 0xFFFFFF : 0x000000; // Setting color to black then white then black then white...
+	rgb = state ?
+					0xFFFFFF :
+					0x000000; // Setting color to black then white then black then white...
 
 }
 
