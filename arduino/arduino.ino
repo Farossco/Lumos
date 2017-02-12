@@ -5,6 +5,7 @@
 
 #define DEBUG_ENABLED true // DEBUG Mode
 #define WAIT_FOR_TIME true // If we have to wait for time sync (if true, program will not start until time is synced)
+#define INFRARED_ENABLED false // If we allow infrared communication
 
 // Time wake up
 #define WAKEUP_HOUR 17
@@ -250,6 +251,9 @@ void rgb2color ()
 // Read the in-comming IR signal if present
 void readInfrared ()
 {
+	if (!INFRARED_ENABLED)
+		return;
+
 	// If something is comming from IR reciever
 	if (irrecv.decode (&results))
 	{
