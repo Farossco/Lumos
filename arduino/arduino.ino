@@ -7,40 +7,60 @@
 #define WAIT_FOR_TIME true // If we have to wait for time sync (if true, program will not start until time is synced)
 #define INFRARED_ENABLED false // If we allow infrared communication
 
-// Time wake up (Currently 6:20 AM)
+//******* Wake up *******//
 #define WAKEUP_HOUR 6
-#define WAKEUP_MINUTE 20
+#define WAKEUP_MINUTE 17
 
-#define LED_RED 9 // Red LED OUT pin
-#define LED_GREEN 10 // Green LED OUT pin
-#define LED_BLUE 11 // Blue LED OUT pin
-#define LED_INFRARED 12 // Infrared IN pin
+//******* Pins *******//
+#define PIN_LED_INFRARED 3 // Infrared IN pin
+#define PIN_SOUND 2 // Sound detector IN pin
+#define PIN_LED_RED 9 // Red LED OUT pin
+#define PIN_LED_GREEN 10 // Green LED OUT pin
+#define PIN_LED_BLUE 11 // Blue LED OUT pin
 
-#define MIN_POWER 5 // Minimum power value
+//******* Power *******//
+#define MIN_POWER 0 // Minimum power value
 #define MAX_POWER 100 // Maximum power value
 #define DEFAULT_POWER 50 // Default power value
-#define POWER_SPEED 5 // Power increasion or dicreasion speed
-#define FADE_SPEED 1 // Fade increasion or dicreasion speed
-#define WAKEUP_SPEED 0.01 // Power increasion speed for Wakeup mode
-#define N 16 // Number of different colors
-#define MIN_STROBE 2 // Minimum strobe speed
-#define MAX_STROBE 50 // Maximum strobe speed
-#define STROBE_SPEED 1 // Strobe increasion or dicreasion speed
-#define DEFAULT_STROBE_SPEED 25 // Default strobe speed value
-#define MIN_FLASH 2 // Minimum strobe speed
-#define MAX_FLASH 50 // Maximum flash speed
-#define FLASH_SPEED 1 // Flash increasion or dicreasion speed
-#define DEFAULT_FLASH_SPEED 25 // Default flash speed value
 
-//Some IDs used for serial reception decrypt
+#define N 16 // Number of different colors
+
+//******* Infrared *******//
+#define POWER_CHANGE_SPEED 5 // Power increasion/decreasion speed
+
+//******* Modes *******//
+/******** Flash *******/
+#define MIN_FLASH -100 // Minimum flash speed
+#define MAX_FLASH 50 // Maximum flash speed
+#define IR_FLASH_CHANGE_SPEED 1 // Flash increasion or dicreasion speed
+#define DEFAULT_FLASH_SPEED 0 // Default flash speed value
+/******** Strobe *******/
+#define MIN_STROBE -100 // Minimum strobe speed
+#define MAX_STROBE 50 // Maximum strobe speed
+#define IR_STROBE_CHANGE_SPEED 1 // Strobe increasion or dicreasion speed
+#define DEFAULT_STROBE_SPEED 0 // Default strobe speed value
+/******** Fade *******/
+#define MIN_FADE 70 // Minimum fade speed
+#define MAX_FADE 100 // Maximum fade speed
+#define IR_FADE_CHANGE_SPEED 1 // Fade increasion or dicreasion speed
+#define DEFAULT_FADE_SPEED 75 // Default fade speed value
+/******** Smooth *******/
+#define MIN_SMOOTH 76 // Minimum smooth speed
+#define MAX_SMOOTH 100 // Maximum smooth speed
+#define IR_SMOOTH_CHANGE_SPEED 1 // Smooth increasion or dicreasion speed
+#define DEFAULT_SMOOTH_SPEED 80 // Default smooth speed value
+/******** Wake up *******/
+#define WAKE_UP_SLOWNESS 1000  // Wake up slowness
+
+//******** IDs ********//
+/******** Serial reception types ********/
 #define TYPE_UNKNOWN -1
 #define TYPE_TIME 0
 #define TYPE_RGB 1
 #define TYPE_ON 2
 #define TYPE_POW 3
 #define TYPE_MOD 4
-
-// Some IDs used for Mode changing
+/******** Modes ********/
 #define MODE_DEFAULT 0
 #define MODE_FLASH 1
 #define MODE_STROBE 2
@@ -48,32 +68,41 @@
 #define MODE_SMOOTH 4
 #define MODE_WAKEUP 5
 
+//******** Sound ********//
+#define MIN_CLAP_DURATION 30 // Amount of time to ignore after clap started (To avoid sound bounce)
+#define MAX_CLAP_DURATION 100 // Maximum clap duration in ms
+
+#define MIN_TIME_BEETWIN_TWO_CLAPS 400 // Minimum time before starting second clap
+#define MAX_TIME_BEETWIN_TWO_CLAPS 600 // Maximum time to start second clap
+
+#define TIME_AFTER_START_OVER 1000 // Time to wait after double clap to start over
+
 // Infrared reception objects declaration
-IRrecv irrecv (LED_INFRARED);
+IRrecv irrecv (PIN_LED_INFRARED);
 decode_results results;
 
 // Infrared codes and corresponding RGB code array
 unsigned long color[][3] =
 {
 //        RGB Code   Code 1     Code 2
-		{ 0xFFFFFF, 0xFFA857, 0xA3C8EDDB }, // WHITE
-		{ 0xFF0000, 0xFF9867, 0x97483BFB }, // R1
-		{ 0xFF5300, 0xFFE817, 0x5BE75E7F }, // R2
-		{ 0xFF3C00, 0xFF02FD, 0xD7E84B1B }, // R3
-		{ 0xFFC400, 0xFF50AF, 0x2A89195F }, // R4
-		{ 0xFFFF00, 0xFF38C7, 0x488F3CBB }, // R5
+{ 0xFFFFFF, 0xFFA857, 0xA3C8EDDB }, // WHITE
+{ 0xFF0000, 0xFF9867, 0x97483BFB }, // R1
+{ 0xFF5300, 0xFFE817, 0x5BE75E7F }, // R2
+{ 0xFF3C00, 0xFF02FD, 0xD7E84B1B }, // R3
+{ 0xFFC400, 0xFF50AF, 0x2A89195F }, // R4
+{ 0xFFFF00, 0xFF38C7, 0x488F3CBB }, // R5
 
-		{ 0x00FF00, 0xFFD827, 0x86B0E697 }, // G1
-		{ 0x20FF5D, 0xFF48B7, 0xF377C5B7 }, // G2
-		{ 0x34FFF6, 0xFF32CD, 0xEE4ECCFB }, // G3
-		{ 0x21E7FF, 0xFF7887, 0xF63C8657 }, // G4
-		{ 0x00BDFF, 0xFF28D7, 0x13549BDF }, // G5
+{ 0x00FF00, 0xFFD827, 0x86B0E697 }, // G1
+{ 0x20FF5D, 0xFF48B7, 0xF377C5B7 }, // G2
+{ 0x34FFF6, 0xFF32CD, 0xEE4ECCFB }, // G3
+{ 0x21E7FF, 0xFF7887, 0xF63C8657 }, // G4
+{ 0x00BDFF, 0xFF28D7, 0x13549BDF }, // G5
 
-		{ 0x0000FF, 0xFF8877, 0x9EF4941F }, // B1
-		{ 0x0068FF, 0xFF6897, 0xC101E57B }, // B2
-		{ 0x8068FF, 0xFF20DF, 0x51E43D1B }, // B3
-		{ 0xDB89FF, 0xFF708F, 0x44C407DB }, // B4
-		{ 0xFF7B92, 0xFFF00F, 0x35A9425F }  // B5
+{ 0x0000FF, 0xFF8877, 0x9EF4941F }, // B1
+{ 0x0068FF, 0xFF6897, 0xC101E57B }, // B2
+{ 0x8068FF, 0xFF20DF, 0x51E43D1B }, // B3
+{ 0xDB89FF, 0xFF708F, 0x44C407DB }, // B4
+{ 0xFF7B92, 0xFFF00F, 0x35A9425F }  // B5
 };
 
 //******* Useful *******//
@@ -82,29 +111,31 @@ int i, n; // Counting variables (used for "for" statements)
 //******* Global *******//
 boolean on; // If the leds are ON or OFF (True: ON / False: OFF)
 unsigned long rgb; // Currently displayed RGB value (From 0x000000 to 0xFFFFFF)
-int red; // Currentlty red value including lightning power (From 0 to 255)
-int green; // Currentlty green value including lightning power (From 0 to 255)
-int blue; // Currentlty blue value including lightning power (From 0 to 255)
-int mode; // Current lighting mode (0: Constant lightning / 1: Flash / 2: Strobe / 3: Fade / 4: Smooth / 5: Wakeup)
 float power; // Current lightning power (from MINPOWER to MAXPOWER)
+unsigned char red; // Currentlty red value including lightning power (From 0 to 255)
+unsigned char green; // Currentlty green value including lightning power (From 0 to 255)
+unsigned char blue; // Currentlty blue value including lightning power (From 0 to 255)
 
 //******* testWakeUpTime *******//
 boolean wokeUp; // Used to set Wakeup mode only once
 boolean timeAsked; // Used to ask time only once every peak time
 
 //******* Modes *******//
-int state; // Current state used by 1 to 4 modes
+unsigned char mode; // Current lighting mode (0: Constant lightning / 1: Flash / 2: Strobe / 3: Fade / 4: Smooth / 5: Wakeup)
+int state; // Current state used by some modes
 int count; // Delay counting
 /******* action *******/
 int lastMode; // Mode in previous loop - Allows mode initializations
+unsigned long lastRgb; // Saved RGB value before we leave default mode
+float lastPower; // Saved power value before we leave default mode
 /******* modeFlash ********/
-int flashSpeed;
+int flashSpeed; // Current flash speed (From MINFLASH to MAXFLASH)
 /******* modeStrobe *******/
-int strobeSpeed; // Current Strobe speed (From MINSTROBE to MAXSTROBE)
+int strobeSpeed; // Current strobe speed (From MINSTROBE to MAXSTROBE)
+/******* modeFade *******/
+int fadeSpeed; // Current fade speed (From MINFADE to MAXFADE)
 /******* modeSmooth *******/
-int unpoweredRed; // Currentlty red value without lightning power (From 0 to 255)
-int unpoweredGreen; // Currentlty green value without lightning power (From 0 to 255)
-int unpoweredBlue; // Currentlty blue value without lightning power (From 0 to 255)
+int smoothSpeed; // Current smooth speed (From MINSMOOTH to MAXSMOOTH)
 
 //******* readInfrared *******//
 unsigned long lastIRCode; // IR code in previous loop - Allows continious power / strobe speed increasion / dicreasion
@@ -117,30 +148,37 @@ char charRgb[7], charPow[4], charTime[11]; // Char arrays for message decrypting
 char messageChar[20]; // Received message
 String message; // Received message converted to String
 
+//******* readClaps *******//
+int clapState; // Same as "state" but for claps
+unsigned long endStateTime; // Time position at the end of a state (Allow time counting)
+
 void setup ()
 {
 	Serial.begin (BAUD_RATE); // Initialize serial communication
 
+	pinMode (PIN_SOUND, INPUT); // Setting sound detector as an input
+
 	if (DEBUG_ENABLED)
 		Serial.println ("Starting program\n");
 
-	// pins initialization
-	pinMode (LED_RED, OUTPUT);
-	pinMode (LED_GREEN, OUTPUT);
-	pinMode (LED_BLUE, OUTPUT);
-	pinMode (LED_INFRARED, INPUT);
-	pinMode (LED_BUILTIN, OUTPUT);
-	digitalWrite (LED_BUILTIN, LOW);
+	on = true; // LEDs are off on startup
 
-	on = false; // LEDs are off on startup
-	irrecv.enableIRIn (); // Initialize IR communication
+	if (INFRARED_ENABLED)
+		irrecv.enableIRIn (); // Initialize IR communication
+
 	rgb = 0xFFFFFF; // Initialize color to white
+
+	// Initialzing to default values
 	mode = MODE_DEFAULT; // Initialize mode to constant lightning
 	lastMode = MODE_DEFAULT; // Initialiazing last mode as well
 	power = DEFAULT_POWER; // Initializing power its default value
-	strobeSpeed = DEFAULT_STROBE_SPEED; // Initializing strobe speed its default value
-	flashSpeed = DEFAULT_FLASH_SPEED; // Initializing flash speed its default value
+	flashSpeed = DEFAULT_FLASH_SPEED; // Initializing flash speed to its default value
+	strobeSpeed = DEFAULT_STROBE_SPEED; // Initializing strobe speed to its default value
+	fadeSpeed = DEFAULT_FADE_SPEED; // Initializing fade speed to its default value
+	smoothSpeed = DEFAULT_SMOOTH_SPEED; // Initializing smooth speed to its default value
 
+	clapState = 0;
+	endStateTime = 0;
 	lastIRCode = 0;
 	wokeUp = false;
 	timeAsked = false;
@@ -166,6 +204,8 @@ void setup ()
 
 void loop ()
 {
+	readClaps (); // Lighting on double claps
+
 	testWakeUpTime (); // Test wakeup time and peak hours for resynchronization
 
 	readInfrared (); // Read the in-comming IR signal if present
@@ -175,6 +215,86 @@ void loop ()
 	action (); // Do something according to current mode
 
 	light (); // Finaly display the RGB value
+}
+
+// Lighting on double claps
+void readClaps ()
+{
+	if (clapState == 0)
+	{
+		if (digitalRead (PIN_SOUND) == HIGH && millis () - endStateTime >= TIME_AFTER_START_OVER) // Start of first clap
+		{
+			clapState = 1;
+			endStateTime = millis ();
+			Serial.println (
+					"Enter state 1 (Now waiting for the clap to end)\n");
+		}
+	}
+	else if (clapState == 1)
+	{
+		if (millis () - endStateTime > MAX_CLAP_DURATION) // If clap duration reach maximum
+		{
+			clapState = 0;
+			Serial.println (
+					"Going back to state 0 (First clap lasted too long)\n");
+		}
+
+		if (digitalRead (PIN_SOUND) == LOW && millis () - endStateTime >= MIN_CLAP_DURATION) // End of first clap
+		{
+			clapState = 2;
+			endStateTime = millis ();
+			Serial.println ("Enter state 2 ( Now waiting a little bit...)\n");
+		}
+	}
+	else if (clapState == 2)
+	{
+		if (digitalRead (PIN_SOUND) == HIGH) // Too soon second clap
+		{
+			clapState = 0;
+			Serial.println (
+					"Going back to state 0 ( Second clap started too soon)\n");
+		}
+
+		if (millis () - endStateTime >= MIN_TIME_BEETWIN_TWO_CLAPS)
+		{
+			clapState = 3;
+			endStateTime = millis ();
+			Serial.println (
+					"Enter state 3 ( Now waiting for second clap to start)\n");
+		}
+	}
+	else if (clapState == 3)
+	{
+		if (millis () - endStateTime >= MAX_TIME_BEETWIN_TWO_CLAPS + MIN_TIME_BEETWIN_TWO_CLAPS)
+		{
+			clapState = 0;
+			Serial.println (
+					"Going back to state 0 ( Waited too long for second clap)\n");
+		}
+		if (digitalRead (PIN_SOUND) == HIGH) // Start of second clap
+		{
+			clapState = 4;
+			endStateTime = millis ();
+			Serial.println (
+					"Enter state 4 ( Now waiting for second clap to end)\n");
+		}
+	}
+	else if (clapState == 4)
+	{
+		if (millis () - endStateTime >= MAX_CLAP_DURATION)
+		{
+			clapState = 0;
+			Serial.println (
+					"Going back to state 0 (Second clap lasted too long)\n");
+		}
+		if (digitalRead (PIN_SOUND) == LOW && millis () - endStateTime >= MIN_CLAP_DURATION) // End of second clap
+		{
+			on = !on;
+			clapState = 0;
+			endStateTime = millis ();
+			Serial.println ("Switching LED !\n");
+		}
+	}
 }
 
 // Test wakeup time and peak hours for resynchronization
@@ -229,15 +349,9 @@ void light ()
 {
 	rgb2color (); // Convert RGB value to Red, Green and Blue values
 
-	analogWrite (LED_RED, on ?
-								red :
-								0);
-	analogWrite (LED_GREEN, on ?
-									green :
-									0);
-	analogWrite (LED_BLUE, on ?
-								blue :
-								0);
+	analogWrite (PIN_LED_RED, on ? red : 0);
+	analogWrite (PIN_LED_GREEN, on ? green : 0);
+	analogWrite (PIN_LED_BLUE, on ? blue : 0);
 }
 
 // Convert RGB value to Red, Green and Blue values
@@ -247,11 +361,6 @@ void rgb2color ()
 	red = ((rgb & 0xFF0000) >> 16) * (power / MAX_POWER);
 	green = ((rgb & 0x00FF00) >> 8) * (power / MAX_POWER);
 	blue = (rgb & 0x0000FF) * (power / MAX_POWER);
-
-	// Color values without the power
-	unpoweredRed = ((rgb & 0xFF0000) >> 16);
-	unpoweredGreen = ((rgb & 0x00FF00) >> 8);
-	unpoweredBlue = (rgb & 0x0000FF);
 }
 
 // Read the in-comming IR signal if present
@@ -266,7 +375,7 @@ void readInfrared ()
 		// We save the IR word in IRCode
 		IRCode = results.value;
 
-		// REPEAT (When button is press continiously, sent value is 0xFFFFFFFF, so we change it with the latest code that we recieved
+		// REPEAT (When button is pressed continiously, sent value is 0xFFFFFFFF, so we change it with the latest code that we recieved
 		if (IRCode == 0xFFFFFFFF)
 			IRCode = lastIRCode;
 
@@ -305,17 +414,38 @@ void readInfrared ()
 				//DOWN
 			case 0xFFB847:
 			case 0xA23C94BF:
-				if (mode == MODE_STROBE) // If we are in STROBE mode, decrease speed instead of power
+				if (mode == MODE_FLASH) // If we are in flash mode, decrease speed instead of power
 				{
-					if (strobeSpeed - STROBE_SPEED >= MIN_STROBE)
-						strobeSpeed -= STROBE_SPEED;
+					if (flashSpeed - IR_FLASH_CHANGE_SPEED >= MIN_FLASH)
+						flashSpeed -= IR_FLASH_CHANGE_SPEED;
+					else
+						flashSpeed = MIN_FLASH;
+				}
+				else if (mode == MODE_STROBE) // If we are in STROBE mode, decrease speed instead of power
+				{
+					if (strobeSpeed - IR_STROBE_CHANGE_SPEED >= MIN_STROBE)
+						strobeSpeed -= IR_STROBE_CHANGE_SPEED;
 					else
 						strobeSpeed = MIN_STROBE;
 				}
+				else if (mode == MODE_FADE) // If we are in fade mode, decrease speed instead of power
+				{
+					if (fadeSpeed - IR_FADE_CHANGE_SPEED >= MIN_FADE)
+						fadeSpeed -= IR_FADE_CHANGE_SPEED;
+					else
+						fadeSpeed = MIN_FADE;
+				}
+				else if (mode == MODE_SMOOTH) // If we are in smooth mode, decrease speed instead of power
+				{
+					if (smoothSpeed - IR_SMOOTH_CHANGE_SPEED >= MIN_SMOOTH)
+						smoothSpeed -= IR_SMOOTH_CHANGE_SPEED;
+					else
+						smoothSpeed = MIN_SMOOTH;
+				}
 				else
 				{
-					if (power - POWER_SPEED >= MIN_POWER)
-						power -= POWER_SPEED;
+					if (power - POWER_CHANGE_SPEED >= MIN_POWER)
+						power -= POWER_CHANGE_SPEED;
 					else
 						power = MIN_POWER;
 				}
@@ -342,24 +472,38 @@ void readInfrared ()
 				//UP
 			case 0xFF906F:
 			case 0xE5CFBD7F:
-				if (mode == MODE_FLASH) // If we are in flash mode, increase flash speed instead of power
+				if (mode == MODE_FLASH) // If we are in flash mode, increase speed instead of power
 				{
-					if (flashSpeed + FLASH_SPEED <= MAX_FLASH)
-						flashSpeed += FLASH_SPEED;
+					if (flashSpeed + IR_FLASH_CHANGE_SPEED <= MAX_FLASH)
+						flashSpeed += IR_FLASH_CHANGE_SPEED;
 					else
 						flashSpeed = MAX_FLASH;
 				}
-				if (mode == MODE_STROBE) // If we are in strobe mode, increase strobe speed instead of power
+				else if (mode == MODE_STROBE) // If we are in strobe mode, increase speed instead of power
 				{
-					if (strobeSpeed + STROBE_SPEED <= MAX_STROBE)
-						strobeSpeed += STROBE_SPEED;
+					if (strobeSpeed + IR_STROBE_CHANGE_SPEED <= MAX_STROBE)
+						strobeSpeed += IR_STROBE_CHANGE_SPEED;
 					else
 						strobeSpeed = MAX_STROBE;
 				}
+				else if (mode == MODE_FADE) // If we are in fade mode, increase speed instead of power
+				{
+					if (fadeSpeed + IR_FADE_CHANGE_SPEED <= MAX_FADE)
+						fadeSpeed += IR_FADE_CHANGE_SPEED;
+					else
+						fadeSpeed = MAX_FADE;
+				}
+				else if (mode == MODE_SMOOTH) // If we are in smooth mode, increase speed instead of power
+				{
+					if (smoothSpeed + IR_SMOOTH_CHANGE_SPEED <= MAX_SMOOTH)
+						smoothSpeed += IR_SMOOTH_CHANGE_SPEED;
+					else
+						smoothSpeed = MAX_SMOOTH;
+				}
 				else
 				{
-					if (power + POWER_SPEED <= MAX_POWER)
-						power += POWER_SPEED;
+					if (power + POWER_CHANGE_SPEED <= MAX_POWER)
+						power += POWER_CHANGE_SPEED;
 					else
 						power = MAX_POWER;
 				}
@@ -408,8 +552,7 @@ void readInfrared ()
 			default:
 				lastIRCode = 0;
 				for (i = 0; i < N; i++)
-					if (results.value == color[i][1]
-							|| results.value == color[i][2])
+					if (results.value == color[i][1] || results.value == color[i][2])
 					{
 						mode = MODE_DEFAULT;
 						lastMode = MODE_DEFAULT;
@@ -484,72 +627,38 @@ void readSerial ()
 		Serial.print ("Length: ");
 		Serial.println (messageLength);
 		Serial.print ("Type: ");
-		Serial.println (infoType == TYPE_TIME ?
-												"TIME" :
-						infoType == TYPE_ON ?
-												"ON" :
-						infoType == TYPE_RGB ?
-												"RGB" :
-						infoType == TYPE_POW ?
-												"POW" :
-						infoType == TYPE_MOD ?
-												"MOD" :
-												"UNKNOWN");
+		Serial.println (
+				infoType == TYPE_TIME ? "TIME" : infoType == TYPE_ON ? "ON" :
+				infoType == TYPE_RGB ? "RGB" : infoType == TYPE_POW ? "POW" :
+				infoType == TYPE_MOD ? "MOD" : "UNKNOWN");
 	}
 
-	message.remove (0, infoType == TYPE_ON ?
-												2 :
-												3); // Remove 2 first characters if "ON" type and 3 first ones if "TIME", "RGB", "POW" or "MOD" type
+	message.remove (0, infoType == TYPE_ON ? 2 : 3); // Remove 2 first characters if "ON" type and 3 first ones if "TIME", "RGB", "POW" or "MOD" type
 
 	// [DEBUG] printing information without prefix
 	if (DEBUG_ENABLED)
 	{
-		Serial.print (infoType == TYPE_TIME ?
-												"TIME: " :
-						infoType == TYPE_ON ?
-												"ON: " :
-						infoType == TYPE_RGB ?
-												"RGB: " :
-						infoType == TYPE_POW ?
-												"POW: " :
-						infoType == TYPE_MOD ?
-												"MOD: " :
-												"UNKNOWN: ");
+		Serial.print (
+				infoType == TYPE_TIME ? "TIME: " :
+				infoType == TYPE_ON ? "ON: " : infoType == TYPE_RGB ? "RGB: " :
+				infoType == TYPE_POW ? "POW: " :
+				infoType == TYPE_MOD ? "MOD: " : "UNKNOWN: ");
 
 		Serial.println (
-				(infoType == TYPE_ON) ?
-										((message == "1") ?
-															"True" :
-											(message == "0") ?
-																"False" :
-																"Error") :
-				(infoType == TYPE_MOD) ?
-											(message.charAt (0)
-														== MODE_DEFAULT + '0' ?
-																				"DEFAULT (" :
-												message.charAt (0)
-														== MODE_FLASH + '0' ?
-																				"FLASH (" :
-												message.charAt (0)
-														== MODE_STROBE + '0' ?
-																				"STROBE (" :
-												message.charAt (0)
-														== MODE_FADE + '0' ?
-																				"FADE (" :
-												message.charAt (0)
-														== MODE_SMOOTH + '0' ?
-																				"SMOOTH (" :
-												message.charAt (0)
-														== MODE_WAKEUP + '0' ?
-																				"WAKE UP (" :
-																				"UNKNOWN (")
+				(infoType == TYPE_ON) ? ((message == "1") ? "True" :
+											(message == "0") ? "False" : "Error") :
+				(infoType == TYPE_MOD) ? (
+						message.charAt (0) == MODE_DEFAULT + '0' ? "DEFAULT (" :
+						message.charAt (0) == MODE_FLASH + '0' ? "FLASH (" :
+						message.charAt (0) == MODE_STROBE + '0' ? "STROBE (" :
+						message.charAt (0) == MODE_FADE + '0' ? "FADE (" :
+						message.charAt (0) == MODE_SMOOTH + '0' ? "SMOOTH (" :
+						message.charAt (0) == MODE_WAKEUP + '0' ? "WAKE UP (" : "UNKNOWN (")
 
-											+ message + ") " :
-											message);
+				+ message + ") " : message);
 
 		// This is the end of debuging for these types, so we print \n
-		if (infoType == TYPE_ON || infoType == TYPE_MOD
-				|| infoType == TYPE_UNKNOWN)
+		if (infoType == TYPE_ON || infoType == TYPE_MOD || infoType == TYPE_UNKNOWN)
 			Serial.println ();
 	}
 
@@ -571,12 +680,22 @@ void readSerial ()
 	{
 		message.toCharArray (charPow, 4);
 
-		if (mode == MODE_FLASH) // If we are in STROBE mode, changing strobe speed instead of power
-			flashSpeed = strtol (charPow, NULL, 10)
-					/ (MAX_POWER / (float) MAX_FLASH);
-		else if (mode == MODE_STROBE) // If we are in STROBE mode, changing strobe speed instead of power
-			strobeSpeed = strtol (charPow, NULL, 10)
-					/ (MAX_POWER / (float) MAX_STROBE);
+		if (mode == MODE_FLASH) // If we are in flash mode, changing flash speed instead of power
+			flashSpeed =
+					strtol (charPow, NULL, 10) * (MAX_FLASH - (float) MIN_FLASH) / (MAX_POWER - (float) MIN_POWER) + (MIN_FLASH - MIN_POWER);
+
+		else if (mode == MODE_STROBE) // If we are in strobe mode, changing strobe speed instead of power
+			strobeSpeed =
+					strtol (charPow, NULL, 10) * (MAX_STROBE - MIN_STROBE) / (MAX_POWER - MIN_POWER) + (MIN_STROBE - MIN_POWER);
+
+		else if (mode == MODE_FADE) // If we are in fade mode, changing fade speed instead of power
+			fadeSpeed =
+					strtol (charPow, NULL, 10) * (MAX_FADE - MIN_FADE) / (MAX_POWER - MIN_POWER) + (MIN_FADE - MIN_POWER);
+
+		else if (mode == MODE_SMOOTH) // If we are in smooth mode, changing smooth speed instead of power
+			smoothSpeed =
+					strtol (charPow, NULL, 10) * (MAX_SMOOTH - MIN_SMOOTH) / (MAX_POWER - MIN_POWER) + (MIN_SMOOTH - MIN_POWER);
+
 		else
 			power = strtol (charPow, NULL, 10);
 	}
@@ -597,32 +716,25 @@ void readSerial ()
 		}
 		else if (infoType == TYPE_RGB)
 		{
+			rgb2color ();
 			Serial.print ("Full RGB (number): ");
 			Serial.println (rgb, HEX);
-			Serial.println ();
 			Serial.print ("RED: ");
-			Serial.println (red, HEX);
-			Serial.println ();
+			Serial.println (red);
 			Serial.print ("GREEN: ");
-			Serial.println (green, HEX);
-			Serial.println ();
+			Serial.println (green);
 			Serial.print ("BLUE: ");
-			Serial.println (blue, HEX);
+			Serial.println (blue);
 			Serial.println ();
-
 		}
 		else if (infoType == TYPE_POW)
 		{
 			Serial.print ("Full POW (number): ");
 			Serial.println (
-					mode == MODE_FLASH ?
-											(int) (flashSpeed
-													* (MAX_POWER
-															/ (float) MAX_FLASH)) :
-					MODE_STROBE ?
-									(int) (strobeSpeed
-											* (MAX_POWER / (float) MAX_STROBE)) :
-									(int) power);
+					mode == MODE_FLASH ? (int) flashSpeed :
+					mode == MODE_STROBE ? (int) strobeSpeed :
+					mode == MODE_FADE ? (int) fadeSpeed :
+					mode == MODE_SMOOTH ? (int) smoothSpeed : (int) power);
 			Serial.println ();
 		}
 	}
@@ -657,8 +769,15 @@ void printDigits (int digits)
 // Perform mode action
 void action ()
 {
+	if (mode == MODE_DEFAULT && lastMode != MODE_DEFAULT)
+	{
+		lastMode = MODE_DEFAULT;
+		rgb = lastRgb;
+		power = lastPower;
+	}
+
 	// If lightning if off or mode is constant lightnin, don't do anything
-	if (!on || mode == MODE_DEFAULT)
+	if (!on)
 		return;
 
 	// Calling modes functions
@@ -699,6 +818,11 @@ void action ()
 // Flash mode initialization
 void initModeFlash ()
 {
+	if (lastMode == MODE_DEFAULT)
+	{
+		lastRgb = rgb;
+		lastPower = power;
+	}
 	state = 0; // Set initial state to 0
 	rgb = 0xFF0000; // Set color to red
 	count = 0; // Reseting counter
@@ -710,30 +834,34 @@ void initModeFlash ()
 // Flash mode
 void modeFlash ()
 {
-	if (count >= MIN_FLASH + MAX_FLASH - flashSpeed) // Counting up for a certain amount of time
-	{
-		if (state >= 2)
-			state = 0;
-		else
-			state++; // Incrementing state
+	delay (1);
 
-		count = 0; // Reseting timer
+	if (count < 100 - flashSpeed)
+	{
+		count++;
+		return;
 	}
+
+	count = 0;
+
+	if (state >= 2)
+		state = 0;
 	else
-	{
-		count++; // incrementing counter
-	}
+		state++; // Incrementing state
 
-	rgb = (state == 0 ?
-						0xFF0000 :
-			state == 1 ?
-							0x00FF00 :
-							0x0000FF);
+	count = 0; // Reseting timer
+
+	rgb = (state == 0 ? 0xFF0000 : state == 1 ? 0x00FF00 : 0x0000FF);
 }
 
 // Strobe mode initialization
 void initModeStrobe ()
 {
+	if (lastMode == MODE_DEFAULT)
+	{
+		lastRgb = rgb;
+		lastPower = power;
+	}
 	state = 0; // Set initial state to 0
 	rgb = 0xFFFFFF; // Set color to white
 	count = 0; // Reseting counter
@@ -745,28 +873,33 @@ void initModeStrobe ()
 // Strobe mode
 void modeStrobe ()
 {
-	if (count >= MIN_STROBE + MAX_STROBE - strobeSpeed) // Counting up for a certain amount of time
+	delay (1);
+
+	if (count < 100 - strobeSpeed)
 	{
-		state = !state; // Inverting state
-		count = 0; // Reseting timer
-	}
-	else
-	{
-		count++; // incrementing counter
+		count++;
+		return;
 	}
 
-	rgb = state ?
-					0xFFFFFF :
-					0x000000; // Setting color to black then white then black then white...
+	count = 0;
 
+	state = !state; // Inverting state
+
+	rgb = state ? 0xFFFFFF : 0x000000; // Setting color to black then white then black then white...
 }
 
 // Fade Mode initialization
 void initModeFade ()
 {
+	if (lastMode == MODE_DEFAULT)
+	{
+		lastRgb = rgb;
+		lastPower = power;
+	}
 	state = 1; // Setting state to Increasing state
 	rgb = 0xFFFFFF; // Setting color to white
 	power = 0; // Setting power to 0 (LED's shutted down)
+	count = 0;
 	lastMode = MODE_FADE; // Setting lastMode so we don't call init again
 	if (DEBUG_ENABLED)
 		Serial.println ("Entering Fade mode\n");
@@ -775,21 +908,30 @@ void initModeFade ()
 // Fade Mode
 void modeFade ()
 {
+	delay (1);
+
+	if (count < 100 - fadeSpeed)
+	{
+		count++;
+		return;
+	}
+
+	count = 0;
+
 	if (state)
 	{
-		power += FADE_SPEED; // Increasing power
+		power++; // Increasing power
 	}
 	else
 	{
-		power -= FADE_SPEED; // Decreasing power
+		power--; // Decreasing power
 	}
 
-	if (power >= MAX_POWER - 1) // If power reach MAX_POWER-1, we start to decrease
+	if (power >= MAX_POWER) // If power reach MAX_POWER, we start to decrease
 	{
 		state = 0; // Decreasing state
 	}
-
-	if (power <= 0) // If power reach 1, we start to increase
+	else if (power <= 0) // If power reach 0, we start to increase
 	{
 		state = 1; // Increasing state
 	}
@@ -798,8 +940,14 @@ void modeFade ()
 // Smooth Mode Initialization
 void initModeSmooth ()
 {
+	if (lastMode == MODE_DEFAULT)
+	{
+		lastRgb = rgb;
+		lastPower = power;
+	}
 	state = 0; // Init state to 0
-	rgb = 0xFE0000; // Init color to red
+	rgb = 0xFF0000; // Init color to red
+	count = 0;
 	rgb2color (); // Calling rgb2color to generate color values
 	lastMode = MODE_SMOOTH; // Setting lastMode so we don't call init again
 	if (DEBUG_ENABLED)
@@ -809,12 +957,22 @@ void initModeSmooth ()
 // Smooth Mode
 void modeSmooth ()
 {
+	delay (1);
+
+	if (count < 100 - smoothSpeed)
+	{
+		count++;
+		return;
+	}
+
+	count = 0;
+
 	// First, RED is max
 
 	// Increasing GREEN until max
 	if (state == 0)
 	{
-		if (unpoweredGreen >= 254)
+		if (rgb == 0xFFFF00)
 			state = 1;
 		else
 			rgb += 0x000100;
@@ -822,7 +980,7 @@ void modeSmooth ()
 	// Decreasing RED until 0
 	else if (state == 1)
 	{
-		if (unpoweredRed <= 0)
+		if (rgb == 0x00FF00)
 			state = 2;
 		else
 			rgb -= 0x010000;
@@ -830,7 +988,7 @@ void modeSmooth ()
 	// Increasing BLUE until max
 	else if (state == 2)
 	{
-		if (unpoweredBlue >= 254)
+		if (rgb == 0x00FFFF)
 			state = 3;
 		else
 			rgb += 0x000001;
@@ -838,7 +996,7 @@ void modeSmooth ()
 	// Decreasing GREEN until 0
 	else if (state == 3)
 	{
-		if (unpoweredGreen <= 0)
+		if (rgb == 0x0000FF)
 			state = 4;
 		else
 			rgb -= 0x000100;
@@ -846,7 +1004,7 @@ void modeSmooth ()
 	// Increasing RED until max
 	else if (state == 4)
 	{
-		if (unpoweredRed >= 254)
+		if (rgb == 0xFF00FF)
 			state = 5;
 		else
 			rgb += 0x010000;
@@ -854,7 +1012,7 @@ void modeSmooth ()
 	// Decreasing BLUE until 0
 	else if (state == 5)
 	{
-		if (unpoweredBlue <= 0)
+		if (rgb == 0xFF0000)
 			state = 0;
 		else
 			rgb -= 0x000001;
@@ -871,8 +1029,14 @@ void modeSmooth ()
 // Wakeup Mode initialization
 void initModeWakeup ()
 {
+	if (lastMode == MODE_DEFAULT)
+	{
+		lastRgb = rgb;
+		lastPower = power;
+	}
 	rgb = 0x0000FF; // Setting color to blue
 	power = 0; // Setting power to 0
+	count = 0;
 	lastMode = MODE_WAKEUP; // Setting lastMode so we don't call init again
 	if (DEBUG_ENABLED)
 		Serial.println ("Entering Wakeup mode\n");
@@ -881,8 +1045,23 @@ void initModeWakeup ()
 // Wakeup Mode
 void modeWakeup ()
 {
-	power += WAKEUP_SPEED; // Slowly increase power
+	delay (1);
 
-	if (power >= MAX_POWER)
-		mode = lastMode = MODE_DEFAULT; // When max power is reached, leaving the mode
+	if (count < WAKE_UP_SLOWNESS)
+	{
+		count++;
+		return;
+	}
+
+	count = 0;
+
+	power++; // Slowly increase power
+
+	if (power >= MAX_POWER) // When max power is reached
+	{
+		lastRgb = rgb; // RGB value when we go back to default mode so don't jump change to a different color
+		lastPower = power; // Same for power
+		mode = MODE_DEFAULT; // Leaving the mode
+		Serial.println ("Leaving Wakeup mode\n");
+	}
 }
