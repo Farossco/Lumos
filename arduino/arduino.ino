@@ -10,10 +10,10 @@
 #define WAKEUP_HOUR 17
 #define WAKEUP_MINUTE 07
 
-#define LED_RED 8 // Red LED OUT pin
-#define LED_GREEN 9 // Green LED OUT pin
-#define LED_BLUE 10 // Blue LED OUT pin
-#define LED_INFRARED 11 // Infrared IN pin
+#define LED_RED 9 // Red LED OUT pin
+#define LED_GREEN 10 // Green LED OUT pin
+#define LED_BLUE 11 // Blue LED OUT pin
+#define LED_INFRARED 12 // Infrared IN pin
 
 #define MIN_POWER 5 // Minimum power value
 #define MAX_POWER 100 // Maximum power value
@@ -123,14 +123,13 @@ void setup ()
 	if (DEBUG_ENABLED)
 		Serial.println ("Starting program\n");
 
-	light (); // Shutting all LEDs down
-
 	// pins initialization
 	pinMode (LED_RED, OUTPUT);
 	pinMode (LED_GREEN, OUTPUT);
 	pinMode (LED_BLUE, OUTPUT);
 	pinMode (LED_INFRARED, INPUT);
 	pinMode (LED_BUILTIN, OUTPUT);
+	digitalWrite (LED_BUILTIN, LOW);
 
 	on = false; // LEDs are off on startup
 	irrecv.enableIRIn (); // Initialize IR communication
@@ -229,33 +228,9 @@ void light ()
 {
 	rgb2color (); // Convert RGB value to Red, Green and Blue values
 
-	if (on) // If it's on
-	{
-		// Send square wave with a cyclic ratio of green / 255
-		for (i = 0; i < red; i++)
-			digitalWrite (LED_RED, LOW);
-		for (i = 0; i < 255 - red; i++)
-			digitalWrite (LED_RED, HIGH);
-
-		// Send square wave with a cyclic ratio of green / 255
-		for (i = 0; i < green; i++)
-			digitalWrite (LED_GREEN, LOW);
-		for (i = 0; i < 255 - green; i++)
-			digitalWrite (LED_GREEN, HIGH);
-
-		// Send square wave with a cyclic ratio of red / 255
-		for (i = 0; i < blue; i++)
-			digitalWrite (LED_BLUE, LOW);
-		for (i = 0; i < 255 - blue; i++)
-			digitalWrite (LED_BLUE, HIGH);
-	}
-	else // If it's off
-	{
-		// We shut down all the leds (HIGH = off / LOW = on)
-		digitalWrite (LED_RED, HIGH);
-		digitalWrite (LED_GREEN, HIGH);
-		digitalWrite (LED_BLUE, HIGH);
-	}
+	analogWrite (LED_RED, on ? red : 0);
+	analogWrite (LED_GREEN, on ? green : 0);
+	analogWrite (LED_BLUE, on ? blue : 0);
 }
 
 // Convert RGB value to Red, Green and Blue values
@@ -580,6 +555,16 @@ void readSerial ()
 			Serial.print ("Full RGB (number): ");
 			Serial.println (rgb, HEX);
 			Serial.println ();
+			Serial.print ("RED: ");
+			Serial.println (red, HEX);
+			Serial.println ();
+			Serial.print ("GREEN: ");
+			Serial.println (green, HEX);
+			Serial.println ();
+			Serial.print ("BLUE: ");
+			Serial.println (blue, HEX);
+			Serial.println ();
+
 		}
 		else if (infoType == TYPE_POW)
 		{
