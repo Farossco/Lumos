@@ -3,7 +3,7 @@
 
 #define BAUD_RATE 250000 // Serial baud rate
 
-#define BED_DEBUG_MODE true // DEBUG Mode
+#define DEBUG_ENABLED true // DEBUG Mode
 #define WAIT_FOR_TIME true // If we have to wait for time sync (if true, program will not start until time is synced)
 
 // Time wake up
@@ -120,7 +120,7 @@ void setup ()
 {
 	Serial.begin (BAUD_RATE); // Initialize serial communication
 
-	if (BED_DEBUG_MODE)
+	if (DEBUG_ENABLED)
 		Serial.println ("Starting program\n");
 
 	light (); // Shutting all LEDs down
@@ -160,7 +160,7 @@ void setup ()
 		delay (1);
 	}
 
-	if (BED_DEBUG_MODE)
+	if (DEBUG_ENABLED)
 		Serial.println ("Program started\n");
 }
 
@@ -188,7 +188,7 @@ void testWakeUpTime ()
 			mode = MODE_WAKEUP;
 			on = true;
 			wokeUp = true;
-			if (BED_DEBUG_MODE)
+			if (DEBUG_ENABLED)
 				Serial.println ("Wake up !\n");
 		}
 	}
@@ -215,12 +215,12 @@ void testWakeUpTime ()
 // Asking for time to the ESP8266 (via internet)
 void askForTime ()
 {
-	if (BED_DEBUG_MODE)
+	if (DEBUG_ENABLED)
 		Serial.print ("Gently asking for time (");
 
 	Serial.print ("TIMEPLEASE");
 
-	if (BED_DEBUG_MODE)
+	if (DEBUG_ENABLED)
 		Serial.println (")\n");
 }
 
@@ -293,7 +293,7 @@ void readInfrared ()
 		}
 
 		// [DEBUG] Print the incomming IR value
-		if (BED_DEBUG_MODE)
+		if (DEBUG_ENABLED)
 		{
 			Serial.print ("Incomming IR: ");
 			Serial.println (IRCode, HEX);
@@ -339,7 +339,7 @@ void readInfrared ()
 				lastIRCode = IRCode;
 
 				// [DEBUG] Print current color and RED, GREEN, BLUE values
-				if (BED_DEBUG_MODE)
+				if (DEBUG_ENABLED)
 				{
 					Serial.print ("Power: ");
 					Serial.println (power);
@@ -383,7 +383,7 @@ void readInfrared ()
 				lastIRCode = IRCode;
 
 				// [DEBUG] Print current color and red, green, blue values
-				if (BED_DEBUG_MODE)
+				if (DEBUG_ENABLED)
 				{
 					Serial.print ("Power: ");
 					Serial.println (power);
@@ -471,7 +471,7 @@ void readSerial ()
 	else  // If the prefix correspond to nothing or there is no prefix
 	{
 		// If DEBUG is active, we continue with unkown type
-		if (BED_DEBUG_MODE)
+		if (DEBUG_ENABLED)
 			infoType = TYPE_UNKNOWN;
 
 		// If not, we stop
@@ -480,19 +480,19 @@ void readSerial ()
 	}
 
 	// Testing if data length is valid
-	if (infoType == TYPE_TIME && messageLength > 13 && !BED_DEBUG_MODE)
+	if (infoType == TYPE_TIME && messageLength > 13 && !DEBUG_ENABLED)
 		return;
-	if (infoType == TYPE_ON && messageLength != 3 && !BED_DEBUG_MODE)
+	if (infoType == TYPE_ON && messageLength != 3 && !DEBUG_ENABLED)
 		return;
-	if (infoType == TYPE_RGB && messageLength > 9 && !BED_DEBUG_MODE)
+	if (infoType == TYPE_RGB && messageLength > 9 && !DEBUG_ENABLED)
 		return;
-	if (infoType == TYPE_POW && messageLength > 6 && !BED_DEBUG_MODE)
+	if (infoType == TYPE_POW && messageLength > 6 && !DEBUG_ENABLED)
 		return;
-	if (infoType == TYPE_MOD && messageLength != 4 && !BED_DEBUG_MODE)
+	if (infoType == TYPE_MOD && messageLength != 4 && !DEBUG_ENABLED)
 		return;
 
 	// [DEBUG] Printing full word, world length and information type
-	if (BED_DEBUG_MODE)
+	if (DEBUG_ENABLED)
 	{
 		Serial.print ("Word: ");
 		Serial.println (message);
@@ -508,7 +508,7 @@ void readSerial ()
 	message.remove (0, infoType == TYPE_ON ? 2 : 3); // Remove 2 first characters if "ON" type and 3 first ones if "TIME", "RGB", "POW" or "MOD" type
 
 	// [DEBUG] printing information without prefix
-	if (BED_DEBUG_MODE)
+	if (DEBUG_ENABLED)
 	{
 		Serial.print (
 				infoType == TYPE_TIME ? "TIME: " :
@@ -565,7 +565,7 @@ void readSerial ()
 		mode = message.charAt (0) - '0';
 	}
 
-	if (BED_DEBUG_MODE)
+	if (DEBUG_ENABLED)
 	{
 		if (infoType == TYPE_TIME)
 		{
@@ -671,7 +671,7 @@ void initModeFlash ()
 	rgb = 0xFF0000; // Set color to red
 	count = 0; // Reseting counter
 	lastMode = MODE_FLASH; // Setting lastMode so we don't call init again
-	if (BED_DEBUG_MODE)
+	if (DEBUG_ENABLED)
 		Serial.println ("Entering Flash mode\n");
 }
 
@@ -702,7 +702,7 @@ void initModeStrobe ()
 	rgb = 0xFFFFFF; // Set color to white
 	count = 0; // Reseting counter
 	lastMode = MODE_STROBE; // Setting lastMode so we don't call init again
-	if (BED_DEBUG_MODE)
+	if (DEBUG_ENABLED)
 		Serial.println ("Entering Strobe mode\n");
 }
 
@@ -730,7 +730,7 @@ void initModeFade ()
 	rgb = 0xFFFFFF; // Setting color to white
 	power = 0; // Setting power to 0 (LED's shutted down)
 	lastMode = MODE_FADE; // Setting lastMode so we don't call init again
-	if (BED_DEBUG_MODE)
+	if (DEBUG_ENABLED)
 		Serial.println ("Entering Fade mode\n");
 }
 
@@ -764,7 +764,7 @@ void initModeSmooth ()
 	rgb = 0xFE0000; // Init color to red
 	rgb2color (); // Calling rgb2color to generate color values
 	lastMode = MODE_SMOOTH; // Setting lastMode so we don't call init again
-	if (BED_DEBUG_MODE)
+	if (DEBUG_ENABLED)
 		Serial.println ("Entering Smooth mode\n");
 }
 
@@ -836,7 +836,7 @@ void initModeWakeup ()
 	rgb = 0x0000FF; // Setting color to blue
 	power = 0; // Setting power to 0
 	lastMode = MODE_WAKEUP; // Setting lastMode so we don't call init again
-	if (BED_DEBUG_MODE)
+	if (DEBUG_ENABLED)
 		Serial.println ("Entering Wakeup mode\n");
 }
 
