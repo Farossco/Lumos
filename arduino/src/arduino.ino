@@ -161,7 +161,7 @@ void setup ()
 	if (DEBUG_ENABLED)
 		Serial.println ("Starting program\n");
 
-	on = true; // LEDs are off on startup
+	on = false; // LEDs are off on startup
 
 	if (INFRARED_ENABLED)
 		irrecv.enableIRIn (); // Initialize IR communication
