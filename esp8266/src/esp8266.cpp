@@ -4,7 +4,7 @@
 #include <WiFiUdp.h>
 
 #define BAUD_RATE     250000 // Serial baud rate
-#define DEBUG_ENABLED true   // Debug mode
+#define DEBUG_ENABLED false  // Debug mode
 
 // Wi-Fi informations
 #define SSID0 "Patatou"
@@ -263,10 +263,10 @@ void sendTime ()
 				Serial.print (") : ");
 				delay (1);
 			}
+			delay (100);
 			Serial.print ("PRT");
 			Serial.print (prayersName[i][0]); // First letter of the prayer name
 			Serial.print (prayerTime[i][2]);
-			delay (1);
 		}
 	}
 	else if (DEBUG_ENABLED)
@@ -474,8 +474,11 @@ void printDigits (int digits)
 
 void getPrayerTime ()
 {
-	Serial.print ("\nConnecting to ");
-	Serial.println (HOST);
+	if (DEBUG_ENABLED)
+	{
+		Serial.print ("\nConnecting to ");
+		Serial.println (HOST);
+	}
 
 	// Use WiFiClient class to create TCP connections
 
@@ -562,8 +565,11 @@ void getPrayerTime ()
 	// At this point, the last line of the answer is in the line variable,
 	// that's actually the one we want
 
-	Serial.print ("\nJson: ");
-	Serial.println (line);
+	if (DEBUG_ENABLED)
+	{
+		Serial.print ("\nJson: ");
+		Serial.println (line);
+	}
 
 	JsonObject& jsonRoot = jsonBuffer.parseObject (line);
 	code      = jsonRoot["code"];
