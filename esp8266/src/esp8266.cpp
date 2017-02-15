@@ -26,6 +26,23 @@
 #define TIME_ZONE       "Europe/Paris"
 #define METHOD          1
 
+// Functions prototypes
+void setup ();
+void loop ();
+void readWeb ();
+void readSerial ();
+void sendTime ();
+void getRgb ();
+void getOn ();
+void getPow ();
+void getMode ();
+void digitalClockDisplay ();
+void printDigits (int digits);
+time_t getNtpTime ();
+void sendNTPpacket (IPAddress& address);
+void getPrayerTime ();
+void prayerRequest ();
+
 // Wifi webserver
 WiFiServer server (80);
 WiFiClient client;
