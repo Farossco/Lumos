@@ -80,10 +80,11 @@
 IRrecv irrecv (PIN_LED_INFRARED);
 decode_results results;
 
-#define N 16 // Number of different colors
+#define N_COLOR  16 // Number of different colors
+#define N_PRAYER 6  // Number of different prayer (including sunrise)
 
 // Infrared codes and corresponding RGB code array
-unsigned long color[N][3] =
+unsigned long color[N_COLOR][3] =
 {
 	//        RGB Code   Code 1     Code 2
 	{ 0xFFFFFF, 0xFFA857, 0xA3C8EDDB }, // WHITE
@@ -108,7 +109,7 @@ unsigned long color[N][3] =
 
 
 // ******* Useful ******* //
-int i, n; // Counting variables (used for "for" statements)
+int i, j, n; // Counting variables (used for "for" statements)
 
 // ******* Global ******* //
 boolean on;          // If the leds are ON or OFF (True: ON / False: OFF)
@@ -149,18 +150,23 @@ int messageLength;                         // Message length
 char charRgb[7], charPow[4], charTime[11]; // Char arrays for message decrypting with strtol function
 char messageChar[20];                      // Received message
 String message;                            // Received message converted to String
-String prayersName[] = { "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha" };
-int prayerTime[6][3];
+String prayersName[N_PRAYER] = { "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha" };
+int prayerTime[N_PRAYER][3];
 
 // ******* readClaps ******* //
 int clapState;              // Same as "state" but for claps
 unsigned long endStateTime; // Time position at the end of a state (Allow time counting)
+
+// ******* onPrayerTime ******* //
+boolean flagEnter, flagLeave;
+boolean faded, unfaded;
 
 // ******** Functions prototypes ******** //
 void setup ();
 void loop ();
 void peakTime ();
 void readClaps ();
+void onPrayerTime ();
 void testWakeUpTime ();
 void askForTime ();
 void light ();
@@ -237,6 +243,8 @@ void loop ()
 
 	readClaps(); // Lighting on double claps
 
+	onPrayerTime();
+
 	testWakeUpTime(); // Test wakeup time and peak hours for resynchronization
 
 	readInfrared(); // Read the in-comming IR signal if present
@@ -248,7 +256,7 @@ void loop ()
 	light(); // Finaly display the RGB value
 }
 
-void peakHour ()
+void peakTime ()
 {
 	// If we are on a peak time, we ask for time to make sure it's right
 	if (minute() == 0)
@@ -337,6 +345,77 @@ void readClaps ()
 		}
 	}
 } // readClaps
+
+// Test wakeup time and peak hours for resynchronization
+void onPrayerTime ()
+{
+	flagEnter = false;
+	flagLeave = false;
+
+	for (i = 0; i < N_PRAYER; i++)
+		if ((hour() * 60 + minute()) == prayerTime[i][2])
+		{
+			flagEnter = true;
+			break;
+		}
+
+	for (j = 0; j < N_PRAYER; j++)
+		if ((hour() * 60 + minute()) == (prayerTime[j][2] + 10))
+		{
+			flagLeave = true;
+			break;
+		}
+
+
+	if (flagEnter)
+	{
+		if (!faded) // Double if so else statement is not called
+		{
+			mode      = MODE_FADE;
+			fadeSpeed = 97;
+			on        = true;
+			faded     = true;
+
+			if (DEBUG_ENABLED)
+			{
+				Serial.print ("Time to pray ");
+				Serial.print (prayersName[i]);
+				Serial.print (" !\nIt will stop at ");
+				Serial.print (prayerTime[i][2] + 10);
+				Serial.print (" (");
+				Serial.print (prayerTime[i][0]);
+				Serial.print (":");
+				Serial.print (prayerTime[i][1]);
+				Serial.print (")\n");
+			}
+		}
+	}
+	else
+	{
+		faded = false;
+	}
+
+	if (flagLeave)
+	{
+		if (!unfaded) // Double if so else statement is not called
+		{
+			mode    = MODE_DEFAULT;
+			on      = false;
+			unfaded = true;
+
+			if (DEBUG_ENABLED)
+			{
+				Serial.print ("Stop ");
+				Serial.print (prayersName[j]);
+				Serial.println (" alert\n");
+			}
+		}
+	}
+	else
+	{
+		unfaded = false;
+	}
+} // onPrayerTime
 
 // Test wakeup time and peak hours for resynchronization
 void testWakeUpTime ()
@@ -579,7 +658,7 @@ void readInfrared ()
 			// COLORS
 			default:
 				lastIRCode = 0;
-				for (i = 0; i < N; i++)
+				for (i = 0; i < N_COLOR; i++)
 					if (results.value == color[i][1] || results.value == color[i][2])
 					{
 						mode     = MODE_DEFAULT;
@@ -709,7 +788,7 @@ void readSerial ()
 	}
 	else if (infoType == TYPE_PRT)
 	{
-		for (i = 0; i < 6 && !(message.charAt (0) == prayersName[i].charAt (0)); i++)
+		for (i = 0; i < N_PRAYER && !(message.charAt (0) == prayersName[i].charAt (0)); i++)
 		{ }
 
 		message.remove (0, 1);
