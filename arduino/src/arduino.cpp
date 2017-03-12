@@ -1,34 +1,31 @@
 #include <IRremote.h>
 #include <TimeLib.h>
 #include <DFRobotDFPlayerMini.h>
+#include <debugPrint.cpp>
 
 #define DEBUG_BAUD_RATE  250000 // Debug baud rate
 #define ESP_BAUD_RATE    250000 // ESP8266 communication baud rate
 #define DFP_BAUD_RATE    9600   // DFPlayer communication baud rate
 
-#define DEBUG_ENABLED    true  // DEBUG Mode
 #define WAIT_FOR_TIME    true  // If we have to wait for time sync (if true, program will not start until time is synced)
 #define INFRARED_ENABLED false // If we allow infrared communication
-
-// ******* Wake up ******* //
-#define WAKEUP_HOUR   6
-#define WAKEUP_MINUTE 17
 #define SOUND_ENABLED    true  // Enable sound
 
 // ******* Pins ******* //
-#define PIN_LED_INFRARED 3  // Infrared IN pin
 #define PIN_SOUND        2  // Sound detector IN pin
+#define PIN_LED_INFRARED 3  // Infrared IN pin
 #define PIN_LED_RED      9  // Red LED OUT pin
 #define PIN_LED_GREEN    10 // Green LED OUT pin
 #define PIN_LED_BLUE     11 // Blue LED OUT pin
+
+// ******* Wake up ******* //
+#define WAKEUP_HOUR   6
+#define WAKEUP_MINUTE 15
 
 // ******* Power ******* //
 #define MIN_POWER     0   // Minimum power value
 #define MAX_POWER     100 // Maximum power value
 #define DEFAULT_POWER 50  // Default power value
-
-// ******* Infrared ******* //
-#define POWER_CHANGE_SPEED 5 // Power increasion/decreasion speed
 
 // ******* Modes ******* //
 /******** Flash *******/
@@ -63,6 +60,7 @@
 #define TYPE_POW     3
 #define TYPE_MOD     4
 #define TYPE_PRT     5
+
 /******** Modes ********/
 #define MODE_DEFAULT 0
 #define MODE_FLASH   1
@@ -70,6 +68,13 @@
 #define MODE_FADE    3
 #define MODE_SMOOTH  4
 #define MODE_WAKEUP  5
+
+// ******* Infrared ******* //
+#define POWER_CHANGE_SPEED 5  // Power increasion/decreasion speed
+#define N_COLOR            16 // Number of different colors
+
+// ******* DFPlayer ******* //
+#define DEFAULT_VOLUME 30
 
 // ******** Sound ******** //
 #define MIN_CLAP_DURATION          30  // Amount of time to ignore after clap started (To avoid sound bounce)
@@ -80,36 +85,8 @@
 
 #define TIME_AFTER_START_OVER      1000 // Time to wait after double clap to start over
 
-// Infrared reception objects declaration
-IRrecv irrecv (PIN_LED_INFRARED);
-decode_results results;
+#define N_PRAYER                   6 // Number of different prayer (including sunrise)
 
-#define N_COLOR  16 // Number of different colors
-#define N_PRAYER 6  // Number of different prayer (including sunrise)
-
-// Infrared codes and corresponding RGB code array
-unsigned long color[N_COLOR][3] =
-{
-	//        RGB Code   Code 1     Code 2
-	{ 0xFFFFFF, 0xFFA857, 0xA3C8EDDB }, // WHITE
-	{ 0xFF0000, 0xFF9867, 0x97483BFB }, // R1
-	{ 0xFF5300, 0xFFE817, 0x5BE75E7F }, // R2
-	{ 0xFF3C00, 0xFF02FD, 0xD7E84B1B }, // R3
-	{ 0xFFC400, 0xFF50AF, 0x2A89195F }, // R4
-	{ 0xFFFF00, 0xFF38C7, 0x488F3CBB }, // R5
-
-	{ 0x00FF00, 0xFFD827, 0x86B0E697 }, // G1
-	{ 0x20FF5D, 0xFF48B7, 0xF377C5B7 }, // G2
-	{ 0x34FFF6, 0xFF32CD, 0xEE4ECCFB }, // G3
-	{ 0x21E7FF, 0xFF7887, 0xF63C8657 }, // G4
-	{ 0x00BDFF, 0xFF28D7, 0x13549BDF }, // G5
-
-	{ 0x0000FF, 0xFF8877, 0x9EF4941F }, // B1
-	{ 0x0068FF, 0xFF6897, 0xC101E57B }, // B2
-	{ 0x8068FF, 0xFF20DF, 0x51E43D1B }, // B3
-	{ 0xDB89FF, 0xFF708F, 0x44C407DB }, // B4
-	{ 0xFF7B92, 0xFFF00F, 0x35A9425F } // B5
-};
 
 // ******* Sound object declaration ******* //
 DFRobotDFPlayerMini myDFPlayer;
@@ -146,10 +123,6 @@ int fadeSpeed; // Current fade speed (From MINFADE to MAXFADE)
 /******* modeSmooth *******/
 int smoothSpeed; // Current smooth speed (From MINSMOOTH to MAXSMOOTH)
 
-// ******* readInfrared ******* //
-unsigned long lastIRCode; // IR code in previous loop - Allows continious power / strobe speed increasion / dicreasion
-unsigned long IRCode;     // Current IR code
-
 // ******* readSerial ******* //
 int infoType;                              // Information type ("Time", "ON", "RGB", "Power" or "Mode")
 int messageLength;                         // Message length
@@ -167,8 +140,41 @@ unsigned long endStateTime; // Time position at the end of a state (Allow time c
 boolean flagEnter, flagLeave;
 boolean faded, unfaded;
 
+// ******* Infrared reception objects declaration ******* //
+IRrecv irrecv (PIN_LED_INFRARED);
+decode_results results;
+
+// ******* Infrared codes and corresponding RGB code array ******* //
+unsigned long color[N_COLOR][3] =
+{
+	//        RGB Code   Code 1     Code 2
+	{ 0xFFFFFF, 0xFFA857, 0xA3C8EDDB }, // WHITE
+	{ 0xFF0000, 0xFF9867, 0x97483BFB }, // R1
+	{ 0xFF5300, 0xFFE817, 0x5BE75E7F }, // R2
+	{ 0xFF3C00, 0xFF02FD, 0xD7E84B1B }, // R3
+	{ 0xFFC400, 0xFF50AF, 0x2A89195F }, // R4
+	{ 0xFFFF00, 0xFF38C7, 0x488F3CBB }, // R5
+
+	{ 0x00FF00, 0xFFD827, 0x86B0E697 }, // G1
+	{ 0x20FF5D, 0xFF48B7, 0xF377C5B7 }, // G2
+	{ 0x34FFF6, 0xFF32CD, 0xEE4ECCFB }, // G3
+	{ 0x21E7FF, 0xFF7887, 0xF63C8657 }, // G4
+	{ 0x00BDFF, 0xFF28D7, 0x13549BDF }, // G5
+
+	{ 0x0000FF, 0xFF8877, 0x9EF4941F }, // B1
+	{ 0x0068FF, 0xFF6897, 0xC101E57B }, // B2
+	{ 0x8068FF, 0xFF20DF, 0x51E43D1B }, // B3
+	{ 0xDB89FF, 0xFF708F, 0x44C407DB }, // B4
+	{ 0xFF7B92, 0xFFF00F, 0x35A9425F } // B5
+};
+
+// ******* readInfrared ******* //
+unsigned long lastIRCode; // IR code in previous loop - Allows continious power / strobe speed increasion / dicreasion
+unsigned long IRCode;     // Current IR code
+
 // ******** Functions prototypes ******** //
 void setup ();
+void initInfrared ();
 void initDFPlayer ();
 void loop ();
 void peakTime ();
@@ -194,13 +200,14 @@ void modeSmooth ();
 void initModeWakeup ();
 void modeWakeup ();
 
+
 void setup ()
 {
 	Serial.begin (DEBUG_BAUD_RATE); // Initialize debug communication
 	Serial1.begin (ESP_BAUD_RATE);  // Initialize ESP8266 communication
 	Serial2.begin (DFP_BAUD_RATE);  // Initialize DFPlayer communication
 
-	pinMode (PIN_SOUND, INPUT); // Setting sound detector as an input
+	debugPrintln ("Starting program\n");
 
 	initInfrared();
 	initDFPlayer();
@@ -238,9 +245,17 @@ void setup ()
 		delay (1);
 	}
 
-	if (DEBUG_ENABLED)
-		Serial.println ("Program started\n");
+	debugPrintln ("Program started\n");
 } // setup
+
+void initInfrared ()
+{
+	if (!INFRARED_ENABLED)
+		return;
+
+	pinMode (PIN_SOUND, INPUT); // Setting sound detector as an input
+	irrecv.enableIRIn();        // Initialize IR communication
+}
 
 void initDFPlayer ()
 {
@@ -304,7 +319,7 @@ void readClaps ()
 		{
 			clapState    = 1;
 			endStateTime = millis();
-			Serial.println ("Enter state 1 (Now waiting for the clap to end)\n");
+			debugPrintln ("Enter state 1 (Now waiting for the clap to end)\n");
 		}
 	}
 	else if (clapState == 1)
@@ -312,14 +327,14 @@ void readClaps ()
 		if (millis() - endStateTime > MAX_CLAP_DURATION) // If clap duration reach maximum
 		{
 			clapState = 0;
-			Serial.println ("Going back to state 0 (First clap lasted too long)\n");
+			debugPrintln ("Going back to state 0 (First clap lasted too long)\n");
 		}
 
 		if (digitalRead (PIN_SOUND) == LOW && millis() - endStateTime >= MIN_CLAP_DURATION) // End of first clap
 		{
 			clapState    = 2;
 			endStateTime = millis();
-			Serial.println ("Enter state 2 ( Now waiting a little bit...)\n");
+			debugPrintln ("Enter state 2 ( Now waiting a little bit...)\n");
 		}
 	}
 	else if (clapState == 2)
@@ -327,14 +342,14 @@ void readClaps ()
 		if (digitalRead (PIN_SOUND) == HIGH) // Too soon second clap
 		{
 			clapState = 0;
-			Serial.println ("Going back to state 0 ( Second clap started too soon)\n");
+			debugPrintln ("Going back to state 0 ( Second clap started too soon)\n");
 		}
 
 		if (millis() - endStateTime >= MIN_TIME_BEETWIN_TWO_CLAPS)
 		{
 			clapState    = 3;
 			endStateTime = millis();
-			Serial.println ("Enter state 3 ( Now waiting for second clap to start)\n");
+			debugPrintln ("Enter state 3 ( Now waiting for second clap to start)\n");
 		}
 	}
 	else if (clapState == 3)
@@ -342,13 +357,13 @@ void readClaps ()
 		if (millis() - endStateTime >= MAX_TIME_BEETWIN_TWO_CLAPS + MIN_TIME_BEETWIN_TWO_CLAPS)
 		{
 			clapState = 0;
-			Serial.println ("Going back to state 0 ( Waited too long for second clap)\n");
+			debugPrintln ("Going back to state 0 ( Waited too long for second clap)\n");
 		}
 		if (digitalRead (PIN_SOUND) == HIGH) // Start of second clap
 		{
 			clapState    = 4;
 			endStateTime = millis();
-			Serial.println ("Enter state 4 ( Now waiting for second clap to end)\n");
+			debugPrintln ("Enter state 4 ( Now waiting for second clap to end)\n");
 		}
 	}
 	else if (clapState == 4)
@@ -356,14 +371,14 @@ void readClaps ()
 		if (millis() - endStateTime >= MAX_CLAP_DURATION)
 		{
 			clapState = 0;
-			Serial.println ("Going back to state 0 (Second clap lasted too long)\n");
+			debugPrintln ("Going back to state 0 (Second clap lasted too long)\n");
 		}
 		if (digitalRead (PIN_SOUND) == LOW && millis() - endStateTime >= MIN_CLAP_DURATION) // End of second clap
 		{
 			on           = !on;
 			clapState    = 0;
 			endStateTime = millis();
-			Serial.println ("Switching LED !\n");
+			debugPrintln ("Switching LED !\n");
 		}
 	}
 } // readClaps
@@ -398,18 +413,15 @@ void onPrayerTime ()
 			on        = true;
 			faded     = true;
 
-			if (DEBUG_ENABLED)
-			{
-				Serial.print ("Time to pray ");
-				Serial.print (prayersName[i]);
-				Serial.print (" !\nIt will stop at ");
-				Serial.print (prayerTime[i][2] + 10);
-				Serial.print (" (");
-				Serial.print (prayerTime[i][0]);
-				Serial.print (":");
-				Serial.print (prayerTime[i][1]);
-				Serial.print (")\n");
-			}
+			debugPrint ("Time to pray ");
+			debugPrint (prayersName[i]);
+			debugPrint (" !\nIt will stop at ");
+			debugPrint (prayerTime[i][2] + 10);
+			debugPrint (" (");
+			debugPrint (prayerTime[i][0]);
+			debugPrint (":");
+			debugPrint (prayerTime[i][1]);
+			debugPrint (")\n");
 		}
 	}
 	else
@@ -425,12 +437,9 @@ void onPrayerTime ()
 			on      = false;
 			unfaded = true;
 
-			if (DEBUG_ENABLED)
-			{
-				Serial.print ("Stop ");
-				Serial.print (prayersName[j]);
-				Serial.println (" alert\n");
-			}
+			debugPrint ("Stop ");
+			debugPrint (prayersName[j]);
+			debugPrintln (" alert\n");
 		}
 	}
 	else
@@ -451,8 +460,7 @@ void testWakeUpTime ()
 			on     = true;
 			wokeUp = true;
 
-			if (DEBUG_ENABLED)
-				Serial.println ("Wake up !\n");
+			debugPrintln ("Wake up !\n");
 		}
 	}
 	else
@@ -464,13 +472,8 @@ void testWakeUpTime ()
 // Asking for time to the ESP8266 (via internet)
 void askForTime ()
 {
-	if (DEBUG_ENABLED)
-		Serial.print ("Gently asking for time (");
-
-	Serial.print ("TIMEPLEASE");
-
-	if (DEBUG_ENABLED)
-		Serial.println (")\n");
+	debugPrintln ("Gently asking for time\n");
+	Serial1.print ("TIMEPLEASE");
 }
 
 // Display the RGB value
@@ -516,11 +519,9 @@ void readInfrared ()
 		}
 
 		// [DEBUG] Print the incomming IR value
-		if (DEBUG_ENABLED)
-		{
-			Serial.print ("Incomming IR: ");
-			Serial.println (IRCode, HEX);
-		}
+		debugPrint ("Incomming IR: ");
+		debugPrintln (IRCode, HEX);
+
 
 		// If the system is off, ignore incomming infrared (Except ON of course, he is just above)
 		if (!on)
@@ -583,18 +584,16 @@ void readInfrared ()
 				lastIRCode = IRCode;
 
 				// [DEBUG] Print current color and RED, GREEN, BLUE values
-				if (DEBUG_ENABLED)
-				{
-					Serial.print ("Power: ");
-					Serial.println (power);
-					Serial.print ("RED: ");
-					Serial.print (red);
-					Serial.print (" / GREEN: ");
-					Serial.print (green);
-					Serial.print (" / BLUE: ");
-					Serial.println (blue);
-					Serial.println();
-				}
+				debugPrint ("Power: ");
+				debugPrintln (power);
+				debugPrint ("RED: ");
+				debugPrint (red);
+				debugPrint (" / GREEN: ");
+				debugPrint (green);
+				debugPrint (" / BLUE: ");
+				debugPrintln (blue);
+				debugPrintln();
+
 				break;
 				break;
 
@@ -641,18 +640,17 @@ void readInfrared ()
 				lastIRCode = IRCode;
 
 				// [DEBUG] Print current color and red, green, blue values
-				if (DEBUG_ENABLED)
-				{
-					Serial.print ("Power: ");
-					Serial.println (power);
-					Serial.print ("RED: ");
-					Serial.print (red);
-					Serial.print (" / GREEN: ");
-					Serial.print (green);
-					Serial.print (" / BLUE: ");
-					Serial.println (blue);
-					Serial.println();
-				}
+
+				debugPrint ("Power: ");
+				debugPrintln (power);
+				debugPrint ("RED: ");
+				debugPrint (red);
+				debugPrint (" / GREEN: ");
+				debugPrint (green);
+				debugPrint (" / BLUE: ");
+				debugPrintln (blue);
+				debugPrintln();
+
 				break;
 				break;
 
@@ -743,19 +741,18 @@ void readSerial ()
 		else return;
 	}
 
-	if (DEBUG_ENABLED)
-	{
-		// [DEBUG] Printing full word, world length and information type
-		Serial.print ("Word: ");
-		Serial.println (message);
-		Serial.print ("Length: ");
-		Serial.println (messageLength);
-		Serial.print ("Type: ");
-		Serial.println (
-			infoType == TYPE_TIME ? "TIME" : infoType == TYPE_ON ? "ON" :
-			infoType == TYPE_RGB ? "RGB" : infoType == TYPE_POW ? "POW" :
-			infoType == TYPE_MOD ? "MOD" : infoType == TYPE_PRT ? "PRT" : "UNKNOWN");
-	}
+
+	// [DEBUG] Printing full word, world length and information type
+	debugPrint ("Word: ");
+	debugPrintln (message);
+	debugPrint ("Length: ");
+	debugPrintln (messageLength);
+	debugPrint ("Type: ");
+	debugPrintln (
+		infoType == TYPE_TIME ? "TIME" : infoType == TYPE_ON ? "ON" :
+		infoType == TYPE_RGB ? "RGB" : infoType == TYPE_POW ? "POW" :
+		infoType == TYPE_MOD ? "MOD" : infoType == TYPE_PRT ? "PRT" : "UNKNOWN");
+
 
 	// Testing if data length is valid
 	if (infoType == TYPE_TIME && messageLength > 13 && !DEBUG_ENABLED)
@@ -826,85 +823,82 @@ void readSerial ()
 	}
 
 
-	if (DEBUG_ENABLED)
+	// [DEBUG] printing information without prefix
+	debugPrint
+	(
+		infoType == TYPE_TIME ? "TIME: " :
+		infoType == TYPE_ON ? "ON: " :
+		infoType == TYPE_RGB ? "RGB: " :
+		infoType == TYPE_POW ? "POW: " :
+		infoType == TYPE_MOD ? "MOD: " :
+		infoType == TYPE_PRT ? "PRT: " : "UNKNOWN: "
+	);
+
+	debugPrintln
+	(
+		infoType == TYPE_ON ?
+		(
+			message == "1" ? "True" :
+			message == "0" ? "False" : "Error"
+		) :
+		infoType == TYPE_MOD ?
+		(
+			message.charAt (0) == MODE_DEFAULT + '0' ? "DEFAULT (" :
+			message.charAt (0) == MODE_FLASH + '0' ? "FLASH (" :
+			message.charAt (0) == MODE_STROBE + '0' ? "STROBE (" :
+			message.charAt (0) == MODE_FADE + '0' ? "FADE (" :
+			message.charAt (0) == MODE_SMOOTH + '0' ? "SMOOTH (" :
+			message.charAt (0) == MODE_WAKEUP + '0' ? "WAKE UP (" : "UNKNOWN ("
+		) + message + ") " :
+		message
+	);
+
+
+	// This is the end of debuging for these types, so we print \n
+	if (infoType == TYPE_ON || infoType == TYPE_MOD || infoType == TYPE_UNKNOWN)
+		debugPrintln();
+	else if (infoType == TYPE_TIME)
 	{
-		// [DEBUG] printing information without prefix
-		Serial.print
-		(
-			infoType == TYPE_TIME ? "TIME: " :
-			infoType == TYPE_ON ? "ON: " :
-			infoType == TYPE_RGB ? "RGB: " :
-			infoType == TYPE_POW ? "POW: " :
-			infoType == TYPE_MOD ? "MOD: " :
-			infoType == TYPE_PRT ? "PRT: " : "UNKNOWN: "
-		);
-
-		Serial.println
-		(
-			infoType == TYPE_ON ?
-			(
-				message == "1" ? "True" :
-				message == "0" ? "False" : "Error"
-			) :
-			infoType == TYPE_MOD ?
-			(
-				message.charAt (0) == MODE_DEFAULT + '0' ? "DEFAULT (" :
-				message.charAt (0) == MODE_FLASH + '0' ? "FLASH (" :
-				message.charAt (0) == MODE_STROBE + '0' ? "STROBE (" :
-				message.charAt (0) == MODE_FADE + '0' ? "FADE (" :
-				message.charAt (0) == MODE_SMOOTH + '0' ? "SMOOTH (" :
-				message.charAt (0) == MODE_WAKEUP + '0' ? "WAKE UP (" : "UNKNOWN ("
-			) + message + ") " :
-			message
-		);
-
-
-		// This is the end of debuging for these types, so we print \n
-		if (infoType == TYPE_ON || infoType == TYPE_MOD || infoType == TYPE_UNKNOWN)
-			Serial.println();
-		else if (infoType == TYPE_TIME)
-		{
-			Serial.print ("TIME (number): ");
-			Serial.println (now());
-			Serial.print ("TIME (readable): ");
-			digitalClockDisplay();
-			Serial.println ("\n");
-		}
-		else if (infoType == TYPE_RGB)
-		{
-			rgb2color();
-			Serial.print ("Full RGB (number): ");
-			Serial.println (rgb, HEX);
-			Serial.print ("RED: ");
-			Serial.println (red);
-			Serial.print ("GREEN: ");
-			Serial.println (green);
-			Serial.print ("BLUE: ");
-			Serial.println (blue);
-			Serial.println();
-		}
-		else if (infoType == TYPE_POW)
-		{
-			Serial.print ("Full POW (number): ");
-			Serial.println (
-				mode == MODE_FLASH ? (int) flashSpeed :
-				mode == MODE_STROBE ? (int) strobeSpeed :
-				mode == MODE_FADE ? (int) fadeSpeed :
-				mode == MODE_SMOOTH ? (int) smoothSpeed : (int) power);
-			Serial.println();
-		}
-		else if (infoType == TYPE_PRT)
-		{
-			Serial.print ("Prayer: ");
-			Serial.println (prayersName[i]);
-			Serial.print ("Prayer time: ");
-			Serial.println (prayerTime[i][2]);
-			Serial.print ("Prayer time (Readable): ");
-			Serial.print (prayerTime[i][0]);
-			Serial.print (":");
-			Serial.println (prayerTime[i][1]);
-			Serial.println();
-		}
+		debugPrint ("TIME (number): ");
+		debugPrintln (now());
+		debugPrint ("TIME (readable): ");
+		digitalClockDisplay();
+		debugPrintln ("\n");
+	}
+	else if (infoType == TYPE_RGB)
+	{
+		rgb2color();
+		debugPrint ("Full RGB (number): ");
+		debugPrintln (rgb, HEX);
+		debugPrint ("RED: ");
+		debugPrintln (red);
+		debugPrint ("GREEN: ");
+		debugPrintln (green);
+		debugPrint ("BLUE: ");
+		debugPrintln (blue);
+		debugPrintln();
+	}
+	else if (infoType == TYPE_POW)
+	{
+		debugPrint ("Full POW (number): ");
+		debugPrintln (
+			mode == MODE_FLASH ? (int) flashSpeed :
+			mode == MODE_STROBE ? (int) strobeSpeed :
+			mode == MODE_FADE ? (int) fadeSpeed :
+			mode == MODE_SMOOTH ? (int) smoothSpeed : (int) power);
+		debugPrintln();
+	}
+	else if (infoType == TYPE_PRT)
+	{
+		debugPrint ("Prayer: ");
+		debugPrintln (prayersName[i]);
+		debugPrint ("Prayer time: ");
+		debugPrintln (prayerTime[i][2]);
+		debugPrint ("Prayer time (Readable): ");
+		debugPrint (prayerTime[i][0]);
+		debugPrint (":");
+		debugPrintln (prayerTime[i][1]);
+		debugPrintln();
 	}
 } // readSerial
 
@@ -912,17 +906,17 @@ void readSerial ()
 void digitalClockDisplay ()
 {
 	printDigits (day());
-	Serial.print ("/");
+	debugPrint ("/");
 	printDigits (month());
-	Serial.print ("/");
-	Serial.print (year());
+	debugPrint ("/");
+	debugPrint (year());
 
-	Serial.print (" ");
+	debugPrint (" ");
 
 	printDigits (hour());
-	Serial.print (":");
+	debugPrint (":");
 	printDigits (minute());
-	Serial.print (":");
+	debugPrint (":");
 	printDigits (second());
 }
 
@@ -930,8 +924,8 @@ void digitalClockDisplay ()
 void printDigits (int digits)
 {
 	if (digits < 10)
-		Serial.print ('0');
-	Serial.print (digits);
+		debugPrint ('0');
+	debugPrint (digits);
 }
 
 // Perform mode action
@@ -944,7 +938,7 @@ void action ()
 		power    = lastPower;
 	}
 
-	// If lightning if off or mode is constant lightnin, don't do anything
+	// If lightning if off or mode is constant lightning, don't do anything
 	if (!on)
 		return;
 
@@ -995,8 +989,8 @@ void initModeFlash ()
 	rgb      = 0xFF0000;   // Set color to red
 	count    = 0;          // Reseting counter
 	lastMode = MODE_FLASH; // Setting lastMode so we don't call init again
-	if (DEBUG_ENABLED)
-		Serial.println ("Entering Flash mode\n");
+
+	debugPrintln ("Entering Flash mode\n");
 }
 
 // Flash mode
@@ -1034,8 +1028,8 @@ void initModeStrobe ()
 	rgb      = 0xFFFFFF;    // Set color to white
 	count    = 0;           // Reseting counter
 	lastMode = MODE_STROBE; // Setting lastMode so we don't call init again
-	if (DEBUG_ENABLED)
-		Serial.println ("Entering Strobe mode\n");
+
+	debugPrintln ("Entering Strobe mode\n");
 }
 
 // Strobe mode
@@ -1069,8 +1063,8 @@ void initModeFade ()
 	power    = 0;        // Setting power to 0 (LED's shutted down)
 	count    = 0;
 	lastMode = MODE_FADE; // Setting lastMode so we don't call init again
-	if (DEBUG_ENABLED)
-		Serial.println ("Entering Fade mode\n");
+
+	debugPrintln ("Entering Fade mode\n");
 }
 
 // Fade Mode
@@ -1118,8 +1112,8 @@ void initModeSmooth ()
 	count = 0;
 	rgb2color();            // Calling rgb2color to generate color values
 	lastMode = MODE_SMOOTH; // Setting lastMode so we don't call init again
-	if (DEBUG_ENABLED)
-		Serial.println ("Entering Smooth mode\n");
+
+	debugPrintln ("Entering Smooth mode\n");
 }
 
 // Smooth Mode
@@ -1206,8 +1200,8 @@ void initModeWakeup ()
 	power    = 0;        // Setting power to 0
 	count    = 0;
 	lastMode = MODE_WAKEUP; // Setting lastMode so we don't call init again
-	if (DEBUG_ENABLED)
-		Serial.println ("Entering Wakeup mode\n");
+
+	debugPrintln ("Entering Wakeup mode\n");
 }
 
 // Wakeup Mode
@@ -1230,6 +1224,6 @@ void modeWakeup ()
 		lastRgb   = rgb;          // RGB value when we go back to default mode so don't jump change to a different color
 		lastPower = power;        // Same for power
 		mode      = MODE_DEFAULT; // Leaving the mode
-		Serial.println ("Leaving Wakeup mode\n");
+		debugPrintln ("Leaving Wakeup mode\n");
 	}
 }
