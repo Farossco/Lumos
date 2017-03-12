@@ -1,8 +1,10 @@
 #include <IRremote.h>
 #include <TimeLib.h>
+#include <DFRobotDFPlayerMini.h>
 
 #define DEBUG_BAUD_RATE  250000 // Debug baud rate
 #define ESP_BAUD_RATE    250000 // ESP8266 communication baud rate
+#define DFP_BAUD_RATE    9600   // DFPlayer communication baud rate
 
 #define DEBUG_ENABLED    true  // DEBUG Mode
 #define WAIT_FOR_TIME    true  // If we have to wait for time sync (if true, program will not start until time is synced)
@@ -11,6 +13,7 @@
 // ******* Wake up ******* //
 #define WAKEUP_HOUR   6
 #define WAKEUP_MINUTE 17
+#define SOUND_ENABLED    true  // Enable sound
 
 // ******* Pins ******* //
 #define PIN_LED_INFRARED 3  // Infrared IN pin
@@ -108,6 +111,8 @@ unsigned long color[N_COLOR][3] =
 	{ 0xFF7B92, 0xFFF00F, 0x35A9425F } // B5
 };
 
+// ******* Sound object declaration ******* //
+DFRobotDFPlayerMini myDFPlayer;
 
 // ******* Useful ******* //
 int i, j, n; // Counting variables (used for "for" statements)
@@ -164,6 +169,7 @@ boolean faded, unfaded;
 
 // ******** Functions prototypes ******** //
 void setup ();
+void initDFPlayer ();
 void loop ();
 void peakTime ();
 void readClaps ();
@@ -192,20 +198,16 @@ void setup ()
 {
 	Serial.begin (DEBUG_BAUD_RATE); // Initialize debug communication
 	Serial1.begin (ESP_BAUD_RATE);  // Initialize ESP8266 communication
+	Serial2.begin (DFP_BAUD_RATE);  // Initialize DFPlayer communication
 
 	pinMode (PIN_SOUND, INPUT); // Setting sound detector as an input
 
-	if (DEBUG_ENABLED)
-		Serial.println ("Starting program\n");
-
-	on = false; // LEDs are off on startup
-
-	if (INFRARED_ENABLED)
-		irrecv.enableIRIn();  // Initialize IR communication
-
-	rgb = 0xFFFFFF; // Initialize color to white
+	initInfrared();
+	initDFPlayer();
 
 	// Initialzing to default values
+	on          = false;                // LEDs are off on startup
+	rgb         = 0xFFFFFF;             // Initialize color to white
 	mode        = MODE_DEFAULT;         // Initialize mode to constant lightning
 	lastMode    = MODE_DEFAULT;         // Initialiazing last mode as well
 	power       = DEFAULT_POWER;        // Initializing power its default value
@@ -214,6 +216,7 @@ void setup ()
 	fadeSpeed   = DEFAULT_FADE_SPEED;   // Initializing fade speed to its default value
 	smoothSpeed = DEFAULT_SMOOTH_SPEED; // Initializing smooth speed to its default value
 
+	// Setting other to 0
 	clapState    = 0;
 	endStateTime = 0;
 	lastIRCode   = 0;
@@ -238,6 +241,23 @@ void setup ()
 	if (DEBUG_ENABLED)
 		Serial.println ("Program started\n");
 } // setup
+
+void initDFPlayer ()
+{
+	if (!SOUND_ENABLED)
+		return;
+
+	debugPrintln ("\nInitializing DFPlayer...");
+
+	if (!myDFPlayer.begin (Serial2)) // Use Serial2 to communicate with mp3.
+	{
+		debugPrintln ("Unable to begin");
+	}
+
+	debugPrintln (F ("DFPlayer Mini online."));
+
+	myDFPlayer.volume (DEFAULT_VOLUME); // Set volume value. From 0 to 30
+}
 
 void loop ()
 {
@@ -676,13 +696,19 @@ void readInfrared ()
 // Receive datas from ESP8266 for Wi-Wi control
 void readSerial ()
 {
-	if (!Serial.available())
+	if (!Serial.available() && !Serial1.available())
 		return;  // Waiting for incomming datas
 
 	// Reading incomming message
 	for (n = 0; Serial.available() && n < 20; n++)
 	{
 		messageChar[n] = Serial.read();
+		delay (1);
+	}
+
+	for (n = 0; Serial1.available() && n < 20; n++)
+	{
+		messageChar[n] = Serial1.read();
 		delay (1);
 	}
 
