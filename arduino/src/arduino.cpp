@@ -1,7 +1,8 @@
 #include <IRremote.h>
 #include <TimeLib.h>
 
-#define BAUD_RATE        250000 // Serial baud rate
+#define DEBUG_BAUD_RATE  250000 // Debug baud rate
+#define ESP_BAUD_RATE    250000 // ESP8266 communication baud rate
 
 #define DEBUG_ENABLED    true  // DEBUG Mode
 #define WAIT_FOR_TIME    true  // If we have to wait for time sync (if true, program will not start until time is synced)
@@ -189,7 +190,8 @@ void modeWakeup ();
 
 void setup ()
 {
-	Serial.begin (BAUD_RATE); // Initialize serial communication
+	Serial.begin (DEBUG_BAUD_RATE); // Initialize debug communication
+	Serial1.begin (ESP_BAUD_RATE);  // Initialize ESP8266 communication
 
 	pinMode (PIN_SOUND, INPUT); // Setting sound detector as an input
 
