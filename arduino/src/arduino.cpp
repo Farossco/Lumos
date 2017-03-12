@@ -7,15 +7,16 @@
 #define ESP_BAUD_RATE    250000 // ESP8266 communication baud rate
 #define DFP_BAUD_RATE    9600   // DFPlayer communication baud rate
 
-#define WAIT_FOR_TIME    true  // If we have to wait for time sync (if true, program will not start until time is synced)
-#define INFRARED_ENABLED false // If we allow infrared communication
-#define SOUND_ENABLED    true  // Enable sound
+#define WAIT_FOR_TIME    true // If we have to wait for time sync (if true, program will not start until time is synced)
+#define INFRARED_ENABLED true // If we allow infrared communication
+#define SOUND_ENABLED    true // Enable sound
+#define CLAP_ENABLED     false
 
 // ******* Pins ******* //
 #define PIN_SOUND        2  // Sound detector IN pin
-#define PIN_LED_INFRARED 3  // Infrared IN pin
-#define PIN_LED_RED      9  // Red LED OUT pin
-#define PIN_LED_GREEN    10 // Green LED OUT pin
+#define PIN_LED_INFRARED 5  // Infrared IN pin
+#define PIN_LED_RED      4  // Red LED OUT pin
+#define PIN_LED_GREEN    7  // Green LED OUT pin
 #define PIN_LED_BLUE     11 // Blue LED OUT pin
 
 // ******* Wake up ******* //
@@ -313,6 +314,9 @@ void peakTime ()
 // Lighting on double claps
 void readClaps ()
 {
+	if (!CLAP_ENABLED)
+		return;
+
 	if (clapState == 0)
 	{
 		if (digitalRead (PIN_SOUND) == HIGH && millis() - endStateTime >= TIME_AFTER_START_OVER) // Start of first clap
@@ -698,17 +702,19 @@ void readSerial ()
 		return;  // Waiting for incomming datas
 
 	// Reading incomming message
-	for (n = 0; Serial.available() && n < 20; n++)
-	{
-		messageChar[n] = Serial.read();
-		delay (1);
-	}
+	if (Serial.available())
+		for (n = 0; Serial.available() && n < 20; n++)
+		{
+			messageChar[n] = Serial.read();
+			delay (1);
+		}
 
-	for (n = 0; Serial1.available() && n < 20; n++)
-	{
-		messageChar[n] = Serial1.read();
-		delay (1);
-	}
+	if (Serial1.available())
+		for (n = 0; Serial1.available() && n < 20; n++)
+		{
+			messageChar[n] = Serial1.read();
+			delay (1);
+		}
 
 	message = "";
 
