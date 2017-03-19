@@ -11,9 +11,9 @@
 #define PASS0 "FD00000000"
 
 // Some IDs used for serial reception decrypt
-#define TYPE_ERROR -1
+#define TYPE_ERR -1
 #define TYPE_RGB   1
-#define TYPE_ON    2
+#define TYPE_ONF    2
 #define TYPE_POW   3
 #define TYPE_MOD   4
 
@@ -174,10 +174,10 @@ void readWeb ()
 		getRgb();
 		infoType = TYPE_RGB;
 	}
-	else if (request.indexOf ("/ON=") != -1)
+	else if (request.indexOf ("/ONF=") != -1)
 	{
 		getOn();
-		infoType = TYPE_ON;
+		infoType = TYPE_ONF;
 	}
 	else if (request.indexOf ("/POW=") != -1)
 	{
@@ -192,7 +192,7 @@ void readWeb ()
 	else
 	{
 		value    = -1;
-		infoType = TYPE_ERROR;
+		infoType = TYPE_ERR;
 	}
 
 	if (value == -1)
@@ -209,13 +209,14 @@ void readWeb ()
 		Serial.print
 		(
 			infoType == TYPE_RGB ? "RGB" :
-			infoType == TYPE_ON ? "ON" :
+			infoType == TYPE_ONF ? "ONF" :
 			infoType == TYPE_POW ? "POW" :
 			infoType == TYPE_MOD ? "MOD" : ""
 		);
 
 		// Now printing the correct vale in hexadecimal for RGB type and in decimal for any other type
 		Serial.print (value, infoType == TYPE_RGB ? HEX : DEC);
+		Serial.print ('z'); // End character
 
 		if (DEBUG_ENABLED)
 			Serial.println();
@@ -253,6 +254,7 @@ void sendTime ()
 
 		Serial.print ("TIM");
 		Serial.print (now());
+		Serial.print ('z');
 
 		for (int i = 0; i < 6; i++)
 		{
@@ -267,6 +269,7 @@ void sendTime ()
 			Serial.print ("PRT");
 			Serial.print (prayersName[i][0]); // First letter of the prayer name
 			Serial.print (prayerTime[i][2]);
+			Serial.print ('z');
 		}
 	}
 	else if (DEBUG_ENABLED)
@@ -350,7 +353,7 @@ void getOn ()
 	if (DEBUG_ENABLED)
 	{
 		Serial.println();
-		Serial.print ("ON = ");
+		Serial.print ("ONF = ");
 		Serial.println (value);
 	}
 

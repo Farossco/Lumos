@@ -7,4 +7,11 @@
 /build
 /captures
 .externalNativeBuild
-esp8266/lib/readme.txt
+esp8266/.pioenvs
+esp8266/.piolibdeps
+esp8266/.clang_complete
+esp8266/.gcc-flags.json
+arduino/.pioenvs
+arduino/.piolibdeps
+arduino/.clang_complete
+arduino/.gcc-flags.json

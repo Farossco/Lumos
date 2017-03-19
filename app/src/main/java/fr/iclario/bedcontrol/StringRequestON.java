@@ -11,7 +11,7 @@ public class StringRequestON extends StringRequest
 {
 	public StringRequestON(String RGBCode, final TextView textView)
 	{
-		super(Request.Method.GET, Resources.espAddress + "/ON=" + RGBCode,
+		super(Request.Method.GET, Resources.espAddress + "/ONF=" + RGBCode,
 				new Response.Listener<String>()
 				{
 					@Override
