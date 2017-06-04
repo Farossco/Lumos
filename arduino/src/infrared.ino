@@ -5,7 +5,7 @@ decode_results results;
 // ******* Infrared codes and corresponding RGB code array ******* //
 unsigned long color[N_COLOR][3] =
 {
-	//        RGB Code   Code 1     Code 2
+	// RGB Code   Code 1     Code 2
 	{ 0xFFFFFF, 0xFFA857, 0xA3C8EDDB }, // WHITE
 	{ 0xFF0000, 0xFF9867, 0x97483BFB }, // R1
 	{ 0xFF5300, 0xFFE817, 0x5BE75E7F }, // R2
@@ -197,6 +197,13 @@ void readInfrared ()
 				printlnNoPrefix (blue, DEC);
 				printlnNoPrefix();
 
+				break;
+				break;
+
+			// FLASH
+			case 0xFFB24D:
+			case 0x7EC31EF7:
+				mode = MODE_FLASH;
 				break;
 				break;
 

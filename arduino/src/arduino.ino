@@ -10,7 +10,7 @@ unsigned char green;   // Currentlty green value including lightning power (From
 unsigned char blue;    // Currentlty blue value including lightning power (From 0 to 255)
 
 // ******* Modes ******* //
-unsigned char mode; // Current lighting mode (0: Constant lightning / 1: Flash / 2: Strobe / 3: Fade / 4: Smooth / 5: Wakeup)
+unsigned char mode; // Current lighting mode (MODE_***)
 /******* modeFlash ********/
 int flashSpeed; // Current flash speed (From MINFLASH to MAXFLASH)
 /******* modeStrobe *******/
