@@ -53,6 +53,17 @@ void readInfrared ()
 		// We save the IR word in IRCode
 		IRCode = results.value;
 
+		// [DEBUG] Print the incomming IR value
+		print ("Incomming IR: ");
+		printNoPrefix (IRCode, HEX);
+		if (IRCode == 0xFFFFFFFF)
+		{
+			printNoPrefix (" (");
+			printNoPrefix (lastIRCode, HEX);
+			printNoPrefix (")");
+		}
+		printlnNoPrefix();
+
 		// REPEAT (When button is pressed continiously, sent value is 0xFFFFFFFF, so we change it with the latest code that we recieved
 		if (IRCode == 0xFFFFFFFF)
 			IRCode = lastIRCode;
@@ -62,11 +73,9 @@ void readInfrared ()
 		{
 			on         = true;
 			lastIRCode = 0; // We don't save value in lastIRCode because don't care if we keep on button pressed
+			printlnNoPrefix();
+			println ("Switch ON\n");
 		}
-
-		// [DEBUG] Print the incomming IR value
-		print ("Incomming IR: ");
-		printlnNoPrefix (IRCode, HEX);
 
 
 		// If the system is off, ignore incomming infrared (Except ON of course, he is just above)
@@ -84,6 +93,8 @@ void readInfrared ()
 			case 0xE721C0DB:
 				on         = false;
 				lastIRCode = 0;
+				printlnNoPrefix();
+				println ("Switch OFF\n");
 				break;
 				break;
 
