@@ -1,108 +1,15 @@
-// ******* initTimeAlarms ******* //
-AlarmId wakeUpAlarm;
-AlarmId prayerStartAlarm[N_PRAYER];
-AlarmId prayerStopAlarm[N_PRAYER];
-AlarmId timeSyncTimer;
+// ******* Prayer ******* //
+int flagEnter; // If we have to start fading
+int flagLeave; // If we have to stop fading
+int faded;     // If we already gave the order to start fading
+int unfaded;   // If we already gave the order to stop fading
 
-void initTimeAlarms ()
-{
-	clearAlarms();
+// ******* Wake up ******* //
+int wokeUp;    // If we already gave the order to wake up
+int timeAsked; // If we already asked for time
 
-	timeSyncTimer = Alarm.timerRepeat (60, askForTime);
-	print ("Timer nbr ");
-	printNoPrefix (timeSyncTimer, DEC);
-	printNoPrefix (" (Sync Timer) (");
-	printNoPrefix (60, DEC);
-	printNoPrefix (") : ");
-	printNoPrefix (Alarm.read (timeSyncTimer), DEC);
-	printlnNoPrefix();
-
-	wakeUpAlarm = Alarm.alarmRepeat ((time_t) (WAKEUP_HOURS * 60 + WAKEUP_MINUTES) * 60, wakeUp);
-	print ("Alarm nbr ");
-	printNoPrefix (wakeUpAlarm, DEC);
-	printNoPrefix (" (Wake up) (");
-	printDigits (WAKEUP_HOURS);
-	printNoPrefix (":");
-	printDigits (WAKEUP_MINUTES);
-	printNoPrefix (") (");
-	printNoPrefix ((time_t) (WAKEUP_HOURS * 60 + WAKEUP_MINUTES) * 60, DEC);
-	printNoPrefix (") : ");
-	printNoPrefix (Alarm.read (wakeUpAlarm), DEC);
-	printlnNoPrefix();
-
-	for (int i = 0; i < N_PRAYER; i++)
-	{
-		prayerStartAlarm[i] = Alarm.alarmRepeat ((time_t) prayerTime[i][2] * 60, prayerStart);
-		print ("Alarm nbr ");
-		printNoPrefix (prayerStartAlarm[i], DEC);
-		printNoPrefix (" (Salat ");
-		printNoPrefix (prayersName[i]);
-		printNoPrefix (" start) (");
-		printDigits (prayerTime[i][0]);
-		printNoPrefix (":");
-		printDigits (prayerTime[i][1]);
-		printNoPrefix (") (");
-		printNoPrefix ((long) prayerTime[i][2] * 60, DEC);
-		printNoPrefix (") : ");
-		printNoPrefix (Alarm.read (prayerStartAlarm[i]), DEC);
-		printlnNoPrefix();
-
-		prayerStopAlarm[i] = Alarm.alarmRepeat ((time_t) prayerTime[i][2] * 60 + 10, prayerStop);
-		print ("Alarm nbr ");
-		printNoPrefix (prayerStopAlarm[i], DEC);
-		printNoPrefix (" (Salat ");
-		printNoPrefix (prayersName[i]);
-		printNoPrefix (" end) (");
-		printDigits (prayerTime[i][0]);
-		printNoPrefix (":");
-		printDigits (prayerTime[i][1] + 10);
-		printNoPrefix (") (");
-		printNoPrefix ((long) prayerTime[i][2] * 60 + 10, DEC);
-		printNoPrefix (") : ");
-		printNoPrefix (Alarm.read (prayerStopAlarm[i]), DEC);
-		printlnNoPrefix();
-	}
-
-	println ("Alarms set\n");
-} // initTimeAlarms
-
-void clearAlarms ()
-{
-	boolean cleared = false;
-
-	if (Alarm.isAllocated (timeSyncTimer))
-	{
-		Alarm.free (timeSyncTimer);
-		cleared = true;
-	}
-	if (Alarm.isAllocated (wakeUpAlarm))
-	{
-		Alarm.free (wakeUpAlarm);
-		cleared = true;
-	}
-	for (int i = 0; i < N_PRAYER; i++)
-	{
-		if (Alarm.isAllocated (prayerStartAlarm[i]))
-		{
-			Alarm.free (prayerStartAlarm[i]);
-			cleared = true;
-		}
-		if (Alarm.isAllocated (prayerStopAlarm[i]))
-		{
-			Alarm.free (prayerStopAlarm[i]);
-			cleared = true;
-		}
-	}
-
-	if (cleared)
-	{
-		println ("Alarms cleared");
-	}
-	else
-	{
-		println ("Nothing to clear");
-	}
-} // clearAlarms
+// ******* Global ******* //
+int i, j; // Just counting variables
 
 // Asking for time to the ESP8266 (via internet)
 void askForTime ()
@@ -111,33 +18,94 @@ void askForTime ()
 	Serial1.print ("TIMEPLEASE");
 }
 
-// Action on Wake up alarm
-void wakeUp ()
+void onPrayerTime ()
 {
-	mode = MODE_WAKEUP;
-	on   = true;
+	flagEnter = false;
+	flagLeave = false;
 
-	println ("Wake up !\n");
+	for (i = 0; i < N_PRAYER; i++)
+		if ((hour() * 60 + minute()) == prayerTime[i][2])
+		{
+			flagEnter = true;
+			break;
+		}
+
+	for (j = 0; j < N_PRAYER; j++)
+		if ((hour() * 60 + minute()) == (prayerTime[j][2] + 10))
+		{
+			flagLeave = true;
+			break;
+		}
+
+
+	if (flagEnter && !faded)
+		prayerStart();
+	else if (!flagEnter)
+		faded = false;
+
+	if (flagLeave && !unfaded)
+		prayerStop();
+	else if (!flagLeave)
+		unfaded = false;
 }
 
-// Test wakeup time and peak hours for resynchronization
 void prayerStart ()
 {
 	mode      = MODE_FADE;
 	fadeSpeed = 97;
 	on        = true;
+	faded     = true;
 
-	println ("Time to pray !\n");
-	print ("It will stop at ");
-	print (hour(), DEC);
-	print (":");
-	println (minute(), DEC);
+	print ("Time to pray ");
+	printNoPrefix (prayersName[i]);
+	printNoPrefix (" !\nIt will stop at ");
+	printNoPrefix (prayerTime[i][2] + 10, DEC);
+	printNoPrefix (" (");
+	printNoPrefix (prayerTime[i][0], DEC);
+	printNoPrefix (":");
+	printNoPrefix (prayerTime[i][1], DEC);
+	printNoPrefix (")\n");
 }
 
 void prayerStop ()
 {
-	mode = MODE_DEFAULT;
-	on   = false;
+	mode    = MODE_DEFAULT;
+	on      = false;
+	unfaded = true;
 
-	println ("Stop alert\n");
+	print ("Stop ");
+	printNoPrefix (prayersName[j]);
+	printlnNoPrefix (" alert\n");
+}
+
+// Test wakeup time and peak hours for resynchronization
+void testWakeUpTime ()
+{
+	// If actual time coorespond with wakeup time
+	if (hour() == prayerTime[0][0] && minute() == prayerTime[0][1] && !wokeUp)
+	{
+		mode   = MODE_WAKEUP;
+		on     = true;
+		wokeUp = true;
+
+		println ("Wake up !\n");
+	}
+	else if (hour() != prayerTime[0][0] || minute() != prayerTime[0][1])
+	{
+		wokeUp = false;
+	}
+}
+
+void peakTime ()
+{
+	// If we are on a peak time, we ask for time to make sure it's right
+	if (minute() == 0 && !timeAsked)
+	{
+		askForTime();
+		timeAsked = true;
+	}
+	else if (minute() != 0)
+	{
+		timeAsked = false;
+	}
 }

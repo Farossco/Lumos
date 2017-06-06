@@ -237,9 +237,6 @@ void readSerial ()
 			printDigits (prayerTime[i][1]);
 			printlnNoPrefix ("\n");
 
-			if (isInitialized)
-				initTimeAlarms();
-
 			break;
 	}
 } // readSerial

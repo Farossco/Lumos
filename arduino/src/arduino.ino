@@ -42,8 +42,6 @@ void setup ()
 
 	waitForTime(); // Waiting for the ESP to send time (if WAIT_FOR_TIME)
 
-	initTimeAlarms(); // Initialize time alarms
-
 	println ("Program started!\n");
 
 	isInitialized = true;
@@ -51,7 +49,11 @@ void setup ()
 
 void loop ()
 {
+	peakTime();
+
 	readClaps(); // Lighting on double claps
+
+	onPrayerTime();
 
 	readInfrared(); // Read the in-comming IR signal if present
 

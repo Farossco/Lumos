@@ -30,6 +30,9 @@
 #define WAKEUP_MINUTES 15
 #define WAKEUP_SECONDS 00
 
+// ******* Prayer ******* //
+#define PRAYER_FADE_SPEED 97 // Fade speed for prayer time
+
 // ******* Power ******* //
 #define MIN_POWER     0   // Minimum power value
 #define MAX_POWER     100 // Maximum power value
