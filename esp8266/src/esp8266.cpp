@@ -4,18 +4,32 @@
 #include <WiFiUdp.h>
 
 #define BAUD_RATE     250000 // Serial baud rate
-#define DEBUG_ENABLED false  // Debug mode
+#define DEBUG_ENABLED true   // Debug mode
 
 // Wi-Fi informations
 #define SSID0 "Patatou"
 #define PASS0 "FD00000000"
 
-// Some IDs used for serial reception decrypt
-#define TYPE_ERR -1
-#define TYPE_RGB   1
-#define TYPE_ONF    2
-#define TYPE_POW   3
-#define TYPE_MOD   4
+// ******** IDs ******** //
+/******** Serial reception types ********/
+#define TYPE_UNK -1
+#define TYPE_TIM 0
+#define TYPE_RGB 1
+#define TYPE_ONF 2
+#define TYPE_POW 3
+#define TYPE_MOD 4
+#define TYPE_PRT 5
+
+/******** Modes ********/
+#define MODE_DEFAULT 0
+#define MODE_FLASH   1
+#define MODE_STROBE  2
+#define MODE_FADE    3
+#define MODE_SMOOTH  4
+#define MODE_WAKEUP  5
+
+#define MODE_MIN     0
+#define MODE_MAX     5
 
 // Prayer times
 #define REQUEST_TIMEOUT 5000
@@ -38,10 +52,14 @@ void getPow ();
 void getMode ();
 void digitalClockDisplay ();
 void printDigits (int digits);
-time_t getNtpTime ();
-void sendNTPpacket (IPAddress& address);
 void getPrayerTime ();
 void prayerRequest ();
+
+// ******* Arduino values ******* //
+boolean on;         // If the leds are ON or OFF (True: ON / False: OFF)
+unsigned long rgb;  // Currently displayed RGB value (From 0x000000 to 0xFFFFFF)
+float power;        // Current lightning power (from MINPOWER to MAXPOWER)
+unsigned char mode; // Current lighting mode (MODE_***)
 
 // Wifi webserver
 WiFiServer server (80);
@@ -51,8 +69,8 @@ WiFiClient client;
 int infoType;
 String request;
 byte buf[20];
-long value;
 boolean error;
+DynamicJsonBuffer jsonBuffer;
 
 // Serial requests
 int n;
@@ -60,7 +78,6 @@ char messageChar[20];
 String message;
 
 // Prayer time request
-DynamicJsonBuffer jsonBuffer;
 String line;
 unsigned long timeout;
 int code, prayerTime[6][3];
@@ -92,7 +109,8 @@ void setup ()
 	{
 		delay (500);
 
-		if (DEBUG_ENABLED) Serial.print (".");
+		if (DEBUG_ENABLED)
+			Serial.print (".");
 	}
 
 	if (DEBUG_ENABLED)
@@ -114,6 +132,18 @@ void loop ()
 
 	readWeb();
 } // loop
+
+void sendJson (String status)
+{
+	JsonObject& jsonRootGlobal = jsonBuffer.createObject();
+
+	jsonRootGlobal["STATUS"] = status;
+	jsonRootGlobal["ON"]     = on;
+	jsonRootGlobal["RGB"]    = rgb;
+	jsonRootGlobal["POWER"]  = (int) power;
+	jsonRootGlobal["MODE"]   = mode;
+	jsonRootGlobal.printTo (client);
+}
 
 void readSerial ()
 {
@@ -167,6 +197,7 @@ void readWeb ()
 	}
 
 	client.flush();
+	error = false;
 
 	// Match the request
 	if (request.indexOf ("/RGB=") != -1)
@@ -191,11 +222,11 @@ void readWeb ()
 	}
 	else
 	{
-		value    = -1;
-		infoType = TYPE_ERR;
+		error    = true;
+		infoType = TYPE_UNK;
 	}
 
-	if (value == -1)
+	if (error)
 	{
 		if (DEBUG_ENABLED)
 			Serial.println ("CODING ERROR !");
@@ -205,18 +236,33 @@ void readWeb ()
 		if (DEBUG_ENABLED)
 			Serial.print ("\nSending to Arduino: ");
 
-		// Print suffixe according to the type
-		Serial.print
-		(
-			infoType == TYPE_RGB ? "RGB" :
-			infoType == TYPE_ONF ? "ONF" :
-			infoType == TYPE_POW ? "POW" :
-			infoType == TYPE_MOD ? "MOD" : ""
-		);
-
 		// Now printing the correct vale in hexadecimal for RGB type and in decimal for any other type
-		Serial.print (value, infoType == TYPE_RGB ? HEX : DEC);
-		Serial.print ('z'); // End character
+		switch (infoType)
+		{
+			case TYPE_ONF:
+				Serial.print ("ONF");
+				Serial.print (on, DEC);
+				Serial.print ('z'); // End character
+				break;
+
+			case TYPE_POW:
+				Serial.print ("POW");
+				Serial.print ((int) power, DEC);
+				Serial.print ('z'); // End character
+				break;
+
+			case TYPE_RGB:
+				Serial.print ("RGB");
+				Serial.print (rgb, HEX);
+				Serial.print ('z'); // End character
+				break;
+
+			case TYPE_MOD:
+				Serial.print ("MOD");
+				Serial.print (mode, DEC);
+				Serial.print ('z'); // End character
+				break;
+		}
 
 		if (DEBUG_ENABLED)
 			Serial.println();
@@ -224,14 +270,11 @@ void readWeb ()
 
 	// Return the response to the client
 	client.print ("HTTP/1.1 ");
-	client.println (value == -1 ? "400 FORMAT ERROR" : "200 OK");
+	client.println (error ? "400 FORMAT ERROR" : "200 OK");
 	client.println ("Content-Type: text/html");
 	client.println (""); // Do not forget this one
 
-	if (value == -1)
-		client.println ("Format error !");
-	else
-		client.println (value, infoType == TYPE_RGB ? HEX : DEC);
+	sendJson (error ? "ERROR" : "OK");
 } // readWeb
 
 void sendTime ()
@@ -284,9 +327,6 @@ void sendTime ()
 // Decoding RGB request
 void getRgb ()
 {
-	value = 0;
-	error = false;
-
 	request.getBytes (buf, 16);
 
 	// [DEBUG] Printing the incomming value ascii code
@@ -324,21 +364,18 @@ void getRgb ()
 		}
 	}
 
+	rgb = 0;
 	// Converting it to an integer
 	for (int i = 9; i < 15; i++)
-		value += buf[i] * pow (16, 5 - (i - 9));
+		rgb += buf[i] * pow (16, 5 - (i - 9));
 
 	// [DEBUG] Printing the converted value
 	if (DEBUG_ENABLED)
 	{
 		Serial.println();
 		Serial.print ("\nRGB = ");
-		Serial.println (value, HEX);
+		Serial.println (rgb, HEX);
 	}
-
-	// If an error occured during the decoding, set the value to -1
-	if (error)
-		value = -1;
 } // getRgb
 
 // Decoding on/off request
@@ -347,27 +384,24 @@ void getOn ()
 	request.getBytes (buf, 10);
 
 	// Only reading byte at position 8 and converting it to an integer
-	value = buf[8] - '0';
+	on = buf[8] - '0';
 
 	// [DEBUG] Printing that value
 	if (DEBUG_ENABLED)
 	{
 		Serial.println();
 		Serial.print ("ONF = ");
-		Serial.println (value);
+		Serial.println (on);
 	}
 
 	// if the value is not correct, set it to -1
-	if ((value != 0) && (value != 1))
-		value = -1;
+	if (on != 0 && on != 1)
+		error = true;
 }
 
 // Decoding power request
 void getPow ()
 {
-	value = 0;
-	error = false;
-
 	request.getBytes (buf, 13);
 
 	// [DEBUG] Printing the incomming value ascii code
@@ -401,21 +435,22 @@ void getPow ()
 		}
 	}
 
+	power = 0;
 	// Converting it to an integer
 	for (int i = 9; i < 12; i++)
-		value += buf[i] * pow (10, 2 - (i - 9));
+		power += buf[i] * pow (10, 2 - (i - 9));
 
 	// [DEBUG] Printing the converted value
 	if (DEBUG_ENABLED)
 	{
 		Serial.println();
 		Serial.print ("\nPOW = ");
-		Serial.println (value);
+		Serial.println (power);
 	}
 
 	// If an error occured or the value is not between 0 and 100, set it to -1
-	if ((value < 0) || (value > 100) || error)
-		value = -1;
+	if (power < 0 || power > 100)
+		error = true;
 } // getPow
 
 // Decoding mode request
@@ -423,28 +458,28 @@ void getMode ()
 {
 	request.getBytes (buf, 11);
 
-	value = buf[9] - '0';
+	mode = buf[9] - '0';
 
 	if (DEBUG_ENABLED)
 	{
 		Serial.println();
 		Serial.print ("Mode = ");
-		Serial.println (value);
+		Serial.println (mode);
 		Serial.print ("Mode (Text) = ");
-		Serial.println (value == 0 ?
-		  "DEFAULT" :
-		  value == 1 ?
-		  "FLASH" :
-		  value == 2 ?
-		  "STROBE" :
-		  value == 3 ?
-		  "FADE" :
-		  value == 4 ? "SMOOTH" :
-		  value == 5 ? "WAKEUP" :
-		  "UNKNOWN");
+		Serial.println
+		(
+			mode == 0 ? "DEFAULT" :
+			mode == 1 ? "FLASH" :
+			mode == 2 ? "STROBE" :
+			mode == 3 ? "FADE" :
+			mode == 4 ? "SMOOTH" :
+			mode == 5 ? "WAKEUP" :
+			"UNKNOWN"
+		);
 	}
 
-	if ((value < 0) || (value > 5)) value = -1;
+	if (mode < MODE_MIN || mode > MODE_MAX)
+		error = true;
 }
 
 // Digital clock display of the time
@@ -574,10 +609,10 @@ void getPrayerTime ()
 		Serial.println (line);
 	}
 
-	JsonObject& jsonRoot = jsonBuffer.parseObject (line);
-	code      = jsonRoot["code"];
-	status    = jsonRoot["status"];
-	timestamp = jsonRoot["data"]["date"]["timestamp"];
+	JsonObject& jsonRootPrayer = jsonBuffer.parseObject (line);
+	code      = jsonRootPrayer["code"];
+	status    = jsonRootPrayer["status"];
+	timestamp = jsonRootPrayer["data"]["date"]["timestamp"];
 
 	if (DEBUG_ENABLED)
 	{
@@ -598,7 +633,7 @@ void getPrayerTime ()
 
 	// Parsing all paryers time (Format HH:MM)
 	for (int i = 0; i < 6; i++)
-		prayerTimeString[i] = jsonRoot["data"]["timings"][prayersName[i]];
+		prayerTimeString[i] = jsonRootPrayer["data"]["timings"][prayersName[i]];
 
 	// Converting it into integer
 	for (int i = 0; i < 6; i++)
