@@ -22,6 +22,6 @@ void digitalClockDisplay ()
 void printDigits (int digits)
 {
 	if (digits < 10)
-		printNoPrefix ('0', DEC);
+		printNoPrefix (0, DEC);
 	printNoPrefix (digits, DEC);
 }

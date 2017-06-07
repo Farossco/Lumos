@@ -6,8 +6,8 @@
 #include <TimeLib.h>
 #include <WiFiUdp.h>
 
-#define BAUD_RATE     250000 // Serial baud rate
-#define DEBUG_ENABLED true   // Debug mode
+#define BAUD_RATE     74880 // Serial baud rate
+#define DEBUG_ENABLED true  // Debug mode
 
 // Wi-Fi informations
 #define SSID0 "Patatou"
@@ -30,17 +30,30 @@
 #define MODE_FADE    3
 #define MODE_SMOOTH  4
 #define MODE_WAKEUP  5
+#define MODE_MAX     5
 
 #define MODE_MIN     0
 #define MODE_MAX     5
 
+// Location
+#define LATITUDE  "48.866667"
+#define LONGITUDE "2.333333"
+#define TIME_ZONE "Europe/Paris"
+
 // Prayer times
-#define REQUEST_TIMEOUT 5000
-#define HTTP_PORT       80
-#define HOST            "api.aladhan.com"
-#define LATITUDE        "48.866667"
-#define LONGITUDE       "2.333333"
-#define TIME_ZONE       "Europe/Paris"
-#define METHOD          1
+#define PRAYER_REQUEST_TIMEOUT 15000
+#define PRAYER_HTTP_PORT       80
+#define PRAYER_HOST            "api.aladhan.com"
+#define PRAYER_METHOD          1
+
+// Time
+#define TIME_REQUEST_TIMEOUT 15000
+#define TIME_HTTP_PORT       80
+#define TIME_HOST            "api.timezonedb.com"
+#define TIME_FORMAT          "json"
+#define TIME_KEY             "0D2WZ3KAP6GV"
+#define TIME_BY              "zone"
+#define TIME_FIELDS          "timestamp"
+
 
 #endif // ifndef esp8266_h

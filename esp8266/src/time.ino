@@ -1,5 +1,13 @@
+// Prayer time request
+String line, printedLine;
+unsigned long timeout;
+int code, prayerTime[6][3];
+const char * json, * status, * timestamp, * prayerTimeString[6];
+const char * prayersName[] = { "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha" };
+
 void sendTime ()
 {
+	getTime();
 	getPrayerTime();
 
 	printlnNoPrefix();
@@ -40,14 +48,133 @@ void sendTime ()
 	printlnNoPrefix();
 } // sendTime
 
-void getPrayerTime ()
+void getTime ()
 {
+	timestamp = 0;
+	status    = "";
+
 	printlnNoPrefix();
 	print ("Connecting to ");
-	printlnNoPrefix (HOST);
+	printlnNoPrefix (TIME_HOST);
 
 	// Use WiFiClient class to create TCP connections
-	if (!client.connect (HOST, HTTP_PORT))
+	if (!client.connect (TIME_HOST, TIME_HTTP_PORT))
+	{
+		println ("Connection failed");
+		return;
+	}
+
+	// We now create an url for the request
+	String url = "/v2/get-time-zone?format=";
+	url += TIME_FORMAT;
+	url += "&key=";
+	url += TIME_KEY;
+	url += "&by=";
+	url += TIME_BY;
+	url += "&zone=";
+	url += TIME_ZONE;
+	url += "&fields=";
+	url += TIME_FIELDS;
+
+	// [DEBUG] Printing the url
+	print ("Requesting URL: ");
+	printlnNoPrefix (url);
+
+	// Sending web request
+	client.print (String ("GET ") + url + " HTTP/1.1\r\n" + "Host: " + TIME_HOST + "\r\n" + "Connection: close\r\n\r\n");
+	timeout = millis();
+
+	// Waiting for an answer
+	while (!client.available())
+	{
+		// If nothing come out after the timeout, we abort
+		if (millis() - timeout > TIME_REQUEST_TIMEOUT)
+		{
+			println ("Client Timeout !");
+			client.stop();
+			return;
+		}
+	}
+
+	println ("Server answer:");
+	printlnNoPrefix();
+	println ("<======================================== Start ========================================>");
+
+	// Read all the lines of the reply from server and print them to Serial
+	while (client.available())
+	{
+		line = client.readStringUntil ('\r');
+
+		printedLine = line;
+		printedLine.replace ('\r', ' '); // Remove all occurences of \r
+		printedLine.replace ('\n', ' '); // Remove all occurences of \n
+
+		println ("\t" + printedLine); // [DEBUG] We print the line we're currently reading
+
+		if (line.indexOf ("{\"status\"") == 1)
+			break;
+	}
+	println ("<========================================= End =========================================>");
+	printlnNoPrefix();
+
+	if (line.indexOf ("{\"status\"") == 1)
+	{
+		println ("Success !");
+		// The first charactere is a nl, so we don't want it
+		line = line.substring (1);
+	}
+	else
+	{
+		print ("Failed ! (");
+		printNoPrefix (line.indexOf ("{\"code"), DEC);
+		printlnNoPrefix (")");
+	}
+
+	println ("Closing connection");
+
+	// At this point, the last line of the answer is in the line variable,
+	// that's actually the one we want
+
+	print ("Json: ");
+	printlnNoPrefix (line);
+
+	JsonObject& jsonRootPrayer = jsonBuffer.parseObject (line);
+	status    = jsonRootPrayer["status"];
+	timestamp = jsonRootPrayer["timestamp"];
+
+	print ("Status: ");
+	printlnNoPrefix (status);
+
+	if (status[0] != 'O' || status[1] != 'K')
+	{
+		println ("Wrong status, leaving.");
+		return;
+	}
+
+	printlnNoPrefix();
+	print ("Timestamp: ");
+	printlnNoPrefix (timestamp);
+
+	printlnNoPrefix();
+	print ("Setting Time to: ");
+	printlnNoPrefix (strtol (timestamp, NULL, 10), DEC);
+
+	setTime (strtol (timestamp, NULL, 10));
+
+	println ("Time set  !");
+} // getTime
+
+void getPrayerTime ()
+{
+	code   = 0;
+	status = 0;
+
+	printlnNoPrefix();
+	print ("Connecting to ");
+	printlnNoPrefix (PRAYER_HOST);
+
+	// Use WiFiClient class to create TCP connections
+	if (!client.connect (PRAYER_HOST, PRAYER_HTTP_PORT))
 	{
 		println ("Connection failed");
 		return;
@@ -61,21 +188,21 @@ void getPrayerTime ()
 	url += "&timezonestring=";
 	url += TIME_ZONE;
 	url += "&method=";
-	url += METHOD;
+	url += PRAYER_METHOD;
 
 	// [DEBUG] Printing the url
 	print ("Requesting URL: ");
 	printlnNoPrefix (url);
 
 	// Sending web request
-	client.print (String ("GET ") + url + " HTTP/1.1\r\n" + "Host: " + HOST + "\r\n" + "Connection: close\r\n\r\n");
+	client.print (String ("GET ") + url + " HTTP/1.1\r\n" + "Host: " + PRAYER_HOST + "\r\n" + "Connection: close\r\n\r\n");
 	timeout = millis();
 
 	// Waiting for an answer
 	while (!client.available())
 	{
 		// If nothing come out after the timeout, we abort
-		if (millis() - timeout > REQUEST_TIMEOUT)
+		if (millis() - timeout > PRAYER_REQUEST_TIMEOUT)
 		{
 			println ("Client Timeout !");
 			client.stop();
@@ -84,7 +211,7 @@ void getPrayerTime ()
 	}
 
 	println ("Server answer:");
-	println();
+	printlnNoPrefix();
 	println ("<======================================== Start ========================================>");
 
 	// Read all the lines of the reply from server and print them to Serial
@@ -96,10 +223,10 @@ void getPrayerTime ()
 		printedLine.replace ('\r', ' '); // Remove all occurences of \r
 		printedLine.replace ('\n', ' '); // Remove all occurences of \n
 
-		println (printedLine); // [DEBUG] We print the line we're currently reading
+		println ("\t" + printedLine); // [DEBUG] We print the line we're currently reading
 	}
 	println ("<========================================= End =========================================>");
-	println();
+	printlnNoPrefix();
 
 	if (line.indexOf ("{\"code") == 1)
 	{
@@ -120,12 +247,10 @@ void getPrayerTime ()
 	// that's actually the one we want
 
 	print ("Json: ");
-	printlnNoPrefix (line);
 
 	JsonObject& jsonRootPrayer = jsonBuffer.parseObject (line);
-	code      = jsonRootPrayer["code"];
-	status    = jsonRootPrayer["status"];
-	timestamp = jsonRootPrayer["data"]["date"]["timestamp"];
+	code   = jsonRootPrayer["code"];
+	status = jsonRootPrayer["status"];
 
 	printlnNoPrefix();
 	print ("Code: ");
@@ -135,7 +260,7 @@ void getPrayerTime ()
 	printlnNoPrefix (status);
 	printlnNoPrefix();
 
-	if (code != 200 && status != "OK")
+	if (code != 200 || status[0] != 'O' || status[1] != 'K')
 	{
 		println ("Wrong status, leaving.");
 		return;
@@ -169,20 +294,7 @@ void getPrayerTime ()
 		printNoPrefix (" / ");
 		printNoPrefix (prayerTime[i][2], DEC);
 		printlnNoPrefix (")");
-		println ("");
+		if (i < 5)
+			println();
 	}
-
-	print ("Timestamp: ");
-	printlnNoPrefix (timestamp);
-
-	printlnNoPrefix();
-	print ("Setting Time to: ");
-	printNoPrefix (strtol (timestamp, NULL, 10) + 3600 + 3600, DEC); // + 1h for the correct time in Paris
-	printNoPrefix (" (");
-	printNoPrefix (timestamp);
-	printlnNoPrefix (" + 3600 + 3600)");
-
-	setTime (strtol (timestamp, NULL, 10) + 3600 + 3600); // + 1h for the correct time in Paris
-
-	println ("Time set  !");
 } // getprayerTime

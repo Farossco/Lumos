@@ -10,24 +10,8 @@ unsigned char mode; // Current lighting mode (MODE_***)
 WiFiServer server (80);
 WiFiClient client;
 
-// Web server requests
-int infoType;
-String request;
-byte buf[20];
-boolean error;
+// json
 DynamicJsonBuffer jsonBuffer;
-
-// Serial requests
-int n;
-char messageChar[20];
-String message;
-
-// Prayer time request
-String line, printedLine;
-unsigned long timeout;
-int code, prayerTime[6][3];
-const char * json, * status, * timestamp, * prayerTimeString[6];
-const char * prayersName[] = { "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha" };
 
 void setup ()
 {
@@ -60,6 +44,8 @@ void setup ()
 	server.begin();
 
 	println ("Server started");
+
+	getTime();
 
 	getPrayerTime();
 } // setup

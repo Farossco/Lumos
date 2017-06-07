@@ -1,3 +1,9 @@
+// Web server requests
+int webInfoType;
+String request;
+byte buf[20];
+boolean error;
+
 void readWeb ()
 {
 	client = server.available(); // Check if a client has connected
@@ -20,27 +26,27 @@ void readWeb ()
 	if (request.indexOf ("/RGB=") != -1)
 	{
 		getRgb();
-		infoType = TYPE_RGB;
+		webInfoType = TYPE_RGB;
 	}
 	else if (request.indexOf ("/ONF=") != -1)
 	{
 		getOn();
-		infoType = TYPE_ONF;
+		webInfoType = TYPE_ONF;
 	}
 	else if (request.indexOf ("/POW=") != -1)
 	{
 		getPow();
-		infoType = TYPE_POW;
+		webInfoType = TYPE_POW;
 	}
 	else if (request.indexOf ("/MOD=") != -1)
 	{
 		getMode();
-		infoType = TYPE_MOD;
+		webInfoType = TYPE_MOD;
 	}
 	else
 	{
-		error    = true;
-		infoType = TYPE_UNK;
+		error       = true;
+		webInfoType = TYPE_UNK;
 	}
 
 	if (error)
@@ -52,7 +58,7 @@ void readWeb ()
 		print ("Sending to Arduino: ");
 
 		// Now printing the correct vale in hexadecimal for RGB type and in decimal for any other type
-		switch (infoType)
+		switch (webInfoType)
 		{
 			case TYPE_ONF:
 				Serial.print ("ONF");
