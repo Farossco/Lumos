@@ -7,7 +7,7 @@
 #include <WiFiUdp.h>
 
 #define BAUD_RATE     74880 // Serial baud rate
-#define DEBUG_ENABLED true  // Debug mode
+#define DEBUG_ENABLED false // Debug mode
 
 // Wi-Fi informations
 #define SSID0 "Patatou"

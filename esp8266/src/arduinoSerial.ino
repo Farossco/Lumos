@@ -19,8 +19,10 @@ void readSerial ()
 	// Testing what kind of data we are receiving (Testing if the prefix is present at position 0)
 	if (message.indexOf ("TIMEPLEASE") != -1)
 	{
-		println ("\nReceived time request from arduino");
+		printlnNoPrefix();
+		println ("Received time request from arduino");
 		sendTime(); // We send the time to the Arduino
+		return;     // No need to go further
 	}
 	else if (message.indexOf ("ONF") == 0)
 		serialInfoType = TYPE_ONF;

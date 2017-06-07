@@ -4,6 +4,7 @@ String request;
 char requestChar[10];
 byte buf[20];
 boolean error;
+boolean jsonSent;
 unsigned long tempValue;
 
 void readWeb ()
@@ -30,7 +31,12 @@ void readWeb ()
 	error = false;
 
 	// Match the request
-	if (request.indexOf ("RGB=") == 0)
+	if (request.indexOf ("INFO") == 0)
+	{
+		sendJsonToClient ("OK", ""); // We just send the json and stop here
+		return;
+	}
+	else if (request.indexOf ("RGB=") == 0)
 		webInfoType = TYPE_RGB;
 	else if (request.indexOf ("ONF=") == 0)
 		webInfoType = TYPE_ONF;
@@ -42,6 +48,8 @@ void readWeb ()
 	{
 		error       = true;
 		webInfoType = TYPE_UNK;
+		sendJsonToClient ("ERROR", "Unknown request"); // We just send the json and stop here
+		jsonSent = true;
 	}
 
 	request.remove (0, 4);
@@ -105,16 +113,7 @@ void readWeb ()
 
 		case TYPE_MOD:
 			print ("Mode (Text) = ");
-			printlnNoPrefix
-			(
-				tempValue == MODE_DEFAULT ? "DEFAULT" :
-				tempValue == MODE_FLASH ? "FLASH" :
-				tempValue == MODE_STROBE ? "STROBE" :
-				tempValue == MODE_FADE ? "FADE" :
-				tempValue == MODE_SMOOTH ? "SMOOTH" :
-				tempValue == MODE_WAKEUP ? "WAKE UP" :
-				"UNKNOWN"
-			);
+			printlnNoPrefix (modeName (tempValue));
 
 			if (tempValue < 0 && tempValue > MODE_MAX)
 				error = true;
@@ -154,13 +153,6 @@ void readWeb ()
 		printlnNoPrefix();
 	}
 
-	// Return the response to the client
-	client.print ("HTTP/1.1 ");
-	client.println (error ? "400 FORMAT ERROR" : "200 OK");
-	client.println ("Content-Type: application/json");
-	client.println ("Connection: keep-alive");
-	client.println ("LosBigick: ESP8266");
-	client.println (""); // Do not forget this one
-
-	sendJson (error ? "ERROR" : "OK");
+	if (!jsonSent)
+		sendJsonToClient (error ? "ERROR" : "OK", error ? "Error while decoding the request" : "");
 } // readWeb
