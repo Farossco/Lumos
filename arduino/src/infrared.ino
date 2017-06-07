@@ -29,6 +29,7 @@ unsigned long color[N_COLOR][3] =
 // ******* readInfrared ******* //
 unsigned long lastIRCode; // IR code in previous loop - Allows continious power / strobe speed increasion / dicreasion
 unsigned long IRCode;     // Current IR code
+boolean flag;
 
 void initInfrared ()
 {
@@ -46,6 +47,8 @@ void readInfrared ()
 {
 	if (!INFRARED_ENABLED)
 		return;
+
+	flag = false;
 
 	// If something is comming from IR reciever
 	if (irrecv.decode (&results))
@@ -74,7 +77,7 @@ void readInfrared ()
 			on         = true;
 			lastIRCode = 0; // We don't save value in lastIRCode because don't care if we keep on button pressed
 			printlnNoPrefix();
-			println ("Switch ON\n");
+			println ("Switch ON");
 		}
 
 

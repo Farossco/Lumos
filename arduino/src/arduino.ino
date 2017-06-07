@@ -8,9 +8,9 @@ float power;           // Current lightning power (from MINPOWER to MAXPOWER)
 unsigned char red;     // Currentlty red value including lightning power (From 0 to 255)
 unsigned char green;   // Currentlty green value including lightning power (From 0 to 255)
 unsigned char blue;    // Currentlty blue value including lightning power (From 0 to 255)
+unsigned char mode;    // Current lighting mode (MODE_***)
 
 // ******* Modes ******* //
-unsigned char mode; // Current lighting mode (MODE_***)
 /******* modeFlash ********/
 int flashSpeed; // Current flash speed (From MINFLASH to MAXFLASH)
 /******* modeStrobe *******/
@@ -40,7 +40,11 @@ void setup ()
 
 	initGlobal(); // Initialize defaut values for global variables
 
+	initVariableChange(); // Initialize defaut values for change variables
+
 	waitForTime(); // Waiting for the ESP to send time (if WAIT_FOR_TIME)
+
+	sendInfo(); // Sending global variables informations to the ESP8266
 
 	println ("Program started!\n");
 
@@ -49,11 +53,13 @@ void setup ()
 
 void loop ()
 {
-	peakTime();
+	testVariableChange(); // Perform action at each variation of one of the global variables
+
+	peakTime(); // Perform action every peak time
 
 	readClaps(); // Lighting on double claps
 
-	onPrayerTime();
+	onPrayerTime(); // Perform action at prayer time
 
 	readInfrared(); // Read the in-comming IR signal if present
 

@@ -3,13 +3,13 @@ void printPrefix ()
 	if (DEBUG_ENABLED)
 	{
 		Serial.print ("[");
-		digitalClockDisplayNoPrefix();
+		debugClockDisplay();
 		Serial.print ("] [DEBUG] ");
 	}
 }
 
 // Utility for digital clock display: prints leading 0
-void printDigits (int digits)
+void debugPrintDigits (int digits)
 {
 	if (DEBUG_ENABLED)
 	{
@@ -20,44 +20,23 @@ void printDigits (int digits)
 }
 
 // Digital clock display of the time
-void digitalClockDisplay ()
+void debugClockDisplay ()
 {
 	if (DEBUG_ENABLED)
 	{
-		printPrefix();
-		printDigits (day());
+		debugPrintDigits (day());
 		Serial.print ("/");
-		printDigits (month());
+		debugPrintDigits (month());
 		Serial.print ("/");
 		Serial.print (year());
 
 		Serial.print (" ");
 
-		printDigits (hour());
+		debugPrintDigits (hour());
 		Serial.print (":");
-		printDigits (minute());
+		debugPrintDigits (minute());
 		Serial.print (":");
-		printDigits (second());
-	}
-}
-
-void digitalClockDisplayNoPrefix ()
-{
-	if (DEBUG_ENABLED)
-	{
-		printDigits (day());
-		Serial.print ("/");
-		printDigits (month());
-		Serial.print ("/");
-		Serial.print (year());
-
-		Serial.print (" ");
-
-		printDigits (hour());
-		Serial.print (":");
-		printDigits (minute());
-		Serial.print (":");
-		printDigits (second());
+		debugPrintDigits (second());
 	}
 }
 

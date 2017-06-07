@@ -18,7 +18,7 @@ void waitForTime ()
 		return;
 
 	// Gently ask for time
-	time_t lastMillis = millis() + 5000; // Starting 5s in the future to directly ask for time
+	time_t lastMillis = millis();
 	boolean flag      = false;
 
 	while (timeStatus() == timeNotSet || !flag) // Doesn't start if time isn't set and we didn't receive all prayer times
@@ -64,8 +64,8 @@ void readSerial ()
 	// Testing what kind of data we are receiving (Testing if the prefix is present at position 0)
 	if (message.indexOf ("INFOPLEASE") != -1)
 	{
-		printlnNoPrefix();
 		println ("Received info request from ESP8266");
+		printlnNoPrefix();
 		sendInfo(); // We send the variables values to the ESP8266
 		return;     // No need to go further
 	}
@@ -164,8 +164,8 @@ void readSerial ()
 			print ("TIME (number): ");
 			printlnNoPrefix (now(), DEC);
 			print ("TIME (readable): ");
-			digitalClockDisplayNoPrefix();
-			printlnNoPrefix ("\n");
+			digitalClockDisplay();
+			printlnNoPrefix();
 			break;
 
 		case TYPE_ONF:
@@ -253,29 +253,3 @@ void readSerial ()
 			break;
 	}
 } // readSerial
-
-sendInfo()
-{
-	printlnNoPrefix();
-	println ("Sending variables infos to the ESP8266");
-
-	print ("Sending RGB: ");
-	Serial1.print ("RGB");
-	Serial1.print (rgb, HEX);
-	serial1.print ("z");
-
-	print ("Sending On: ");
-	Serial1.print ("ONF");
-	Serial1.print (on ? 1 : 0, DEC);
-	serial1.print ("z");
-
-	print ("Sending Power: ");
-	Serial1.print ("POW");
-	Serial1.print (power, DEC);
-	serial1.print ("z");
-
-	print ("Sending Mode: ");
-	Serial1.print ("MOD");
-	Serial1.print (mode, DEC);
-	serial1.print ("z");
-}

@@ -7,7 +7,7 @@
 
 #define DEBUG_ENABLED    true // Debug Mode
 
-#define ESP_BAUD_RATE    250000 // ESP8266 communication baud rate
+#define ESP_BAUD_RATE    74880  // ESP8266 communication baud rate
 #define DEBUG_BAUD_RATE  250000 // Debug baud rate
 #define DFP_BAUD_RATE    9600   // DFPlayer communication baud rate
 
