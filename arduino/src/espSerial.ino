@@ -43,7 +43,7 @@ void waitForTime ()
 void askForTime ()
 {
 	println ("Gently asking for time\n");
-	Serial1.print ("TIMEPLEASEz");
+	Serial1.print ("TIMEPLEASEz"); // z is the end character
 }
 
 // Receive datas from ESP8266 for Wi-Wi control
@@ -62,7 +62,14 @@ void readSerial ()
 	messageLength = message.length(); // Message length
 
 	// Testing what kind of data we are receiving (Testing if the prefix is present at position 0)
-	if (message.indexOf ("TIM") == 0)
+	if (message.indexOf ("INFOPLEASE") != -1)
+	{
+		printlnNoPrefix();
+		println ("Received info request from ESP8266");
+		sendInfo(); // We send the variables values to the ESP8266
+		return;     // No need to go further
+	}
+	else if (message.indexOf ("TIM") == 0)
 		infoType = TYPE_TIM;
 	else if (message.indexOf ("ONF") == 0)
 		infoType = TYPE_ONF;
@@ -246,3 +253,29 @@ void readSerial ()
 			break;
 	}
 } // readSerial
+
+sendInfo()
+{
+	printlnNoPrefix();
+	println ("Sending variables infos to the ESP8266");
+
+	print ("Sending RGB: ");
+	Serial1.print ("RGB");
+	Serial1.print (rgb, HEX);
+	serial1.print ("z");
+
+	print ("Sending On: ");
+	Serial1.print ("ONF");
+	Serial1.print (on ? 1 : 0, DEC);
+	serial1.print ("z");
+
+	print ("Sending Power: ");
+	Serial1.print ("POW");
+	Serial1.print (power, DEC);
+	serial1.print ("z");
+
+	print ("Sending Mode: ");
+	Serial1.print ("MOD");
+	Serial1.print (mode, DEC);
+	serial1.print ("z");
+}
