@@ -1,8 +1,10 @@
 // Web server requests
 int webInfoType;
 String request;
+char requestChar[10];
 byte buf[20];
 boolean error;
+unsigned long tempValue;
 
 void readWeb ()
 {
@@ -17,36 +19,108 @@ void readWeb ()
 
 	// [DEBUG] Printing the incomming request
 	printlnNoPrefix();
-	println ("Request: \"" + request + "\"");
+	println ("Request: " + request);
+
+	request.remove (0, 5);
+	request.remove (request.indexOf (" "), request.length() - request.indexOf (" "));
+
+	println ("Word: " + request);
 
 	client.flush();
 	error = false;
 
 	// Match the request
-	if (request.indexOf ("/RGB=") != -1)
-	{
-		getRgb();
+	if (request.indexOf ("RGB=") == 0)
 		webInfoType = TYPE_RGB;
-	}
-	else if (request.indexOf ("/ONF=") != -1)
-	{
-		getOn();
+	else if (request.indexOf ("ONF=") == 0)
 		webInfoType = TYPE_ONF;
-	}
-	else if (request.indexOf ("/POW=") != -1)
-	{
-		getPow();
+	else if (request.indexOf ("POW=") == 0)
 		webInfoType = TYPE_POW;
-	}
-	else if (request.indexOf ("/MOD=") != -1)
-	{
-		getMode();
+	else if (request.indexOf ("MOD=") == 0)
 		webInfoType = TYPE_MOD;
-	}
 	else
 	{
 		error       = true;
 		webInfoType = TYPE_UNK;
+	}
+
+	request.remove (0, 4);
+
+	print
+	(
+		webInfoType == TYPE_RGB ? "RGB: " :
+		webInfoType == TYPE_ONF ? "On: " :
+		webInfoType == TYPE_POW ? "Power: " :
+		webInfoType == TYPE_MOD ? "Mode: " :
+		"Unkown: "
+	);
+	printlnNoPrefix (request);
+	request.toCharArray (requestChar, request.length() + 1);
+
+	print
+	(
+		webInfoType == TYPE_RGB ? "RGB (char): " :
+		webInfoType == TYPE_ONF ? "On (char): " :
+		webInfoType == TYPE_POW ? "Power (char): " :
+		webInfoType == TYPE_MOD ? "Mode (char): " :
+		"UNK (char): "
+	);
+	printlnNoPrefix (requestChar);
+
+	tempValue = strtol (requestChar, NULL, webInfoType == TYPE_RGB ? 16 : 10);
+
+	print
+	(
+		webInfoType == TYPE_RGB ? "RGB (decoded): " :
+		webInfoType == TYPE_ONF ? "On (decoded): " :
+		webInfoType == TYPE_POW ? "Power (decoded): " :
+		webInfoType == TYPE_MOD ? "Mode (decoded): " :
+		"UNK (decoded): "
+	);
+
+	printlnNoPrefix (tempValue, webInfoType == TYPE_RGB ? HEX : DEC);
+
+	switch (webInfoType)
+	{
+		case TYPE_RGB:
+			if (tempValue < 0 || tempValue > 0xFFFFFF)
+				error = true;
+			else
+				rgb = tempValue;
+			break;
+
+		case TYPE_ONF:
+			if (tempValue != 0 && tempValue != 1)
+				error = true;
+			else
+				on = tempValue;
+			break;
+
+		case TYPE_POW:
+			if (tempValue < 0 && tempValue > 100)
+				error = true;
+			else
+				power = tempValue;
+			break;
+
+		case TYPE_MOD:
+			print ("Mode (Text) = ");
+			printlnNoPrefix
+			(
+				tempValue == MODE_DEFAULT ? "DEFAULT" :
+				tempValue == MODE_FLASH ? "FLASH" :
+				tempValue == MODE_STROBE ? "STROBE" :
+				tempValue == MODE_FADE ? "FADE" :
+				tempValue == MODE_SMOOTH ? "SMOOTH" :
+				tempValue == MODE_WAKEUP ? "WAKE UP" :
+				"UNKNOWN"
+			);
+
+			if (tempValue < 0 && tempValue > MODE_MAX)
+				error = true;
+			else
+				mode = tempValue;
+			break;
 	}
 
 	if (error)
@@ -55,35 +129,27 @@ void readWeb ()
 	}
 	else
 	{
+		// Now printing the correct value in hexadecimal for RGB type and in decimal for any other type
 		print ("Sending to Arduino: ");
-
-		// Now printing the correct vale in hexadecimal for RGB type and in decimal for any other type
-		switch (webInfoType)
-		{
-			case TYPE_ONF:
-				Serial.print ("ONF");
-				Serial.print (on, DEC);
-				Serial.print ('z'); // End character
-				break;
-
-			case TYPE_POW:
-				Serial.print ("POW");
-				Serial.print ((int) power, DEC);
-				Serial.print ('z'); // End character
-				break;
-
-			case TYPE_RGB:
-				Serial.print ("RGB");
-				Serial.print (rgb, HEX);
-				Serial.print ('z'); // End character
-				break;
-
-			case TYPE_MOD:
-				Serial.print ("MOD");
-				Serial.print (mode, DEC);
-				Serial.print ('z'); // End character
-				break;
-		}
+		Serial.print
+		(
+			webInfoType == TYPE_RGB ? "RGB" :
+			webInfoType == TYPE_ONF ? "ONF" :
+			webInfoType == TYPE_POW ? "POW" :
+			webInfoType == TYPE_MOD ? "MOD" :
+			"UNK"
+		);
+		Serial.print
+		(
+			webInfoType == TYPE_RGB ? rgb :
+			webInfoType == TYPE_ONF ? on :
+			webInfoType == TYPE_POW ? (int) power :
+			webInfoType == TYPE_MOD ? mode :
+			error
+			,
+			webInfoType == TYPE_RGB ? HEX : DEC
+		);
+		Serial.print ('z'); // End character
 
 		printlnNoPrefix();
 	}
@@ -98,146 +164,3 @@ void readWeb ()
 
 	sendJson (error ? "ERROR" : "OK");
 } // readWeb
-
-// Decoding RGB request
-void getRgb ()
-{
-	request.getBytes (buf, 16);
-
-	// [DEBUG] Printing the incomming value ascii code
-	print ("ASCII values: |");
-	for (int i = 9; i < 15; i++)
-	{
-		printNoPrefix (buf[i], HEX);
-		printNoPrefix ("|");
-	}
-	printlnNoPrefix();
-	println ("----------------------");
-	print ("Decoded values: |");
-
-	// Converting values from their ascii
-	for (int i = 9; i < 15; i++)
-	{
-		if ((buf[i] >= '0') && (buf[i] <= '9'))
-		{
-			buf[i] = buf[i] - '0';
-		}
-		else if ((buf[i] >= 'A') && (buf[i] <= 'F'))
-		{
-			buf[i] = buf[i] - 'A' + 10;
-		}
-		else // If one of the byte is not an hexadecimal value
-		{
-			error = true;
-			break;
-		}
-
-		// [DEBUG] Now printing decoded values
-		printNoPrefix (buf[i], HEX);
-		printNoPrefix ("|");
-	}
-
-	rgb = 0;
-	// Converting it to an integer
-	for (int i = 9; i < 15; i++)
-		rgb += buf[i] * pow (16, 5 - (i - 9));
-
-	// [DEBUG] Printing the converted value
-	printlnNoPrefix();
-	print ("RGB = ");
-	printlnNoPrefix (rgb, HEX);
-} // getRgb
-
-// Decoding on/off request
-void getOn ()
-{
-	request.getBytes (buf, 11);
-
-	// Only reading byte at position 8 and converting it to an integer
-	on = buf[9] - '0';
-
-	print ("ASCII value: ");
-	printlnNoPrefix (buf[9], DEC);
-	print ("Decoded value: ");
-	printlnNoPrefix (buf[9] - '0', DEC);
-	print ("ONF = ");
-	printlnNoPrefix (on ? "True" : "False");
-
-	// if the value is not correct, set it to -1
-	if (on != 0 && on != 1)
-		error = true;
-}
-
-// Decoding power request
-void getPow ()
-{
-	request.getBytes (buf, 13);
-
-	// [DEBUG] Printing the incomming value ascii code
-	print ("ASCII values: |");
-	for (int i = 9; i < 12; i++)
-	{
-		printNoPrefix (buf[i], HEX);
-		printNoPrefix ("|");
-	}
-	printlnNoPrefix();
-	println ("----------------------");
-	print ("Decoded values: |");
-
-	// Converting values from their ascii
-	for (int i = 9; i < 12; i++)
-	{
-		if ((buf[i] >= '0') && (buf[i] <= '9'))
-		{
-			buf[i] = buf[i] - '0';
-		}
-		else // If one of the byte is not an decimal value
-		{
-			error = true;
-			break;
-		}
-
-		// [DEBUG] Now printing decoded values
-		printNoPrefix (buf[i], HEX);
-		printNoPrefix ("|");
-	}
-
-	power = 0;
-	// Converting it to an integer
-	for (int i = 9; i < 12; i++)
-		power += buf[i] * pow (10, 2 - (i - 9));
-
-	// [DEBUG] Printing the converted value
-	printlnNoPrefix();
-	print ("POW = ");
-	printlnNoPrefix ((int) power, DEC);
-
-	// If the value is not between 0 and 100, set error flag
-	if (power < 0 || power > 100)
-		error = true;
-} // getPow
-
-// Decoding mode request
-void getMode ()
-{
-	request.getBytes (buf, 11);
-
-	mode = buf[9] - '0';
-
-	print ("Mode = ");
-	printlnNoPrefix (mode, DEC);
-	print ("Mode (Text) = ");
-	printlnNoPrefix
-	(
-		mode == 0 ? "DEFAULT" :
-		mode == 1 ? "FLASH" :
-		mode == 2 ? "STROBE" :
-		mode == 3 ? "FADE" :
-		mode == 4 ? "SMOOTH" :
-		mode == 5 ? "WAKEUP" :
-		"UNKNOWN"
-	);
-
-	if (mode < MODE_MIN || mode > MODE_MAX)
-		error = true;
-}
