@@ -5,7 +5,6 @@ char charRgb[7], charPow[4], charTime[11]; // Char arrays for message decrypting
 char messageChar[20];                      // Received message
 String message;                            // Received message converted to String
 
-
 void initSerial ()
 {
 	Serial.begin (DEBUG_BAUD_RATE); // Initialize debug communication
@@ -38,6 +37,13 @@ void waitForTime ()
 			lastMillis = millis();
 		}
 	}
+}
+
+// Asking for time to the ESP8266 (via internet)
+void askForTime ()
+{
+	println ("Gently asking for time\n");
+	Serial1.print ("TIMEPLEASEz");
 }
 
 // Receive datas from ESP8266 for Wi-Wi control
@@ -83,7 +89,7 @@ void readSerial ()
 		return;
 	else if (infoType == TYPE_TIM && messageLength > 13 && !DEBUG_ENABLED)
 		return;
-	else if (infoType == TYPE_ONF && messageLength != 3 && !DEBUG_ENABLED)
+	else if (infoType == TYPE_ONF && messageLength != 4 && !DEBUG_ENABLED)
 		return;
 	else if (infoType == TYPE_RGB && messageLength > 9 && !DEBUG_ENABLED)
 		return;

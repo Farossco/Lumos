@@ -11,13 +11,6 @@ int timeAsked; // If we already asked for time
 // ******* Global ******* //
 int i, j; // Just counting variables
 
-// Asking for time to the ESP8266 (via internet)
-void askForTime ()
-{
-	println ("Gently asking for time\n");
-	Serial1.print ("TIMEPLEASE");
-}
-
 void onPrayerTime ()
 {
 	flagEnter = false;
@@ -58,12 +51,13 @@ void prayerStart ()
 
 	print ("Time to pray ");
 	printNoPrefix (prayersName[i]);
-	printNoPrefix (" !\nIt will stop at ");
-	printNoPrefix (prayerTime[i][2] + 10, DEC);
-	printNoPrefix (" (");
-	printNoPrefix (prayerTime[i][0], DEC);
+	printlnNoPrefix (" !");
+	print ("It will stop at ");
+	printNoPrefix ((prayerTime[i][2] + 10) / 60, DEC);
 	printNoPrefix (":");
-	printNoPrefix (prayerTime[i][1], DEC);
+	printNoPrefix ((prayerTime[i][1] + 10) % 60, DEC);
+	printNoPrefix (" (");
+	printNoPrefix (prayerTime[i][2] + 10, DEC);
 	printNoPrefix (")\n");
 }
 

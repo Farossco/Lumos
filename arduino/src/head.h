@@ -79,6 +79,7 @@
 #define MODE_FADE    3
 #define MODE_SMOOTH  4
 #define MODE_WAKEUP  5
+#define MODE_MAX     5
 
 // ******* Infrared ******* //
 #define POWER_CHANGE_SPEED 5  // Power increasion/decreasion speed

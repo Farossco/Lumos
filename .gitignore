@@ -15,3 +15,5 @@ arduino/.pioenvs
 arduino/.piolibdeps
 arduino/.clang_complete
 arduino/.gcc-flags.json
+esp8266/.travis.yml
+esp8266/lib/readme.txt
