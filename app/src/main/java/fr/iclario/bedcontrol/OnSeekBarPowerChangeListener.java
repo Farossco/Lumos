@@ -28,7 +28,7 @@ public class OnSeekBarPowerChangeListener implements SeekBar.OnSeekBarChangeList
 		RequestQueue queue = MainActivity.queue;
 
 		// Request a string response from the provided URL.
-		StringRequest stringRequest = new StringRequestPower(MainActivity.getPowerString(), MainActivity.responseTextView);
+		StringRequest stringRequest = new StringRequestPower(MainActivity.power);
 
 		// Add the request to the RequestQueue.
 		queue.add(stringRequest);

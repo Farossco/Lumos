@@ -1,15 +1,13 @@
 package fr.iclario.bedcontrol;
 
-import android.widget.TextView;
-
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
+		import com.android.volley.Request;
+		import com.android.volley.Response;
+		import com.android.volley.VolleyError;
+		import com.android.volley.toolbox.StringRequest;
 
 public class StringRequestON extends StringRequest
 {
-	public StringRequestON(String RGBCode, final TextView textView)
+	public StringRequestON(String RGBCode)
 	{
 		super(Request.Method.GET, Resources.espAddress + "/ONF=" + RGBCode,
 				new Response.Listener<String>()
@@ -17,7 +15,8 @@ public class StringRequestON extends StringRequest
 					@Override
 					public void onResponse(String response)
 					{
-						textView.setText("Response is: " + response);
+						MainActivity.setValues(response);
+						MainActivity.displayValues();
 					}
 				},
 				new Response.ErrorListener()
@@ -25,7 +24,7 @@ public class StringRequestON extends StringRequest
 					@Override
 					public void onErrorResponse(VolleyError error)
 					{
-						textView.setText("That didn't work!\n\nResponse is: " + error.getMessage());
+						MainActivity.responseTextView.setText("Communication avec l'ESP impossible");
 					}
 				});
 	}

@@ -5,12 +5,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 
-
-public class StringRequestPower extends StringRequest
+public class StringRequestAll extends StringRequest
 {
-	public StringRequestPower(int power)
+	public StringRequestAll()
 	{
-		super(Request.Method.GET, Resources.espAddress + "/POW=" + power,
+		super(Request.Method.GET, Resources.espAddress + "/INFOPLEASE",
 				new Response.Listener<String>()
 				{
 					@Override
@@ -25,7 +24,7 @@ public class StringRequestPower extends StringRequest
 					@Override
 					public void onErrorResponse(VolleyError error)
 					{
-						MainActivity.responseTextView.setText("That didn't work!\n\nResponse is: " + error.getMessage());
+						MainActivity.responseTextView.setText("Communication avec l'ESP impossible");
 					}
 				});
 	}
