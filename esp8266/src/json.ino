@@ -29,7 +29,11 @@ void sendJsonToClient (String status, String message)
 
 	print ("Sending to client: ");
 	if (DEBUG_ENABLED)
+	{
 		jsonRootGlobal.printTo (Serial);
+		printlnNoPrefix();
+	}
+
 
 	// Return the response to the client
 	client.print ("HTTP/1.1 ");

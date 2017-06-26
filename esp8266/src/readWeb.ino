@@ -18,8 +18,12 @@ void readWeb ()
 
 	request = client.readStringUntil ('\r'); // Read the first line of the request
 
-	// [DEBUG] Printing the incomming request
 	printlnNoPrefix();
+	print ("Received request from ");
+	printlnNoPrefix (client.remoteIP());
+
+	// [DEBUG] Printing the incomming request
+
 	println ("Request: " + request);
 
 	request.remove (0, 5);
@@ -60,7 +64,7 @@ void readWeb ()
 		webInfoType == TYPE_ONF ? "On: " :
 		webInfoType == TYPE_POW ? "Power: " :
 		webInfoType == TYPE_MOD ? "Mode: " :
-		"Unkown: "
+		"Unknown: "
 	);
 	printlnNoPrefix (request);
 	request.toCharArray (requestChar, request.length() + 1);
@@ -155,4 +159,6 @@ void readWeb ()
 
 	if (!jsonSent)
 		sendJsonToClient (error ? "ERROR" : "OK", error ? "Error while decoding the request" : "");
+
+	client.stop();
 } // readWeb
