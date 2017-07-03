@@ -11,8 +11,6 @@
 #define DEBUG_BAUD_RATE  250000 // Debug baud rate
 #define DFP_BAUD_RATE    9600   // DFPlayer communication baud rate
 
-#define DEFAULT_COLOR    0xFFFFFF // Default color on program startup
-
 #define WAIT_FOR_TIME    true  // If we have to wait for time sync (if true, program will not start until time is synced)
 #define INFRARED_ENABLED true  // If we allow infrared communication
 #define SOUND_ENABLED    false // Enable sound
@@ -34,9 +32,8 @@
 #define PRAYER_FADE_SPEED 97 // Fade speed for prayer time
 
 // ******* Power ******* //
-#define MIN_POWER     0   // Minimum power value
-#define MAX_POWER     100 // Maximum power value
-#define DEFAULT_POWER 50  // Default power value
+#define MIN_POWER 0   // Minimum power value
+#define MAX_POWER 100 // Maximum power value
 
 // ******* Modes ******* //
 /******** Flash *******/

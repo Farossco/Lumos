@@ -1,14 +1,17 @@
 #include "head.h"
 
+unsigned long defaultRgb[MODE_MAX + 1] = { 0xFFFFFF, 0xFF0000, 0xFFFFFF, 0xFFFFFF, 0xFF0000, 0x0000FF }; // Default color on program startup
+float defaultPower[MODE_MAX + 1] = { 50, 100, 100, 0, 100, 0 };                                          // Default color on program startup
+
 // ******* Global ******* //
-boolean on;            // If the leds are ON or OFF (True: ON / False: OFF)
-boolean isInitialized; // Set to true when program is complitely initialized
-unsigned long rgb;     // Currently displayed RGB value (From 0x000000 to 0xFFFFFF)
-float power;           // Current lightning power (from MINPOWER to MAXPOWER)
-unsigned char red;     // Currentlty red value including lightning power (From 0 to 255)
-unsigned char green;   // Currentlty green value including lightning power (From 0 to 255)
-unsigned char blue;    // Currentlty blue value including lightning power (From 0 to 255)
-unsigned char mode;    // Current lighting mode (MODE_***)
+boolean on;                        // If the leds are ON or OFF (True: ON / False: OFF)
+boolean isInitialized;             // Set to true when program is complitely initialized
+unsigned long rgb[MODE_MAX + 1];   // Currently displayed RGB value (From 0x000000 to 0xFFFFFF)
+float power[MODE_MAX + 1];         // Current lightning power (from MINPOWER to MAXPOWER)
+unsigned char red[MODE_MAX + 1];   // Currentlty red value including lightning power (From 0 to 255)
+unsigned char green[MODE_MAX + 1]; // Currentlty green value including lightning power (From 0 to 255)
+unsigned char blue[MODE_MAX + 1];  // Currentlty blue value including lightning power (From 0 to 255)
+unsigned char mode;                // Current lighting mode (MODE_***)
 
 // ******* Modes ******* //
 /******* modeFlash ********/
@@ -73,8 +76,11 @@ void loop ()
 void initGlobal ()
 {
 	// Initializing to default values
-	on    = false;         // LEDs are off on startup
-	rgb   = DEFAULT_COLOR; // Initialize color to white
-	mode  = MODE_DEFAULT;  // Initialize mode to constant lightning
-	power = DEFAULT_POWER; // Initializing power its default value
+	on = false; // LEDs are off on startup
+	for (int i = 0; i < MODE_MAX + 1; i++)
+	{
+		rgb[i]   = defaultRgb[i];   // Initialize default mode color to its default value
+		power[i] = defaultPower[i]; // Initializing default mode power its default value
+	}
+	mode = MODE_DEFAULT; // Initialize mode to constant lightning
 }

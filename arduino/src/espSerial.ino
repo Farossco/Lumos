@@ -175,17 +175,17 @@ void readSerial ()
 
 		case TYPE_RGB:
 			message.toCharArray (charRgb, 7);
-			rgb = strtol (charRgb, NULL, 16);
+			rgb[MODE_DEFAULT] = strtol (charRgb, NULL, 16);
 
 			rgb2color();
 			print ("Full RGB (number): ");
-			printlnNoPrefix (rgb, HEX);
+			printlnNoPrefix (rgb[MODE_DEFAULT], HEX);
 			print ("RED: ");
-			printlnNoPrefix (red, DEC);
+			printlnNoPrefix (red[MODE_DEFAULT], DEC);
 			print ("GREEN: ");
-			printlnNoPrefix (green, DEC);
+			printlnNoPrefix (green[MODE_DEFAULT], DEC);
 			print ("BLUE: ");
-			printlnNoPrefix (blue, DEC);
+			printlnNoPrefix (blue[MODE_DEFAULT], DEC);
 			printlnNoPrefix();
 			break;
 
@@ -211,7 +211,7 @@ void readSerial ()
 					break;
 
 				default:
-					power = strtol (charPow, NULL, 10);
+					power[MODE_DEFAULT] = strtol (charPow, NULL, 10);
 					break;
 			}
 

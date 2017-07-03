@@ -16,4 +16,6 @@ void initDFPlayer ()
 	println (F ("DFPlayer Mini online."));
 
 	myDFPlayer.volume (DEFAULT_VOLUME); // Set volume value. From 0 to 30
+
+	printlnNoPrefix();
 }

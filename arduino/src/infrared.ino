@@ -134,25 +134,26 @@ void readInfrared ()
 				}
 				else
 				{
-					if (power - POWER_CHANGE_SPEED >= MIN_POWER)
-						power -= POWER_CHANGE_SPEED;
+					if (power[MODE_DEFAULT] - POWER_CHANGE_SPEED >= MIN_POWER)
+						power[MODE_DEFAULT] -= POWER_CHANGE_SPEED;
 					else
-						power = MIN_POWER;
+						power[MODE_DEFAULT] = MIN_POWER;
+
+					rgb2color();
+
+					// [DEBUG] Print current color and RED, GREEN, BLUE values
+					print ("Power: ");
+					printlnNoPrefix (power[MODE_DEFAULT], DEC);
+					print ("RED: ");
+					printNoPrefix (red[MODE_DEFAULT], DEC);
+					printNoPrefix (" / GREEN: ");
+					printNoPrefix (green[MODE_DEFAULT], DEC);
+					printNoPrefix (" / BLUE: ");
+					printlnNoPrefix (blue[MODE_DEFAULT], DEC);
+					printlnNoPrefix();
 				}
 
-				rgb2color();
 				lastIRCode = IRCode;
-
-				// [DEBUG] Print current color and RED, GREEN, BLUE values
-				print ("Power: ");
-				printlnNoPrefix (power, DEC);
-				print ("RED: ");
-				printNoPrefix (red, DEC);
-				printNoPrefix (" / GREEN: ");
-				printNoPrefix (green, DEC);
-				printNoPrefix (" / BLUE: ");
-				printlnNoPrefix (blue, DEC);
-				printlnNoPrefix();
 
 				break;
 				break;
@@ -190,26 +191,26 @@ void readInfrared ()
 				}
 				else
 				{
-					if (power + POWER_CHANGE_SPEED <= MAX_POWER)
-						power += POWER_CHANGE_SPEED;
+					if (power[MODE_DEFAULT] + POWER_CHANGE_SPEED <= MAX_POWER)
+						power[MODE_DEFAULT] += POWER_CHANGE_SPEED;
 					else
-						power = MAX_POWER;
+						power[MODE_DEFAULT] = MAX_POWER;
+
+					rgb2color();
+
+					// [DEBUG] Print current color and red, green, blue values
+					print ("Power: ");
+					printlnNoPrefix (power[MODE_DEFAULT], DEC);
+					print ("RED: ");
+					printNoPrefix (red[MODE_DEFAULT], DEC);
+					printNoPrefix (" / GREEN: ");
+					printNoPrefix (green[MODE_DEFAULT], DEC);
+					printNoPrefix (" / BLUE: ");
+					printlnNoPrefix (blue[MODE_DEFAULT], DEC);
+					printlnNoPrefix();
 				}
 
-				rgb2color();
 				lastIRCode = IRCode;
-
-				// [DEBUG] Print current color and red, green, blue values
-
-				print ("Power: ");
-				printlnNoPrefix (power, DEC);
-				print ("RED: ");
-				printNoPrefix (red, DEC);
-				printNoPrefix (" / GREEN: ");
-				printNoPrefix (green, DEC);
-				printNoPrefix (" / BLUE: ");
-				printlnNoPrefix (blue, DEC);
-				printlnNoPrefix();
 
 				break;
 				break;
@@ -249,7 +250,7 @@ void readInfrared ()
 					if (results.value == color[i][1] || results.value == color[i][2])
 					{
 						mode = MODE_DEFAULT;
-						rgb  = color[i][0];
+						rgb[MODE_DEFAULT] = color[i][0];
 					}
 				break;
 		}

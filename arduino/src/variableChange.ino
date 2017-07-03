@@ -16,33 +16,33 @@ void testVariableChange ()
 		sendInfo();
 	}
 
-	if (changeRgb != rgb)
+	if (changeRgb != rgb[MODE_DEFAULT])
 	{
 		printlnNoPrefix();
 		print ("\"RGB\" changed from ");
 		printNoPrefix (changeRgb, HEX);
 		printNoPrefix (" to ");
-		printlnNoPrefix (rgb, HEX);
-		changeRgb = rgb;
+		printlnNoPrefix (rgb[MODE_DEFAULT], HEX);
+		changeRgb = rgb[MODE_DEFAULT];
 		sendInfo();
 	}
 
-	if (changePower != power)
+	if (changePower != power[MODE_DEFAULT])
 	{
 		printlnNoPrefix();
 		print ("\"Power\" changed from ");
 		printNoPrefix ((int) changePower, DEC);
 		printNoPrefix (" to ");
-		printlnNoPrefix ((int) power, DEC);
-		changePower = power;
+		printlnNoPrefix ((int) power[MODE_DEFAULT], DEC);
+		changePower = power[MODE_DEFAULT];
 		sendInfo();
 	}
 
 	if (changeMode != mode)
 	{
 		printlnNoPrefix();
-		print ("\"Power\" changed from ");
-		printlnNoPrefix (modeName (changeMode));
+		print ("\"Mode\" changed from ");
+		printNoPrefix (modeName (changeMode));
 		printNoPrefix (" to ");
 		printlnNoPrefix (modeName (mode));
 		changeMode = mode;
@@ -54,9 +54,9 @@ void initVariableChange ()
 {
 	// Initializing to default values
 	changeOn    = false;
-	changeRgb   = DEFAULT_COLOR;
+	changeRgb   = defaultRgb[MODE_DEFAULT];
 	changeMode  = MODE_DEFAULT;
-	changePower = DEFAULT_POWER;
+	changePower = defaultPower[MODE_DEFAULT];
 }
 
 void sendInfo ()
@@ -64,7 +64,7 @@ void sendInfo ()
 	println ("Sending variables infos to the ESP8266");
 
 	Serial1.print ("RGB");
-	Serial1.print (rgb, HEX);
+	Serial1.print (rgb[MODE_DEFAULT], HEX);
 	Serial1.print ("z");
 
 	Serial1.print ("ONF");
@@ -72,7 +72,7 @@ void sendInfo ()
 	Serial1.print ("z");
 
 	Serial1.print ("POW");
-	Serial1.print ((int) power, DEC);
+	Serial1.print ((int) power[MODE_DEFAULT], DEC);
 	Serial1.print ("z");
 
 	Serial1.print ("MOD");
