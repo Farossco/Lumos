@@ -5,7 +5,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 
-
 public class StringRequestPower extends StringRequest
 {
 	public StringRequestPower(int power)
@@ -25,7 +24,7 @@ public class StringRequestPower extends StringRequest
 					@Override
 					public void onErrorResponse(VolleyError error)
 					{
-						MainActivity.responseTextView.setText("That didn't work!\n\nResponse is: " + error.getMessage());
+						MainActivity.responseTextView.setText("Communication avec l'ESP impossible");
 					}
 				});
 	}

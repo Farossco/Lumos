@@ -28,7 +28,7 @@ public class OnSeekBarBlueChangeListener implements SeekBar.OnSeekBarChangeListe
 		RequestQueue queue = MainActivity.queue;
 
 		// Request a string response from the provided URL.
-		StringRequest stringRequest = new StringRequestRGB((Integer.toHexString(MainActivity.red << 16 |MainActivity. green << 8 | MainActivity.blue)).toUpperCase());
+		StringRequest stringRequest = new StringRequestRGB((Integer.toHexString(MainActivity.red << 16 | MainActivity.green << 8 | MainActivity.blue)).toUpperCase());
 
 		// Add the request to the RequestQueue.
 		queue.add(stringRequest);

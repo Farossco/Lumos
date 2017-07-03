@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity
 		seekBarGreen.setOnSeekBarChangeListener(new OnSeekBarGreenChangeListener());
 		seekBarBlue.setOnSeekBarChangeListener(new OnSeekBarBlueChangeListener());
 
-		switchOnOff.setOnCheckedChangeListener(new OnSwitchOnOffChangeListener());
+		switchOnOff.setOnClickListener(new OnSwitchOnOffClickListener());
 
 		handler.post(runnableCode);
 	}

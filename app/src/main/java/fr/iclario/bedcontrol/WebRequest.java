@@ -1,4 +1,5 @@
 package fr.iclario.bedcontrol;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
@@ -9,25 +10,31 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.net.ssl.HttpsURLConnection;
 
-public class WebRequest {
+public class WebRequest
+{
 	static String response = null;
 	public final static int GETRequest = 1;
 	public final static int POSTRequest = 2;
 
 	//Constructor with no parameter
-	public WebRequest() {
+	public WebRequest()
+	{
 	}
+
 	/**
 	 * Making web service call
 	 *
 	 * @url - url to make web request
 	 * @requestmethod - http request method
 	 */
-	public String makeWebServiceCall(String url, int requestmethod) {
+	public String makeWebServiceCall(String url, int requestmethod)
+	{
 		return this.makeWebServiceCall(url, requestmethod, null);
 	}
+
 	/**
 	 * Making web service call
 	 *
@@ -36,29 +43,36 @@ public class WebRequest {
 	 * @params - http request params
 	 */
 	public String makeWebServiceCall(String urladdress, int requestmethod,
-									 HashMap<String, String> params) {
+									 HashMap<String, String> params)
+	{
 		URL url;
 		String response = "";
-		try {
+		try
+		{
 			url = new URL(urladdress);
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setReadTimeout(15001);
 			conn.setConnectTimeout(15001);
 			conn.setDoInput(true);
 			conn.setDoOutput(true);
-			if (requestmethod == POSTRequest) {
+			if (requestmethod == POSTRequest)
+			{
 				conn.setRequestMethod("POST");
-			} else if (requestmethod == GETRequest) {
+			}
+			else if (requestmethod == GETRequest)
+			{
 				conn.setRequestMethod("GETRequest");
 			}
 
-			if (params != null) {
+			if (params != null)
+			{
 				OutputStream ostream = conn.getOutputStream();
 				BufferedWriter writer = new BufferedWriter(
 						new OutputStreamWriter(ostream, "UTF-8"));
 				StringBuilder requestresult = new StringBuilder();
 				boolean first = true;
-				for (Map.Entry<String, String> entry : params.entrySet()) {
+				for (Map.Entry<String, String> entry : params.entrySet())
+				{
 					if (first)
 						first = false;
 					else
@@ -75,16 +89,22 @@ public class WebRequest {
 			}
 			int reqresponseCode = conn.getResponseCode();
 
-			if (reqresponseCode == HttpsURLConnection.HTTP_OK) {
+			if (reqresponseCode == HttpsURLConnection.HTTP_OK)
+			{
 				String line;
 				BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-				while ((line = br.readLine()) != null) {
+				while ((line = br.readLine()) != null)
+				{
 					response += line;
 				}
-			} else {
+			}
+			else
+			{
 				response = "";
 			}
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			e.printStackTrace();
 		}
 		return response;

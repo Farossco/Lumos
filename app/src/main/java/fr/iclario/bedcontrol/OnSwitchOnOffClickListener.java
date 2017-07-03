@@ -1,17 +1,17 @@
 package fr.iclario.bedcontrol;
 
-import android.widget.CompoundButton;
+import android.view.View;
 import android.widget.Switch;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 
-public class OnSwitchOnOffChangeListener implements Switch.OnCheckedChangeListener
+class OnSwitchOnOffClickListener implements View.OnClickListener
 {
 	@Override
-	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+	public void onClick(View v)
 	{
-		MainActivity.on = isChecked;
+		MainActivity.on = ((Switch) v).isChecked();
 		// Instantiate the RequestQueue.
 		RequestQueue queue = MainActivity.queue;
 
