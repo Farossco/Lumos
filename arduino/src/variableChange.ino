@@ -63,21 +63,31 @@ void sendInfo ()
 {
 	println ("Sending variables infos to the ESP8266");
 
-	Serial1.print ("RGB");
-	Serial1.print (rgb[MODE_DEFAULT], HEX);
-	Serial1.print ("z");
-
 	Serial1.print ("ONF");
 	Serial1.print (on ? 1 : 0, DEC);
-	Serial1.print ("z");
-
-	Serial1.print ("POW");
-	Serial1.print ((int) power[MODE_DEFAULT], DEC);
 	Serial1.print ("z");
 
 	Serial1.print ("MOD");
 	Serial1.print (mode, DEC);
 	Serial1.print ("z");
+
+	for (int i = 0; i <= MODE_MAX; i++)
+	{
+		Serial1.print ("RGB");
+		Serial1.print (i);
+		Serial1.print (rgb[i], HEX);
+		Serial1.print ("z");
+
+		Serial1.print ("POW");
+		Serial1.print (i);
+		Serial1.print ((int) power[i], DEC);
+		Serial1.print ("z");
+
+		Serial1.print ("SPE");
+		Serial1.print (i);
+		Serial1.print (speed[i], DEC);
+		Serial1.print ("z");
+	}
 
 	printlnNoPrefix();
 }
