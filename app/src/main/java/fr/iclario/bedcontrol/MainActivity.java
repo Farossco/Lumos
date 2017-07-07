@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity
 		{
 			StringRequest stringRequest = new StringRequestAll();
 			queue.add(stringRequest);
-			handler.postDelayed(runnableCode, 10000);
+			handler.postDelayed(runnableCode, 2000);
 		}
 	};
 
