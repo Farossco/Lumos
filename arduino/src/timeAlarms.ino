@@ -44,10 +44,10 @@ void onPrayerTime ()
 
 void prayerStart ()
 {
-	mode      = MODE_FADE;
-	fadeSpeed = 97;
-	on        = true;
-	faded     = true;
+	mode = MODE_FADE;
+	speed[MODE_FADE] = 97;
+	on    = true;
+	faded = true;
 
 	print ("Time to pray ");
 	printNoPrefix (prayersName[i]);

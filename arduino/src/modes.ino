@@ -6,11 +6,9 @@ int lastMode; // Mode in previous loop - Allows mode initializations
 
 void initModes ()
 {
-	lastMode    = MODE_DEFAULT;         // Initialiazing last mode as well
-	flashSpeed  = DEFAULT_FLASH_SPEED;  // Initializing flash speed to its default value
-	strobeSpeed = DEFAULT_STROBE_SPEED; // Initializing strobe speed to its default value
-	fadeSpeed   = DEFAULT_FADE_SPEED;   // Initializing fade speed to its default value
-	smoothSpeed = DEFAULT_SMOOTH_SPEED; // Initializing smooth speed to its default value
+	lastMode = MODE_DEFAULT; // Initialiazing last mode as well
+	for (int i = 1; i <= MODE_MAX; i++)
+		speed[i] = defaultSpeed[i];  // Initializing speed to its default value
 }
 
 // Perform mode action
@@ -74,7 +72,7 @@ void modeFlash ()
 {
 	delay (1);
 
-	if (count < 100 - flashSpeed)
+	if (count < 100 - speed[MODE_FLASH])
 	{
 		count++;
 		return;
@@ -108,7 +106,7 @@ void modeStrobe ()
 {
 	delay (1);
 
-	if (count < 100 - strobeSpeed)
+	if (count < 100 - speed[MODE_STROBE])
 	{
 		count++;
 		return;
@@ -124,9 +122,8 @@ void modeStrobe ()
 // Fade Mode initialization
 void initModeFade ()
 {
-	state = 1;                   // Setting state to Increasing state
-	rgb[MODE_FADE]   = 0xFFFFFF; // Setting color to white
-	power[MODE_FADE] = 0;        // Setting power to 0 (LED's shutted down)
+	state = 1;                 // Setting state to Increasing state
+	rgb[MODE_FADE] = 0x000000; // Setting color to white
 	count    = 0;
 	lastMode = MODE_FADE; // Setting lastMode so we don't call init again
 
@@ -138,7 +135,7 @@ void modeFade ()
 {
 	delay (1);
 
-	if (count < 100 - fadeSpeed)
+	if (count < 100 - speed[MODE_FADE])
 	{
 		count++;
 		return;
@@ -147,22 +144,14 @@ void modeFade ()
 	count = 0;
 
 	if (state)
-	{
-		power[MODE_FADE]++; // Increasing power
-	}
+		rgb[MODE_FADE] += 0x010101;  // Increasing all colors
 	else
-	{
-		power[MODE_FADE]--; // Decreasing power
-	}
+		rgb[MODE_FADE] -= 0x010101;  // Decreasing all colors
 
-	if (power[MODE_FADE] >= MAX_POWER) // If power reach MAX_POWER, we start to decrease
-	{
-		state = 0; // Decreasing state
-	}
-	else if (power[MODE_FADE] <= 0) // If power reach 0, we start to increase
-	{
-		state = 1; // Increasing state
-	}
+	if (rgb[MODE_FADE] >= 0xFFFFFF) // If color reach white, we start to decrease
+		state = 0;                  // Decreasing state
+	else if (rgb[MODE_FADE] <= 0)   // If color reach black, we start to increase
+		state = 1;                  // Increasing state
 }
 
 // Smooth Mode Initialization
@@ -182,7 +171,7 @@ void modeSmooth ()
 {
 	delay (1);
 
-	if (count < 100 - smoothSpeed)
+	if (count < 100 - speed[MODE_SMOOTH])
 	{
 		count++;
 		return;
@@ -252,8 +241,7 @@ void modeSmooth ()
 // Wakeup Mode initialization
 void initModeWakeup ()
 {
-	rgb[MODE_WAKEUP]   = 0x0000FF; // Setting color to blue
-	power[MODE_WAKEUP] = 0;        // Setting power to 0
+	rgb[MODE_WAKEUP] = 0x000000; // Setting color to black
 	count    = 0;
 	lastMode = MODE_WAKEUP; // Setting lastMode so we don't call init again
 
@@ -265,7 +253,7 @@ void modeWakeup ()
 {
 	delay (1);
 
-	if (count < WAKE_UP_SLOWNESS)
+	if (count < speed[MODE_WAKEUP])
 	{
 		count++;
 		return;
@@ -273,9 +261,9 @@ void modeWakeup ()
 
 	count = 0;
 
-	power[MODE_WAKEUP]++; // Slowly increase power
+	rgb[MODE_WAKEUP] += 0x000001; // Slowly increase blue
 
-	if (power[MODE_WAKEUP] >= MAX_POWER) // When max power is reached
+	if (rgb[MODE_WAKEUP] >= 0x0000FF) // When max blue is reached
 	{
 		rgb[MODE_DEFAULT]   = rgb[MODE_WAKEUP];   // Transfer RGB final value to default mode
 		power[MODE_DEFAULT] = power[MODE_WAKEUP]; // Same for power

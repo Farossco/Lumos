@@ -31,34 +31,6 @@
 // ******* Prayer ******* //
 #define PRAYER_FADE_SPEED 97 // Fade speed for prayer time
 
-// ******* Power ******* //
-#define MIN_POWER 0   // Minimum power value
-#define MAX_POWER 100 // Maximum power value
-
-// ******* Modes ******* //
-/******** Flash *******/
-#define MIN_FLASH              -100 // Minimum flash speed
-#define MAX_FLASH              50   // Maximum flash speed
-#define IR_FLASH_CHANGE_SPEED  1    // Flash increasion or dicreasion speed
-#define DEFAULT_FLASH_SPEED    0    // Default flash speed value
-/******** Strobe *******/
-#define MIN_STROBE             -100 // Minimum strobe speed
-#define MAX_STROBE             50   // Maximum strobe speed
-#define IR_STROBE_CHANGE_SPEED 1    // Strobe increasion or dicreasion speed
-#define DEFAULT_STROBE_SPEED   0    // Default strobe speed value
-/******** Fade *******/
-#define MIN_FADE               70  // Minimum fade speed
-#define MAX_FADE               100 // Maximum fade speed
-#define IR_FADE_CHANGE_SPEED   1   // Fade increasion or dicreasion speed
-#define DEFAULT_FADE_SPEED     75  // Default fade speed value
-/******** Smooth *******/
-#define MIN_SMOOTH             76  // Minimum smooth speed
-#define MAX_SMOOTH             100 // Maximum smooth speed
-#define IR_SMOOTH_CHANGE_SPEED 1   // Smooth increasion or dicreasion speed
-#define DEFAULT_SMOOTH_SPEED   80  // Default smooth speed value
-/******** Wake up *******/
-#define WAKE_UP_SLOWNESS       1000 // Wake up slowness
-
 // ******** IDs ******** //
 /******** Serial reception types ********/
 #define TYPE_UNK -1
@@ -79,8 +51,7 @@
 #define MODE_MAX     5
 
 // ******* Infrared ******* //
-#define POWER_CHANGE_SPEED 5  // Power increasion/decreasion speed
-#define N_COLOR            16 // Number of different colors
+#define N_COLOR 16 // Number of different colors
 
 // ******* DFPlayer ******* //
 #define DEFAULT_VOLUME 30

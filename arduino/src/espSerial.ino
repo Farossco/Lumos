@@ -191,36 +191,10 @@ void readSerial ()
 
 		case TYPE_POW:
 			message.toCharArray (charPow, 4);
-
-			switch (mode)
-			{
-				case MODE_FLASH:
-					flashSpeed = strtol (charPow, NULL, 10) * (MAX_FLASH - (float) MIN_FLASH) / (MAX_POWER - (float) MIN_POWER) + (MIN_FLASH - MIN_POWER);
-					break;
-
-				case MODE_STROBE:
-					strobeSpeed = strtol (charPow, NULL, 10) * (MAX_STROBE - MIN_STROBE) / (MAX_POWER - MIN_POWER) + (MIN_STROBE - MIN_POWER);
-					break;
-
-				case MODE_FADE:
-					fadeSpeed = strtol (charPow, NULL, 10) * (MAX_FADE - MIN_FADE) / (MAX_POWER - MIN_POWER) + (MIN_FADE - MIN_POWER);
-					break;
-
-				case MODE_SMOOTH:
-					smoothSpeed = strtol (charPow, NULL, 10) * (MAX_SMOOTH - MIN_SMOOTH) / (MAX_POWER - MIN_POWER) + (MIN_SMOOTH - MIN_POWER);
-					break;
-
-				default:
-					power[MODE_DEFAULT] = strtol (charPow, NULL, 10);
-					break;
-			}
+			power[MODE_DEFAULT] = strtol (charPow, NULL, 10);
 
 			print ("Full POW (number): ");
-			printlnNoPrefix (
-				mode == MODE_FLASH ? (int) flashSpeed :
-				mode == MODE_STROBE ? (int) strobeSpeed :
-				mode == MODE_FADE ? (int) fadeSpeed :
-				mode == MODE_SMOOTH ? (int) smoothSpeed : (int) power, DEC);
+			printlnNoPrefix ((int) power, DEC);
 			printlnNoPrefix();
 			break;
 

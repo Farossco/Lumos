@@ -104,40 +104,19 @@ void readInfrared ()
 			// DOWN
 			case 0xFFB847:
 			case 0xA23C94BF:
-				if (mode == MODE_FLASH) // If we are in flash mode, decrease speed instead of power
+				if (mode >= MODE_FLASH && mode <= MODE_SMOOTH) // If we are in flash, strobe, fade or smooth mode, decrease speed instead of power
 				{
-					if (flashSpeed - IR_FLASH_CHANGE_SPEED >= MIN_FLASH)
-						flashSpeed -= IR_FLASH_CHANGE_SPEED;
+					if (speed[mode] - IRChandeStep[mode] >= minSpeed[mode])
+						speed[mode] -= IRChandeStep[mode];
 					else
-						flashSpeed = MIN_FLASH;
+						speed[mode] = minSpeed[mode];
 				}
-				else if (mode == MODE_STROBE) // If we are in STROBE mode, decrease speed instead of power
+				else if (mode == MODE_DEFAULT)
 				{
-					if (strobeSpeed - IR_STROBE_CHANGE_SPEED >= MIN_STROBE)
-						strobeSpeed -= IR_STROBE_CHANGE_SPEED;
+					if (power[MODE_DEFAULT] - IRChandeStep[mode] >= minSpeed[mode])
+						power[MODE_DEFAULT] -= IRChandeStep[mode];
 					else
-						strobeSpeed = MIN_STROBE;
-				}
-				else if (mode == MODE_FADE) // If we are in fade mode, decrease speed instead of power
-				{
-					if (fadeSpeed - IR_FADE_CHANGE_SPEED >= MIN_FADE)
-						fadeSpeed -= IR_FADE_CHANGE_SPEED;
-					else
-						fadeSpeed = MIN_FADE;
-				}
-				else if (mode == MODE_SMOOTH) // If we are in smooth mode, decrease speed instead of power
-				{
-					if (smoothSpeed - IR_SMOOTH_CHANGE_SPEED >= MIN_SMOOTH)
-						smoothSpeed -= IR_SMOOTH_CHANGE_SPEED;
-					else
-						smoothSpeed = MIN_SMOOTH;
-				}
-				else
-				{
-					if (power[MODE_DEFAULT] - POWER_CHANGE_SPEED >= MIN_POWER)
-						power[MODE_DEFAULT] -= POWER_CHANGE_SPEED;
-					else
-						power[MODE_DEFAULT] = MIN_POWER;
+						power[MODE_DEFAULT] = minSpeed[mode];
 
 					rgb2color();
 
@@ -161,44 +140,23 @@ void readInfrared ()
 			// UP
 			case 0xFF906F:
 			case 0xE5CFBD7F:
-				if (mode == MODE_FLASH) // If we are in flash mode, increase speed instead of power
+				if (mode >= MODE_FLASH && mode <= MODE_SMOOTH) // If we are in flash, strobe, fade or smooth mode, decrease speed instead of power
 				{
-					if (flashSpeed + IR_FLASH_CHANGE_SPEED <= MAX_FLASH)
-						flashSpeed += IR_FLASH_CHANGE_SPEED;
+					if (speed[mode] + IRChandeStep[mode] <= maxSpeed[mode])
+						speed[mode] += IRChandeStep[mode];
 					else
-						flashSpeed = MAX_FLASH;
+						speed[mode] = maxSpeed[mode];
 				}
-				else if (mode == MODE_STROBE) // If we are in strobe mode, increase speed instead of power
+				else if (mode == MODE_DEFAULT)
 				{
-					if (strobeSpeed + IR_STROBE_CHANGE_SPEED <= MAX_STROBE)
-						strobeSpeed += IR_STROBE_CHANGE_SPEED;
+					if (power[MODE_DEFAULT] + IRChandeStep[mode] <= maxSpeed[mode])
+						power[MODE_DEFAULT] += IRChandeStep[mode];
 					else
-						strobeSpeed = MAX_STROBE;
-				}
-				else if (mode == MODE_FADE) // If we are in fade mode, increase speed instead of power
-				{
-					if (fadeSpeed + IR_FADE_CHANGE_SPEED <= MAX_FADE)
-						fadeSpeed += IR_FADE_CHANGE_SPEED;
-					else
-						fadeSpeed = MAX_FADE;
-				}
-				else if (mode == MODE_SMOOTH) // If we are in smooth mode, increase speed instead of power
-				{
-					if (smoothSpeed + IR_SMOOTH_CHANGE_SPEED <= MAX_SMOOTH)
-						smoothSpeed += IR_SMOOTH_CHANGE_SPEED;
-					else
-						smoothSpeed = MAX_SMOOTH;
-				}
-				else
-				{
-					if (power[MODE_DEFAULT] + POWER_CHANGE_SPEED <= MAX_POWER)
-						power[MODE_DEFAULT] += POWER_CHANGE_SPEED;
-					else
-						power[MODE_DEFAULT] = MAX_POWER;
+						power[MODE_DEFAULT] = maxSpeed[mode];
 
 					rgb2color();
 
-					// [DEBUG] Print current color and red, green, blue values
+					// [DEBUG] Print current color and RED, GREEN, BLUE values
 					print ("Power: ");
 					printlnNoPrefix (power[MODE_DEFAULT], DEC);
 					print ("RED: ");

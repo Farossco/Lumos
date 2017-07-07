@@ -12,7 +12,7 @@ void light ()
 void rgb2color ()
 {
 	// Lower is the power, lower is the color value - It allows you to control LEDs light power
-	red[mode]   = ((rgb[mode] & 0xFF0000) >> 16) * (power[mode] / MAX_POWER);
-	green[mode] = ((rgb[mode] & 0x00FF00) >> 8) * (power[mode] / MAX_POWER);
-	blue[mode]  = (rgb[mode] & 0x0000FF) * (power[mode] / MAX_POWER);
+	red[mode]   = ((rgb[mode] & 0xFF0000) >> 16) * (power[mode] / maxSpeed[MODE_DEFAULT]); // maxSpeed[MODE_DEFAULT] = Max Power
+	green[mode] = ((rgb[mode] & 0x00FF00) >> 8) * (power[mode] / maxSpeed[MODE_DEFAULT]);
+	blue[mode]  = (rgb[mode] & 0x0000FF) * (power[mode] / maxSpeed[MODE_DEFAULT]);
 }

@@ -1,7 +1,12 @@
-#include "head.h"
+#include "arduino.h"
 
-unsigned long defaultRgb[MODE_MAX + 1] = { 0xFFFFFF, 0xFF0000, 0xFFFFFF, 0xFFFFFF, 0xFF0000, 0x0000FF }; // Default color on program startup
-float defaultPower[MODE_MAX + 1] = { 50, 100, 100, 0, 100, 0 };                                          // Default color on program startup
+// Constant values
+const unsigned long defaultRgb[MODE_MAX + 1] = { 0xFFFFFF, 0xFF0000, 0xFFFFFF, 0xFFFFFF, 0xFF0000, 0x0000FF }; // Default color on program startup
+const float defaultPower[MODE_MAX + 1] = { 50, 100, 100, 100, 100, 100 };                                      // Default power on program startup
+const int minSpeed[MODE_MAX + 1] = { 0, -100, -100, 70, 76, -1 };                                              // Minimum speed or power value for each mode
+const int maxSpeed[MODE_MAX + 1] = { 100, 50, 50, 100, 100, -1 };                                              // Maximum speed or power value for each mode
+const int IRChandeStep[MODE_MAX + 1] = { 5, 1, 1, 1, 1, -1 };                                                  // increasion or decreasion step value for infrared for each mode for each mode
+const int defaultSpeed[MODE_MAX + 1] = { -1, 0, 0, 75, 80, 1000 };                                             // Default speed value for each mode
 
 // ******* Global ******* //
 boolean on;                        // If the leds are ON or OFF (True: ON / False: OFF)
@@ -11,17 +16,8 @@ float power[MODE_MAX + 1];         // Current lightning power (from MINPOWER to 
 unsigned char red[MODE_MAX + 1];   // Currentlty red value including lightning power (From 0 to 255)
 unsigned char green[MODE_MAX + 1]; // Currentlty green value including lightning power (From 0 to 255)
 unsigned char blue[MODE_MAX + 1];  // Currentlty blue value including lightning power (From 0 to 255)
+int speed[MODE_MAX + 1];           // Current mode speed
 unsigned char mode;                // Current lighting mode (MODE_***)
-
-// ******* Modes ******* //
-/******* modeFlash ********/
-int flashSpeed; // Current flash speed (From MINFLASH to MAXFLASH)
-/******* modeStrobe *******/
-int strobeSpeed; // Current strobe speed (From MINSTROBE to MAXSTROBE)
-/******* modeFade *******/
-int fadeSpeed; // Current fade speed (From MINFADE to MAXFADE)
-/******* modeSmooth *******/
-int smoothSpeed; // Current smooth speed (From MINSMOOTH to MAXSMOOTH)
 
 // ******* Prayer ******* //
 String prayersName[N_PRAYER] = { "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha" };
