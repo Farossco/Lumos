@@ -382,9 +382,18 @@
 				android:id="@+id/seekBarWakeUpProgress"
 				style="?android:attr/progressBarStyleHorizontal"
 				android:layout_width="match_parent"
-				android:layout_marginLeft="10dp"
-				android:layout_marginRight="10dp"
 				android:layout_height="match_parent"
+				android:layout_marginLeft="15dp"
+				android:layout_marginRight="15dp"
+				android:layout_weight="1.00"
+				android:max="100"
+				/>
+
+			<SeekBar
+				android:id="@+id/seekBarSpeedWakeUp"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_weight="1.00"
 				android:max="100"
 				/>
 

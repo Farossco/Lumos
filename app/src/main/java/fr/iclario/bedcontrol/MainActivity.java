@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity
 	public static boolean onChanged;
 
 	public static SeekBar seekBarPower[] = new SeekBar[5];
-	public static SeekBar seekBarSpeed[] = new SeekBar[5];
+	public static SeekBar seekBarSpeed[] = new SeekBar[6];
 	public static ProgressBar progressBarWakeUp;
 	public static SeekBar seekBarRed;
 	public static SeekBar seekBarGreen;
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity
 		for (int i = 0; i < 5; i++)
 			seekBarPower[i].setOnSeekBarChangeListener(new OnSeekBarPowerChangeListener(i));
 
-		for (int i = 1; i < 5; i++)
+		for (int i = 1; i < 6; i++)
 			seekBarSpeed[i].setOnSeekBarChangeListener(new OnSeekBarSpeedChangeListener(i));
 
 		switchOnOff.setOnClickListener(new OnSwitchOnOffClickListener());
@@ -104,6 +104,7 @@ public class MainActivity extends AppCompatActivity
 		seekBarSpeed[2] = (SeekBar) findViewById(R.id.seekBarSpeedStrobe);
 		seekBarSpeed[3] = (SeekBar) findViewById(R.id.seekBarSpeedFade);
 		seekBarSpeed[4] = (SeekBar) findViewById(R.id.seekBarSpeedSmooth);
+		seekBarSpeed[5] = (SeekBar) findViewById(R.id.seekBarSpeedWakeUp);
 
 		seekBarRed = (SeekBar) findViewById(R.id.seekBarRed);
 		seekBarGreen = (SeekBar) findViewById(R.id.seekBarGreen);
@@ -312,7 +313,7 @@ public class MainActivity extends AppCompatActivity
 				if (powerChanged[i])
 					seekBarPower[i].setProgress(power[i], true);
 			}
-			for (int i = 1; i < 5; i++)
+			for (int i = 1; i < 6; i++)
 			{
 				if (speedChanged[i])
 					seekBarSpeed[i].setProgress(speed[i], true);
@@ -343,7 +344,6 @@ public class MainActivity extends AppCompatActivity
 			progressBarWakeUp.setProgress(power[5]);
 		}
 		
-		if (modeChanged)
-			radioGroup.check(mode == 1 ? R.id.radioModeFlash : mode == 2 ? R.id.radioModeStrobe : mode == 3 ? R.id.radioModeFade : mode == 4 ? R.id.radioModeSmooth : mode == 5 ? R.id.radioModeWakeUp : R.id.radioModeDefault);
+		radioGroup.check(mode == 1 ? R.id.radioModeFlash : mode == 2 ? R.id.radioModeStrobe : mode == 3 ? R.id.radioModeFade : mode == 4 ? R.id.radioModeSmooth : mode == 5 ? R.id.radioModeWakeUp : R.id.radioModeDefault);
 	}
 }
