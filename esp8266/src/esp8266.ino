@@ -1,17 +1,26 @@
 #include "esp8266.h"
 
+// ******* Constants ******* //
+const int minSpeed[MODE_MAX + 1] = { 0, -100, -100, 70, 76, -1 }; // Minimum speed or power value for each mode
+const int maxSpeed[MODE_MAX + 1] = { 100, 50, 50, 100, 100, -1 };
+
+
 // ******* Arduino values ******* //
-boolean on;         // If the leds are ON or OFF (True: ON / False: OFF)
-unsigned long rgb;  // Currently displayed RGB value (From 0x000000 to 0xFFFFFF)
-float power;        // Current lightning power (from MINPOWER to MAXPOWER)
-unsigned char mode; // Current lighting mode (MODE_***)
+boolean on;                      // If the leds are ON or OFF (True: ON / False: OFF)
+unsigned long rgb[MODE_MAX + 1]; // Currently displayed RGB value (From 0x000000 to 0xFFFFFF)
+float power[MODE_MAX + 1];       // Current lightning power (from MINPOWER to MAXPOWER)
+int speed[MODE_MAX + 1];         // Current mode speed
+unsigned char mode;              // Current lighting mode
 
 // Wifi webserver
 WiFiServer server (80);
 WiFiClient client;
 
-// json
-DynamicJsonBuffer jsonBuffer;
+// decode
+long result;
+int infoMode;
+int infoType;
+int errorType;
 
 void setup ()
 {
@@ -45,9 +54,7 @@ void setup ()
 
 	println ("Server started");
 
-	getTime();
-
-	getPrayerTime();
+	sendTime();
 } // setup
 
 void loop ()

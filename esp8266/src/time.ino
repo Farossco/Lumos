@@ -50,6 +50,8 @@ void sendTime ()
 
 void getTime ()
 {
+	DynamicJsonBuffer jsonBuffer;
+
 	timestamp = 0;
 	status    = "";
 
@@ -166,6 +168,8 @@ void getTime ()
 
 void getPrayerTime ()
 {
+	DynamicJsonBuffer jsonBuffer;
+
 	code   = 0;
 	status = 0;
 
@@ -247,6 +251,7 @@ void getPrayerTime ()
 	// that's actually the one we want
 
 	print ("Json: ");
+	printlnNoPrefix (line);
 
 	JsonObject& jsonRootPrayer = jsonBuffer.parseObject (line);
 	code   = jsonRootPrayer["code"];
