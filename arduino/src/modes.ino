@@ -241,7 +241,8 @@ void modeSmooth ()
 // Wakeup Mode initialization
 void initModeWakeup ()
 {
-	rgb[MODE_WAKEUP] = 0x000000; // Setting color to black
+	rgb[MODE_WAKEUP]   = 0x0000FF; // Setting color to black
+	power[MODE_WAKEUP] = 0;
 	count    = 0;
 	lastMode = MODE_WAKEUP; // Setting lastMode so we don't call init again
 
@@ -261,9 +262,9 @@ void modeWakeup ()
 
 	count = 0;
 
-	rgb[MODE_WAKEUP] += 0x000001; // Slowly increase blue
+	power[MODE_WAKEUP] += 1; // Slowly increase blue
 
-	if (rgb[MODE_WAKEUP] >= 0x0000FF) // When max blue is reached
+	if (power[MODE_WAKEUP] >= maxSpeed[MODE_DEFAULT]) // When max blue is reached - maxSpeed[MODE_DEFAULT] = Max Power
 	{
 		rgb[MODE_DEFAULT]   = rgb[MODE_WAKEUP];   // Transfer RGB final value to default mode
 		power[MODE_DEFAULT] = power[MODE_WAKEUP]; // Same for power

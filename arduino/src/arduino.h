@@ -33,15 +33,25 @@
 
 // ******** IDs ******** //
 /******** Serial reception types ********/
-#define TYPE_UNK -1
-#define TYPE_TIM 0
-#define TYPE_RGB 1
-#define TYPE_ONF 2
-#define TYPE_POW 3
-#define TYPE_MOD 4
-#define TYPE_PRT 5
+#define TYPE_RTM -2 // Request : Time
+#define TYPE_RIF -1 // Request : Info
+#define TYPE_UNK 0  // Unknown type
+#define TYPE_TIM 1  // Provide : Time
+#define TYPE_RGB 2  // Provide : RGB
+#define TYPE_ONF 3  // Provide : On
+#define TYPE_POW 4  // Provide : Power
+#define TYPE_MOD 5  // Provide : Mode
+#define TYPE_PRT 6  // Provide : Prayer time
+#define TYPE_SPE 7  // Provide : Speed
+
+/******** Serial reception errors ********/
+#define ERR_NOE 0 // No error
+#define ERR_OOB 1 // Out of bound
+#define ERR_UKM 2 // Unknown mode
+#define ERR_UKR 3 // Unknown request
 
 /******** Modes ********/
+#define MODE_MIN     0
 #define MODE_DEFAULT 0
 #define MODE_FLASH   1
 #define MODE_STROBE  2

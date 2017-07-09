@@ -25,6 +25,57 @@ String modeName (int mode)
 	}
 }
 
+String infoTypeName (int infoType, boolean shortened)
+{
+	switch (infoType)
+	{
+		case TYPE_TIM:
+			return shortened ? "TIM" : "Time";
+
+		case TYPE_RGB:
+			return "RGB";
+
+		case TYPE_ONF:
+			return shortened ? "ONF" : "On";
+
+		case TYPE_POW:
+			return shortened ? "POW" : "Power";
+
+		case TYPE_MOD:
+			return shortened ? "MOD" : "Mode";
+
+		case TYPE_PRT:
+			return shortened ? "PRT" : "Prayer time";
+
+		case TYPE_SPE:
+			return shortened ? "SPE" : "Speed";
+
+		default:
+			return shortened ? "UNK" : "Unknown";
+	}
+}
+
+String ErrorTypeName (int infoType, boolean shortened)
+{
+	switch (infoType)
+	{
+		case ERR_NOE:
+			return "No error";
+
+		case ERR_OOB:
+			return shortened ? "Out of bounds" : "Error: Value is out of bounds";
+
+		case ERR_UKM:
+			return shortened ? "Unknowm mode" : "Error: Unknowm mode";
+
+		case ERR_UKR:
+			return shortened ? "Unknown request type" : "Error: Unknown request type";
+
+		default:
+			return "Unknown error";
+	}
+}
+
 // Digital clock display of the time
 void digitalClockDisplay ()
 {
