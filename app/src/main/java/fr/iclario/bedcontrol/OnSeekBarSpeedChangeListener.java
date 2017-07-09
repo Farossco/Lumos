@@ -5,11 +5,11 @@ import android.widget.SeekBar;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 
-public class OnSeekBarPowerChangeListener implements SeekBar.OnSeekBarChangeListener
+class OnSeekBarSpeedChangeListener implements SeekBar.OnSeekBarChangeListener
 {
 	int i;
 
-	OnSeekBarPowerChangeListener(int i)
+	OnSeekBarSpeedChangeListener(int i)
 	{
 		this.i = i;
 	}
@@ -29,12 +29,12 @@ public class OnSeekBarPowerChangeListener implements SeekBar.OnSeekBarChangeList
 	{
 		int progress = seekBar.getProgress();
 
-		MainActivity.power[i] = progress;
+		MainActivity.speed[i] = progress;
 		// Instantiate the RequestQueue.
 		RequestQueue queue = MainActivity.queue;
 
 		// Request a string response from the provided URL.
-		StringRequest stringRequest = new StringRequestBedControl(true, String.valueOf(MainActivity.power[i]), i, "POW");
+		StringRequest stringRequest = new StringRequestBedControl(true, String.valueOf(MainActivity.speed[i]), i, "SPE");
 
 		// Add the request to the RequestQueue.
 		queue.add(stringRequest);
