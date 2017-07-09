@@ -22,6 +22,8 @@ void decodeRequest (String request)
 		println ("Received time request");
 		return;
 	}
+	else if (request.indexOf ("TIM") == 0)
+		infoType = TYPE_TIM;
 	else if (request.indexOf ("RGB") == 0)
 		infoType = TYPE_RGB;
 	else if (request.indexOf ("ONF") == 0)
@@ -30,6 +32,8 @@ void decodeRequest (String request)
 		infoType = TYPE_POW;
 	else if (request.indexOf ("MOD") == 0)
 		infoType = TYPE_MOD;
+	else if (request.indexOf ("PRT") == 0)
+		infoType = TYPE_PRT;
 	else if (request.indexOf ("SPE") == 0)
 		infoType = TYPE_SPE;
 	else
@@ -67,6 +71,18 @@ void decodeRequest (String request)
 		if (infoMode < MODE_MIN || infoMode > MODE_MAX)
 			errorType = ERR_UKM;
 	}
+	else if (infoType == TYPE_PRT)
+	{
+		for (infoMode = 0; infoMode < N_PRAYER && !(request.charAt (0) == prayersName[infoMode].charAt (0)); infoMode++)
+		{ }
+
+		print ("Prayer: ");
+		printNoPrefix (prayersName[infoMode] + " (");
+		printNoPrefix (infoMode, DEC);
+		printlnNoPrefix (")");
+
+		request.remove (0, 1);
+	}
 
 	print (infoTypeName (infoType, false) + ": ");
 	printlnNoPrefix (request);
@@ -81,82 +97,124 @@ void decodeRequest (String request)
 	print (infoTypeName (infoType, false) + " (decoded): ");
 	printlnNoPrefix (result, infoType == TYPE_RGB ? HEX : DEC);
 
-	switch (infoType)
-	{
-		case TYPE_RGB:
-			if (result < 0 || result > 0xFFFFFF)
-				errorType = ERR_OOB;
-			else
-				rgb[infoMode] = result;
+	if (errorType == ERR_NOE)
+		switch (infoType)
+		{
+			case TYPE_TIM:
+				if (result < 0)
+					errorType = ERR_OOB;
+				else
+					setTime (strtol (requestChar, NULL, 10));
 
-			// Debug
-			print ("RGB (Current value): ");
-			printlnNoPrefix (rgb[infoMode], HEX);
+				// Debug
+				print ("TIME (number): ");
+				printlnNoPrefix (now(), DEC);
+				print ("TIME (readable): ");
+				digitalClockDisplay();
+				printlnNoPrefix();
+				break;
 
-			break;
+			case TYPE_RGB:
+				if (result < 0 || result > 0xFFFFFF)
+					errorType = ERR_OOB;
+				else
+					rgb = result;
 
-		case TYPE_ONF:
-			if (result != 0 && result != 1)
-				errorType = ERR_OOB;
-			else
-				on = result;
+				// Debug
+				rgb2color();
+				print ("RGB (Current value): ");
+				printlnNoPrefix (rgb, HEX);
+				print ("RED: ");
+				printlnNoPrefix (red, DEC);
+				print ("GREEN: ");
+				printlnNoPrefix (green, DEC);
+				print ("BLUE: ");
+				printlnNoPrefix (blue, DEC);
+				printlnNoPrefix();
+				break;
 
-			// Debug
-			print ("On (Current value): ");
-			printNoPrefix (on == 1 ? "True" : on == 0 ? "False" : "Error (");
-			if (on != 0 && on != 1)
-			{
-				printNoPrefix (on, DEC);
-				printNoPrefix (")");
-			}
-			printlnNoPrefix();
+			case TYPE_ONF:
+				if (result != 0 && result != 1)
+					errorType = ERR_OOB;
+				else
+					on = result;
 
-			break;
+				// Debug
+				print ("On (Current value): ");
+				printNoPrefix (on == 1 ? "True" : on == 0 ? "False" : "Error (");
+				if (on != 0 && on != 1)
+				{
+					printNoPrefix (on, DEC);
+					printNoPrefix (")");
+				}
+				printlnNoPrefix();
 
-		case TYPE_POW:
-			if (result < 0 || result > 100)
-				errorType = ERR_OOB;
-			else
-				power[infoMode] = result;
+				break;
 
-			// Debug
-			print ("Power (Current value): ");
-			printlnNoPrefix ((int) power[infoMode], DEC);
+			case TYPE_POW:
+				if (result < 0 || result > 100)
+					errorType = ERR_OOB;
+				else
+					power[infoMode] = result;
 
-			break;
+				// Debug
+				print ("Power (Current value): ");
+				printlnNoPrefix ((int) power[infoMode], DEC);
 
-		case TYPE_MOD:
-			if (result < 0 && result > MODE_MAX)
-				errorType = ERR_OOB;
-			else
-				mode = result;
+				break;
 
-			// Debug
-			print ("Mode (Text): ");
-			printlnNoPrefix (modeName (result));
+			case TYPE_MOD:
+				if (result < 0 || result > MODE_MAX)
+					errorType = ERR_OOB;
+				else
+					mode = result;
 
-			print ("Mode (Current value): ");
-			printNoPrefix (mode, DEC);
-			printlnNoPrefix (" (" + modeName (mode) + ")");
+				// Debug
+				print ("Mode (Text): ");
+				printlnNoPrefix (modeName (result));
+				print ("Mode (Current value): ");
+				printNoPrefix (mode, DEC);
+				printlnNoPrefix (" (" + modeName (mode) + ")");
 
-			break;
+				break;
 
-		case TYPE_SPE:
-			if ((int) result < minSpeed[infoMode] || result > maxSpeed[infoMode])
-				errorType = ERR_OOB;
-			else
-				speed[infoMode] = result;
+			case TYPE_PRT:
+				if (result < 0 && result > MODE_MAX)
+					errorType = ERR_OOB;
+				else
+				{
+					prayerTime[infoMode][2] = result;
+					prayerTime[infoMode][0] = prayerTime[infoMode][2] / 60;
+					prayerTime[infoMode][1] = prayerTime[infoMode][2] % 60;
+				}
 
-			// Debug
-			print ("Min Speed: ");
-			printlnNoPrefix (minSpeed[infoMode], DEC);
-			print ("Max Speed: ");
-			printlnNoPrefix (maxSpeed[infoMode], DEC);
-			print ("Speed (Current value): ");
-			printlnNoPrefix (speed[infoMode], DEC);
-			break;
-	}
+				// Debug
+				print ("Prayer time (Current value): ");
+				printlnNoPrefix (prayerTime[infoMode][2], DEC);
+				print ("Prayer time (Readable) (Current value): ");
+				printDigits (prayerTime[infoMode][0]);
+				printNoPrefix (":");
+				printDigits (prayerTime[infoMode][1]);
+				printlnNoPrefix ("\n");
+
+				break;
+
+			case TYPE_SPE:
+				if ((int) result < minSpeed[infoMode] || result > maxSpeed[infoMode])
+					errorType = ERR_OOB;
+				else
+					speed[infoMode] = result;
+
+				// Debug
+				print ("Min Speed: ");
+				printlnNoPrefix (minSpeed[infoMode], DEC);
+				print ("Max Speed: ");
+				printlnNoPrefix (maxSpeed[infoMode], DEC);
+				print ("Speed (Current value): ");
+				printlnNoPrefix (speed[infoMode], DEC);
+				break;
+		}
 
 	if (errorType != ERR_NOE)
-		println ("Variable has not been changed (" + ErrorTypeName (errorType, false) + ")");
+		println ("Variable has not been changed (" + ErrorTypeName (errorType, false) + ")\n");
 } // readWeb

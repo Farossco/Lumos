@@ -4,29 +4,33 @@ char * getJson (String status, String message)
 
 	DynamicJsonBuffer jsonBuffer;
 
-	JsonObject& jsonRootGlobal = jsonBuffer.createObject();
-	JsonObject& datas     = jsonBuffer.createObject();
-	JsonArray& datasRGB   = datas.createNestedArray ("RGB");
-	JsonArray& datasPower = datas.createNestedArray ("Power");
-	JsonArray& datasSpeed = datas.createNestedArray ("Speed");
+	JsonObject& jsonRoot = jsonBuffer.createObject();
 
-	datas["On"] = on;
-	for (int i = 0; i <= MODE_MAX; i++)
-		datasRGB.add (rgb[i]);
-	for (int i = 0; i <= MODE_MAX; i++)
-		datasPower.add ((int) power[i]);
-	for (int i = 0; i <= MODE_MAX; i++)
-		datasSpeed.add (speed[i]);
-	datas["Mode"] = mode;
+	jsonRoot["Status"]  = status;
+	jsonRoot["Message"] = message;
 
-	jsonRootGlobal["Status"]  = status;
-	jsonRootGlobal["Message"] = message;
-	jsonRootGlobal["Datas"]   = datas;
+	JsonObject& jsonRootDatas = jsonBuffer.createObject();
+	jsonRoot["Datas"]     = jsonRootDatas;
+	jsonRootDatas["On"]   = on;
+	jsonRootDatas["Rgb"]  = rgb;
+	jsonRootDatas["Mode"] = mode;
 
-	jsonRootGlobal.printTo (buffer, sizeof(buffer));
+	JsonArray& jsonRootDatasPower = jsonRootDatas.createNestedArray ("Power");
+	for (int i = 0; i <= MODE_MAX; i++)
+		jsonRootDatasPower.add ((int) power[i]);
+
+	JsonArray& jsonRootDatasSpeed = jsonRootDatas.createNestedArray ("Speed");
+	for (int i = 0; i <= MODE_MAX; i++)
+		jsonRootDatasSpeed.add (speed[i]);
+
+	JsonArray& jsonRootPrayers = jsonRoot.createNestedArray ("Prayers");
+	for (int i = 0; i < N_PRAYER; i++)
+		jsonRootPrayers.add (prayerTime[i][2]);
+
+	jsonRoot.printTo (buffer, sizeof(buffer));
 
 	return buffer;
-}
+} // getJson
 
 void sendJsonToSerial (String status, String message)
 {

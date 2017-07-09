@@ -29,6 +29,9 @@ String infoTypeName (int infoType, boolean shortened)
 {
 	switch (infoType)
 	{
+		case TYPE_TIM:
+			return shortened ? "TIM" : "Time";
+
 		case TYPE_RGB:
 			return "RGB";
 
@@ -40,6 +43,9 @@ String infoTypeName (int infoType, boolean shortened)
 
 		case TYPE_MOD:
 			return shortened ? "MOD" : "Mode";
+
+		case TYPE_PRT:
+			return shortened ? "PRT" : "Prayer time";
 
 		case TYPE_SPE:
 			return shortened ? "SPE" : "Speed";
@@ -97,4 +103,13 @@ void printDigits (int digits)
 		printNoPrefix (0, DEC);
 
 	printNoPrefix (digits, DEC);
+}
+
+// Convert RGB value to Red, Green and Blue values
+void rgb2color ()
+{
+	// Lower is the power, lower is the color value - It allows you to control LEDs light power
+	red   = ((rgb & 0xFF0000) >> 16) * (power[MODE_DEFAULT] / maxSpeed[MODE_DEFAULT]); // maxSpeed[MODE_DEFAULT] = Max Power
+	green = ((rgb & 0x00FF00) >> 8) * (power[MODE_DEFAULT] / maxSpeed[MODE_DEFAULT]);
+	blue  = (rgb & 0x0000FF) * (power[MODE_DEFAULT] / maxSpeed[MODE_DEFAULT]);
 }

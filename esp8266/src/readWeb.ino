@@ -9,12 +9,21 @@ void readWeb ()
 
 	decodeRequest (decodeWeb());
 
+	if (infoType == TYPE_RIF)
+	{
+		println ("Sending to arduino: Nothing");
+		sendJsonToClient ("OK", "");
+		client.flush();
+		client.stop();
+		return;
+	}
+
 	if (errorType != ERR_NOE)
 	{
+		println ("Sending to arduino: Nothing");
 		sendJsonToClient ("ERROR", ErrorTypeName (errorType, true));
 		client.flush();
 		client.stop();
-		println ("Stopping here");
 		return;
 	}
 

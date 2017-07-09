@@ -7,7 +7,7 @@
 #include <WiFiUdp.h>
 
 #define BAUD_RATE     74880 // Serial baud rate
-#define DEBUG_ENABLED true  // Debug mode
+#define DEBUG_ENABLED false // Debug mode
 
 // Wi-Fi informations
 #define SSID0 "Patatou"
@@ -52,6 +52,7 @@
 #define PRAYER_HTTP_PORT       80
 #define PRAYER_HOST            "api.aladhan.com"
 #define PRAYER_METHOD          1
+#define N_PRAYER               6 // Number of different prayer (including sunrise)
 
 // Time
 #define TIME_REQUEST_TIMEOUT 15000
@@ -61,6 +62,5 @@
 #define TIME_KEY             "0D2WZ3KAP6GV"
 #define TIME_BY              "zone"
 #define TIME_FIELDS          "timestamp"
-
 
 #endif // ifndef esp8266_h

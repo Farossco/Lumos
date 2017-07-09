@@ -1,9 +1,8 @@
 // Prayer time request
 String line, printedLine;
 unsigned long timeout;
-int code, prayerTime[6][3];
+int code;
 const char * json, * status, * timestamp, * prayerTimeString[6];
-const char * prayersName[] = { "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha" };
 
 void sendTime ()
 {
