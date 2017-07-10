@@ -130,20 +130,9 @@ public class MainActivity extends AppCompatActivity
 		{
 			StringRequest stringRequest = new StringRequestBedControl(false, "", -1, "INFO");
 			queue.add(stringRequest);
-			handler.postDelayed(runnableCode, 1000);
+			handler.postDelayed(runnableCode, 500);
 		}
 	};
-
-	public static String getRgbString()
-	{
-		String string = (Integer.toHexString(red << 16 | green << 8 | blue)).toUpperCase();
-
-		while (string.length() < 6)
-			string = "0" + string;
-
-		return string;
-	}
-
 
 	public void onModeChange(View view)
 	{
@@ -343,7 +332,7 @@ public class MainActivity extends AppCompatActivity
 
 			progressBarWakeUp.setProgress(power[5]);
 		}
-		
+
 		radioGroup.check(mode == 1 ? R.id.radioModeFlash : mode == 2 ? R.id.radioModeStrobe : mode == 3 ? R.id.radioModeFade : mode == 4 ? R.id.radioModeSmooth : mode == 5 ? R.id.radioModeWakeUp : R.id.radioModeDefault);
 	}
 }
