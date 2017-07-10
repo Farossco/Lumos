@@ -26,6 +26,7 @@ void testVariableChange ()
 		printlnNoPrefix (rgb[MODE_DEFAULT], HEX);
 		changeRgb = rgb[MODE_DEFAULT];
 		sendInfo();
+		eepromWrite();
 	}
 
 	for (int i = 0; i <= MODE_MAX; i++)
@@ -38,6 +39,8 @@ void testVariableChange ()
 			printlnNoPrefix ((int) power[i], DEC);
 			changePower[i] = power[i];
 			sendInfo();
+			if (i != MODE_WAKEUP)
+				eepromWrite();
 		}
 
 	for (int i = 0; i <= MODE_MAX; i++)
@@ -50,6 +53,7 @@ void testVariableChange ()
 			printlnNoPrefix (speed[i], DEC);
 			changeSpeed[i] = speed[i];
 			sendInfo();
+			eepromWrite();
 		}
 
 	if (changeMode != mode)
@@ -61,23 +65,25 @@ void testVariableChange ()
 		printlnNoPrefix (modeName (mode));
 		changeMode = mode;
 		sendInfo();
+		eepromWrite();
 	}
 } // testVariableChange
 
 void initVariableChange ()
 {
 	// Initializing to default values
-	changeOn   = false;
-	changeRgb  = defaultRgb[MODE_DEFAULT];
-	changeMode = MODE_DEFAULT;
+	changeOn   = on;
+	changeRgb  = rgb[MODE_DEFAULT];
+	changeMode = mode;
 	for (int i = 0; i <= MODE_MAX; i++)
-		changePower[i] = defaultPower[i];
+		changePower[i] = power[i];
 	for (int i = 0; i <= MODE_MAX; i++)
-		changeSpeed[i] = defaultSpeed[i];
+		changeSpeed[i] = speed[i];
 }
 
 void sendInfo ()
 {
+	printlnNoPrefix();
 	println ("Sending variables infos to the ESP8266");
 
 	Serial1.print ("ONF");
@@ -104,6 +110,4 @@ void sendInfo ()
 		Serial1.print (speed[i], DEC);
 		Serial1.print ("z");
 	}
-
-	printlnNoPrefix();
 }

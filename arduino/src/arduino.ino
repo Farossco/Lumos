@@ -35,7 +35,7 @@ void setup ()
 
 	initSerial(); // Initialize serial communications
 
-	println ("Starting program...\n");
+	println ("Starting program...");
 
 	initInfrared(); // Initialize infrared reception
 
@@ -43,15 +43,16 @@ void setup ()
 
 	initModes(); // Initialize default values for modes variables
 
+	waitForTime(); // Waiting for the ESP to send time (if WAIT_FOR_TIME)
+
 	initGlobal(); // Initialize defaut values for global variables
 
 	initVariableChange(); // Initialize defaut values for change variables
 
-	waitForTime(); // Waiting for the ESP to send time (if WAIT_FOR_TIME)
-
 	sendInfo(); // Sending global variables informations to the ESP8266
 
-	println ("Program started!\n");
+	printlnNoPrefix();
+	println ("Program started!");
 
 	isInitialized = true;
 } // setup
@@ -77,13 +78,25 @@ void loop ()
 
 void initGlobal ()
 {
-	// Initializing to default values
-	on = false; // LEDs are off on startup
-	for (int i = 0; i < MODE_MAX + 1; i++)
+	if (eepromRead()) // Returns True if EEPROM is not correctly initialized (This may be the first launch)
 	{
-		rgb[i]   = defaultRgb[i];   // Initialize colors to its default value
-		power[i] = defaultPower[i]; // Initializing powers its default value
-		speed[i] = defaultSpeed[i];// Initializing speeds its default value
+		printlnNoPrefix();
+		println ("Setting variables to their default value");
+
+		for (int i = 0; i < MODE_MAX + 1; i++)
+		{
+			rgb[i]   = defaultRgb[i];   // Initialize colors to their default value
+			power[i] = defaultPower[i]; // Initializing powers their default value
+			speed[i] = defaultSpeed[i]; // Initializing speeds their default value
+		}
 	}
+	else
+	{
+		for (int i = 1; i < MODE_MAX + 1; i++)
+			rgb[i] = defaultRgb[i];  // Initialize colors to their default values (Except default color)
+	}
+	on = false; // LEDs are off on startup
+
+
 	mode = MODE_DEFAULT; // Initialize mode to constant lightning
 }

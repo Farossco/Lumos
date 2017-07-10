@@ -64,6 +64,7 @@ void initModeFlash ()
 	count    = 0;               // Reseting counter
 	lastMode = MODE_FLASH;      // Setting lastMode so we don't call init again
 
+	printlnNoPrefix();
 	println ("Entering Flash mode");
 }
 
@@ -98,6 +99,7 @@ void initModeStrobe ()
 	count    = 0;                // Reseting counter
 	lastMode = MODE_STROBE;      // Setting lastMode so we don't call init again
 
+	printlnNoPrefix();
 	println ("Entering Strobe mode");
 }
 
@@ -127,6 +129,7 @@ void initModeFade ()
 	count    = 0;
 	lastMode = MODE_FADE; // Setting lastMode so we don't call init again
 
+	printlnNoPrefix();
 	println ("Entering Fade mode");
 }
 
@@ -163,6 +166,7 @@ void initModeSmooth ()
 	rgb2color();            // Calling rgb2color to generate color values
 	lastMode = MODE_SMOOTH; // Setting lastMode so we don't call init again
 
+	printlnNoPrefix();
 	println ("Entering Smooth mode");
 }
 
@@ -246,6 +250,7 @@ void initModeWakeup ()
 	count    = 0;
 	lastMode = MODE_WAKEUP; // Setting lastMode so we don't call init again
 
+	printlnNoPrefix();
 	println ("Entering Wakeup mode");
 }
 

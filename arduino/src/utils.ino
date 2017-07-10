@@ -104,3 +104,8 @@ void printDigits (int digits)
 
 	printNoPrefix (digits, DEC);
 }
+
+void softwareReset () // Just in case
+{
+	asm volatile ("  jmp 0");
+}

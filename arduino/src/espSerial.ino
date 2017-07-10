@@ -26,23 +26,24 @@ void waitForTime ()
 
 		if (millis() - lastMillis >= 5000)
 		{
+			printlnNoPrefix();
 			if (timeStatus() == timeNotSet && !flag)
 				println ("Neither time nor prayers are set");
 			else if (timeStatus() == timeNotSet)
 				println ("Time is not set");
-			else if (!flag)
+			else
 				println ("Prayers are not set");
 
 			askForTime();
 			lastMillis = millis();
 		}
 	}
-}
+} // waitForTime
 
 // Asking for time to the ESP8266 (via internet)
 void askForTime ()
 {
-	println ("Gently asking for time\n");
+	println ("Gently asking for time");
 	Serial1.print ("TIMEPLEASEz"); // z is the end character
 }
 

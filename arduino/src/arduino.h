@@ -4,6 +4,7 @@
 #include <IRremote.h>
 #include <TimeAlarms.h>
 #include <DFRobotDFPlayerMini.h>
+#include <EEPROM.h>
 
 #define DEBUG_ENABLED    true // Debug Mode
 
@@ -15,6 +16,7 @@
 #define INFRARED_ENABLED true  // If we allow infrared communication
 #define SOUND_ENABLED    false // Enable sound
 #define CLAP_ENABLED     false // Enable double claping
+
 
 // ******* Pins ******* //
 #define PIN_SOUND        2  // Sound detector IN pin
@@ -30,6 +32,9 @@
 
 // ******* Prayer ******* //
 #define PRAYER_FADE_SPEED 97 // Fade speed for prayer time
+
+// ******* EEPROM ******* //
+#define EEPROM_START 0x0000 // EEPROM address start
 
 // ******** IDs ******** //
 /******** Serial reception types ********/
