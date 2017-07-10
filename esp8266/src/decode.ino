@@ -1,6 +1,6 @@
 void decodeRequest (String request)
 {
-	char requestChar[10];
+	char requestChar[20];
 	int requestLength = request.length();
 
 	result    = 0;
@@ -107,9 +107,9 @@ void decodeRequest (String request)
 					setTime (strtol (requestChar, NULL, 10));
 
 				// Debug
-				print ("TIME (number): ");
+				print ("TIME (Current value): ");
 				printlnNoPrefix (now(), DEC);
-				print ("TIME (readable): ");
+				print ("TIME (Current value) (readable): ");
 				digitalClockDisplay();
 				printlnNoPrefix();
 				break;
@@ -124,11 +124,11 @@ void decodeRequest (String request)
 				rgb2color();
 				print ("RGB (Current value): ");
 				printlnNoPrefix (rgb, HEX);
-				print ("RED: ");
+				print ("RED (Current value) : ");
 				printlnNoPrefix (red, DEC);
-				print ("GREEN: ");
+				print ("GREEN (Current value): ");
 				printlnNoPrefix (green, DEC);
-				print ("BLUE: ");
+				print ("BLUE (Current value): ");
 				printlnNoPrefix (blue, DEC);
 				printlnNoPrefix();
 				break;
@@ -191,7 +191,7 @@ void decodeRequest (String request)
 				// Debug
 				print ("Prayer time (Current value): ");
 				printlnNoPrefix (prayerTime[infoMode][2], DEC);
-				print ("Prayer time (Readable) (Current value): ");
+				print ("Prayer time (Current value) (Readable): ");
 				printDigits (prayerTime[infoMode][0]);
 				printNoPrefix (":");
 				printDigits (prayerTime[infoMode][1]);

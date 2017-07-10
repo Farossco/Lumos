@@ -2,6 +2,7 @@
 String line, printedLine;
 unsigned long timeout;
 int code;
+boolean prayersAreSet = false;
 const char * json, * status, * timestamp, * prayerTimeString[6];
 
 void sendTime ()
@@ -23,20 +24,21 @@ void sendTime ()
 		Serial.print (now());
 		Serial.print ('z');
 
-		for (int i = 0; i < 6; i++)
-		{
-			printlnNoPrefix();
-			print ("Sending prayer time to arduino (");
-			printNoPrefix (prayersName[i]);
-			printNoPrefix (") : ");
-			delay (1);
+		if (prayersAreSet)
+			for (int i = 0; i < 6; i++)
+			{
+				printlnNoPrefix();
+				print ("Sending prayer time to arduino (");
+				printNoPrefix (prayersName[i]);
+				printNoPrefix (") : ");
+				delay (1);
 
-			delay (100);
-			Serial.print ("PRT");
-			Serial.print (prayersName[i][0]); // First letter of the prayer name
-			Serial.print (prayerTime[i][2]);
-			Serial.print ('z');
-		}
+				delay (100);
+				Serial.print ("PRT");
+				Serial.print (prayersName[i][0]); // First letter of the prayer name
+				Serial.print (prayerTime[i][2]);
+				Serial.print ('z');
+			}
 	}
 	else
 	{
@@ -301,4 +303,6 @@ void getPrayerTime ()
 		if (i < 5)
 			println();
 	}
+
+	prayersAreSet = true;
 } // getprayerTime
