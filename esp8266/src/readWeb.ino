@@ -1,18 +1,18 @@
 void readWeb ()
 {
-	client = server.available(); // Check if a client has connected
+	WiFiClient client = server.available(); // Check if a client has connected
 
 	if (!client) return;  // If nobody connected, we stop here
 
 	while (!client.available()) // Wait until the client sends some data
 		delay (1);
 
-	decodeRequest (decodeWeb());
+	decodeRequest (decodeWeb (client));
 
 	if (infoType == TYPE_RIF)
 	{
 		println ("Sending to arduino: Nothing");
-		sendJsonToClient ("OK", "");
+		sendJsonToClient ("OK", "", client);
 		client.flush();
 		client.stop();
 		return;
@@ -21,7 +21,7 @@ void readWeb ()
 	if (errorType != ERR_NOE)
 	{
 		println ("Sending to arduino: Nothing");
-		sendJsonToClient ("ERROR", ErrorTypeName (errorType, true));
+		sendJsonToClient ("ERROR", ErrorTypeName (errorType, true), client);
 		client.flush();
 		client.stop();
 		return;
@@ -39,13 +39,13 @@ void readWeb ()
 
 	printlnNoPrefix();
 
-	sendJsonToClient ("OK", "");
+	sendJsonToClient ("OK", "", client);
 
 	client.flush();
 	client.stop();
 } // readWeb
 
-String decodeWeb ()
+String decodeWeb (WiFiClient client)
 {
 	String request;
 
@@ -64,4 +64,28 @@ String decodeWeb ()
 	request.remove (request.indexOf (" "), request.length() - request.indexOf (" "));
 
 	return request;
+}
+
+void initWifiServer ()
+{
+	// Connect to WiFi network
+	printlnNoPrefix();
+	print ("Connecting to ");
+	printNoPrefix (SSID0);
+
+	WiFi.begin (SSID0, PASS0);
+
+	while (WiFi.status() != WL_CONNECTED)
+	{
+		delay (500);
+		printNoPrefix (".");
+	}
+
+	printlnNoPrefix();
+	println ("WiFi connected");
+
+	// Start the server
+	server.begin();
+
+	println ("Server started");
 }

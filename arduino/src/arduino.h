@@ -2,7 +2,7 @@
 #define head_h
 
 #include <IRremote.h>
-#include <TimeAlarms.h>
+#include <Time.h>
 #include <DFRobotDFPlayerMini.h>
 #include <EEPROM.h>
 

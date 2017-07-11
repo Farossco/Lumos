@@ -17,10 +17,15 @@ unsigned char mode;        // Current lighting mode
 // ******* Prayer ******* //
 const String prayersName[N_PRAYER] = { "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha" };
 int prayerTime[N_PRAYER][3]; // [0] = Hours / [1] = Minutes / [2] = Hours & Minutes
+String line;
+String printedLine;
+unsigned long timeout;
+int code;
+boolean prayersAreSet;
+const char * json, * status, * timestamp, * prayerTimeString[6];
 
 // ******* Wifi webserver ******* //
 WiFiServer server (80);
-WiFiClient client;
 
 // ******* Decode ******* //
 long result;
@@ -30,42 +35,26 @@ int errorType;
 
 void setup ()
 {
-	pinMode (0, OUTPUT);
-	pinMode (2, OUTPUT);
-	digitalWrite (0, LOW);
-	digitalWrite (2, LOW);
+	initGpios();
 
-	Serial.begin (BAUD_RATE);
-	delay (10);
+	initSerial();
 
-	// Connect to WiFi network
-	printlnNoPrefix();
-	printlnNoPrefix();
-	print ("Connecting to ");
-	printNoPrefix (SSID0);
-
-	WiFi.begin (SSID0, PASS0);
-
-	while (WiFi.status() != WL_CONNECTED)
-	{
-		delay (500);
-		printNoPrefix (".");
-	}
-
-	printlnNoPrefix();
-	println ("WiFi connected");
-
-	// Start the server
-	server.begin();
-
-	println ("Server started");
+	initWifiServer();
 
 	sendTime();
-} // setup
+}
 
 void loop ()
 {
 	readSerial();
 
 	readWeb();
-} // loop
+}
+
+void initGpios ()
+{
+	pinMode (0, OUTPUT);
+	pinMode (2, OUTPUT);
+	digitalWrite (0, LOW);
+	digitalWrite (2, LOW);
+}

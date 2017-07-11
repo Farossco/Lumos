@@ -130,7 +130,6 @@ void decodeRequest (String request)
 				printlnNoPrefix (green, DEC);
 				print ("BLUE (Current value): ");
 				printlnNoPrefix (blue, DEC);
-				printlnNoPrefix();
 				break;
 
 			case TYPE_ONF:

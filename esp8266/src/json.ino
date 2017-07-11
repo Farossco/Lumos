@@ -40,7 +40,7 @@ void sendJsonToSerial (String status, String message)
 	Serial.print (json);
 }
 
-void sendJsonToClient (String status, String message)
+void sendJsonToClient (String status, String message, WiFiClient client)
 {
 	char * json = getJson (status, message);
 

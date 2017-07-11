@@ -1,10 +1,3 @@
-// Prayer time request
-String line, printedLine;
-unsigned long timeout;
-int code;
-boolean prayersAreSet = false;
-const char * json, * status, * timestamp, * prayerTimeString[6];
-
 void sendTime ()
 {
 	getTime();
@@ -52,6 +45,7 @@ void sendTime ()
 void getTime ()
 {
 	DynamicJsonBuffer jsonBuffer;
+	WiFiClient client;
 
 	timestamp = 0;
 	status    = "";
@@ -170,6 +164,7 @@ void getTime ()
 void getPrayerTime ()
 {
 	DynamicJsonBuffer jsonBuffer;
+	WiFiClient client;
 
 	code   = 0;
 	status = 0;
