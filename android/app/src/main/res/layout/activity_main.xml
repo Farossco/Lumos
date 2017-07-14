@@ -36,7 +36,7 @@
 		android:layout_below="@id/textViewOnOff"
 		android:text="@string/red"
 		android:textAlignment="center"
-		android:textColor="#FF0000"
+		android:textColor="@color/red_primary_dark"
 		android:textIsSelectable="false"
 		android:textStyle="bold"
 		/>
@@ -58,7 +58,7 @@
 		android:layout_below="@id/textViewOnOff"
 		android:layout_toEndOf="@id/seekBarRed"
 		android:textAlignment="center"
-		android:textColor="#FF0000"
+		android:textColor="@color/red_primary_dark"
 		android:textIsSelectable="false"
 		android:textStyle="bold"
 		/>
@@ -70,7 +70,7 @@
 		android:layout_below="@id/textViewRed"
 		android:text="@string/green"
 		android:textAlignment="center"
-		android:textColor="#00FF00"
+		android:textColor="@color/green_primary_dark"
 		android:textIsSelectable="false"
 		android:textStyle="bold"
 		/>
@@ -92,7 +92,7 @@
 		android:layout_below="@id/textViewRedValue"
 		android:layout_toEndOf="@id/seekBarGreen"
 		android:textAlignment="center"
-		android:textColor="#00FF00"
+		android:textColor="@color/green_primary_dark"
 		android:textIsSelectable="false"
 		android:textStyle="bold"
 		/>
@@ -104,7 +104,7 @@
 		android:layout_below="@id/textViewGreen"
 		android:text="@string/blue"
 		android:textAlignment="center"
-		android:textColor="#0000FF"
+		android:textColor="@color/blue_primary_dark"
 		android:textIsSelectable="false"
 		android:textStyle="bold"
 		/>
@@ -126,20 +126,8 @@
 		android:layout_below="@id/textViewGreenValue"
 		android:layout_toEndOf="@id/seekBarBlue"
 		android:textAlignment="center"
-		android:textColor="#0000FF"
+		android:textColor="@color/blue_primary_dark"
 		android:textIsSelectable="false"
-		android:textStyle="bold"
-		/>
-
-	<TextView
-		android:id="@+id/text"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true"
-		android:layout_alignParentEnd="true"
-		android:layout_alignParentStart="true"
-		android:paddingTop="15dp"
-		android:textAlignment="center"
 		android:textStyle="bold"
 		/>
 
@@ -230,9 +218,10 @@
 
 	<LinearLayout
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
+		android:layout_height="wrap_content"
 		android:layout_below="@+id/textViewBlue"
 		android:layout_toEndOf="@+id/radioModeGroup"
+		android:layout_marginRight="20dp"
 		android:orientation="vertical"
 		>
 
@@ -401,5 +390,16 @@
 
 	</LinearLayout>
 
+	<TextView
+		android:id="@+id/text"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true"
+		android:layout_alignParentEnd="true"
+		android:layout_alignParentStart="true"
+		android:paddingTop="15dp"
+		android:textAlignment="center"
+		android:textStyle="bold"
+		/>
 
 </RelativeLayout>

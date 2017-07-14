@@ -16,8 +16,8 @@ public class StringRequestBedControl extends StringRequest
 					@Override
 					public void onResponse(String response)
 					{
-						MainActivity.setVariables(response);
-						MainActivity.displayValues(response);
+						MainActivity.mainActivity.setVariables(response);
+						MainActivity.mainActivity.displayValues(response);
 					}
 				},
 				new Response.ErrorListener()
@@ -25,7 +25,7 @@ public class StringRequestBedControl extends StringRequest
 					@Override
 					public void onErrorResponse(VolleyError error)
 					{
-						MainActivity.responseTextView.setText("Communication avec l'ESP impossible");
+						MainActivity.mainActivity.responseTextView.setText("Communication avec l'ESP impossible");
 					}
 				});
 	}

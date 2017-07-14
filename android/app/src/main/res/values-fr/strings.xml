@@ -12,4 +12,5 @@
 	<string name="ModeStrobe">Strobe</string>
 	<string name="ModeDefault">DEFAULT</string>
 	<string name="modeWakeUp">Wake up</string>
+	<string name="CommunicationImpossible">Communication avec l\'ESP impossible</string>
 </resources>

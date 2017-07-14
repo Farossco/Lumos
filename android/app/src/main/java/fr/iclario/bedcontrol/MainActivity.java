@@ -3,6 +3,7 @@ package fr.iclario.bedcontrol;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -11,10 +12,7 @@ import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -23,61 +21,69 @@ import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity
 {
-	public static int power[] = new int[6];
-	public static int speed[] = new int[6];
-	public static int mode;
-	public static int rgb;
-	public static int red;
-	public static int green;
-	public static int blue;
-	public static boolean on;
-	public static String status;
-	public static String message;
+	public static MainActivity mainActivity;
 
-	public static boolean powerChanged[] = new boolean[6];
-	public static boolean speedChanged[] = new boolean[6];
-	public static boolean modeChanged;
-	public static boolean redChanged;
-	public static boolean greenChanged;
-	public static boolean blueChanged;
-	public static boolean onChanged;
+	public int power[] = new int[6];
+	public int speed[] = new int[6];
+	public int mode;
+	public int rgb[] = new int[4];
+	public boolean on;
+	public String status;
+	public String message;
 
-	public static SeekBar seekBarPower[] = new SeekBar[5];
-	public static SeekBar seekBarSpeed[] = new SeekBar[6];
-	public static ProgressBar progressBarWakeUp;
-	public static SeekBar seekBarRed;
-	public static SeekBar seekBarGreen;
-	public static SeekBar seekBarBlue;
+	public boolean powerChanged[] = new boolean[6];
+	public boolean speedChanged[] = new boolean[6];
+	public boolean modeChanged;
+	public boolean rgbChanged[] = new boolean[3];
+	public boolean onChanged;
 
-	public static TextView textViewRedValue;
-	public static TextView textViewGreenValue;
-	public static TextView textViewBlueValue;
+	public SeekBar seekBarPower[] = new SeekBar[5];
+	public SeekBar seekBarSpeed[] = new SeekBar[6];
+	public ProgressBar progressBarWakeUp;
+	public SeekBar seekBarRgb[] = new SeekBar[3];
 
-	public static Switch switchOnOff;
-	public static TextView responseTextView;
+	public TextView textViewRgbValue[] = new TextView[3];
 
-	public static RadioGroup radioGroup;
+	public Switch switchOnOff;
+	public TextView responseTextView;
 
-	public static RequestQueue queue;
+	public RadioGroup radioGroup;
 
-	Handler handler = new Handler();
+	static Handler handler = new Handler();
+
+	boolean paused;
+
+	protected void onStart()
+	{
+		super.onStart();
+		this.paused = false;
+		handler.post(runnableCode);
+	}
+
+	protected void onStop()
+	{
+		super.onStop();
+		this.paused = true;
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		ActionBar actionBar = getSupportActionBar();
+
+		mainActivity = this;
+
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
 		initializeVariables();
 
-		// Initialize textViews with '0'.
-		textViewRedValue.setText(seekBarRed.getProgress() + "/" + seekBarRed.getMax());
-		textViewGreenValue.setText(seekBarGreen.getProgress() + "/" + seekBarGreen.getMax());
-		textViewBlueValue.setText(seekBarBlue.getProgress() + "/" + seekBarBlue.getMax());
-
-		seekBarRed.setOnSeekBarChangeListener(new OnSeekBarRedChangeListener());
-		seekBarGreen.setOnSeekBarChangeListener(new OnSeekBarGreenChangeListener());
-		seekBarBlue.setOnSeekBarChangeListener(new OnSeekBarBlueChangeListener());
+		// Initialize textViews with '0'
+		for (int i = 0; i < 3; i++)
+		{
+			textViewRgbValue[i].setText(seekBarRgb[i].getProgress() + "/" + seekBarRgb[i].getMax());
+			seekBarRgb[i].setOnSeekBarChangeListener(new OnSeekBarRgbChangeListener(i));
+		}
 
 		for (int i = 0; i < 5; i++)
 			seekBarPower[i].setOnSeekBarChangeListener(new OnSeekBarPowerChangeListener(i));
@@ -87,7 +93,8 @@ public class MainActivity extends AppCompatActivity
 
 		switchOnOff.setOnClickListener(new OnSwitchOnOffClickListener());
 
-		handler.post(runnableCode);
+		//Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+		//startActivity(intent);
 	}
 
 	private void initializeVariables()
@@ -106,31 +113,34 @@ public class MainActivity extends AppCompatActivity
 		seekBarSpeed[4] = (SeekBar) findViewById(R.id.seekBarSpeedSmooth);
 		seekBarSpeed[5] = (SeekBar) findViewById(R.id.seekBarSpeedWakeUp);
 
-		seekBarRed = (SeekBar) findViewById(R.id.seekBarRed);
-		seekBarGreen = (SeekBar) findViewById(R.id.seekBarGreen);
-		seekBarBlue = (SeekBar) findViewById(R.id.seekBarBlue);
+		seekBarRgb[0] = (SeekBar) findViewById(R.id.seekBarRed);
+		seekBarRgb[1] = (SeekBar) findViewById(R.id.seekBarGreen);
+		seekBarRgb[2] = (SeekBar) findViewById(R.id.seekBarBlue);
 
-		textViewRedValue = (TextView) findViewById(R.id.textViewRedValue);
-		textViewGreenValue = (TextView) findViewById(R.id.textViewGreenValue);
-		textViewBlueValue = (TextView) findViewById(R.id.textViewBlueValue);
+		textViewRgbValue[0] = (TextView) findViewById(R.id.textViewRedValue);
+		textViewRgbValue[1] = (TextView) findViewById(R.id.textViewGreenValue);
+		textViewRgbValue[2] = (TextView) findViewById(R.id.textViewBlueValue);
 
 		radioGroup = (RadioGroup) findViewById(R.id.radioModeGroup);
 
 		switchOnOff = (Switch) findViewById(R.id.switchOnOff);
 
 		responseTextView = (TextView) findViewById(R.id.text);
-
-		queue = Volley.newRequestQueue(this);
 	}
 
-	private Runnable runnableCode = new Runnable()
+	public Runnable runnableCode = new Runnable()
 	{
 		@Override
 		public void run()
 		{
+			RequestQueue queue;
+			queue = Volley.newRequestQueue(MainActivity.mainActivity);
 			StringRequest stringRequest = new StringRequestBedControl(false, "", -1, "INFO");
 			queue.add(stringRequest);
-			handler.postDelayed(runnableCode, 500);
+
+			if (!paused)
+				handler.postDelayed(runnableCode, 500);
+
 		}
 	};
 
@@ -138,34 +148,18 @@ public class MainActivity extends AppCompatActivity
 	{
 		mode = (view.getId() == R.id.radioModeDefault) ? 0 : (view.getId() == R.id.radioModeFlash) ? 1 : (view.getId() == R.id.radioModeStrobe) ? 2 : (view.getId() == R.id.radioModeFade) ? 3 : (view.getId() == R.id.radioModeSmooth) ? 4 : (view.getId() == R.id.radioModeWakeUp) ? 5 : -1;
 
-		RequestQueue queue = MainActivity.queue;
+		// Instantiate the RequestQueue.
+		RequestQueue queue;
+		queue = Volley.newRequestQueue(MainActivity.mainActivity);
 
 		// Request a string response from the provided URL.
-		StringRequest stringRequest = new StringRequest(Request.Method.GET, Resources.espAddress + "/MOD" + mode,
-
-				new Response.Listener<String>()
-				{
-					@Override
-					public void onResponse(String response)
-					{
-						setVariables(response);
-						displayValues(response);
-					}
-				},
-				new Response.ErrorListener()
-				{
-					@Override
-					public void onErrorResponse(VolleyError error)
-					{
-						responseTextView.setText("Communication avec l'ESP impossible");
-					}
-				});
+		StringRequest stringRequest = new StringRequestBedControl(false, String.valueOf(mode), -1, "MOD");
 
 		// Add the request to the RequestQueue.
 		queue.add(stringRequest);
 	}
 
-	public static void setVariables(String json)
+	public boolean setVariables(String json)
 	{
 		for (int i = 0; i < 6; i++)
 		{
@@ -174,9 +168,9 @@ public class MainActivity extends AppCompatActivity
 		}
 
 		modeChanged = false;
-		redChanged = false;
-		greenChanged = false;
-		blueChanged = false;
+		for (int i = 0; i < 3; i++)
+			rgbChanged[i] = false;
+
 		onChanged = false;
 
 		try
@@ -204,33 +198,30 @@ public class MainActivity extends AppCompatActivity
 				}
 			}
 
-			if (on != (jsonData.getInt("On") != 0))
+			if (on != (jsonData.getInt("On") == 1))
 			{
-				on = jsonData.getInt("On") != 0;
+				on = jsonData.getInt("On") == 1;
 				onChanged = true;
 			}
-			if (rgb != jsonData.getInt("Rgb"))
-			{
 
-			}
-			rgb = jsonData.getInt("Rgb");
+			rgb[3] = jsonData.getInt("Rgb");
 
-			if (red != rgb / 256 / 256)
+			if (rgb[0] != rgb[3] / 256 / 256)
 			{
-				red = rgb / 256 / 256;
-				redChanged = true;
+				rgb[0] = rgb[3] / 256 / 256;
+				rgbChanged[0] = true;
 			}
 
-			if (green != (rgb / 256) % 256)
+			if (rgb[1] != (rgb[3] / 256) % 256)
 			{
-				green = (rgb / 256) % 256;
-				greenChanged = true;
+				rgb[1] = (rgb[3] / 256) % 256;
+				rgbChanged[1] = true;
 			}
 
-			if (blue != rgb % 256)
+			if (rgb[2] != rgb[3] % 256)
 			{
-				blue = rgb % 256;
-				blueChanged = true;
+				rgb[2] = rgb[3] % 256;
+				rgbChanged[2] = true;
 			}
 
 			if (mode != jsonData.getInt("Mode"))
@@ -238,14 +229,17 @@ public class MainActivity extends AppCompatActivity
 				mode = jsonData.getInt("Mode");
 				modeChanged = true;
 			}
+
+			return jsonGlobal.getString("Status").equals("OK");
 		}
 		catch (Exception e)
 		{
 			responseTextView.setText(e.getLocalizedMessage());
+			return false;
 		}
 	}
 
-	public static void displayValues(String json)
+	public void displayValues(String json)
 	{
 		String text = "";
 
@@ -256,7 +250,16 @@ public class MainActivity extends AppCompatActivity
 		text += "\nOn: ";
 		text += on;
 		text += "\nRGB: ";
-		text += rgb;
+		text += Integer.toHexString(rgb[3]).toUpperCase();
+		text += " (";
+		text += rgb[3];
+		text += ")";
+		text += "\nRed: ";
+		text += rgb[0];
+		text += "\nGreen: ";
+		text += rgb[1];
+		text += "\nBlue: ";
+		text += rgb[2];
 
 		text += "\nPower: [";
 		for (int i = 0; i < 6; i++)
@@ -284,51 +287,39 @@ public class MainActivity extends AppCompatActivity
 		setValues();
 	}
 
-	public static void setValues()
+	public void setValues()
 	{
 		switchOnOff.setChecked(on);
 
 		if (Build.VERSION.SDK_INT >= 24)
 		{
-			if (redChanged)
-				seekBarRed.setProgress(red, true);
-			if (greenChanged)
-				seekBarGreen.setProgress(green, true);
-			if (blueChanged)
-				seekBarBlue.setProgress(blue, true);
+			for (int i = 0; i < 3; i++)
+				if (rgbChanged[i])
+					seekBarRgb[i].setProgress(rgb[i], true);
 
 			for (int i = 0; i < 5; i++)
-			{
 				if (powerChanged[i])
 					seekBarPower[i].setProgress(power[i], true);
-			}
+
 			for (int i = 1; i < 6; i++)
-			{
 				if (speedChanged[i])
 					seekBarSpeed[i].setProgress(speed[i], true);
-			}
 
 			progressBarWakeUp.setProgress(power[5], true);
 		}
 		else
 		{
-			if (redChanged)
-				seekBarRed.setProgress(red);
-			if (greenChanged)
-				seekBarGreen.setProgress(green);
-			if (blueChanged)
-				seekBarBlue.setProgress(blue);
+			for (int i = 0; i < 3; i++)
+				if (rgbChanged[i])
+					seekBarRgb[i].setProgress(rgb[i]);
 
 			for (int i = 0; i < 5; i++)
-			{
 				if (powerChanged[i])
 					seekBarPower[i].setProgress(power[i]);
-			}
+
 			for (int i = 1; i < 5; i++)
-			{
 				if (speedChanged[i])
 					seekBarSpeed[i].setProgress(speed[i]);
-			}
 
 			progressBarWakeUp.setProgress(power[5]);
 		}
