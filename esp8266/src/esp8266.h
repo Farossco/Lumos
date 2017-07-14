@@ -1,66 +1,171 @@
 #ifndef esp8266_h
 #define esp8266_h
 
+#include <Arduino.h>
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
 #include <Time.h>
-#include <WiFiUdp.h>
 
-#define BAUD_RATE     74880 // Serial baud rate
-#define DEBUG_ENABLED false // Debug mode
+// ************************************************************************** //
+// ************************* Constants declarations ************************* //
+// ************************************************************************** //
+
+const boolean DEBUG_ENABLED = false; // Debug mode
+
+const int BAUD_RATE         = 74880; // Serial baud rate
 
 // Wi-Fi informations
-#define SSID0 "Patatou"
-#define PASS0 "FD00000000"
+const char * SSID0 = "Patatou";    // Wi-Fi SSID
+const char * PASS0 = "FD00000000"; // Wi-Fi password
 
 // ******** IDs ******** //
-/******** Serial reception types ********/
-#define TYPE_RTM -2 // Request : Time
-#define TYPE_RIF -1 // Request : Info
-#define TYPE_UNK 0  // Unknown type
-#define TYPE_TIM 1  // Provide : Time
-#define TYPE_RGB 2  // Provide : RGB
-#define TYPE_ONF 3  // Provide : On
-#define TYPE_POW 4  // Provide : Power
-#define TYPE_MOD 5  // Provide : Mode
-#define TYPE_PRT 6  // Provide : Prayer time
-#define TYPE_SPE 7  // Provide : Speed
+// Serial reception types
+const int TYPE_RTM = -2; // Request : Time
+const int TYPE_RIF = -1; // Request : Info
+const int TYPE_UNK = 0;  // -Unknown type-
+const int TYPE_TIM = 1;  // Provide : Time
+const int TYPE_RGB = 2;  // Provide : RGB
+const int TYPE_ONF = 3;  // Provide : On
+const int TYPE_POW = 4;  // Provide : Power
+const int TYPE_MOD = 5;  // Provide : Mode
+const int TYPE_PRT = 6;  // Provide : Prayer time
+const int TYPE_SPE = 7;  // Provide : Speed
 
-/******** Serial reception errors ********/
-#define ERR_NOE 0 // No error
-#define ERR_OOB 1 // Out of bound
-#define ERR_UKM 2 // Unknown mode
-#define ERR_UKR 3 // Unknown request
+// Serial reception errors
+const int ERR_NOE = 0; // No error
+const int ERR_OOB = 1; // Out of bound
+const int ERR_UKM = 2; // Unknown mode
+const int ERR_UKR = 3; // Unknown request
 
-/******** Modes ********/
-#define MODE_MIN     0
-#define MODE_DEFAULT 0
-#define MODE_FLASH   1
-#define MODE_STROBE  2
-#define MODE_FADE    3
-#define MODE_SMOOTH  4
-#define MODE_WAKEUP  5
-#define MODE_MAX     5
+// Modes
+const int MODE_MIN     = 0; // -Minimum mode value-
+const int MODE_DEFAULT = 0; // Default mode
+const int MODE_FLASH   = 1; // Flash mode
+const int MODE_STROBE  = 2; // Strobe mode
+const int MODE_FADE    = 3; // Fade mode
+const int MODE_SMOOTH  = 4; // Smooth mode
+const int MODE_WAKEUP  = 5; // Wake up mode
+const int MODE_MAX     = 5; // -Maximum mode value-
+const int N_MODE       = 6; // --Number of different modes--
 
 // Location
-#define LATITUDE  "48.866667"
-#define LONGITUDE "2.333333"
-#define TIME_ZONE "Europe/Paris"
+const String LATITUDE  = "48.866667";    // My latitude (Well... not really)
+const String LONGITUDE = "2.333333";     // My longitude (Not really either :p)
+const String TIME_ZONE = "Europe/Paris"; // My time zone
 
 // Prayer times
-#define PRAYER_REQUEST_TIMEOUT 15000
-#define PRAYER_HTTP_PORT       80
-#define PRAYER_HOST            "api.aladhan.com"
-#define PRAYER_METHOD          1
-#define N_PRAYER               6 // Number of different prayer (including sunrise)
+const int PRAYER_REQUEST_TIMEOUT = 15000;             // Request timeout
+const int PRAYER_HTTP_PORT       = 80;                // HTTP port
+const char * PRAYER_HOST         = "api.aladhan.com"; // HTTP host
+const int PRAYER_METHOD          = 1;                 // Calculation method for times
+const int N_PRAYER               = 6;                 // Number of different prayer (including sunrise);
 
 // Time
-#define TIME_REQUEST_TIMEOUT 15000
-#define TIME_HTTP_PORT       80
-#define TIME_HOST            "api.timezonedb.com"
-#define TIME_FORMAT          "json"
-#define TIME_KEY             "0D2WZ3KAP6GV"
-#define TIME_BY              "zone"
-#define TIME_FIELDS          "timestamp"
+const int TIME_REQUEST_TIMEOUT = 15000;                // Request timeout
+const int TIME_HTTP_PORT       = 80;                   // HTPP port
+const char * TIME_HOST         = "api.timezonedb.com"; // HTPP host
+const String TIME_FORMAT       = "json";               // Format for receive the time
+const String TIME_KEY          = "0D2WZ3KAP6GV";       // TimeZoneDB API key
+const String TIME_BY           = "zone";               // localization method
+const String TIME_FIELDS       = "timestamp";          // Needed fields in the answer
+
+// Bounds
+const int MIN_POWER = 0;   // Minimum speed or power value
+const int MAX_POWER = 100; // Maximum speed or power value
+
+// ************************************************************************** //
+// ************************* Variables declarations ************************* //
+// ************************************************************************** //
+
+// Global
+boolean on;                // If the leds are ON or OFF (True: ON / False: OFF)
+unsigned long rgb;         // Currently displayed RGB value (From 0x000000 to 0xFFFFFF)
+unsigned char red;         // Current red value including lightning power (From 0 to 255)
+unsigned char green;       // Current green value including lightning power (From 0 to 255)
+unsigned char blue;        // Current blue value including lightning power (From 0 to 255)
+float power[MODE_MAX + 1]; // Current lightning power (from MINPOWER to MAXPOWER)
+int speed[MODE_MAX + 1];   // Current mode speed
+unsigned char mode;        // Current lighting mode
+
+// Prayer
+const String prayersName[N_PRAYER] =
+{ "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha" };
+int prayerTime[N_PRAYER][3]; // [0] = Hours / [1] = Minutes / [2] = Hours & Minutes
+boolean prayersAreSet;       // Set to true when all prayers are set
+
+// Wifi webserver
+WiFiServer server (80); // Web serveur declaration with port 80
+
+
+// ************************************************************************** //
+// ************************** Functions prototypes ************************** //
+// ************************************************************************** //
+
+void setup ();
+void loop ();
+void initGpios ();
+void readSerial ();
+void initSerial ();
+void printPrefix ();
+void printDebugDigits (int digits);
+void debugClockDisplay ();
+void debugClockDisplayNoPrefix ();
+size_t print (const __FlashStringHelper * message);
+size_t print (const String & message);
+size_t print (const char * message);
+size_t print (unsigned char message, int base);
+size_t print (int message, int base);
+size_t print (unsigned int message, int base);
+size_t print (long message, int base);
+size_t print (unsigned long message, int base);
+size_t print (double message, int base);
+size_t print (const Printable & message);
+size_t printNoPrefix (const __FlashStringHelper * message);
+size_t printNoPrefix (const String & message);
+size_t printNoPrefix (const char * message);
+size_t printNoPrefix (unsigned char message, int base);
+size_t printNoPrefix (int message, int base);
+size_t printNoPrefix (unsigned int message, int base);
+size_t printNoPrefix (long message, int base);
+size_t printNoPrefix (unsigned long message, int base);
+size_t printNoPrefix (double message, int base);
+size_t printNoPrefix (const Printable & message);
+size_t println ();
+size_t println (const __FlashStringHelper * message);
+size_t println (const String & message);
+size_t println (const char * message);
+size_t println (unsigned char message, int base);
+size_t println (int message, int base);
+size_t println (unsigned int message, int base);
+size_t println (long message, int base);
+size_t println (unsigned long message, int base);
+size_t println (double message, int base);
+size_t println (const Printable & message);
+size_t printlnNoPrefix ();
+size_t printlnNoPrefix (const __FlashStringHelper * message);
+size_t printlnNoPrefix (const String & message);
+size_t printlnNoPrefix (const char * message);
+size_t printlnNoPrefix (unsigned char message, int base);
+size_t printlnNoPrefix (int message, int base);
+size_t printlnNoPrefix (unsigned int message, int base);
+size_t printlnNoPrefix (long message, int base);
+size_t printlnNoPrefix (unsigned long message, int base);
+size_t printlnNoPrefix (double message, int base);
+size_t printlnNoPrefix (const Printable & message);
+void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfoType, int * pErrorType);
+void sendJsonToSerial (String status, String message);
+void sendJsonToClient (String status, String message, WiFiClient client);
+void readWeb ();
+String decodeWeb (WiFiClient client);
+void initWifiServer ();
+void sendTime ();
+void getTime ();
+void getPrayerTime ();
+String modeName (int mode);
+String infoTypeName (int infoType, boolean shortened);
+String errorTypeName (int infoType, boolean shortened);
+void digitalClockDisplay ();
+void printDigits (int digits);
+void rgb2color ();
 
 #endif // ifndef esp8266_h

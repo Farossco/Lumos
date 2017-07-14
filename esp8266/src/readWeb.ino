@@ -1,13 +1,17 @@
+#include "esp8266.h"
+
 void readWeb ()
 {
 	WiFiClient client = server.available(); // Check if a client has connected
+	long result;
+	int infoMode, infoType, errorType;
 
 	if (!client) return;  // If nobody connected, we stop here
 
 	while (!client.available()) // Wait until the client sends some data
 		delay (1);
 
-	decodeRequest (decodeWeb (client));
+	decodeRequest (decodeWeb (client), &result, &infoMode, &infoType, &errorType);
 
 	if (infoType == TYPE_RIF)
 	{
@@ -21,7 +25,7 @@ void readWeb ()
 	if (errorType != ERR_NOE)
 	{
 		println ("Sending to arduino: Nothing");
-		sendJsonToClient ("ERROR", ErrorTypeName (errorType, true), client);
+		sendJsonToClient ("ERROR", errorTypeName (errorType, true), client);
 		client.flush();
 		client.stop();
 		return;

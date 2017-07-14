@@ -1,3 +1,5 @@
+#include "esp8266.h"
+
 String modeName (int mode)
 {
 	switch (mode)
@@ -55,7 +57,7 @@ String infoTypeName (int infoType, boolean shortened)
 	}
 }
 
-String ErrorTypeName (int infoType, boolean shortened)
+String errorTypeName (int infoType, boolean shortened)
 {
 	switch (infoType)
 	{
@@ -109,7 +111,7 @@ void printDigits (int digits)
 void rgb2color ()
 {
 	// Lower is the power, lower is the color value - It allows you to control LEDs light power
-	red   = ((rgb & 0xFF0000) >> 16) * (power[MODE_DEFAULT] / maxSpeed[MODE_DEFAULT]); // maxSpeed[MODE_DEFAULT] = Max Power
-	green = ((rgb & 0x00FF00) >> 8) * (power[MODE_DEFAULT] / maxSpeed[MODE_DEFAULT]);
-	blue  = (rgb & 0x0000FF) * (power[MODE_DEFAULT] / maxSpeed[MODE_DEFAULT]);
+	red   = ((rgb & 0xFF0000) >> 16) * (power[MODE_DEFAULT] / MAX_POWER);
+	green = ((rgb & 0x00FF00) >> 8) * (power[MODE_DEFAULT] / MAX_POWER);
+	blue  = (rgb & 0x0000FF) * (power[MODE_DEFAULT] / MAX_POWER);
 }

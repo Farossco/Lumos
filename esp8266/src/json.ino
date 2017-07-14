@@ -1,3 +1,5 @@
+#include "esp8266.h"
+
 char * getJson (String status, String message)
 {
 	char buffer[2048];

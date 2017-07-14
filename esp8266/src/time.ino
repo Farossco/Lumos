@@ -1,3 +1,5 @@
+#include "esp8266.h"
+
 void sendTime ()
 {
 	getTime();
@@ -46,6 +48,10 @@ void getTime ()
 {
 	DynamicJsonBuffer jsonBuffer;
 	WiFiClient client;
+	String line, printedLine;
+	unsigned long timeout;
+	int code;
+	const char * json, * status, * timestamp;
 
 	timestamp = 0;
 	status    = "";
@@ -165,9 +171,13 @@ void getPrayerTime ()
 {
 	DynamicJsonBuffer jsonBuffer;
 	WiFiClient client;
+	String line, printedLine;
+	unsigned long timeout;
+	int code;
+	const char * json, * status, * prayerTimeString[6];
 
 	code   = 0;
-	status = 0;
+	status = "";
 
 	printlnNoPrefix();
 	print ("Connecting to ");

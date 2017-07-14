@@ -1,3 +1,5 @@
+#include "esp8266.h"
+
 void printPrefix ()
 {
 	if (DEBUG_ENABLED)
