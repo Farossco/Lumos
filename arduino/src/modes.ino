@@ -1,10 +1,12 @@
 #include "arduino.h"
 
+unsigned long dick;
+
 void initModes ()
 {
-	lastMode = MODE_DEFAULT; // Initialiazing last mode as well
-	for (int i = 1; i <= MODE_MAX; i++)
-		speed[i] = defaultSpeed[i];  // Initializing speed to its default value
+	lastMode = MODE_DEFAULT;                  // Initialiazing last mode as well
+	for (int i = MODE_FLASH; i < N_MODE; i++) // Starting from flash mode
+		speed[i] = DEFAULT_SPEED[i];          // Initializing speed to its default value
 }
 
 // Perform mode action
@@ -55,10 +57,10 @@ void action ()
 // Flash mode initialization
 void initModeFlash ()
 {
-	state = 0;                  // Set initial state to 0
-	rgb[MODE_FLASH] = 0xFF0000; // Set color to red
-	count    = 0;               // Reseting counter
-	lastMode = MODE_FLASH;      // Setting lastMode so we don't call init again
+	state           = 0;          // Set initial state to 0
+	rgb[MODE_FLASH] = 0xFF0000;   // Set color to red
+	count           = millis();   // Reseting milliseconds counter
+	lastMode        = MODE_FLASH; // Setting lastMode so we don't call init again
 
 	printlnNoPrefix();
 	println ("Entering Flash mode");
@@ -67,15 +69,8 @@ void initModeFlash ()
 // Flash mode
 void modeFlash ()
 {
-	delay (1);
-
-	if (count < 100 - speed[MODE_FLASH])
-	{
-		count++;
+	if (millis() - count < (unsigned int) (1000 / speed[MODE_FLASH]))
 		return;
-	}
-
-	count = 0;
 
 	if (state >= 2)
 		state = 0;
@@ -85,15 +80,17 @@ void modeFlash ()
 	count = 0; // Reseting timer
 
 	rgb[MODE_FLASH] = (state == 0 ? 0xFF0000 : state == 1 ? 0x00FF00 : 0x0000FF);
+
+	count = millis();
 }
 
 // Strobe mode initialization
 void initModeStrobe ()
 {
-	state = 0;                   // Set initial state to 0
-	rgb[MODE_STROBE] = 0xFFFFFF; // Set color to white
-	count    = 0;                // Reseting counter
-	lastMode = MODE_STROBE;      // Setting lastMode so we don't call init again
+	state            = 0;           // Set initial state to 0
+	rgb[MODE_STROBE] = 0xFFFFFF;    // Set color to white
+	count            = millis();    // Reseting milliseconds counter
+	lastMode         = MODE_STROBE; // Setting lastMode so we don't call init again
 
 	printlnNoPrefix();
 	println ("Entering Strobe mode");
@@ -102,28 +99,23 @@ void initModeStrobe ()
 // Strobe mode
 void modeStrobe ()
 {
-	delay (1);
-
-	if (count < 100 - speed[MODE_STROBE])
-	{
-		count++;
+	if (millis() - count < (unsigned int) (1000 / speed[MODE_STROBE]))
 		return;
-	}
-
-	count = 0;
 
 	state = !state; // Inverting state
 
 	rgb[MODE_STROBE] = state ? 0xFFFFFF : 0x000000; // Setting color to black then white then black then white...
+
+	count = millis();
 }
 
 // Fade Mode initialization
 void initModeFade ()
 {
-	state = 1;                 // Setting state to Increasing state
-	rgb[MODE_FADE] = 0x000000; // Setting color to white
-	count    = 0;
-	lastMode = MODE_FADE; // Setting lastMode so we don't call init again
+	state          = 1;         // Setting state to Increasing state
+	rgb[MODE_FADE] = 0x000000;  // Setting color to white
+	count          = millis();  // Reseting milliseconds counter
+	lastMode       = MODE_FADE; // Setting lastMode so we don't call init again
 
 	printlnNoPrefix();
 	println ("Entering Fade mode");
@@ -132,15 +124,8 @@ void initModeFade ()
 // Fade Mode
 void modeFade ()
 {
-	delay (1);
-
-	if (count < 100 - speed[MODE_FADE])
-	{
-		count++;
+	if (millis() - count < (unsigned int) (1000 / speed[MODE_FADE]))
 		return;
-	}
-
-	count = 0;
 
 	if (state)
 		rgb[MODE_FADE] += 0x010101;  // Increasing all colors
@@ -151,16 +136,18 @@ void modeFade ()
 		state = 0;                  // Decreasing state
 	else if (rgb[MODE_FADE] <= 0)   // If color reach black, we start to increase
 		state = 1;                  // Increasing state
+
+	count = millis();
 }
 
 // Smooth Mode Initialization
 void initModeSmooth ()
 {
-	state = 0;                   // Init state to 0
+	state            = 0;        // Init state to 0
 	rgb[MODE_SMOOTH] = 0xFF0000; // Init color to red
-	count = 0;
-	rgb2color();            // Calling rgb2color to generate color values
-	lastMode = MODE_SMOOTH; // Setting lastMode so we don't call init again
+	count            = millis(); // Reseting milliseconds counter
+	rgb2color();                 // Calling rgb2color to generate color values
+	lastMode = MODE_SMOOTH;      // Setting lastMode so we don't call init again
 
 	printlnNoPrefix();
 	println ("Entering Smooth mode");
@@ -169,15 +156,8 @@ void initModeSmooth ()
 // Smooth Mode
 void modeSmooth ()
 {
-	delay (1);
-
-	if (count < 100 - speed[MODE_SMOOTH])
-	{
-		count++;
+	if (millis() - count < (unsigned int) (1000 / speed[MODE_SMOOTH]))
 		return;
-	}
-
-	count = 0;
 
 	// First, RED is max
 
@@ -233,18 +213,18 @@ void modeSmooth ()
 
 	// Error handling
 	else
-	{
 		state = 0;
-	}
+
+	count = millis();
 } // modeSmooth
 
 // Wakeup Mode initialization
 void initModeWakeup ()
 {
-	rgb[MODE_WAKEUP]   = 0x0000FF; // Setting color to black
-	power[MODE_WAKEUP] = 0;
-	count    = 0;
-	lastMode = MODE_WAKEUP; // Setting lastMode so we don't call init again
+	rgb[MODE_WAKEUP]   = 0x0000FF;    // Setting color to blue
+	power[MODE_WAKEUP] = MIN_POWER;   // Setting power to min value
+	count              = millis();    // Reseting milliseconds counter
+	lastMode           = MODE_WAKEUP; // Setting lastMode so we don't call init again
 
 	printlnNoPrefix();
 	println ("Entering Wakeup mode");
@@ -253,23 +233,19 @@ void initModeWakeup ()
 // Wakeup Mode
 void modeWakeup ()
 {
-	delay (1);
-
-	if (count < speed[MODE_WAKEUP])
-	{
-		count++;
+	if (millis() - count < (unsigned int) (10000 / speed[MODE_WAKEUP]))
 		return;
-	}
 
-	count = 0;
+	power[MODE_WAKEUP] += 1;        // Slowly increase power
+	rgb[MODE_WAKEUP]    = 0x0000FF; // Setting color to blue
 
-	power[MODE_WAKEUP] += 1; // Slowly increase blue
-
-	if (power[MODE_WAKEUP] >= maxSpeed[MODE_DEFAULT]) // When max blue is reached - maxSpeed[MODE_DEFAULT] = Max Power
+	if (power[MODE_WAKEUP] >= MAX_POWER) // When max blue is reached - maxSpeed[MODE_DEFAULT] = Max Power
 	{
 		rgb[MODE_DEFAULT]   = rgb[MODE_WAKEUP];   // Transfer RGB final value to default mode
 		power[MODE_DEFAULT] = power[MODE_WAKEUP]; // Same for power
-		mode = MODE_DEFAULT;                      // Leaving the mode
+		mode                = MODE_DEFAULT;       // Leaving the mode
 		println ("Leaving Wakeup mode");
 	}
+
+	count = millis();
 }

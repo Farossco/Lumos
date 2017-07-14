@@ -73,6 +73,9 @@ String errorTypeName (int infoType, boolean shortened)
 		case ERR_UKR:
 			return shortened ? "Unknown request type" : "Error: Unknown request type";
 
+		case ERR_UKP:
+			return shortened ? "Unknown prayer" : "Error: Unknown prayer";
+
 		default:
 			return "Unknown error";
 	}

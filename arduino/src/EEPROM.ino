@@ -72,7 +72,7 @@ void eepromWrite ()
 
 	address += sizeof(long);
 
-	for (unsigned int j = 0; j <= MODE_MAX; j++)
+	for (unsigned int j = MODE_MIN; j < N_MODE; j++)
 	{
 		if (j != MODE_WAKEUP)
 			for (unsigned int i = 0; i < sizeof(int); i++)
@@ -86,7 +86,7 @@ void eepromWrite ()
 	}
 
 
-	for (unsigned int j = 0; j <= MODE_MAX; j++)
+	for (unsigned int j = MODE_MIN; j < N_MODE; j++)
 	{
 		for (unsigned int i = 0; i < sizeof(int); i++)
 			if (EEPROM.read (address + i) != (byte) ((int) speed[j] >> (i * 8)))
@@ -139,7 +139,7 @@ boolean eepromRead ()
 
 	address += sizeof(long);
 
-	for (unsigned int j = 0; j <= MODE_MAX; j++)
+	for (unsigned int j = MODE_MIN; j < N_MODE; j++)
 	{
 		power[j] = 0;
 		if (j != MODE_WAKEUP)
@@ -150,7 +150,7 @@ boolean eepromRead ()
 	}
 
 
-	for (unsigned int j = 0; j <= MODE_MAX; j++)
+	for (unsigned int j = MODE_MIN; j < N_MODE; j++)
 	{
 		speed[j] = 0;
 		for (unsigned int i = 0; i < sizeof(int); i++)

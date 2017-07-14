@@ -25,11 +25,12 @@ void testVariableChange ()
 		eepromWrite();
 	}
 
-	for (int i = 0; i <= MODE_MAX; i++)
+
+	for (int i = MODE_MIN; i < N_MODE; i++)
 		if (changePower[i] != power[i])
 		{
 			printlnNoPrefix();
-			print ("\"Power\" of " + modeName (i) + " changed from ");
+			print ("\"Power\" of " + modeName (i, CAPS_NONE) + " changed from ");
 			printNoPrefix ((int) changePower[i], DEC);
 			printNoPrefix (" to ");
 			printlnNoPrefix ((int) power[i], DEC);
@@ -39,11 +40,12 @@ void testVariableChange ()
 				eepromWrite();
 		}
 
-	for (int i = 0; i <= MODE_MAX; i++)
+
+	for (int i = MODE_MIN; i < N_MODE; i++)
 		if (changeSpeed[i] != speed[i])
 		{
 			printlnNoPrefix();
-			print ("\"Speed\" of " + modeName (i) + " changed from ");
+			print ("\"Speed\" of " + modeName (i, CAPS_NONE) + " changed from ");
 			printNoPrefix (changeSpeed[i], DEC);
 			printNoPrefix (" to ");
 			printlnNoPrefix (speed[i], DEC);
@@ -56,9 +58,9 @@ void testVariableChange ()
 	{
 		printlnNoPrefix();
 		print ("\"Mode\" changed from ");
-		printNoPrefix (modeName (changeMode));
+		printNoPrefix (modeName (changeMode, CAPS_NONE));
 		printNoPrefix (" to ");
-		printlnNoPrefix (modeName (mode));
+		printlnNoPrefix (modeName (mode, CAPS_NONE));
 		changeMode = mode;
 		sendInfo();
 		eepromWrite();
@@ -71,39 +73,61 @@ void initVariableChange ()
 	changeOn   = on;
 	changeRgb  = rgb[MODE_DEFAULT];
 	changeMode = mode;
-	for (int i = 0; i <= MODE_MAX; i++)
+	for (int i = MODE_MIN; i < N_MODE; i++)
 		changePower[i] = power[i];
-	for (int i = 0; i <= MODE_MAX; i++)
+	for (int i = MODE_MIN; i < N_MODE; i++)
 		changeSpeed[i] = speed[i];
 }
 
 void sendInfo ()
 {
 	printlnNoPrefix();
-	println ("Sending variables infos to the ESP8266");
+	print ("Sending variables infos to the ESP8266 (");
 
 	Serial1.print ("ONF");
 	Serial1.print (on ? 1 : 0, DEC);
 	Serial1.print ("z");
+	printNoPrefix ("ONF");
+	printNoPrefix (on ? 1 : 0, DEC);
+	printNoPrefix ("z ");
 
 	Serial1.print ("MOD");
 	Serial1.print (mode, DEC);
 	Serial1.print ("z");
+	printNoPrefix ("MOD");
+	printNoPrefix (mode, DEC);
+	printNoPrefix ("z ");
 
-	Serial1.print ("RGB0");
-	Serial1.print (rgb[0], HEX);
+	Serial1.print ("RGB");
+	Serial1.print (rgb[MODE_DEFAULT], HEX);
 	Serial1.print ("z");
+	printNoPrefix ("RGB");
+	printNoPrefix (rgb[MODE_DEFAULT], HEX);
+	printNoPrefix ("z ");
 
-	for (int i = 0; i <= MODE_MAX; i++)
+	for (int i = MODE_MIN; i < N_MODE; i++)
 	{
 		Serial1.print ("POW");
-		Serial1.print (i);
+		Serial1.print (i, DEC);
 		Serial1.print ((int) power[i], DEC);
 		Serial1.print ("z");
-
-		Serial1.print ("SPE");
-		Serial1.print (i);
-		Serial1.print (speed[i], DEC);
-		Serial1.print ("z");
+		printNoPrefix ("POW");
+		printNoPrefix (i, DEC);
+		printNoPrefix ((int) power[i], DEC);
+		printNoPrefix ("z ");
 	}
-}
+
+	for (int i = MODE_MIN; i < N_MODE; i++)
+	{
+		Serial1.print ("SPE");
+		Serial1.print (i, DEC);
+		Serial1.print ((((long) speed[i] - (MIN_SPEED[i] - SEEKBAR_MIN)) * (SEEKBAR_MAX - SEEKBAR_MIN)) / (MAX_SPEED[i] - MIN_SPEED[i]), DEC);
+		Serial1.print ("z");
+		printNoPrefix ("SPE");
+		printNoPrefix (i, DEC);
+		printNoPrefix ((((long) speed[i] - (MIN_SPEED[i] - SEEKBAR_MIN)) * (SEEKBAR_MAX - SEEKBAR_MIN)) / (MAX_SPEED[i] - MIN_SPEED[i]), DEC);
+		printNoPrefix ("z ");
+	}
+
+	printlnNoPrefix (")");
+} // sendInfo

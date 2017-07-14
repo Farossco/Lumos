@@ -1,6 +1,6 @@
 #include "arduino.h"
 
-void onPrayerTime ()
+void testPrayerTime ()
 {
 	flagEnter = false;
 	flagLeave = false;
@@ -38,8 +38,9 @@ void prayerStart ()
 	on               = true;
 	faded            = true;
 
+	printlnNoPrefix();
 	print ("Time to pray ");
-	printNoPrefix (prayersName[i]);
+	printNoPrefix (PRAYERS_NAME[i]);
 	printlnNoPrefix (" !");
 	print ("It will stop at ");
 	printNoPrefix ((prayerTime[i][2] + 10) / 60, DEC);
@@ -47,7 +48,7 @@ void prayerStart ()
 	printNoPrefix ((prayerTime[i][1] + 10) % 60, DEC);
 	printNoPrefix (" (");
 	printNoPrefix (prayerTime[i][2] + 10, DEC);
-	printNoPrefix (")\n");
+	printlnNoPrefix (")");
 }
 
 void prayerStop ()
@@ -56,9 +57,10 @@ void prayerStop ()
 	on      = false;
 	unfaded = true;
 
+	printlnNoPrefix();
 	print ("Stop ");
-	printNoPrefix (prayersName[j]);
-	printlnNoPrefix (" alert\n");
+	printNoPrefix (PRAYERS_NAME[j]);
+	printlnNoPrefix (" alert");
 }
 
 // Test wakeup time and peak hours for resynchronization
@@ -71,7 +73,8 @@ void testWakeUpTime ()
 		on     = true;
 		wokeUp = true;
 
-		println ("Wake up !\n");
+		printlnNoPrefix();
+		println ("Wake up !");
 	}
 	else if (hour() != prayerTime[0][0] || minute() != prayerTime[0][1])
 	{

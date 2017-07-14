@@ -52,10 +52,13 @@ void askForTime ()
 // Receive datas from ESP8266 for Wi-Wi control
 void readSerial ()
 {
+	long result;
+	int infoMode, infoType, errorType;
+
 	if (!Serial.available() && !Serial1.available())
 		return;  // Waiting for incomming datas
 
-	decodeRequest (Serial.available() ? Serial.readStringUntil ('z') : Serial1.readStringUntil ('z'));
+	decodeRequest (Serial.available() ? Serial.readStringUntil ('z') : Serial1.readStringUntil ('z'), &result, &infoMode, &infoType, &errorType);
 
 	if (infoType == TYPE_RTM)
 	{

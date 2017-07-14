@@ -13,11 +13,11 @@ void light ()
 // Convert RGB value to Red, Green and Blue values
 void rgb2color ()
 {
-	for (int i = 0; i <= MODE_MAX; i++)
+	for (int i = MODE_MIN; i < N_MODE; i++)
 	{
 		// Lower is the power, lower is the color value - It allows you to control LEDs light power
-		red[i]   = ((rgb[i] & 0xFF0000) >> 16) * (power[i] / maxSpeed[MODE_DEFAULT]); // maxSpeed[MODE_DEFAULT] = Max Power
-		green[i] = ((rgb[i] & 0x00FF00) >> 8) * (power[i] / maxSpeed[MODE_DEFAULT]);
-		blue[i]  = (rgb[i] & 0x0000FF) * (power[i] / maxSpeed[MODE_DEFAULT]);
+		red[i]   = ((rgb[i] & 0xFF0000) >> 16) * ((float) power[i] / MAX_POWER);
+		green[i] = ((rgb[i] & 0x00FF00) >> 8) * ((float) power[i] / MAX_POWER);
+		blue[i]  = (rgb[i] & 0x0000FF) * ((float) power[i] / MAX_POWER);
 	}
 }

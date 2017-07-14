@@ -24,13 +24,13 @@ void sendTime ()
 			{
 				printlnNoPrefix();
 				print ("Sending prayer time to arduino (");
-				printNoPrefix (prayersName[i]);
+				printNoPrefix (PRAYERS_NAME[i]);
 				printNoPrefix (") : ");
 				delay (1);
 
 				delay (100);
 				Serial.print ("PRT");
-				Serial.print (prayersName[i][0]); // First letter of the prayer name
+				Serial.print (PRAYERS_NAME[i][0]); // First letter of the prayer name
 				Serial.print (prayerTime[i][2]);
 				Serial.print ('z');
 			}
@@ -279,7 +279,7 @@ void getPrayerTime ()
 
 	// Parsing all paryers time (Format HH:MM)
 	for (int i = 0; i < 6; i++)
-		prayerTimeString[i] = jsonRootPrayer["data"]["timings"][prayersName[i]];
+		prayerTimeString[i] = jsonRootPrayer["data"]["timings"][PRAYERS_NAME[i]];
 
 	// Converting it into integer
 	for (int i = 0; i < 6; i++)
@@ -292,10 +292,10 @@ void getPrayerTime ()
 	// [DEBUG] Some printing for each prayer
 	for (int i = 0; i < 6; i++)
 	{
-		print (prayersName[i]);
+		print (PRAYERS_NAME[i]);
 		printNoPrefix (": ");
 		printlnNoPrefix (prayerTimeString[i]);
-		print (prayersName[i]);
+		print (PRAYERS_NAME[i]);
 		printNoPrefix (" (Integer): ");
 		printNoPrefix (prayerTime[i][0], DEC);
 		printNoPrefix (":");

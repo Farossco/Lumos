@@ -2,7 +2,7 @@
 
 char * getJson (String status, String message)
 {
-	char buffer[2048];
+	char json[2048];
 
 	DynamicJsonBuffer jsonBuffer;
 
@@ -18,20 +18,20 @@ char * getJson (String status, String message)
 	jsonRootDatas["Mode"] = mode;
 
 	JsonArray& jsonRootDatasPower = jsonRootDatas.createNestedArray ("Power");
-	for (int i = 0; i <= MODE_MAX; i++)
+	for (int i = MODE_MIN; i < N_MODE; i++)
 		jsonRootDatasPower.add ((int) power[i]);
 
 	JsonArray& jsonRootDatasSpeed = jsonRootDatas.createNestedArray ("Speed");
-	for (int i = 0; i <= MODE_MAX; i++)
+	for (int i = MODE_MIN; i < N_MODE; i++)
 		jsonRootDatasSpeed.add (speed[i]);
 
 	JsonArray& jsonRootPrayers = jsonRoot.createNestedArray ("Prayers");
 	for (int i = 0; i < N_PRAYER; i++)
 		jsonRootPrayers.add (prayerTime[i][2]);
 
-	jsonRoot.printTo (buffer, sizeof(buffer));
+	jsonRoot.printTo (json, sizeof(json));
 
-	return buffer;
+	return json;
 } // getJson
 
 void sendJsonToSerial (String status, String message)

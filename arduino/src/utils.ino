@@ -1,29 +1,29 @@
 #include "arduino.h"
 
-String modeName (int mode)
+String modeName (int mode, int caps)
 {
 	switch (mode)
 	{
 		case MODE_DEFAULT:
-			return "DEFAULT";
+			return caps == 0 ? "default" : caps == 1 ? "Default" : "DEFAULT";
 
 		case MODE_FLASH:
-			return "FLASH";
+			return caps == 0 ? "flash" : caps == 1 ? "Flash" : "FLASH";
 
 		case MODE_STROBE:
-			return "STROBE";
+			return caps == 0 ? "strobe" : caps == 1 ? "Strobe" : "STROBE";
 
 		case MODE_FADE:
-			return "FADE";
+			return caps == 0 ? "fade" : caps == 1 ? "Fade" : "FADE";
 
 		case MODE_SMOOTH:
-			return "SMOOTH";
+			return caps == 0 ? "smooth" : caps == 1 ? "Smooth" : "SMOOTH";
 
 		case MODE_WAKEUP:
-			return "WAKE UP";
+			return caps == 0 ? "wake up" : caps == 1 ? "Wake up" : "WAKE UP";
 
 		default:
-			return "UNKNOWN";
+			return caps == 0 ? "unknown" : caps == 1 ? "Unknown" : "UNKNOWN";
 	}
 }
 
@@ -57,7 +57,7 @@ String infoTypeName (int infoType, boolean shortened)
 	}
 }
 
-String ErrorTypeName (int infoType, boolean shortened)
+String errorTypeName (int infoType, boolean shortened)
 {
 	switch (infoType)
 	{
@@ -72,6 +72,9 @@ String ErrorTypeName (int infoType, boolean shortened)
 
 		case ERR_UKR:
 			return shortened ? "Unknown request type" : "Error: Unknown request type";
+
+		case ERR_UKP:
+			return shortened ? "Unknown prayer" : "Error: Unknown prayer";
 
 		default:
 			return "Unknown error";

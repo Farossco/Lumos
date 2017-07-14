@@ -12,7 +12,7 @@
 
 const boolean DEBUG_ENABLED = false; // Debug mode
 
-const int BAUD_RATE         = 74880; // Serial baud rate
+const int BAUD_RATE = 74880; // Serial baud rate
 
 // Wi-Fi informations
 const char * SSID0 = "Patatou";    // Wi-Fi SSID
@@ -36,6 +36,7 @@ const int ERR_NOE = 0; // No error
 const int ERR_OOB = 1; // Out of bound
 const int ERR_UKM = 2; // Unknown mode
 const int ERR_UKR = 3; // Unknown request
+const int ERR_UKP = 4; // Unknown prayer
 
 // Modes
 const int MODE_MIN     = 0; // -Minimum mode value-
@@ -53,12 +54,14 @@ const String LATITUDE  = "48.866667";    // My latitude (Well... not really)
 const String LONGITUDE = "2.333333";     // My longitude (Not really either :p)
 const String TIME_ZONE = "Europe/Paris"; // My time zone
 
-// Prayer times
-const int PRAYER_REQUEST_TIMEOUT = 15000;             // Request timeout
-const int PRAYER_HTTP_PORT       = 80;                // HTTP port
-const char * PRAYER_HOST         = "api.aladhan.com"; // HTTP host
-const int PRAYER_METHOD          = 1;                 // Calculation method for times
-const int N_PRAYER               = 6;                 // Number of different prayer (including sunrise);
+// Prayers
+const int PRAYER_REQUEST_TIMEOUT    = 15000;             // Request timeout
+const int PRAYER_HTTP_PORT          = 80;                // HTTP port
+const char * PRAYER_HOST            = "api.aladhan.com"; // HTTP host
+const int PRAYER_METHOD             = 1;                 // Calculation method for times
+const int N_PRAYER                  = 6;                 // Number of different prayer (including sunrise);
+const String PRAYERS_NAME[N_PRAYER] =
+{ "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha" };
 
 // Time
 const int TIME_REQUEST_TIMEOUT = 15000;                // Request timeout
@@ -70,32 +73,31 @@ const String TIME_BY           = "zone";               // localization method
 const String TIME_FIELDS       = "timestamp";          // Needed fields in the answer
 
 // Bounds
-const int MIN_POWER = 0;   // Minimum speed or power value
-const int MAX_POWER = 100; // Maximum speed or power value
+const int MIN_POWER   = 0;   // Minimum power value
+const int MAX_POWER   = 100; // Maximum power value
+const int SEEKBAR_MIN = 0;   // Minimum app seek bars value
+const int SEEKBAR_MAX = 100; // Maximum app seek bars value
 
 // ************************************************************************** //
 // ************************* Variables declarations ************************* //
 // ************************************************************************** //
 
 // Global
-boolean on;                // If the leds are ON or OFF (True: ON / False: OFF)
-unsigned long rgb;         // Currently displayed RGB value (From 0x000000 to 0xFFFFFF)
-unsigned char red;         // Current red value including lightning power (From 0 to 255)
-unsigned char green;       // Current green value including lightning power (From 0 to 255)
-unsigned char blue;        // Current blue value including lightning power (From 0 to 255)
-float power[MODE_MAX + 1]; // Current lightning power (from MINPOWER to MAXPOWER)
-int speed[MODE_MAX + 1];   // Current mode speed
-unsigned char mode;        // Current lighting mode
+boolean on;          // If the leds are ON or OFF (True: ON / False: OFF)
+unsigned long rgb;   // Currently displayed RGB value (From 0x000000 to 0xFFFFFF)
+unsigned char red;   // Current red value including lightning power (From 0 to 255)
+unsigned char green; // Current green value including lightning power (From 0 to 255)
+unsigned char blue;  // Current blue value including lightning power (From 0 to 255)
+int power[N_MODE];   // Current lightning power (from MINPOWER to MAXPOWER)
+int speed[N_MODE];   // Current mode speed
+unsigned char mode;  // Current lighting mode
 
 // Prayer
-const String prayersName[N_PRAYER] =
-{ "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha" };
 int prayerTime[N_PRAYER][3]; // [0] = Hours / [1] = Minutes / [2] = Hours & Minutes
 boolean prayersAreSet;       // Set to true when all prayers are set
 
 // Wifi webserver
 WiFiServer server (80); // Web serveur declaration with port 80
-
 
 // ************************************************************************** //
 // ************************** Functions prototypes ************************** //

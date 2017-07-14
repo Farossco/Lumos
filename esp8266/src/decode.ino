@@ -61,7 +61,7 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 
 	request.remove (0, 3);
 
-	if (*pInfoType == TYPE_RGB || *pInfoType == TYPE_POW || *pInfoType == TYPE_SPE)
+	if (*pInfoType == TYPE_POW || *pInfoType == TYPE_SPE)
 	{
 		*pInfoMode = request.charAt (0) - '0';
 		print ("Info mode: ");
@@ -75,15 +75,22 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 	}
 	else if (*pInfoType == TYPE_PRT)
 	{
-		for (*pInfoMode = 0; *pInfoMode < N_PRAYER && !(request.charAt (0) == prayersName[*pInfoMode].charAt (0)); *pInfoMode++)
-		{ }
+		for (*pInfoMode = 0;; (*pInfoMode)++)
+			if (request.charAt (0) == PRAYERS_NAME[*pInfoMode].charAt (0))
+				break;
 
 		print ("Prayer: ");
-		printNoPrefix (prayersName[*pInfoMode] + " (");
-		printNoPrefix (*pInfoMode, DEC);
-		printlnNoPrefix (")");
-
-		request.remove (0, 1);
+		if (*pInfoMode < 0 || *pInfoMode >= N_PRAYER)
+		{
+			*pErrorType = ERR_UKP;
+			printlnNoPrefix (*pInfoMode, DEC);
+		}
+		else
+		{
+			printNoPrefix (PRAYERS_NAME[*pInfoMode] + " (");
+			printNoPrefix (*pInfoMode, DEC);
+			printlnNoPrefix (")");
+		}
 	}
 
 	print (infoTypeName (*pInfoType, false) + ": ");
@@ -201,7 +208,7 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 				break;
 
 			case TYPE_SPE:
-				if ((int) *pResult < MIN_POWER || *pResult > MAX_POWER)
+				if (*pResult < SEEKBAR_MIN || *pResult > SEEKBAR_MAX)
 					*pErrorType = ERR_OOB;
 				else
 					speed[*pInfoMode] = *pResult;

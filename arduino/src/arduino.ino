@@ -36,7 +36,9 @@ void loop ()
 
 	readClaps(); // Lighting on double claps
 
-	onPrayerTime(); // Perform action at prayer time
+	testPrayerTime(); // Perform action at prayer time
+
+	testWakeUpTime(); // Perform action at wake up time
 
 	readInfrared(); // Read the in-comming IR signal if present
 
@@ -54,20 +56,19 @@ void initGlobal ()
 		printlnNoPrefix();
 		println ("Setting variables to their default value");
 
-		for (int i = 0; i < MODE_MAX + 1; i++)
+		for (int i = MODE_MIN; i < N_MODE; i++)
 		{
-			rgb[i]   = defaultRgb[i];   // Initialize colors to their default value
-			power[i] = defaultPower[i]; // Initializing powers their default value
-			speed[i] = defaultSpeed[i]; // Initializing speeds their default value
+			rgb[i]   = DEFAULT_RGB[i];   // Initialize colors to their default value
+			power[i] = DEFAULT_POWER[i]; // Initializing powers their default value
+			speed[i] = DEFAULT_SPEED[i]; // Initializing speeds their default value
 		}
 	}
 	else
 	{
-		for (int i = 1; i < MODE_MAX + 1; i++)
-			rgb[i] = defaultRgb[i];  // Initialize colors to their default values (Except default color)
+		for (int i = MODE_FLASH; i < N_MODE; i++)
+			rgb[i] = DEFAULT_RGB[i];  // Initialize colors to their default values (Starting from flash mode)
 	}
 	on = false; // LEDs are off on startup
-
 
 	mode = MODE_DEFAULT; // Initialize mode to constant lightning
 }

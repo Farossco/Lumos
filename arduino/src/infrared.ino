@@ -101,32 +101,22 @@ void readInfrared ()
 			// DOWN
 			case 0xFFB847:
 			case 0xA23C94BF:
-				if (mode >= MODE_FLASH && mode <= MODE_SMOOTH) // If we are in flash, strobe, fade or smooth mode, decrease speed instead of power
-				{
-					if (speed[mode] - IRChandeStep[mode] >= minSpeed[mode])
-						speed[mode] -= IRChandeStep[mode];
-					else
-						speed[mode] = minSpeed[mode];
-				}
-				else if (mode == MODE_DEFAULT)
-				{
-					if (power[MODE_DEFAULT] - IRChandeStep[mode] >= minSpeed[mode])
-						power[MODE_DEFAULT] -= IRChandeStep[mode];
-					else
-						power[MODE_DEFAULT] = minSpeed[mode];
+				if (power[mode] - IR_CHANGE_STEP >= MIN_IR_POWER)
+					power[mode] -= IR_CHANGE_STEP;
+				else
+					power[mode] = MIN_IR_POWER;
 
-					rgb2color();
+				rgb2color();
 
-					// [DEBUG] Print current color and RED, GREEN, BLUE values
-					print ("Power: ");
-					printlnNoPrefix (power[MODE_DEFAULT], DEC);
-					print ("RED: ");
-					printNoPrefix (red[MODE_DEFAULT], DEC);
-					printNoPrefix (" / GREEN: ");
-					printNoPrefix (green[MODE_DEFAULT], DEC);
-					printNoPrefix (" / BLUE: ");
-					printlnNoPrefix (blue[MODE_DEFAULT], DEC);
-				}
+				// [DEBUG] Print current color and RED, GREEN, BLUE values
+				print ("Power (" + modeName (mode, CAPS_ALL) + " mode): ");
+				printlnNoPrefix (power[mode], DEC);
+				print ("RED: (" + modeName (mode, CAPS_FIRST) + " mode): ");
+				printNoPrefix (red[mode], DEC);
+				printNoPrefix (" / GREEN: ");
+				printNoPrefix (green[mode], DEC);
+				printNoPrefix (" / BLUE: ");
+				printlnNoPrefix (blue[mode], DEC);
 
 				lastIRCode = IRCode;
 
@@ -136,32 +126,22 @@ void readInfrared ()
 			// UP
 			case 0xFF906F:
 			case 0xE5CFBD7F:
-				if (mode >= MODE_FLASH && mode <= MODE_SMOOTH) // If we are in flash, strobe, fade or smooth mode, decrease speed instead of power
-				{
-					if (speed[mode] + IRChandeStep[mode] <= maxSpeed[mode])
-						speed[mode] += IRChandeStep[mode];
-					else
-						speed[mode] = maxSpeed[mode];
-				}
-				else if (mode == MODE_DEFAULT)
-				{
-					if (power[MODE_DEFAULT] + IRChandeStep[mode] <= maxSpeed[mode])
-						power[MODE_DEFAULT] += IRChandeStep[mode];
-					else
-						power[MODE_DEFAULT] = maxSpeed[mode];
+				if (power[mode] + IR_CHANGE_STEP <= MAX_POWER)
+					power[mode] += IR_CHANGE_STEP;
+				else
+					power[mode] = MAX_POWER;
 
-					rgb2color();
+				rgb2color();
 
-					// [DEBUG] Print current color and RED, GREEN, BLUE values
-					print ("Power: ");
-					printlnNoPrefix (power[MODE_DEFAULT], DEC);
-					print ("RED: ");
-					printNoPrefix (red[MODE_DEFAULT], DEC);
-					printNoPrefix (" / GREEN: ");
-					printNoPrefix (green[MODE_DEFAULT], DEC);
-					printNoPrefix (" / BLUE: ");
-					printlnNoPrefix (blue[MODE_DEFAULT], DEC);
-				}
+				// [DEBUG] Print current color and RED, GREEN, BLUE values
+				print ("Power (" + modeName (mode, CAPS_FIRST) + " mode): ");
+				printlnNoPrefix (power[mode], DEC);
+				print ("RED: (" + modeName (mode, CAPS_FIRST) + " mode): ");
+				printNoPrefix (red[mode], DEC);
+				printNoPrefix (" / GREEN: ");
+				printNoPrefix (green[mode], DEC);
+				printNoPrefix (" / BLUE: ");
+				printlnNoPrefix (blue[mode], DEC);
 
 				lastIRCode = IRCode;
 
@@ -202,7 +182,7 @@ void readInfrared ()
 				for (int i = 0; i < N_COLOR; i++)
 					if (results.value == color[i][1] || results.value == color[i][2])
 					{
-						mode = MODE_DEFAULT;
+						mode              = MODE_DEFAULT;
 						rgb[MODE_DEFAULT] = color[i][0];
 					}
 				break;
