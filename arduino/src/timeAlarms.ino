@@ -1,15 +1,4 @@
-// ******* Prayer ******* //
-int flagEnter; // If we have to start fading
-int flagLeave; // If we have to stop fading
-int faded;     // If we already gave the order to start fading
-int unfaded;   // If we already gave the order to stop fading
-
-// ******* Wake up ******* //
-int wokeUp;    // If we already gave the order to wake up
-int timeAsked; // If we already asked for time
-
-// ******* Global ******* //
-int i, j; // Just counting variables
+#include "arduino.h"
 
 void onPrayerTime ()
 {
@@ -44,10 +33,10 @@ void onPrayerTime ()
 
 void prayerStart ()
 {
-	mode = MODE_FADE;
+	mode             = MODE_FADE;
 	speed[MODE_FADE] = 97;
-	on    = true;
-	faded = true;
+	on               = true;
+	faded            = true;
 
 	print ("Time to pray ");
 	printNoPrefix (prayersName[i]);

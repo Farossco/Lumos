@@ -1,6 +1,4 @@
-// ******* Infrared reception objects declaration ******* //
-IRrecv irrecv (PIN_LED_INFRARED);
-decode_results results;
+#include "arduino.h"
 
 // ******* Infrared codes and corresponding RGB code array ******* //
 unsigned long color[N_COLOR][3] =

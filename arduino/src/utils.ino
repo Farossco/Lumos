@@ -1,3 +1,5 @@
+#include "arduino.h"
+
 String modeName (int mode)
 {
 	switch (mode)

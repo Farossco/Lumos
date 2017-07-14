@@ -1,3 +1,5 @@
+#include "arduino.h"
+
 void printPrefix ()
 {
 	if (DEBUG_ENABLED)

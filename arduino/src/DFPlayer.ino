@@ -1,5 +1,4 @@
-// ******* Sound object declaration ******* //
-DFRobotDFPlayerMini myDFPlayer;
+#include "arduino.h"
 
 void initDFPlayer ()
 {

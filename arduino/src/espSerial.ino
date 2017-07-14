@@ -1,3 +1,5 @@
+#include "arduino.h"
+
 void initSerial ()
 {
 	Serial.begin (DEBUG_BAUD_RATE); // Initialize debug communication

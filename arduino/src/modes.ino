@@ -1,8 +1,4 @@
-int state; // Current state used by some modes
-int count; // Delay counting
-
-/******* action *******/
-int lastMode; // Mode in previous loop - Allows mode initializations
+#include "arduino.h"
 
 void initModes ()
 {

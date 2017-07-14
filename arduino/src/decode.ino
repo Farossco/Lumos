@@ -1,3 +1,5 @@
+#include "arduino.h"
+
 void decodeRequest (String request)
 {
 	char requestChar[20];

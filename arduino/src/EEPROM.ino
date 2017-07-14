@@ -1,3 +1,5 @@
+#include "arduino.h"
+
 void eepromDump (unsigned int start, unsigned int limit)
 {
 	byte value;

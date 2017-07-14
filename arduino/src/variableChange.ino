@@ -1,8 +1,4 @@
-boolean changeOn;
-unsigned long changeRgb;
-float changePower[MODE_MAX + 1];
-int changeSpeed[MODE_MAX + 1];
-unsigned char changeMode;
+#include "arduino.h"
 
 void testVariableChange ()
 {

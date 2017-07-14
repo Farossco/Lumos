@@ -1,3 +1,5 @@
+#include "arduino.h"
+
 // Display the RGB value
 void light ()
 {

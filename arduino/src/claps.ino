@@ -1,6 +1,4 @@
-// ******* readClaps ******* //
-int clapState;              // Same as "state" but for claps
-unsigned long endStateTime; // Time position at the end of a state (Allow time counting)
+#include "arduino.h"
 
 // Lighting on double claps
 void readClaps ()
