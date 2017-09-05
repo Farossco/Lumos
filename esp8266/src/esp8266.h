@@ -10,9 +10,11 @@
 // ************************* Constants declarations ************************* //
 // ************************************************************************** //
 
-const boolean DEBUG_ENABLED = false; // Debug mode
+const boolean DEBUG_ENABLED = true; // Debug mode
 
 const int BAUD_RATE = 74880; // Serial baud rate
+
+const int N_PIN = 8; // Number of digital pins
 
 // Wi-Fi informations
 const char * SSID0 = "Patatou";    // Wi-Fi SSID
