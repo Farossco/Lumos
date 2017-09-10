@@ -7,6 +7,21 @@
             "taskName": "echo",
             "type": "shell",
             "command": "echo Hello"
+        },
+        {
+            "type": "PlatformIO",
+            "args": [
+                "run",
+                "--target",
+                "upload",
+                "--target",
+                "monitor",
+                "--environment",
+                "nodemcuv2"
+            ],
+            "problemMatcher": [
+                "$platformio"
+            ]
         }
     ]
 }

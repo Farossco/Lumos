@@ -6,7 +6,7 @@
             "request": "launch",
             "cwd": "${workspaceRoot}",
             "name": "PlatformIO Debugger",
-            "target": "/media/localhost/Data/Fichiers/Documents/GitHub/BedControl/esp8266/.pioenvs/esp01_1m/firmware.elf",
+            "target": "/home/localhost/Documents/Github/BedControl/esp8266/.pioenvs/nodemcuv2/firmware.elf",
             "gdbpath": "/home/localhost/.platformio/penv/bin/piodebuggdb",
             "autorun": [ "source .pioinit" ]
         }

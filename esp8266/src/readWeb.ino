@@ -94,4 +94,6 @@ void initWifiServer ()
 	server.begin();
 
 	println ("Server started");
+	print ("Local IP: ");
+	printlnNoPrefix(WiFi.localIP());
 }

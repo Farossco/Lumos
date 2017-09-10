@@ -20,9 +20,11 @@ void loop ()
 
 void initGpios ()
 {
-	for (int i=0; i<=N_PIN; i++)
-	pinMode (i, OUTPUT);
-
-	for (int i=0; i<=N_PIN; i++)
-		digitalWrite (2, LOW);
+	pinMode (PIN_D0, OUTPUT);
+	pinMode (PIN_D1, OUTPUT);
+	pinMode (PIN_D2, OUTPUT);
+	pinMode (PIN_D3, OUTPUT);
+	pinMode (PIN_D4, OUTPUT);
+	pinMode (PIN_D5, OUTPUT);
+	pinMode (PIN_D6, OUTPUT);
 }

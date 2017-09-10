@@ -1,6 +1,6 @@
 {
+	"platformio.baudRate": 74880,
 	"files.associations": {
-		"memory": "cpp",
 		"functional": "cpp"
 	}
 }

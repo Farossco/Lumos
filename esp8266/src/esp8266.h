@@ -10,11 +10,21 @@
 // ************************* Constants declarations ************************* //
 // ************************************************************************** //
 
-const boolean DEBUG_ENABLED = true; // Debug mode
+const boolean DEBUG_ENABLED = false; // Debug mode
 
 const int BAUD_RATE = 74880; // Serial baud rate
 
-const int N_PIN = 8; // Number of digital pins
+const int PIN_D0	= 16;	//D0	USER	WAKE
+const int PIN_D1	= 5;	//D1
+const int PIN_D2	= 4;	//D2
+const int PIN_D3	= 0;	//D3	FLASH
+const int PIN_D4	= 2;	//D4	TXD1
+const int PIN_D5	= 14;	//D5			HSCLK
+const int PIN_D6	= 12;	//D6			HMISO
+const int PIN_RX2	= 13;	//D7	RXD2	HMOSI
+const int PIN_TX2	= 15;	//D8	TXD2	HCS
+const int PIN_RX0	= 3;	//D9	RXD0
+const int PIN_TX0	= 1;	//D10	TXD0
 
 // Wi-Fi informations
 const char * SSID0 = "Patatou";    // Wi-Fi SSID
