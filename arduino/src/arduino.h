@@ -1,10 +1,11 @@
-#ifndef head_h
-#define head_h
+#ifndef ARDUINO_H
+#define ARDUINO_H
 
 #include <IRremote.h>
 #include <Time.h>
 #include <DFRobotDFPlayerMini.h>
 #include <EEPROM.h>
+#include <SD.h>
 
 // ************************************************************************** //
 // ************************* Constants declarations ************************* //
@@ -29,8 +30,8 @@ const int PIN_LED_GREEN    = 7;  // Green LED OUT pin
 const int PIN_LED_BLUE     = 11; // Blue LED OUT pin
 
 // Wake up
-const int WAKEUP_HOURS   = 6;
-const int WAKEUP_MINUTES = 15;
+const int WAKEUP_HOURS   = 06;
+const int WAKEUP_MINUTES = 00;
 const int WAKEUP_SECONDS = 00;
 
 // Prayer
@@ -253,4 +254,4 @@ void testVariableChange ();
 void initVariableChange ();
 void sendInfo ();
 
-#endif // ifndef head_h
+#endif // ifndef ARDUINO_H

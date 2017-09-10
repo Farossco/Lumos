@@ -67,7 +67,7 @@ void prayerStop ()
 void testWakeUpTime ()
 {
 	// If actual time coorespond with wakeup time
-	if (hour() == prayerTime[0][0] && minute() == prayerTime[0][1] && !wokeUp)
+	if (hour() == WAKEUP_HOURS && minute() == WAKEUP_MINUTES && !wokeUp)
 	{
 		mode   = MODE_WAKEUP;
 		on     = true;
@@ -76,7 +76,7 @@ void testWakeUpTime ()
 		printlnNoPrefix();
 		println ("Wake up !");
 	}
-	else if (hour() != prayerTime[0][0] || minute() != prayerTime[0][1])
+	else if ((hour() != WAKEUP_HOURS || minute() != WAKEUP_MINUTES) && wokeUp)
 	{
 		wokeUp = false;
 	}
