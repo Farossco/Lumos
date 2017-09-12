@@ -2,6 +2,9 @@
 
 void testVariableChange ()
 {
+	boolean flagSendInfo    = false;
+	boolean flagWriteEeprom = false;
+
 	if (changeOn != on)
 	{
 		printlnNoPrefix();
@@ -9,8 +12,8 @@ void testVariableChange ()
 		printNoPrefix (changeOn ? "True" : "False");
 		printNoPrefix (" to ");
 		printlnNoPrefix (on ? "True" : "False");
-		changeOn = on;
-		sendInfo();
+		changeOn     = on;
+		flagSendInfo = true;
 	}
 
 	if (changeRgb != rgb[MODE_DEFAULT])
@@ -20,9 +23,9 @@ void testVariableChange ()
 		printNoPrefix (changeRgb, HEX);
 		printNoPrefix (" to ");
 		printlnNoPrefix (rgb[MODE_DEFAULT], HEX);
-		changeRgb = rgb[MODE_DEFAULT];
-		sendInfo();
-		eepromWrite();
+		changeRgb       = rgb[MODE_DEFAULT];
+		flagSendInfo    = true;
+		flagWriteEeprom = true;
 	}
 
 
@@ -35,9 +38,9 @@ void testVariableChange ()
 			printNoPrefix (" to ");
 			printlnNoPrefix ((int) power[i], DEC);
 			changePower[i] = power[i];
-			sendInfo();
+			flagSendInfo   = true;
 			if (i != MODE_WAKEUP)
-				eepromWrite();
+				flagWriteEeprom = true;
 		}
 
 
@@ -49,9 +52,9 @@ void testVariableChange ()
 			printNoPrefix (changeSpeed[i], DEC);
 			printNoPrefix (" to ");
 			printlnNoPrefix (speed[i], DEC);
-			changeSpeed[i] = speed[i];
-			sendInfo();
-			eepromWrite();
+			changeSpeed[i]  = speed[i];
+			flagSendInfo    = true;
+			flagWriteEeprom = true;
 		}
 
 	if (changeMode != mode)
@@ -61,10 +64,16 @@ void testVariableChange ()
 		printNoPrefix (modeName (changeMode, CAPS_NONE));
 		printNoPrefix (" to ");
 		printlnNoPrefix (modeName (mode, CAPS_NONE));
-		changeMode = mode;
-		sendInfo();
-		eepromWrite();
+		changeMode      = mode;
+		flagSendInfo    = true;
+		flagWriteEeprom = true;
 	}
+
+	if (flagSendInfo)
+		sendInfo();
+
+	if (flagWriteEeprom)
+		eepromWrite();
 } // testVariableChange
 
 void initVariableChange ()
@@ -82,28 +91,28 @@ void initVariableChange ()
 void sendInfo ()
 {
 	printlnNoPrefix();
-	print ("Sending variables infos to the ESP8266 (");
+	println ("Sending variables infos to the ESP8266");
 
 	Serial1.print ("ONF");
 	Serial1.print (on ? 1 : 0, DEC);
 	Serial1.print ("z");
-	printNoPrefix ("ONF");
-	printNoPrefix (on ? 1 : 0, DEC);
-	printNoPrefix ("z ");
+	// printNoPrefix ("ONF");
+	// printNoPrefix (on ? 1 : 0, DEC);
+	// printNoPrefix ("z ");
 
 	Serial1.print ("MOD");
 	Serial1.print (mode, DEC);
 	Serial1.print ("z");
-	printNoPrefix ("MOD");
-	printNoPrefix (mode, DEC);
-	printNoPrefix ("z ");
+	// printNoPrefix ("MOD");
+	// printNoPrefix (mode, DEC);
+	// printNoPrefix ("z ");
 
 	Serial1.print ("RGB");
 	Serial1.print (rgb[MODE_DEFAULT], HEX);
 	Serial1.print ("z");
-	printNoPrefix ("RGB");
-	printNoPrefix (rgb[MODE_DEFAULT], HEX);
-	printNoPrefix ("z ");
+	// printNoPrefix ("RGB");
+	// printNoPrefix (rgb[MODE_DEFAULT], HEX);
+	// printNoPrefix ("z ");
 
 	for (int i = MODE_MIN; i < N_MODE; i++)
 	{
@@ -111,10 +120,10 @@ void sendInfo ()
 		Serial1.print (i, DEC);
 		Serial1.print ((int) power[i], DEC);
 		Serial1.print ("z");
-		printNoPrefix ("POW");
-		printNoPrefix (i, DEC);
-		printNoPrefix ((int) power[i], DEC);
-		printNoPrefix ("z ");
+		// printNoPrefix ("POW");
+		// printNoPrefix (i, DEC);
+		// printNoPrefix ((int) power[i], DEC);
+		// printNoPrefix ("z ");
 	}
 
 	for (int i = MODE_MIN; i < N_MODE; i++)
@@ -123,11 +132,11 @@ void sendInfo ()
 		Serial1.print (i, DEC);
 		Serial1.print ((((long) speed[i] - (MIN_SPEED[i] - SEEKBAR_MIN)) * (SEEKBAR_MAX - SEEKBAR_MIN)) / (MAX_SPEED[i] - MIN_SPEED[i]), DEC);
 		Serial1.print ("z");
-		printNoPrefix ("SPE");
-		printNoPrefix (i, DEC);
-		printNoPrefix ((((long) speed[i] - (MIN_SPEED[i] - SEEKBAR_MIN)) * (SEEKBAR_MAX - SEEKBAR_MIN)) / (MAX_SPEED[i] - MIN_SPEED[i]), DEC);
-		printNoPrefix ("z ");
+		// printNoPrefix ("SPE");
+		// printNoPrefix (i, DEC);
+		// printNoPrefix ((((long) speed[i] - (MIN_SPEED[i] - SEEKBAR_MIN)) * (SEEKBAR_MAX - SEEKBAR_MIN)) / (MAX_SPEED[i] - MIN_SPEED[i]), DEC);
+		// printNoPrefix ("z ");
 	}
 
-	printlnNoPrefix (")");
+	// printlnNoPrefix (")");
 } // sendInfo

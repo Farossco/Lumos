@@ -22,8 +22,10 @@ void setup ()
 
 	sendInfo(); // Sending global variables informations to the ESP8266
 
+	initSdCard(); // Start logging
+
 	printlnNoPrefix();
-	println ("Program started!");
+	println ("-------------------- Program started! --------------------");
 
 	isInitialized = true;
 } // setup

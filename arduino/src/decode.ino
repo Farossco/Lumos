@@ -152,11 +152,15 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 
 				// Debug
 				print ("On (Current value): ");
-				printNoPrefix (on == 1 ? "True" : on == 0 ? "False" : "Error (");
 				if (on != 0 && on != 1)
 				{
+					printNoPrefix ("Error (");
 					printNoPrefix (on, DEC);
-					printNoPrefix (")");
+					printlnNoPrefix (")");
+				}
+				else
+				{
+					printlnNoPrefix (on == 1 ? "True" : "False" );
 				}
 
 				break;

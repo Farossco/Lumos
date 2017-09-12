@@ -1,6 +1,0 @@
-{
-    "board": "esp8266:esp8266:nodemcuv2",
-    "configuration": "CpuFrequency=80,UploadSpeed=921600,FlashSize=4M1M",
-    "port": "/dev/ttyUSB0",
-    "sketch": "src/esp8266.ino"
-}

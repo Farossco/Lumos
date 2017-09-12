@@ -11,6 +11,10 @@
 // ************************* Constants declarations ************************* //
 // ************************************************************************** //
 
+// **************************************** //
+// **************** Global **************** //
+// **************************************** //
+
 const boolean DEBUG_ENABLED = true; // Debug Mode
 
 const long ESP_BAUD_RATE   = 74880;  // ESP8266 communication baud rate
@@ -28,21 +32,10 @@ const int PIN_LED_INFRARED = 5;  // Infrared IN pin
 const int PIN_LED_RED      = 4;  // Red LED OUT pin
 const int PIN_LED_GREEN    = 7;  // Green LED OUT pin
 const int PIN_LED_BLUE     = 11; // Blue LED OUT pin
+const int PIN_SD_CS        = 49; // SD Chip Select
 
-// Wake up
-const int WAKEUP_HOURS   = 06;
-const int WAKEUP_MINUTES = 00;
-const int WAKEUP_SECONDS = 00;
+// **************** IDs **************** //
 
-// Prayer
-const int PRAYER_FADE_SPEED         = 97; // Fade speed for prayer time
-const int N_PRAYER                  = 6;  // Number of different prayer (including sunrise)
-const String PRAYERS_NAME[N_PRAYER] = { "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha" };
-
-// EEPROM
-const int EEPROM_START = 0x0000; // EEPROM start address
-
-// ******** IDs ******** //
 // Serial reception types
 const int TYPE_RTM = -2; // Request : Time
 const int TYPE_RIF = -1; // Request : Info
@@ -78,13 +71,18 @@ const int CAPS_NONE  = 0; // All letters in lower case
 const int CAPS_FIRST = 1; // First letter in upper case
 const int CAPS_ALL   = 2; // All letters in upper case
 
-// Default values
+// ************************************************************* //
+// **************** Default, min and max values **************** //
+// ************************************************************* //
+
+// Default
 const unsigned long DEFAULT_RGB[N_MODE] =
 { 0xFFFFFF, 0xFF0000, 0xFFFFFF, 0xFFFFFF, 0xFF0000, 0x0000FF };    // Default color on program startup
 const float DEFAULT_POWER[N_MODE] = { 50, 100, 100, 100, 100, 0 }; // Default power on program startup
 const int DEFAULT_SPEED[N_MODE] = { -1, 0, 0, 750, 800, 2000 };    // Default speed on program startup
+const int DEFAULT_VOLUME = 30;                                     // DFPlayer default volume (0-30)
 
-// Bounds
+// Min and Max
 const int MIN_SPEED[N_MODE] = { -1, 1, 1, 50, 10, 1 };         // Minimum speed or power value for each mode
 const int MAX_SPEED[N_MODE] = { -1, 25, 25, 600, 1000, 1000 }; // Maximum speed or power value for each mode
 const int MIN_POWER   = 0;                                     // Minimum power value
@@ -92,38 +90,52 @@ const int MAX_POWER   = 100;                                   // Maximum power 
 const int SEEKBAR_MIN = 0;                                     // Minimum app seek bars value
 const int SEEKBAR_MAX = 100;                                   // Maximum app seek bars value
 
+// *************************************** //
+// **************** Other **************** //
+// *************************************** //
+
+// Wake up
+const int WAKEUP_HOURS   = 06;
+const int WAKEUP_MINUTES = 00;
+const int WAKEUP_SECONDS = 00;
+
+// Prayer
+const int PRAYER_FADE_SPEED         = 97; // Fade speed for prayer time
+const int N_PRAYER                  = 6;  // Number of different prayer (including sunrise)
+const String PRAYERS_NAME[N_PRAYER] = { "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha" };
+
+// EEPROM
+const int EEPROM_START = 0x0000;// EEPROM start address
+
 // Infrared
 const int N_COLOR        = 16; // Number of different colors
 const int IR_CHANGE_STEP = 5;  // increasion or decreasion step value for infrared
 const int MIN_IR_POWER   = 5;  // Minimum value in wich the power can go with infrared
 
-// DFPlayer
-const int DEFAULT_VOLUME = 30;
-
 // Sound
-const int MIN_CLAP_DURATION          = 30;   // Amount of time to ignore after clap started (To avoid sound bounce)
-const int MAX_CLAP_DURATION          = 100;  // Maximum clap duration in ms
-const int MIN_TIME_BEETWIN_TWO_CLAPS = 400;  // Minimum time before starting second clap
-const int MAX_TIME_BEETWIN_TWO_CLAPS = 600;  // Maximum time to start second clap
-const int TIME_AFTER_START_OVER      = 1000; // Time to wait after double clap to start over
+const int MIN_CLAP_DURATION          = 30;  // Amount of time to ignore after clap started (To avoid sound bounce)
+const int MAX_CLAP_DURATION          = 100; // Maximum clap duration in ms
+const int MIN_TIME_BEETWIN_TWO_CLAPS = 400; // Minimum time before starting second clap
+const int MAX_TIME_BEETWIN_TWO_CLAPS = 600; // Maximum time to start second clap
+const int TIME_AFTER_START_OVER      = 1000;// Time to wait after double clap to start over
 
 // ************************************************************************** //
 // ************************* Variables declarations ************************* //
 // ************************************************************************** //
 
 // Global
-boolean on;                  // If the leds are ON or OFF (True: ON / False: OFF)
-boolean isInitialized;       // Set to true when program is complitely initialized
-unsigned long rgb[N_MODE];   // Current RGB value for each mode (From 0x000000 to 0xFFFFFF)
-int power[N_MODE];           // Current lightning power for each mode (from MINPOWER to MAXPOWER)
-int speed[N_MODE];           // Current mode speed for each mode
-unsigned char red[N_MODE];   // Current red value for each mode including lightning power (From 0 to 255)
-unsigned char green[N_MODE]; // Current green value for each mode including lightning power (From 0 to 255)
-unsigned char blue[N_MODE];  // Current blue value for each mode including lightning power (From 0 to 255)
-unsigned char mode;          // Current lighting mode (MODE_***)
+boolean on;                // If the leds are ON or OFF (True: ON / False: OFF)
+boolean isInitialized;     // Set to true when program is complitely initialized
+unsigned long rgb[N_MODE]; // Current RGB value for each mode (From 0x000000 to 0xFFFFFF)
+int power[N_MODE];         // Current lightning power for each mode (from MINPOWER to MAXPOWER)
+int speed[N_MODE];         // Current mode speed for each mode
+unsigned char red[N_MODE]; // Current red value for each mode including lightning power (From 0 to 255)
+unsigned char green[N_MODE];// Current green value for each mode including lightning power (From 0 to 255)
+unsigned char blue[N_MODE]; // Current blue value for each mode including lightning power (From 0 to 255)
+unsigned char mode;         // Current lighting mode (MODE_***)
 
 // Prayer
-int prayerTime[N_PRAYER][3]; // [0] = Hours / [1] = Minutes / [2] = Hours & Minutes
+int prayerTime[N_PRAYER][3];// [0] = Hours / [1] = Minutes / [2] = Hours & Minutes
 
 // Read Claps
 int clapState;              // Same as "state" but for claps
@@ -160,6 +172,10 @@ int changePower[N_MODE];
 int changeSpeed[N_MODE];
 unsigned char changeMode;
 
+// SD Card
+File logFile;
+boolean logFileAvailable;
+char sdFileName[13];
 
 // ************************************************************************** //
 // ************************** Functions prototypes ************************** //
@@ -169,9 +185,8 @@ void setup ();
 void loop ();
 void initGlobal ();
 void initDFPlayer ();
-void eepromDump (unsigned int start, unsigned int limit);
-void eepromWrite ();
-boolean eepromRead ();
+void initSdCard ();
+void loadLogFile ();
 void readClaps ();
 void printPrefix ();
 void debugPrintDigits (int digits);
@@ -219,10 +234,9 @@ size_t printlnNoPrefix (unsigned long message, int base);
 size_t printlnNoPrefix (double message, int base);
 size_t printlnNoPrefix (const Printable & message);
 void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfoType, int * pErrorType);
-void initSerial ();
-void waitForTime ();
-void askForTime ();
-void readSerial ();
+void eepromDump (unsigned int start, unsigned int limit);
+void eepromWrite ();
+boolean eepromRead ();
 void initInfrared ();
 void readInfrared ();
 void light ();
@@ -239,6 +253,11 @@ void initModeSmooth ();
 void modeSmooth ();
 void initModeWakeup ();
 void modeWakeup ();
+char * getLogFileName ();
+void initSerial ();
+void waitForTime ();
+void askForTime ();
+void readSerial ();
 void testPrayerTime ();
 void prayerStart ();
 void prayerStop ();
