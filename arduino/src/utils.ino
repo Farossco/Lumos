@@ -81,33 +81,69 @@ String errorTypeName (int infoType, boolean shortened)
 	}
 }
 
-// Digital clock display of the time
-void digitalClockDisplay ()
+String debugLevelName(int debugLevel)
 {
-	printDigits (day());
-	printNoPrefix ("/");
-	printDigits (month());
-	printNoPrefix ("/");
-	printNoPrefix (year(), DEC);
+	switch (debugLevel)
+	{
+		case LEVEL_DEBUG:
+			return "DEBUG";
 
-	printNoPrefix (" ");
+		case LEVEL_INFO:
+			return "INFO";
 
-	printDigits (hour());
-	printNoPrefix (":");
-	printDigits (minute());
-	printNoPrefix (":");
-	printDigits (second());
+		case LEVEL_ERROR:
+			return "ERROR";
 
-	printlnNoPrefix();
+		default:
+			return "?????";
+	}
+}
+
+String debugLevelSpace(int debugLevel)
+{
+	switch (debugLevel)
+	{
+		case LEVEL_DEBUG:
+			return " ";
+
+		case LEVEL_INFO:
+			return "  ";
+
+		case LEVEL_ERROR:
+			return " ";
+
+		default:
+			return " ";
+	}
+}
+
+// Digital clock display of the time
+void digitalClockDisplay (int debugLevel)
+{
+	printDigits (debugLevel, day());
+	printNoPrefix (debugLevel, "/");
+	printDigits (debugLevel, month());
+	printNoPrefix (debugLevel, "/");
+	printNoPrefix (debugLevel, year(), DEC);
+
+	printNoPrefix (debugLevel, " ");
+
+	printDigits (debugLevel, hour());
+	printNoPrefix (debugLevel, ":");
+	printDigits (debugLevel, minute());
+	printNoPrefix (debugLevel, ":");
+	printDigits (debugLevel, second());
+
+	printlnNoPrefix(debugLevel);
 }
 
 // Utility for digital clock display: prints preceding colon and leading 0
-void printDigits (int digits)
+void printDigits (int debugLevel, int digits)
 {
 	if (digits < 10)
-		printNoPrefix (0, DEC);
+		printNoPrefix (debugLevel, 0, DEC);
 
-	printNoPrefix (digits, DEC);
+	printNoPrefix (debugLevel, digits, DEC);
 }
 
 void softwareReset () // Just in case

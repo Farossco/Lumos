@@ -1,0 +1,4 @@
+- Optimize SD open and close
+- Initializing debug redoing (Init... Done.) or (Init... \n [ERROR] Init failed!)
+- Test SD log
+- Extend EEPROM saving (On/OFF...)

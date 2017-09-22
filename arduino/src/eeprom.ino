@@ -7,45 +7,22 @@ void eepromDump (unsigned int start, unsigned int limit)
 	if (limit > EEPROM.length())
 		limit = EEPROM.length();
 
-	printlnNoPrefix();
-	print ("EEPROM dump from ");
-	printNoPrefix (start, HEX);
-	printNoPrefix (" to ");
-	printlnNoPrefix (limit, HEX);
+	printlnNoPrefix(LEVEL_DEBUG);
+	print (LEVEL_DEBUG, "EEPROM dump from ");
+	printNoPrefix (LEVEL_DEBUG, start, HEX);
+	printNoPrefix (LEVEL_DEBUG, " to ");
+	printlnNoPrefix (LEVEL_DEBUG, limit, HEX);
 
 	for (unsigned int index = start; index <= limit; index++)
 	{
-		if (index <= 0xF)
-			print ("000");
-		else if (index <= 0xFF)
-			print ("00");
-		else if (index <= 0xFFF)
-			print ("0");
-		else
-			print ("");
-
-		printNoPrefix (index, HEX);
-
-		printNoPrefix (": ");
-
 		value = EEPROM.read (index);
 
-		if (value <= 0x1)
-			printNoPrefix ("0000000");
-		else if (value <= 0x3)
-			printNoPrefix ("000000");
-		else if (value <= 0x7)
-			printNoPrefix ("00000");
-		else if (value <= 0xF)
-			printNoPrefix ("0000");
-		else if (value <= 0x1F)
-			printNoPrefix ("000");
-		else if (value <= 0x3F)
-			printNoPrefix ("00");
-		else if (value <= 0x7F)
-			printNoPrefix ("0");
+		print (LEVEL_DEBUG, index <= 0xF ? "000" : index <= 0xFF ? "00" : index <= 0xFFF ? "0" : "");
+		printNoPrefix (LEVEL_DEBUG, index, HEX);
+		printNoPrefix (LEVEL_DEBUG, ": ");
 
-		printlnNoPrefix (value, BIN);
+		printNoPrefix (LEVEL_DEBUG, value <= 0x1 ? "0000000" : value <= 0x3 ? "000000" : value <= 0x7 ? "00000" : value <= 0xF ? "0000" : value <= 0x1F ? "000" : value <= 0x3F ? "00" : value <= 0x7F ? "0" : "");
+		printlnNoPrefix (LEVEL_DEBUG, value, BIN);
 	}
 } // eepromDump
 
@@ -56,8 +33,8 @@ void eepromWrite ()
 	address = EEPROM_START;
 	n       = 0;
 
-	printlnNoPrefix();
-	println ("Writing EEPROM...");
+	printlnNoPrefix(LEVEL_DEBUG);
+	println (LEVEL_DEBUG, "Writing EEPROM...");
 
 	EEPROM.write (address, (byte) 42);
 
@@ -107,12 +84,12 @@ void eepromWrite ()
 
 	address += sizeof(int);
 
-	print ("Done ! ");
-	printNoPrefix (n, DEC);
-	printNoPrefix (" byte");
+	print (LEVEL_DEBUG, "Done ! ");
+	printNoPrefix (LEVEL_DEBUG, n, DEC);
+	printNoPrefix (LEVEL_DEBUG, " byte");
 	if (n > 1)
-		printNoPrefix ("s");
-	printlnNoPrefix (" written");
+		printNoPrefix (LEVEL_DEBUG, "s");
+	printlnNoPrefix (LEVEL_DEBUG, " written");
 } // writeData
 
 boolean eepromRead ()
@@ -121,17 +98,13 @@ boolean eepromRead ()
 
 	address = EEPROM_START;
 
-	if (EEPROM.read (address) != (byte) 42)
-	{
-		printlnNoPrefix();
-		println ("First launch !");
+	if (EEPROM.read (address) != (byte) EEPROM_TEST_BYTE)
 		return true;
-	}
 
 	address++;
 
-	printlnNoPrefix();
-	println ("Reading EEPROM...");
+	printlnNoPrefix(LEVEL_DEBUG);
+	println (LEVEL_DEBUG, "Reading EEPROM...");
 
 	rgb[MODE_DEFAULT] = 0;
 	for (unsigned int i = 0; i < sizeof(long); i++)
@@ -165,12 +138,12 @@ boolean eepromRead ()
 
 	address += sizeof(int);
 
-	print ("Done ! ");
-	printNoPrefix (address, DEC);
-	printNoPrefix (" byte");
+	print (LEVEL_DEBUG, "Done ! ");
+	printNoPrefix (LEVEL_DEBUG, address, DEC);
+	printNoPrefix (LEVEL_DEBUG, " byte");
 	if (address > 1)
-		printNoPrefix ("s");
-	printlnNoPrefix (" read");
+		printNoPrefix (LEVEL_DEBUG, "s");
+	printlnNoPrefix (LEVEL_DEBUG, " read");
 
 	return false;
 } // writeData

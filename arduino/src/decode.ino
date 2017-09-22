@@ -14,14 +14,14 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 	{
 		*pInfoType = TYPE_RIF;
 
-		println ("Received info request");
+		println (LEVEL_DEBUG, "Received info request");
 		return;
 	}
 	if (request.indexOf ("TIME") == 0)
 	{
 		*pInfoType = TYPE_RTM;
 
-		println ("Received time request");
+		println (LEVEL_DEBUG, "Received time request");
 		return;
 	}
 	else if (request.indexOf ("TIM") == 0)
@@ -40,7 +40,7 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 		*pInfoType = TYPE_SPE;
 	else
 	{
-		if (DEBUG_ENABLED)
+		if (SERIAL_LOG_ENABLED || SD_LOG_ENABLED)
 		{
 			*pInfoType  = TYPE_UNK;
 			*pErrorType = ERR_UKR;
@@ -50,26 +50,26 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 	}
 
 	// [DEBUG] Printing full word, world length and information type
-	printlnNoPrefix();
-	print ("Word: ");
-	printlnNoPrefix (request);
-	print ("Length: ");
-	printlnNoPrefix (requestLength, DEC);
-	print ("Type: ");
-	printNoPrefix (infoTypeName (*pInfoType, false) + " (");
-	printNoPrefix (*pInfoType, DEC);
-	printlnNoPrefix (")");
+	printlnNoPrefix(LEVEL_DEBUG);
+	print (LEVEL_DEBUG, "Word: ");
+	printlnNoPrefix (LEVEL_DEBUG, request);
+	print (LEVEL_DEBUG, "Length: ");
+	printlnNoPrefix (LEVEL_DEBUG, requestLength, DEC);
+	print (LEVEL_DEBUG, "Type: ");
+	printNoPrefix (LEVEL_DEBUG, infoTypeName (*pInfoType, false) + " (");
+	printNoPrefix (LEVEL_DEBUG, *pInfoType, DEC);
+	printlnNoPrefix (LEVEL_DEBUG, ")");
 
 	request.remove (0, 3);
 
 	if (*pInfoType == TYPE_POW || *pInfoType == TYPE_SPE)
 	{
 		*pInfoMode = request.charAt (0) - '0';
-		print ("Info mode: ");
-		printNoPrefix (modeName (*pInfoMode, CAPS_FIRST));
-		printNoPrefix (" (");
-		printNoPrefix (*pInfoMode, DEC);
-		printlnNoPrefix (")");
+		print (LEVEL_DEBUG, "Info mode: ");
+		printNoPrefix (LEVEL_DEBUG, modeName (*pInfoMode, CAPS_FIRST));
+		printNoPrefix (LEVEL_DEBUG, " (");
+		printNoPrefix (LEVEL_DEBUG, *pInfoMode, DEC);
+		printlnNoPrefix (LEVEL_DEBUG, ")");
 		request.remove (0, 1);
 		if (*pInfoMode < MODE_MIN || *pInfoMode > MODE_MAX)
 			*pErrorType = ERR_UKM;
@@ -80,35 +80,35 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 			if (request.charAt (0) == PRAYERS_NAME[*pInfoMode].charAt (0))
 				break;
 
-		print ("Prayer: ");
+		print (LEVEL_DEBUG, "Prayer: ");
 		if (*pInfoMode < 0 || *pInfoMode >= N_PRAYER)
 		{
 			*pErrorType = ERR_UKP;
-			printlnNoPrefix (*pInfoMode, DEC);
+			printlnNoPrefix (LEVEL_DEBUG, *pInfoMode, DEC);
 		}
 		else
 		{
-			printNoPrefix (PRAYERS_NAME[*pInfoMode] + " (");
-			printNoPrefix (*pInfoMode, DEC);
-			printlnNoPrefix (")");
+			printNoPrefix (LEVEL_DEBUG, PRAYERS_NAME[*pInfoMode] + " (");
+			printNoPrefix (LEVEL_DEBUG, *pInfoMode, DEC);
+			printlnNoPrefix (LEVEL_DEBUG, ")");
 		}
 
 
 		request.remove (0, 1);
 	}
 
-	print (infoTypeName (*pInfoType, false) + ": ");
-	printlnNoPrefix (request);
+	print (LEVEL_DEBUG, infoTypeName (*pInfoType, false) + ": ");
+	printlnNoPrefix (LEVEL_DEBUG, request);
 
 	request.toCharArray (requestChar, request.length() + 1);
 
-	print (infoTypeName (*pInfoType, false) + " (char): ");
-	printlnNoPrefix (requestChar);
+	print (LEVEL_DEBUG, infoTypeName (*pInfoType, false) + " (char): ");
+	printlnNoPrefix (LEVEL_DEBUG, requestChar);
 
 	*pResult = strtol (requestChar, NULL, *pInfoType == TYPE_RGB ? 16 : 10);
 
-	print (infoTypeName (*pInfoType, false) + " (decoded): ");
-	printlnNoPrefix (*pResult, *pInfoType == TYPE_RGB ? HEX : DEC);
+	print (LEVEL_DEBUG, infoTypeName (*pInfoType, false) + " (decoded): ");
+	printlnNoPrefix (LEVEL_DEBUG, *pResult, *pInfoType == TYPE_RGB ? HEX : DEC);
 
 	if (*pErrorType == ERR_NOE)
 		switch (*pInfoType)
@@ -120,10 +120,10 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 					setTime (strtol (requestChar, NULL, 10));
 
 				// Debug
-				print ("TIME (Current value): ");
-				printlnNoPrefix (now(), DEC);
-				print ("TIME (Current value) (readable): ");
-				digitalClockDisplay();
+				print (LEVEL_DEBUG, "TIME (Current value): ");
+				printlnNoPrefix (LEVEL_DEBUG, now(), DEC);
+				print (LEVEL_DEBUG, "TIME (Current value) (readable): ");
+				digitalClockDisplay(LEVEL_DEBUG);
 				break;
 
 			case TYPE_RGB:
@@ -134,14 +134,14 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 
 				// Debug
 				rgb2color();
-				print ("RGB (Current value): ");
-				printlnNoPrefix (rgb[MODE_DEFAULT], HEX);
-				print ("RED (Current value) : ");
-				printlnNoPrefix (red[MODE_DEFAULT], DEC);
-				print ("GREEN (Current value): ");
-				printlnNoPrefix (green[MODE_DEFAULT], DEC);
-				print ("BLUE (Current value): ");
-				printlnNoPrefix (blue[MODE_DEFAULT], DEC);
+				print (LEVEL_DEBUG, "RGB (Current value): ");
+				printlnNoPrefix (LEVEL_DEBUG, rgb[MODE_DEFAULT], HEX);
+				print (LEVEL_DEBUG, "RED (Current value) : ");
+				printlnNoPrefix (LEVEL_DEBUG, red[MODE_DEFAULT], DEC);
+				print (LEVEL_DEBUG, "GREEN (Current value): ");
+				printlnNoPrefix (LEVEL_DEBUG, green[MODE_DEFAULT], DEC);
+				print (LEVEL_DEBUG, "BLUE (Current value): ");
+				printlnNoPrefix (LEVEL_DEBUG, blue[MODE_DEFAULT], DEC);
 				break;
 
 			case TYPE_ONF:
@@ -151,16 +151,16 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 					on = *pResult;
 
 				// Debug
-				print ("On (Current value): ");
+				print (LEVEL_DEBUG, "On (Current value): ");
 				if (on != 0 && on != 1)
 				{
-					printNoPrefix ("Error (");
-					printNoPrefix (on, DEC);
-					printlnNoPrefix (")");
+					printNoPrefix (LEVEL_DEBUG, "Error (");
+					printNoPrefix (LEVEL_DEBUG, on, DEC);
+					printlnNoPrefix (LEVEL_DEBUG, ")");
 				}
 				else
 				{
-					printlnNoPrefix (on == 1 ? "True" : "False" );
+					printlnNoPrefix (LEVEL_DEBUG, on == 1 ? "True" : "False" );
 				}
 
 				break;
@@ -172,8 +172,8 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 					power[*pInfoMode] = *pResult;
 
 				// Debug
-				print ("Power (Current value): ");
-				printlnNoPrefix ((int) power[*pInfoMode], DEC);
+				print (LEVEL_DEBUG, "Power (Current value): ");
+				printlnNoPrefix (LEVEL_DEBUG, (int) power[*pInfoMode], DEC);
 
 				break;
 
@@ -184,11 +184,11 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 					mode = *pResult;
 
 				// Debug
-				print ("Mode (Text): ");
-				printlnNoPrefix (modeName (*pResult, CAPS_FIRST));
-				print ("Mode (Current value): ");
-				printNoPrefix (mode, DEC);
-				printlnNoPrefix (" (" + modeName (mode, CAPS_FIRST) + ")");
+				print (LEVEL_DEBUG, "Mode (Text): ");
+				printlnNoPrefix (LEVEL_DEBUG, modeName (*pResult, CAPS_FIRST));
+				print (LEVEL_DEBUG, "Mode (Current value): ");
+				printNoPrefix (LEVEL_DEBUG, mode, DEC);
+				printlnNoPrefix (LEVEL_DEBUG, " (" + modeName (mode, CAPS_FIRST) + ")");
 
 				break;
 
@@ -203,13 +203,13 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 				}
 
 				// Debug
-				print ("Prayer time (Current value): ");
-				printlnNoPrefix (prayerTime[*pInfoMode][2], DEC);
-				print ("Prayer time (Current value) (Readable): ");
-				printDigits (prayerTime[*pInfoMode][0]);
-				printNoPrefix (":");
-				printDigits (prayerTime[*pInfoMode][1]);
-				printlnNoPrefix();
+				print (LEVEL_DEBUG, "Prayer time (Current value): ");
+				printlnNoPrefix (LEVEL_DEBUG, prayerTime[*pInfoMode][2], DEC);
+				print (LEVEL_DEBUG, "Prayer time (Current value) (Readable): ");
+				printDigits (LEVEL_DEBUG, prayerTime[*pInfoMode][0]);
+				printNoPrefix (LEVEL_DEBUG, ":");
+				printDigits (LEVEL_DEBUG, prayerTime[*pInfoMode][1]);
+				printlnNoPrefix(LEVEL_DEBUG);
 				break;
 
 			case TYPE_SPE:
@@ -219,15 +219,19 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 					speed[*pInfoMode] = *pResult * (MAX_SPEED[*pInfoMode] - MIN_SPEED[*pInfoMode]) / (SEEKBAR_MAX - SEEKBAR_MIN) + (MIN_SPEED[*pInfoMode] - SEEKBAR_MIN);
 
 				// Debug
-				print ("Min Speed: ");
-				printlnNoPrefix (MIN_SPEED[*pInfoMode], DEC);
-				print ("Max Speed: ");
-				printlnNoPrefix (MAX_SPEED[*pInfoMode], DEC);
-				print ("Speed (Current value): ");
-				printlnNoPrefix (speed[*pInfoMode], DEC);
+				print (LEVEL_DEBUG, "Min Speed: ");
+				printlnNoPrefix (LEVEL_DEBUG, MIN_SPEED[*pInfoMode], DEC);
+				print (LEVEL_DEBUG, "Max Speed: ");
+				printlnNoPrefix (LEVEL_DEBUG, MAX_SPEED[*pInfoMode], DEC);
+				print (LEVEL_DEBUG, "Speed (Current value): ");
+				printlnNoPrefix (LEVEL_DEBUG, speed[*pInfoMode], DEC);
 				break;
 		}
 
 	if (*pErrorType != ERR_NOE)
-		println ("Variable has not been changed (" + errorTypeName (*pErrorType, false) + ")\n");
+	{
+		printlnNoPrefix(LEVEL_DEBUG);
+		println (LEVEL_DEBUG, "Variable has not been changed (" + errorTypeName (*pErrorType, false) + ")");
+	}
+		
 } // readWeb

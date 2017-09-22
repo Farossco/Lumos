@@ -34,10 +34,15 @@ void initInfrared ()
 	if (!INFRARED_ENABLED)
 		return;
 
+	printlnNoPrefix(LEVEL_INFO);
+	print(LEVEL_INFO, "Initializing infrared... ");
+
 	lastIRCode = 0;
 
 	pinMode (PIN_SOUND, INPUT); // Setting sound detector as an input
 	irrecv.enableIRIn();        // Initialize IR communication
+
+	printlnNoPrefix(LEVEL_INFO, "Done.");
 }
 
 // Read the in-comming IR signal if present
@@ -55,27 +60,28 @@ void readInfrared ()
 		IRCode = results.value;
 
 		// [DEBUG] Print the incomming IR value
-		printlnNoPrefix();
-		print ("Incomming IR: ");
-		printNoPrefix (IRCode, HEX);
-		if (IRCode == 0xFFFFFFFF)
-		{
-			printNoPrefix (" (");
-			printNoPrefix (lastIRCode, HEX);
-			printNoPrefix (")");
-		}
-		printlnNoPrefix();
+		printlnNoPrefix(LEVEL_DEBUG);
+		print (LEVEL_DEBUG, "Incomming IR: ");
+		printNoPrefix (LEVEL_DEBUG, IRCode, HEX);
 
 		// REPEAT (When button is pressed continiously, sent value is 0xFFFFFFFF, so we change it with the latest code that we recieved
 		if (IRCode == 0xFFFFFFFF)
-			IRCode = lastIRCode;
+		{
+			printNoPrefix (LEVEL_DEBUG, " (");
+			printNoPrefix (LEVEL_DEBUG, lastIRCode, HEX);
+			printNoPrefix (LEVEL_DEBUG, ")");
 
+			IRCode = lastIRCode;
+		}
+			
 		// ON
 		if (IRCode == 0xFFB04F || IRCode == 0xF0C41643)
 		{
 			on         = true;
 			lastIRCode = 0; // We don't save value in lastIRCode because don't care if we keep on button pressed
-			println ("Switch ON");
+
+			printlnNoPrefix(LEVEL_INFO);
+			println (LEVEL_INFO, "Switch ON");
 		}
 
 
@@ -94,7 +100,8 @@ void readInfrared ()
 			case 0xE721C0DB:
 				on         = false;
 				lastIRCode = 0;
-				println ("Switch OFF");
+				printlnNoPrefix(LEVEL_INFO);
+				println (LEVEL_INFO, "Switch OFF");
 				break;
 				break;
 
@@ -109,14 +116,15 @@ void readInfrared ()
 				rgb2color();
 
 				// [DEBUG] Print current color and RED, GREEN, BLUE values
-				print ("Power (" + modeName (mode, CAPS_ALL) + " mode): ");
-				printlnNoPrefix (power[mode], DEC);
-				print ("RED: (" + modeName (mode, CAPS_FIRST) + " mode): ");
-				printNoPrefix (red[mode], DEC);
-				printNoPrefix (" / GREEN: ");
-				printNoPrefix (green[mode], DEC);
-				printNoPrefix (" / BLUE: ");
-				printlnNoPrefix (blue[mode], DEC);
+				printlnNoPrefix(LEVEL_DEBUG);
+				print (LEVEL_DEBUG, "Power (" + modeName (mode, CAPS_ALL) + " mode): ");
+				printlnNoPrefix (LEVEL_DEBUG, power[mode], DEC);
+				print (LEVEL_DEBUG, "RED: (" + modeName (mode, CAPS_FIRST) + " mode): ");
+				printNoPrefix (LEVEL_DEBUG, red[mode], DEC);
+				printNoPrefix (LEVEL_DEBUG, " / GREEN: ");
+				printNoPrefix (LEVEL_DEBUG, green[mode], DEC);
+				printNoPrefix (LEVEL_DEBUG, " / BLUE: ");
+				printlnNoPrefix (LEVEL_DEBUG, blue[mode], DEC);
 
 				lastIRCode = IRCode;
 
@@ -134,14 +142,15 @@ void readInfrared ()
 				rgb2color();
 
 				// [DEBUG] Print current color and RED, GREEN, BLUE values
-				print ("Power (" + modeName (mode, CAPS_FIRST) + " mode): ");
-				printlnNoPrefix (power[mode], DEC);
-				print ("RED: (" + modeName (mode, CAPS_FIRST) + " mode): ");
-				printNoPrefix (red[mode], DEC);
-				printNoPrefix (" / GREEN: ");
-				printNoPrefix (green[mode], DEC);
-				printNoPrefix (" / BLUE: ");
-				printlnNoPrefix (blue[mode], DEC);
+				printlnNoPrefix(LEVEL_DEBUG);
+				print (LEVEL_DEBUG, "Power (" + modeName (mode, CAPS_FIRST) + " mode): ");
+				printlnNoPrefix (LEVEL_DEBUG, power[mode], DEC);
+				print (LEVEL_DEBUG, "RED: (" + modeName (mode, CAPS_FIRST) + " mode): ");
+				printNoPrefix (LEVEL_DEBUG, red[mode], DEC);
+				printNoPrefix (LEVEL_DEBUG, " / GREEN: ");
+				printNoPrefix (LEVEL_DEBUG, green[mode], DEC);
+				printNoPrefix (LEVEL_DEBUG, " / BLUE: ");
+				printlnNoPrefix (LEVEL_DEBUG, blue[mode], DEC);
 
 				lastIRCode = IRCode;
 

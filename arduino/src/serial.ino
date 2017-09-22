@@ -12,7 +12,6 @@ void waitForTime ()
 	if (!WAIT_FOR_TIME)
 		return;
 
-	// Gently ask for time
 	time_t lastMillis = millis();
 	boolean flag      = false;
 
@@ -28,24 +27,27 @@ void waitForTime ()
 
 		if (millis() - lastMillis >= 5000)
 		{
-			printlnNoPrefix();
+			printlnNoPrefix(LEVEL_DEBUG);
 			if (timeStatus() == timeNotSet && !flag)
-				println ("Neither time nor prayers are set");
+				println (LEVEL_DEBUG, "Neither time nor prayers are set");
 			else if (timeStatus() == timeNotSet)
-				println ("Time is not set");
+				println (LEVEL_DEBUG, "Time is not set");
 			else
-				println ("Prayers are not set");
+				println (LEVEL_DEBUG, "Prayers are not set");
 
 			askForTime();
 			lastMillis = millis();
 		}
 	}
+	printlnNoPrefix(LEVEL_INFO);
+	println (LEVEL_INFO, "Time received");
 } // waitForTime
 
 // Asking for time to the ESP8266 (via internet)
 void askForTime ()
 {
-	println ("Gently asking for time");
+	printlnNoPrefix (LEVEL_INFO);
+	println (LEVEL_INFO, "Kindly asking for time");
 	Serial1.print ("TIMEPLEASEz"); // z is the end character
 }
 
@@ -62,7 +64,7 @@ void readSerial ()
 
 	if (infoType == TYPE_RTM)
 	{
-		println ("I don't know anything about time... Let me ask the ESP");
+		println (LEVEL_DEBUG, "I don't know anything about time... Let me ask the ESP");
 		askForTime();
 	}
 	else if (infoType == TYPE_RIF)

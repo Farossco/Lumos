@@ -5,15 +5,15 @@ void testPrayerTime ()
 	flagEnter = false;
 	flagLeave = false;
 
-	for (i = 0; i < N_PRAYER; i++)
-		if ((hour() * 60 + minute()) == prayerTime[i][2])
+	for (prayerIndexStart = 0; prayerIndexStart < N_PRAYER; prayerIndexStart++)
+		if ((hour() * 60 + minute()) == prayerTime[prayerIndexStart][2])
 		{
 			flagEnter = true;
 			break;
 		}
 
-	for (j = 0; j < N_PRAYER; j++)
-		if ((hour() * 60 + minute()) == (prayerTime[j][2] + 10))
+	for (prayerIndexStop = 0; prayerIndexStop < N_PRAYER; prayerIndexStop++)
+		if ((hour() * 60 + minute()) == (prayerTime[prayerIndexStop][2] + 10))
 		{
 			flagLeave = true;
 			break;
@@ -38,17 +38,17 @@ void prayerStart ()
 	on               = true;
 	faded            = true;
 
-	printlnNoPrefix();
-	print ("Time to pray ");
-	printNoPrefix (PRAYERS_NAME[i]);
-	printlnNoPrefix (" !");
-	print ("It will stop at ");
-	printNoPrefix ((prayerTime[i][2] + 10) / 60, DEC);
-	printNoPrefix (":");
-	printNoPrefix ((prayerTime[i][1] + 10) % 60, DEC);
-	printNoPrefix (" (");
-	printNoPrefix (prayerTime[i][2] + 10, DEC);
-	printlnNoPrefix (")");
+	printlnNoPrefix(LEVEL_INFO);
+	print (LEVEL_INFO, "Started");
+	printNoPrefix (LEVEL_INFO, PRAYERS_NAME[prayerIndexStart]);
+	printlnNoPrefix (LEVEL_INFO, " alert");
+	print (LEVEL_DEBUG, "It will stop at ");
+	printNoPrefix (LEVEL_DEBUG, (prayerTime[prayerIndexStart][2] + 10) / 60, DEC);
+	printNoPrefix (LEVEL_DEBUG, ":");
+	printNoPrefix (LEVEL_DEBUG, (prayerTime[prayerIndexStart][1] + 10) % 60, DEC);
+	printNoPrefix (LEVEL_DEBUG, " (");
+	printNoPrefix (LEVEL_DEBUG, prayerTime[prayerIndexStart][2] + 10, DEC);
+	printlnNoPrefix (LEVEL_DEBUG, ")");
 }
 
 void prayerStop ()
@@ -57,10 +57,10 @@ void prayerStop ()
 	on      = false;
 	unfaded = true;
 
-	printlnNoPrefix();
-	print ("Stop ");
-	printNoPrefix (PRAYERS_NAME[j]);
-	printlnNoPrefix (" alert");
+	printlnNoPrefix(LEVEL_INFO);
+	print (LEVEL_INFO, "Stopped ");
+	printNoPrefix (LEVEL_INFO, PRAYERS_NAME[prayerIndexStop]);
+	printlnNoPrefix (LEVEL_INFO, " alert");
 }
 
 // Test wakeup time and peak hours for resynchronization
@@ -73,8 +73,8 @@ void testWakeUpTime ()
 		on     = true;
 		wokeUp = true;
 
-		printlnNoPrefix();
-		println ("Wake up !");
+		printlnNoPrefix(LEVEL_INFO);
+		println (LEVEL_INFO, "Starting wake up alert");
 	}
 	else if ((hour() != WAKEUP_HOURS || minute() != WAKEUP_MINUTES) && wokeUp)
 	{

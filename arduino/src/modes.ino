@@ -62,8 +62,8 @@ void initModeFlash ()
 	count           = millis();   // Reseting milliseconds counter
 	lastMode        = MODE_FLASH; // Setting lastMode so we don't call init again
 
-	printlnNoPrefix();
-	println ("Entering Flash mode");
+	printlnNoPrefix(LEVEL_INFO);
+	println (LEVEL_INFO, "Entering Flash mode");
 }
 
 // Flash mode
@@ -92,8 +92,8 @@ void initModeStrobe ()
 	count            = millis();    // Reseting milliseconds counter
 	lastMode         = MODE_STROBE; // Setting lastMode so we don't call init again
 
-	printlnNoPrefix();
-	println ("Entering Strobe mode");
+	printlnNoPrefix(LEVEL_INFO);
+	println (LEVEL_INFO, "Entering Strobe mode");
 }
 
 // Strobe mode
@@ -117,8 +117,8 @@ void initModeFade ()
 	count          = millis();  // Reseting milliseconds counter
 	lastMode       = MODE_FADE; // Setting lastMode so we don't call init again
 
-	printlnNoPrefix();
-	println ("Entering Fade mode");
+	printlnNoPrefix(LEVEL_INFO);
+	println (LEVEL_INFO, "Entering Fade mode");
 }
 
 // Fade Mode
@@ -149,8 +149,8 @@ void initModeSmooth ()
 	rgb2color();                 // Calling rgb2color to generate color values
 	lastMode = MODE_SMOOTH;      // Setting lastMode so we don't call init again
 
-	printlnNoPrefix();
-	println ("Entering Smooth mode");
+	printlnNoPrefix(LEVEL_INFO);
+	println (LEVEL_INFO, "Entering Smooth mode");
 }
 
 // Smooth Mode
@@ -226,8 +226,8 @@ void initModeWakeup ()
 	count              = millis();    // Reseting milliseconds counter
 	lastMode           = MODE_WAKEUP; // Setting lastMode so we don't call init again
 
-	printlnNoPrefix();
-	println ("Entering Wakeup mode");
+	printlnNoPrefix(LEVEL_INFO);
+	println (LEVEL_INFO, "Entering Wakeup mode");
 }
 
 // Wakeup Mode
@@ -244,7 +244,7 @@ void modeWakeup ()
 		rgb[MODE_DEFAULT]   = rgb[MODE_WAKEUP];   // Transfer RGB final value to default mode
 		power[MODE_DEFAULT] = power[MODE_WAKEUP]; // Same for power
 		mode                = MODE_DEFAULT;       // Leaving the mode
-		println ("Leaving Wakeup mode");
+		println (LEVEL_INFO, "Leaving Wakeup mode");
 	}
 
 	count = millis();
