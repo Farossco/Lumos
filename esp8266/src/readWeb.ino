@@ -72,8 +72,8 @@ String decodeWeb (WiFiClient client)
 
 void initWifiServer ()
 {
-	WiFi.mode(WIFI_AP);
-	
+	WiFi.mode (WIFI_AP);
+
 	// Connect to WiFi network
 	printlnNoPrefix();
 	print ("Connecting to ");
@@ -95,5 +95,5 @@ void initWifiServer ()
 
 	println ("Server started");
 	print ("Local IP: ");
-	printlnNoPrefix(WiFi.localIP());
+	printlnNoPrefix (WiFi.localIP());
 }
