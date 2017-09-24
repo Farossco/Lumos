@@ -7,7 +7,7 @@ void testVariableChange ()
 
 	if (changeOn != on)
 	{
-		println(LEVEL_DEBUG, false);
+		println (LEVEL_DEBUG, false);
 		print (LEVEL_DEBUG, "\"On\" changed from ");
 		print (LEVEL_DEBUG, changeOn ? "True" : "False", false);
 		print (LEVEL_DEBUG, " to ", false);
@@ -18,7 +18,7 @@ void testVariableChange ()
 
 	if (changeRgb != rgb[MODE_DEFAULT])
 	{
-		println(LEVEL_DEBUG, false);
+		println (LEVEL_DEBUG, false);
 		print (LEVEL_DEBUG, "\"RGB\" of DEFAULT changed from ");
 		print (LEVEL_DEBUG, changeRgb, HEX, false);
 		print (LEVEL_DEBUG, " to ", false);
@@ -32,7 +32,7 @@ void testVariableChange ()
 	for (int i = MODE_MIN; i < N_MODE; i++)
 		if (changePower[i] != power[i])
 		{
-			println(LEVEL_DEBUG, false);
+			println (LEVEL_DEBUG, false);
 			print (LEVEL_DEBUG, "\"Power\" of " + modeName (i, CAPS_NONE) + " changed from ");
 			print (LEVEL_DEBUG, (int) changePower[i], DEC, false);
 			print (LEVEL_DEBUG, " to ", false);
@@ -47,7 +47,7 @@ void testVariableChange ()
 	for (int i = MODE_MIN; i < N_MODE; i++)
 		if (changeSpeed[i] != speed[i])
 		{
-			println(LEVEL_DEBUG, false);
+			println (LEVEL_DEBUG, false);
 			print (LEVEL_DEBUG, "\"Speed\" of " + modeName (i, CAPS_NONE) + " changed from ");
 			print (LEVEL_DEBUG, changeSpeed[i], DEC, false);
 			print (LEVEL_DEBUG, " to ", false);
@@ -90,9 +90,9 @@ void initVariableChange ()
 
 void sendInfo ()
 {
-	println(LEVEL_DEBUG, false);
+	println (LEVEL_DEBUG, false);
 	println (LEVEL_DEBUG, "Sending variables infos to the ESP8266");
-	print(LEVEL_DEBUG, "(");
+	print (LEVEL_DEBUG, "(");
 
 	Serial1.print ("ONF");
 	Serial1.print (on ? 1 : 0, DEC);

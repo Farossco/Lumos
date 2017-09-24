@@ -34,15 +34,15 @@ void initInfrared ()
 	if (!INFRARED_ENABLED)
 		return;
 
-	println(LEVEL_INFO, false);
-	print(LEVEL_INFO, "Initializing infrared... ");
+	println (LEVEL_INFO, false);
+	print (LEVEL_INFO, "Initializing infrared... ");
 
 	lastIRCode = 0;
 
 	pinMode (PIN_SOUND, INPUT); // Setting sound detector as an input
 	irrecv.enableIRIn();        // Initialize IR communication
 
-	println(LEVEL_INFO, "Done.", false);
+	println (LEVEL_INFO, "Done.", false);
 }
 
 // Read the in-comming IR signal if present
@@ -60,7 +60,7 @@ void readInfrared ()
 		IRCode = results.value;
 
 		// [DEBUG] Print the incomming IR value
-		println(LEVEL_DEBUG, false);
+		println (LEVEL_DEBUG, false);
 		print (LEVEL_DEBUG, "Incomming IR: ");
 		print (LEVEL_DEBUG, IRCode, HEX, false);
 
@@ -73,14 +73,14 @@ void readInfrared ()
 
 			IRCode = lastIRCode;
 		}
-			
+
 		// ON
 		if (IRCode == 0xFFB04F || IRCode == 0xF0C41643)
 		{
 			on         = true;
 			lastIRCode = 0; // We don't save value in lastIRCode because don't care if we keep on button pressed
 
-			println(LEVEL_INFO, false);
+			println (LEVEL_INFO, false);
 			println (LEVEL_INFO, "Switch ON");
 		}
 
@@ -116,7 +116,7 @@ void readInfrared ()
 				rgb2color();
 
 				// [DEBUG] Print current color and RED, GREEN, BLUE values
-				println(LEVEL_DEBUG, false);
+				println (LEVEL_DEBUG, false);
 				print (LEVEL_DEBUG, "Power (" + modeName (mode, CAPS_ALL) + " mode): ");
 				println (LEVEL_DEBUG, power[mode], DEC, false);
 				print (LEVEL_DEBUG, "RED: (" + modeName (mode, CAPS_FIRST) + " mode): ");
@@ -142,7 +142,7 @@ void readInfrared ()
 				rgb2color();
 
 				// [DEBUG] Print current color and RED, GREEN, BLUE values
-				println(LEVEL_DEBUG, false);
+				println (LEVEL_DEBUG, false);
 				print (LEVEL_DEBUG, "Power (" + modeName (mode, CAPS_FIRST) + " mode): ");
 				println (LEVEL_DEBUG, power[mode], DEC, false);
 				print (LEVEL_DEBUG, "RED: (" + modeName (mode, CAPS_FIRST) + " mode): ");

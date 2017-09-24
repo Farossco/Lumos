@@ -27,7 +27,7 @@ void waitForTime ()
 
 		if (millis() - lastMillis >= 5000)
 		{
-			println(LEVEL_DEBUG, false);
+			println (LEVEL_DEBUG, false);
 			if (timeStatus() == timeNotSet && !flag)
 				println (LEVEL_DEBUG, "Neither time nor prayers are set");
 			else if (timeStatus() == timeNotSet)

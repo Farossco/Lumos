@@ -8,7 +8,7 @@ void setup ()
 
 	println (LEVEL_INFO, "Starting program...");
 
-	initInfrared(); // Initialize infrared reception 
+	initInfrared(); // Initialize infrared reception
 
 	initDFPlayer(); // Initialize DFPlayer communication
 
@@ -24,7 +24,7 @@ void setup ()
 
 	initSdCard(); // Start logging
 
-	println(LEVEL_INFO, false);
+	println (LEVEL_INFO, false);
 	println (LEVEL_INFO, "-------------------- Program started! --------------------");
 
 	isInitialized = true;
@@ -55,7 +55,7 @@ void initGlobal ()
 {
 	if (eepromRead()) // Returns True if EEPROM is not correctly initialized (This may be the first launch)
 	{
-		println(LEVEL_INFO, false);
+		println (LEVEL_INFO, false);
 		println (LEVEL_INFO, "This is first launch, variables will be initialized to their default values");
 
 		for (int i = MODE_MIN; i < N_MODE; i++)

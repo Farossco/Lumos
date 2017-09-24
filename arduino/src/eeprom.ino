@@ -7,7 +7,7 @@ void eepromDump (unsigned int start, unsigned int limit)
 	if (limit > EEPROM.length())
 		limit = EEPROM.length();
 
-	println(LEVEL_DEBUG, false);
+	println (LEVEL_DEBUG, false);
 	print (LEVEL_DEBUG, "EEPROM dump from ");
 	print (LEVEL_DEBUG, start, HEX, false);
 	print (LEVEL_DEBUG, " to ", false);
@@ -33,7 +33,7 @@ void eepromWrite ()
 	address = EEPROM_START;
 	n       = 0;
 
-	println(LEVEL_DEBUG, false);
+	println (LEVEL_DEBUG, false);
 	println (LEVEL_DEBUG, "Writing EEPROM...");
 
 	EEPROM.write (address, (byte) 42);

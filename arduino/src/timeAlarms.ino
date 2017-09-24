@@ -38,7 +38,7 @@ void prayerStart ()
 	on               = true;
 	faded            = true;
 
-	println(LEVEL_INFO, false);
+	println (LEVEL_INFO, false);
 	print (LEVEL_INFO, "Started");
 	print (LEVEL_INFO, PRAYERS_NAME[prayerIndexStart], false);
 	println (LEVEL_INFO, " alert", false);
@@ -57,7 +57,7 @@ void prayerStop ()
 	on      = false;
 	unfaded = true;
 
-	println(LEVEL_INFO, false);
+	println (LEVEL_INFO, false);
 	print (LEVEL_INFO, "Stopped ");
 	print (LEVEL_INFO, PRAYERS_NAME[prayerIndexStop], false);
 	println (LEVEL_INFO, " alert", false);

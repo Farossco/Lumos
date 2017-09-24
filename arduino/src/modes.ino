@@ -62,7 +62,7 @@ void initModeFlash ()
 	count           = millis();   // Reseting milliseconds counter
 	lastMode        = MODE_FLASH; // Setting lastMode so we don't call init again
 
-	println(LEVEL_INFO, false);
+	println (LEVEL_INFO, false);
 	println (LEVEL_INFO, "Entering Flash mode");
 }
 
@@ -92,7 +92,7 @@ void initModeStrobe ()
 	count            = millis();    // Reseting milliseconds counter
 	lastMode         = MODE_STROBE; // Setting lastMode so we don't call init again
 
-	println(LEVEL_INFO, false);
+	println (LEVEL_INFO, false);
 	println (LEVEL_INFO, "Entering Strobe mode");
 }
 
@@ -117,7 +117,7 @@ void initModeFade ()
 	count          = millis();  // Reseting milliseconds counter
 	lastMode       = MODE_FADE; // Setting lastMode so we don't call init again
 
-	println(LEVEL_INFO, false);
+	println (LEVEL_INFO, false);
 	println (LEVEL_INFO, "Entering Fade mode");
 }
 
@@ -149,7 +149,7 @@ void initModeSmooth ()
 	rgb2color();                 // Calling rgb2color to generate color values
 	lastMode = MODE_SMOOTH;      // Setting lastMode so we don't call init again
 
-	println(LEVEL_INFO, false);
+	println (LEVEL_INFO, false);
 	println (LEVEL_INFO, "Entering Smooth mode");
 }
 
@@ -226,7 +226,7 @@ void initModeWakeup ()
 	count              = millis();    // Reseting milliseconds counter
 	lastMode           = MODE_WAKEUP; // Setting lastMode so we don't call init again
 
-	println(LEVEL_INFO, false);
+	println (LEVEL_INFO, false);
 	println (LEVEL_INFO, "Entering Wakeup mode");
 }
 

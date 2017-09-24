@@ -12,7 +12,7 @@ void readClaps ()
 		{
 			clapState    = 1;
 			endStateTime = millis();
-			println(LEVEL_DEBUG, false);
+			println (LEVEL_DEBUG, false);
 			println (LEVEL_DEBUG, "Enter state 1 (Now waiting for the clap to end)");
 		}
 	}
@@ -21,7 +21,7 @@ void readClaps ()
 		if (millis() - endStateTime > MAX_CLAP_DURATION) // If clap duration reach maximum
 		{
 			clapState = 0;
-			println(LEVEL_DEBUG, false);
+			println (LEVEL_DEBUG, false);
 			println (LEVEL_DEBUG, "Going back to state 0 (First clap lasted too long)");
 		}
 
@@ -29,7 +29,7 @@ void readClaps ()
 		{
 			clapState    = 2;
 			endStateTime = millis();
-			println(LEVEL_DEBUG, false);
+			println (LEVEL_DEBUG, false);
 			println (LEVEL_DEBUG, "Enter state 2 ( Now waiting a little bit...)");
 		}
 	}
@@ -38,7 +38,7 @@ void readClaps ()
 		if (digitalRead (PIN_SOUND) == HIGH) // Too soon second clap
 		{
 			clapState = 0;
-			println(LEVEL_DEBUG, false);
+			println (LEVEL_DEBUG, false);
 			println (LEVEL_DEBUG, "Going back to state 0 ( Second clap started too soon)");
 		}
 
@@ -46,7 +46,7 @@ void readClaps ()
 		{
 			clapState    = 3;
 			endStateTime = millis();
-			println(LEVEL_DEBUG, false);
+			println (LEVEL_DEBUG, false);
 			println (LEVEL_DEBUG, "Enter state 3 ( Now waiting for second clap to start)");
 		}
 	}
@@ -55,14 +55,14 @@ void readClaps ()
 		if (millis() - endStateTime >= MAX_TIME_BEETWIN_TWO_CLAPS + MIN_TIME_BEETWIN_TWO_CLAPS)
 		{
 			clapState = 0;
-			println(LEVEL_DEBUG, false);
+			println (LEVEL_DEBUG, false);
 			println (LEVEL_DEBUG, "Going back to state 0 ( Waited too long for second clap)");
 		}
 		if (digitalRead (PIN_SOUND) == HIGH) // Start of second clap
 		{
 			clapState    = 4;
 			endStateTime = millis();
-			println(LEVEL_DEBUG, false);
+			println (LEVEL_DEBUG, false);
 			println (LEVEL_DEBUG, "Enter state 4 ( Now waiting for second clap to end)");
 		}
 	}
@@ -71,7 +71,7 @@ void readClaps ()
 		if (millis() - endStateTime >= MAX_CLAP_DURATION)
 		{
 			clapState = 0;
-			println(LEVEL_DEBUG, false);
+			println (LEVEL_DEBUG, false);
 			println (LEVEL_DEBUG, "Going back to state 0 (Second clap lasted too long)");
 		}
 		if (digitalRead (PIN_SOUND) == LOW && millis() - endStateTime >= MIN_CLAP_DURATION) // End of second clap
@@ -79,7 +79,7 @@ void readClaps ()
 			on           = !on;
 			clapState    = 0;
 			endStateTime = millis();
-			println(LEVEL_INFO, false);
+			println (LEVEL_INFO, false);
 			println (LEVEL_INFO, "Double clapped, switching " + on ? "on" : "off");
 		}
 	}

@@ -81,7 +81,7 @@ String errorTypeName (int infoType, boolean shortened)
 	}
 }
 
-String debugLevelName(int debugLevel)
+String debugLevelName (int debugLevel)
 {
 	switch (debugLevel)
 	{
@@ -99,7 +99,7 @@ String debugLevelName(int debugLevel)
 	}
 }
 
-String debugLevelSpace(int debugLevel)
+String debugLevelSpace (int debugLevel)
 {
 	switch (debugLevel)
 	{
@@ -134,7 +134,7 @@ void digitalClockDisplay (int debugLevel)
 	print (debugLevel, ":", false);
 	printDigits (debugLevel, second());
 
-	println(debugLevel, false);
+	println (debugLevel, false);
 }
 
 // Utility for digital clock display: prints preceding colon and leading 0

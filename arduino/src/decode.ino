@@ -50,7 +50,7 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 	}
 
 	// [DEBUG] Printing full word, world length and information type
-	println(LEVEL_DEBUG, false);
+	println (LEVEL_DEBUG, false);
 	print (LEVEL_DEBUG, "Word: ");
 	println (LEVEL_DEBUG, request, false);
 	print (LEVEL_DEBUG, "Length: ");
@@ -123,7 +123,7 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 				print (LEVEL_DEBUG, "TIME (Current value): ");
 				println (LEVEL_DEBUG, now(), DEC, false);
 				print (LEVEL_DEBUG, "TIME (Current value) (readable): ");
-				digitalClockDisplay(LEVEL_DEBUG);
+				digitalClockDisplay (LEVEL_DEBUG);
 				break;
 
 			case TYPE_RGB:
@@ -209,7 +209,7 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 				printDigits (LEVEL_DEBUG, prayerTime[*pInfoMode][0]);
 				print (LEVEL_DEBUG, ":", false);
 				printDigits (LEVEL_DEBUG, prayerTime[*pInfoMode][1]);
-				println(LEVEL_DEBUG, false);
+				println (LEVEL_DEBUG, false);
 				break;
 
 			case TYPE_SPE:
@@ -230,8 +230,7 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 
 	if (*pErrorType != ERR_NOE)
 	{
-		println(LEVEL_DEBUG, false);
+		println (LEVEL_DEBUG, false);
 		println (LEVEL_DEBUG, "Variable has not been changed (" + errorTypeName (*pErrorType, false) + ")");
 	}
-		
 } // readWeb
