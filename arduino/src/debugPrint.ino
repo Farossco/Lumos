@@ -59,674 +59,401 @@ void sdPrintDigits(int digits)
 // ---------------------------------- Print functions ---------------------------------- //
 // ------------------------------------------------------------------------------------- //
 
-void print(int debugLevel, const __FlashStringHelper *message)
+void print(int debugLevel, const __FlashStringHelper *message, boolean prefix)
 {
 	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
 	{
 		logFile = SD.open(sdFileName, FILE_WRITE);
-		printSdPrefix(debugLevel);
+		if (prefix)
+			printSdPrefix(debugLevel);
 		logFile.print(message);
 		logFile.close();
 	}
 
 	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
 	{
-		printPrefix(debugLevel);
+		if (prefix)
+			printPrefix(debugLevel);
 		Serial.print(message);
 	}
 }
 
-void print(int debugLevel, const String &message)
+void print(int debugLevel, const String &message, boolean prefix)
 {
 	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
 	{
 		logFile = SD.open(sdFileName, FILE_WRITE);
-		printSdPrefix(debugLevel);
+		if (prefix)
+			printSdPrefix(debugLevel);
 		logFile.print(message);
 		logFile.close();
 	}
 
 	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
 	{
-		printPrefix(debugLevel);
+		if (prefix)
+			printPrefix(debugLevel);
 		Serial.print(message);
 	}
 }
 
-void print(int debugLevel, const char *message)
+void print(int debugLevel, const char *message, boolean prefix)
 {
 	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
 	{
 		logFile = SD.open(sdFileName, FILE_WRITE);
-		printSdPrefix(debugLevel);
+		if (prefix)
+			printSdPrefix(debugLevel);
 		logFile.print(message);
 		logFile.close();
 	}
 
 	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
 	{
-		printPrefix(debugLevel);
+		if (prefix)
+			printPrefix(debugLevel);
 		Serial.print(message);
 	}
 }
 
-void print(int debugLevel, unsigned char message, int base)
+void print(int debugLevel, unsigned char message, int base, boolean prefix)
 {
 	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
 	{
 		logFile = SD.open(sdFileName, FILE_WRITE);
-		printSdPrefix(debugLevel);
+		if (prefix)
+			printSdPrefix(debugLevel);
 		logFile.print(message, base);
 		logFile.close();
 	}
 
 	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
 	{
-		printPrefix(debugLevel);
+		if (prefix)
+			printPrefix(debugLevel);
 		Serial.print(message, base);
 	}
 }
 
-void print(int debugLevel, int message, int base)
+void print(int debugLevel, int message, int base, boolean prefix)
 {
 	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
 	{
 		logFile = SD.open(sdFileName, FILE_WRITE);
-		printSdPrefix(debugLevel);
+		if (prefix)
+			printSdPrefix(debugLevel);
 		logFile.print(message, base);
 		logFile.close();
 	}
 
 	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
 	{
-		printPrefix(debugLevel);
+		if (prefix)
+			printPrefix(debugLevel);
 		Serial.print(message, base);
 	}
 }
 
-void print(int debugLevel, unsigned int message, int base)
+void print(int debugLevel, unsigned int message, int base, boolean prefix)
 {
 	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
 	{
 		logFile = SD.open(sdFileName, FILE_WRITE);
-		printSdPrefix(debugLevel);
+		if (prefix)
+			printSdPrefix(debugLevel);
 		logFile.print(message, base);
 		logFile.close();
 	}
 
 	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
 	{
-		printPrefix(debugLevel);
+		if (prefix)
+			printPrefix(debugLevel);
 		Serial.print(message, base);
 	}
 }
 
-void print(int debugLevel, long message, int base)
+void print(int debugLevel, long message, int base, boolean prefix)
 {
 	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
 	{
 		logFile = SD.open(sdFileName, FILE_WRITE);
-		printSdPrefix(debugLevel);
+		if (prefix)
+			printSdPrefix(debugLevel);
 		logFile.print(message, base);
 		logFile.close();
 	}
 
 	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
 	{
-		printPrefix(debugLevel);
+		if (prefix)
+			printPrefix(debugLevel);
 		Serial.print(message, base);
 	}
 }
 
-void print(int debugLevel, unsigned long message, int base)
+void print(int debugLevel, unsigned long message, int base, boolean prefix)
 {
 	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
 	{
 		logFile = SD.open(sdFileName, FILE_WRITE);
-		printSdPrefix(debugLevel);
+		if (prefix)
+			printSdPrefix(debugLevel);
 		logFile.print(message, base);
 		logFile.close();
 	}
 
 	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
 	{
-		printPrefix(debugLevel);
+		if (prefix)
+			printPrefix(debugLevel);
 		Serial.print(message, base);
 	}
 }
 
-void print(int debugLevel, double message, int base)
+void print(int debugLevel, double message, int base, boolean prefix)
 {
 	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
 	{
 		logFile = SD.open(sdFileName, FILE_WRITE);
-		printSdPrefix(debugLevel);
+		if (prefix)
+			printSdPrefix(debugLevel);
 		logFile.print(message, base);
 		logFile.close();
 	}
 
 	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
 	{
-		printPrefix(debugLevel);
+		if (prefix)
+			printPrefix(debugLevel);
 		Serial.print(message, base);
 	}
 }
 
-void print(int debugLevel, const Printable &message)
+void print(int debugLevel, const Printable &message, boolean prefix)
 {
 	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
 	{
 		logFile = SD.open(sdFileName, FILE_WRITE);
-		printSdPrefix(debugLevel);
+		if (prefix)
+			printSdPrefix(debugLevel);
 		logFile.print(message);
 		logFile.close();
 	}
 
 	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
 	{
-		printPrefix(debugLevel);
+		if (prefix)
+			printPrefix(debugLevel);
 		Serial.print(message);
 	}
 }
 
-void printNoPrefix(int debugLevel, const __FlashStringHelper *message)
+void println(int debugLevel, boolean prefix)
 {
 	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
 	{
 		logFile = SD.open(sdFileName, FILE_WRITE);
-		logFile.print(message);
-		logFile.close();
-	}
-
-	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
-	{
-		Serial.print(message);
-	}
-}
-
-void printNoPrefix(int debugLevel, const String &message)
-{
-	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
-	{
-		logFile = SD.open(sdFileName, FILE_WRITE);
-		logFile.print(message);
-		logFile.close();
-	}
-
-	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
-	{
-		Serial.print(message);
-	}
-}
-
-void printNoPrefix(int debugLevel, const char *message)
-{
-	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
-	{
-		logFile = SD.open(sdFileName, FILE_WRITE);
-		logFile.print(message);
-		logFile.close();
-	}
-
-	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
-	{
-		Serial.print(message);
-	}
-}
-
-void printNoPrefix(int debugLevel, unsigned char message, int base)
-{
-	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
-	{
-		logFile = SD.open(sdFileName, FILE_WRITE);
-		logFile.print(message, base);
-		logFile.close();
-	}
-
-	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
-	{
-		Serial.print(message, base);
-	}
-}
-
-void printNoPrefix(int debugLevel, int message, int base)
-{
-	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
-	{
-		logFile = SD.open(sdFileName, FILE_WRITE);
-		logFile.print(message, base);
-		logFile.close();
-	}
-
-	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
-	{
-		Serial.print(message, base);
-	}
-}
-
-void printNoPrefix(int debugLevel, unsigned int message, int base)
-{
-	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
-	{
-		logFile = SD.open(sdFileName, FILE_WRITE);
-		logFile.print(message, base);
-		logFile.close();
-	}
-
-	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
-	{
-		Serial.print(message, base);
-	}
-}
-
-void printNoPrefix(int debugLevel, long message, int base)
-{
-	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
-	{
-		logFile = SD.open(sdFileName, FILE_WRITE);
-		logFile.print(message, base);
-		logFile.close();
-	}
-
-	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
-	{
-		Serial.print(message, base);
-	}
-}
-
-void printNoPrefix(int debugLevel, unsigned long message, int base)
-{
-	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
-	{
-		logFile = SD.open(sdFileName, FILE_WRITE);
-		logFile.print(message, base);
-		logFile.close();
-	}
-
-	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
-	{
-		Serial.print(message, base);
-	}
-}
-
-void printNoPrefix(int debugLevel, double message, int base)
-{
-	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
-	{
-		logFile = SD.open(sdFileName, FILE_WRITE);
-		logFile.print(message, base);
-		logFile.close();
-	}
-
-	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
-	{
-		Serial.print(message, base);
-	}
-}
-
-void printNoPrefix(int debugLevel, const Printable &message)
-{
-	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
-	{
-		logFile = SD.open(sdFileName, FILE_WRITE);
-		logFile.print(message);
-		logFile.close();
-	}
-
-	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
-	{
-		Serial.print(message);
-	}
-}
-
-void println(int debugLevel)
-{
-	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
-	{
-		logFile = SD.open(sdFileName, FILE_WRITE);
-		printSdPrefix(debugLevel);
+		if (prefix)
+			printSdPrefix(debugLevel);
 		logFile.println();
 		logFile.close();
 	}
 
 	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
 	{
-		printPrefix(debugLevel);
+		if (prefix)
+			printPrefix(debugLevel);
 		Serial.println();
 	}
 }
 
-void println(int debugLevel, const __FlashStringHelper *message)
+void println(int debugLevel, const __FlashStringHelper *message, boolean prefix)
 {
 	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
 	{
 		logFile = SD.open(sdFileName, FILE_WRITE);
-		printSdPrefix(debugLevel);
+		if (prefix)
+			printSdPrefix(debugLevel);
 		logFile.println(message);
 		logFile.close();
 	}
 
 	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
 	{
-		printPrefix(debugLevel);
+		if (prefix)
+			printPrefix(debugLevel);
 		Serial.println(message);
 	}
 }
 
-void println(int debugLevel, const String &message)
+void println(int debugLevel, const String &message, boolean prefix)
 {
 	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
 	{
 		logFile = SD.open(sdFileName, FILE_WRITE);
-		printSdPrefix(debugLevel);
+		if (prefix)
+			printSdPrefix(debugLevel);
 		logFile.println(message);
 		logFile.close();
 	}
 
 	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
 	{
-		printPrefix(debugLevel);
+		if (prefix)
+			printPrefix(debugLevel);
 		Serial.println(message);
 	}
 }
 
-void println(int debugLevel, const char *message)
+void println(int debugLevel, const char *message, boolean prefix)
 {
 	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
 	{
 		logFile = SD.open(sdFileName, FILE_WRITE);
-		printSdPrefix(debugLevel);
+		if (prefix)
+			printSdPrefix(debugLevel);
 		logFile.println(message);
 		logFile.close();
 	}
 
 	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
 	{
-		printPrefix(debugLevel);
+		if (prefix)
+			printPrefix(debugLevel);
 		Serial.println(message);
 	}
 }
 
-void println(int debugLevel, unsigned char message, int base)
+void println(int debugLevel, unsigned char message, int base, boolean prefix)
 {
 	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
 	{
 		logFile = SD.open(sdFileName, FILE_WRITE);
-		printSdPrefix(debugLevel);
+		if (prefix)
+			printSdPrefix(debugLevel);
 		logFile.println(message, base);
 		logFile.close();
 	}
 
 	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
 	{
-		printPrefix(debugLevel);
+		if (prefix)
+			printPrefix(debugLevel);
 		Serial.println(message, base);
 	}
 }
 
-void println(int debugLevel, int message, int base)
+void println(int debugLevel, int message, int base, boolean prefix)
 {
 	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
 	{
 		logFile = SD.open(sdFileName, FILE_WRITE);
-		printSdPrefix(debugLevel);
+		if (prefix)
+			printSdPrefix(debugLevel);
 		logFile.println(message, base);
 		logFile.close();
 	}
 
 	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
 	{
-		printPrefix(debugLevel);
+		if (prefix)
+			printPrefix(debugLevel);
 		Serial.println(message, base);
 	}
 }
 
-void println(int debugLevel, unsigned int message, int base)
+void println(int debugLevel, unsigned int message, int base, boolean prefix)
 {
 	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
 	{
 		logFile = SD.open(sdFileName, FILE_WRITE);
-		printSdPrefix(debugLevel);
+		if (prefix)
+			printSdPrefix(debugLevel);
 		logFile.println(message, base);
 		logFile.close();
 	}
 
 	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
 	{
-		printPrefix(debugLevel);
+		if (prefix)
+			printPrefix(debugLevel);
 		Serial.println(message, base);
 	}
 }
 
-void println(int debugLevel, long message, int base)
+void println(int debugLevel, long message, int base, boolean prefix)
 {
 	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
 	{
 		logFile = SD.open(sdFileName, FILE_WRITE);
-		printSdPrefix(debugLevel);
+		if (prefix)
+			printSdPrefix(debugLevel);
 		logFile.println(message, base);
 		logFile.close();
 	}
 
 	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
 	{
-		printPrefix(debugLevel);
+		if (prefix)
+			printPrefix(debugLevel);
 		Serial.println(message, base);
 	}
 }
 
-void println(int debugLevel, unsigned long message, int base)
+void println(int debugLevel, unsigned long message, int base, boolean prefix)
 {
 	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
 	{
 		logFile = SD.open(sdFileName, FILE_WRITE);
-		printSdPrefix(debugLevel);
+		if (prefix)
+			printSdPrefix(debugLevel);
 		logFile.println(message, base);
 		logFile.close();
 	}
 
 	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
 	{
-		printPrefix(debugLevel);
+		if (prefix)
+			printPrefix(debugLevel);
 		Serial.println(message, base);
 	}
 }
 
-void println(int debugLevel, double message, int base)
+void println(int debugLevel, double message, int base, boolean prefix)
 {
 	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
 	{
 		logFile = SD.open(sdFileName, FILE_WRITE);
-		printSdPrefix(debugLevel);
+		if (prefix)
+			printSdPrefix(debugLevel);
 		logFile.println(message, base);
 		logFile.close();
 	}
 
 	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
 	{
-		printPrefix(debugLevel);
+		if (prefix)
+			printPrefix(debugLevel);
 		Serial.println(message, base);
 	}
 }
 
-void println(int debugLevel, const Printable &message)
+void println(int debugLevel, const Printable &message, boolean prefix)
 {
 	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
 	{
 		logFile = SD.open(sdFileName, FILE_WRITE);
-		printSdPrefix(debugLevel);
+		if (prefix)
+			printSdPrefix(debugLevel);
 		logFile.println(message);
 		logFile.close();
 	}
 
 	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
 	{
-		printPrefix(debugLevel);
-		Serial.println(message);
-	}
-}
-
-void printlnNoPrefix(int debugLevel)
-{
-	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
-	{
-		logFile = SD.open(sdFileName, FILE_WRITE);
-		logFile.println();
-		logFile.close();
-	}
-
-	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
-	{
-		Serial.println();
-	}
-}
-
-void printlnNoPrefix(int debugLevel, const __FlashStringHelper *message)
-{
-	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
-	{
-		logFile = SD.open(sdFileName, FILE_WRITE);
-		logFile.println(message);
-		logFile.close();
-	}
-
-	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
-	{
-		Serial.println(message);
-	}
-}
-
-void printlnNoPrefix(int debugLevel, const String &message)
-{
-	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
-	{
-		logFile = SD.open(sdFileName, FILE_WRITE);
-		logFile.println(message);
-		logFile.close();
-	}
-
-	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
-	{
-		Serial.println(message);
-	}
-}
-
-void printlnNoPrefix(int debugLevel, const char *message)
-{
-	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
-	{
-		logFile = SD.open(sdFileName, FILE_WRITE);
-		logFile.println(message);
-		logFile.close();
-	}
-
-	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
-	{
-		Serial.println(message);
-	}
-}
-
-void printlnNoPrefix(int debugLevel, unsigned char message, int base)
-{
-	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
-	{
-		logFile = SD.open(sdFileName, FILE_WRITE);
-		logFile.println(message, base);
-		logFile.close();
-	}
-
-	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
-	{
-		Serial.println(message, base);
-	}
-}
-
-void printlnNoPrefix(int debugLevel, int message, int base)
-{
-	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
-	{
-		logFile = SD.open(sdFileName, FILE_WRITE);
-		logFile.println(message, base);
-		logFile.close();
-	}
-
-	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
-	{
-		Serial.println(message, base);
-	}
-}
-
-void printlnNoPrefix(int debugLevel, unsigned int message, int base)
-{
-	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
-	{
-		logFile = SD.open(sdFileName, FILE_WRITE);
-		logFile.println(message, base);
-		logFile.close();
-	}
-
-	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
-	{
-		Serial.println(message, base);
-	}
-}
-
-void printlnNoPrefix(int debugLevel, long message, int base)
-{
-	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
-	{
-		logFile = SD.open(sdFileName, FILE_WRITE);
-		logFile.println(message, base);
-		logFile.close();
-	}
-
-	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
-	{
-		Serial.println(message, base);
-	}
-}
-
-void printlnNoPrefix(int debugLevel, unsigned long message, int base)
-{
-	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
-	{
-		logFile = SD.open(sdFileName, FILE_WRITE);
-		logFile.println(message, base);
-		logFile.close();
-	}
-
-	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
-	{
-		Serial.println(message, base);
-	}
-}
-
-void printlnNoPrefix(int debugLevel, double message, int base)
-{
-	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
-	{
-		logFile = SD.open(sdFileName, FILE_WRITE);
-		logFile.println(message, base);
-		logFile.close();
-	}
-
-	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
-	{
-		Serial.println(message, base);
-	}
-}
-
-void printlnNoPrefix(int debugLevel, const Printable &message)
-{
-	if (SD_LOG_ENABLED && logFileAvailable && debugLevel <= SD_LOG_LEVEL)
-	{
-		logFile = SD.open(sdFileName, FILE_WRITE);
-		logFile.println(message);
-		logFile.close();
-	}
-
-	if (SERIAL_LOG_ENABLED && debugLevel <= SERIAL_LOG_LEVEL)
-	{
+		if (prefix)
+			printPrefix(debugLevel);
 		Serial.println(message);
 	}
 }

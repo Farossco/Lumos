@@ -121,29 +121,29 @@ String debugLevelSpace(int debugLevel)
 void digitalClockDisplay (int debugLevel)
 {
 	printDigits (debugLevel, day());
-	printNoPrefix (debugLevel, "/");
+	print (debugLevel, "/", false);
 	printDigits (debugLevel, month());
-	printNoPrefix (debugLevel, "/");
-	printNoPrefix (debugLevel, year(), DEC);
+	print (debugLevel, "/", false);
+	print (debugLevel, year(), DEC, false);
 
-	printNoPrefix (debugLevel, " ");
+	print (debugLevel, " ", false);
 
 	printDigits (debugLevel, hour());
-	printNoPrefix (debugLevel, ":");
+	print (debugLevel, ":", false);
 	printDigits (debugLevel, minute());
-	printNoPrefix (debugLevel, ":");
+	print (debugLevel, ":", false);
 	printDigits (debugLevel, second());
 
-	printlnNoPrefix(debugLevel);
+	println(debugLevel, false);
 }
 
 // Utility for digital clock display: prints preceding colon and leading 0
 void printDigits (int debugLevel, int digits)
 {
 	if (digits < 10)
-		printNoPrefix (debugLevel, 0, DEC);
+		print (debugLevel, 0, DEC, false);
 
-	printNoPrefix (debugLevel, digits, DEC);
+	print (debugLevel, digits, DEC, false);
 }
 
 void softwareReset () // Just in case

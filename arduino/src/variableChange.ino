@@ -7,22 +7,22 @@ void testVariableChange ()
 
 	if (changeOn != on)
 	{
-		printlnNoPrefix(LEVEL_DEBUG);
+		println(LEVEL_DEBUG, false);
 		print (LEVEL_DEBUG, "\"On\" changed from ");
-		printNoPrefix (LEVEL_DEBUG, changeOn ? "True" : "False");
-		printNoPrefix (LEVEL_DEBUG, " to ");
-		printlnNoPrefix (LEVEL_DEBUG, on ? "True" : "False");
+		print (LEVEL_DEBUG, changeOn ? "True" : "False", false);
+		print (LEVEL_DEBUG, " to ", false);
+		println (LEVEL_DEBUG, on ? "True" : "False", false);
 		changeOn     = on;
 		flagSendInfo = true;
 	}
 
 	if (changeRgb != rgb[MODE_DEFAULT])
 	{
-		printlnNoPrefix(LEVEL_DEBUG);
+		println(LEVEL_DEBUG, false);
 		print (LEVEL_DEBUG, "\"RGB\" of DEFAULT changed from ");
-		printNoPrefix (LEVEL_DEBUG, changeRgb, HEX);
-		printNoPrefix (LEVEL_DEBUG, " to ");
-		printlnNoPrefix (LEVEL_DEBUG, rgb[MODE_DEFAULT], HEX);
+		print (LEVEL_DEBUG, changeRgb, HEX, false);
+		print (LEVEL_DEBUG, " to ", false);
+		println (LEVEL_DEBUG, rgb[MODE_DEFAULT], HEX, false);
 		changeRgb       = rgb[MODE_DEFAULT];
 		flagSendInfo    = true;
 		flagWriteEeprom = true;
@@ -32,11 +32,11 @@ void testVariableChange ()
 	for (int i = MODE_MIN; i < N_MODE; i++)
 		if (changePower[i] != power[i])
 		{
-			printlnNoPrefix(LEVEL_DEBUG);
+			println(LEVEL_DEBUG, false);
 			print (LEVEL_DEBUG, "\"Power\" of " + modeName (i, CAPS_NONE) + " changed from ");
-			printNoPrefix (LEVEL_DEBUG, (int) changePower[i], DEC);
-			printNoPrefix (LEVEL_DEBUG, " to ");
-			printlnNoPrefix (LEVEL_DEBUG, (int) power[i], DEC);
+			print (LEVEL_DEBUG, (int) changePower[i], DEC, false);
+			print (LEVEL_DEBUG, " to ", false);
+			println (LEVEL_DEBUG, (int) power[i], DEC, false);
 			changePower[i] = power[i];
 			flagSendInfo   = true;
 			if (i != MODE_WAKEUP)
@@ -47,11 +47,11 @@ void testVariableChange ()
 	for (int i = MODE_MIN; i < N_MODE; i++)
 		if (changeSpeed[i] != speed[i])
 		{
-			printlnNoPrefix(LEVEL_DEBUG);
+			println(LEVEL_DEBUG, false);
 			print (LEVEL_DEBUG, "\"Speed\" of " + modeName (i, CAPS_NONE) + " changed from ");
-			printNoPrefix (LEVEL_DEBUG, changeSpeed[i], DEC);
-			printNoPrefix (LEVEL_DEBUG, " to ");
-			printlnNoPrefix (LEVEL_DEBUG, speed[i], DEC);
+			print (LEVEL_DEBUG, changeSpeed[i], DEC, false);
+			print (LEVEL_DEBUG, " to ", false);
+			println (LEVEL_DEBUG, speed[i], DEC, false);
 			changeSpeed[i]  = speed[i];
 			flagSendInfo    = true;
 			flagWriteEeprom = true;
@@ -59,11 +59,11 @@ void testVariableChange ()
 
 	if (changeMode != mode)
 	{
-		printlnNoPrefix(LEVEL_DEBUG);
+		println (LEVEL_DEBUG, false);
 		print (LEVEL_DEBUG, "\"Mode\" changed from ");
-		printNoPrefix (LEVEL_DEBUG, modeName (changeMode, CAPS_NONE));
-		printNoPrefix (LEVEL_DEBUG, " to ");
-		printlnNoPrefix (LEVEL_DEBUG, modeName (mode, CAPS_NONE));
+		print (LEVEL_DEBUG, modeName (changeMode, CAPS_NONE), false);
+		print (LEVEL_DEBUG, " to ", false);
+		println (LEVEL_DEBUG, modeName (mode, CAPS_NONE), false);
 		changeMode      = mode;
 		flagSendInfo    = true;
 		flagWriteEeprom = true;
@@ -90,30 +90,30 @@ void initVariableChange ()
 
 void sendInfo ()
 {
-	printlnNoPrefix(LEVEL_DEBUG);
+	println(LEVEL_DEBUG, false);
 	println (LEVEL_DEBUG, "Sending variables infos to the ESP8266");
 	print(LEVEL_DEBUG, "(");
 
 	Serial1.print ("ONF");
 	Serial1.print (on ? 1 : 0, DEC);
 	Serial1.print ("z");
-	printNoPrefix (LEVEL_DEBUG, "ONF");
-	printNoPrefix (LEVEL_DEBUG, on ? 1 : 0, DEC);
-	printNoPrefix (LEVEL_DEBUG, "z ");
+	print (LEVEL_DEBUG, "ONF", false);
+	print (LEVEL_DEBUG, on ? 1 : 0, DEC, false);
+	print (LEVEL_DEBUG, "z ", false);
 
 	Serial1.print ("MOD");
 	Serial1.print (mode, DEC);
 	Serial1.print ("z");
-	printNoPrefix (LEVEL_DEBUG, "MOD");
-	printNoPrefix (LEVEL_DEBUG, mode, DEC);
-	printNoPrefix (LEVEL_DEBUG, "z ");
+	print (LEVEL_DEBUG, "MOD", false);
+	print (LEVEL_DEBUG, mode, DEC, false);
+	print (LEVEL_DEBUG, "z ", false);
 
 	Serial1.print ("RGB");
 	Serial1.print (rgb[MODE_DEFAULT], HEX);
 	Serial1.print ("z");
-	printNoPrefix (LEVEL_DEBUG, "RGB");
-	printNoPrefix (LEVEL_DEBUG, rgb[MODE_DEFAULT], HEX);
-	printNoPrefix (LEVEL_DEBUG, "z ");
+	print (LEVEL_DEBUG, "RGB", false);
+	print (LEVEL_DEBUG, rgb[MODE_DEFAULT], HEX, false);
+	print (LEVEL_DEBUG, "z ", false);
 
 	for (int i = MODE_MIN; i < N_MODE; i++)
 	{
@@ -121,10 +121,10 @@ void sendInfo ()
 		Serial1.print (i, DEC);
 		Serial1.print ((int) power[i], DEC);
 		Serial1.print ("z");
-		printNoPrefix (LEVEL_DEBUG, "POW");
-		printNoPrefix (LEVEL_DEBUG, i, DEC);
-		printNoPrefix (LEVEL_DEBUG, (int) power[i], DEC);
-		printNoPrefix (LEVEL_DEBUG, "z ");
+		print (LEVEL_DEBUG, "POW", false);
+		print (LEVEL_DEBUG, i, DEC, false);
+		print (LEVEL_DEBUG, (int) power[i], DEC, false);
+		print (LEVEL_DEBUG, "z ", false);
 	}
 
 	for (int i = MODE_MIN; i < N_MODE; i++)
@@ -133,11 +133,11 @@ void sendInfo ()
 		Serial1.print (i, DEC);
 		Serial1.print ((((long) speed[i] - (MIN_SPEED[i] - SEEKBAR_MIN)) * (SEEKBAR_MAX - SEEKBAR_MIN)) / (MAX_SPEED[i] - MIN_SPEED[i]), DEC);
 		Serial1.print ("z");
-		printNoPrefix (LEVEL_DEBUG, "SPE");
-		printNoPrefix (LEVEL_DEBUG, i, DEC);
-		printNoPrefix (LEVEL_DEBUG, (((long) speed[i] - (MIN_SPEED[i] - SEEKBAR_MIN)) * (SEEKBAR_MAX - SEEKBAR_MIN)) / (MAX_SPEED[i] - MIN_SPEED[i]), DEC);
-		printNoPrefix (LEVEL_DEBUG, "z ");
+		print (LEVEL_DEBUG, "SPE", false);
+		print (LEVEL_DEBUG, i, DEC, false);
+		print (LEVEL_DEBUG, (((long) speed[i] - (MIN_SPEED[i] - SEEKBAR_MIN)) * (SEEKBAR_MAX - SEEKBAR_MIN)) / (MAX_SPEED[i] - MIN_SPEED[i]), DEC, false);
+		print (LEVEL_DEBUG, "z ", false);
 	}
 
-	printNoPrefix (LEVEL_DEBUG, ")");
+	print (LEVEL_DEBUG, ")", false);
 } // sendInfo

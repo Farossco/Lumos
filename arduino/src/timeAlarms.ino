@@ -38,17 +38,17 @@ void prayerStart ()
 	on               = true;
 	faded            = true;
 
-	printlnNoPrefix(LEVEL_INFO);
+	println(LEVEL_INFO, false);
 	print (LEVEL_INFO, "Started");
-	printNoPrefix (LEVEL_INFO, PRAYERS_NAME[prayerIndexStart]);
-	printlnNoPrefix (LEVEL_INFO, " alert");
+	print (LEVEL_INFO, PRAYERS_NAME[prayerIndexStart], false);
+	println (LEVEL_INFO, " alert", false);
 	print (LEVEL_DEBUG, "It will stop at ");
-	printNoPrefix (LEVEL_DEBUG, (prayerTime[prayerIndexStart][2] + 10) / 60, DEC);
-	printNoPrefix (LEVEL_DEBUG, ":");
-	printNoPrefix (LEVEL_DEBUG, (prayerTime[prayerIndexStart][1] + 10) % 60, DEC);
-	printNoPrefix (LEVEL_DEBUG, " (");
-	printNoPrefix (LEVEL_DEBUG, prayerTime[prayerIndexStart][2] + 10, DEC);
-	printlnNoPrefix (LEVEL_DEBUG, ")");
+	print (LEVEL_DEBUG, (prayerTime[prayerIndexStart][2] + 10) / 60, DEC, false);
+	print (LEVEL_DEBUG, ":", false);
+	print (LEVEL_DEBUG, (prayerTime[prayerIndexStart][1] + 10) % 60, DEC, false);
+	print (LEVEL_DEBUG, " (", false);
+	print (LEVEL_DEBUG, prayerTime[prayerIndexStart][2] + 10, DEC, false);
+	println (LEVEL_DEBUG, ")", false);
 }
 
 void prayerStop ()
@@ -57,10 +57,10 @@ void prayerStop ()
 	on      = false;
 	unfaded = true;
 
-	printlnNoPrefix(LEVEL_INFO);
+	println(LEVEL_INFO, false);
 	print (LEVEL_INFO, "Stopped ");
-	printNoPrefix (LEVEL_INFO, PRAYERS_NAME[prayerIndexStop]);
-	printlnNoPrefix (LEVEL_INFO, " alert");
+	print (LEVEL_INFO, PRAYERS_NAME[prayerIndexStop], false);
+	println (LEVEL_INFO, " alert", false);
 }
 
 // Test wakeup time and peak hours for resynchronization
@@ -73,7 +73,7 @@ void testWakeUpTime ()
 		on     = true;
 		wokeUp = true;
 
-		printlnNoPrefix(LEVEL_INFO);
+		println (LEVEL_INFO, false);
 		println (LEVEL_INFO, "Starting wake up alert");
 	}
 	else if ((hour() != WAKEUP_HOURS || minute() != WAKEUP_MINUTES) && wokeUp)

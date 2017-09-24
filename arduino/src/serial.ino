@@ -27,7 +27,7 @@ void waitForTime ()
 
 		if (millis() - lastMillis >= 5000)
 		{
-			printlnNoPrefix(LEVEL_DEBUG);
+			println(LEVEL_DEBUG, false);
 			if (timeStatus() == timeNotSet && !flag)
 				println (LEVEL_DEBUG, "Neither time nor prayers are set");
 			else if (timeStatus() == timeNotSet)
@@ -39,15 +39,15 @@ void waitForTime ()
 			lastMillis = millis();
 		}
 	}
-	printlnNoPrefix(LEVEL_INFO);
+	println (LEVEL_INFO, false);
 	println (LEVEL_INFO, "Time received");
 } // waitForTime
 
 // Asking for time to the ESP8266 (via internet)
 void askForTime ()
 {
-	printlnNoPrefix (LEVEL_INFO);
-	println (LEVEL_INFO, "Kindly asking for time");
+	println (LEVEL_DEBUG, false);
+	println (LEVEL_DEBUG, "Kindly asking for time");
 	Serial1.print ("TIMEPLEASEz"); // z is the end character
 }
 

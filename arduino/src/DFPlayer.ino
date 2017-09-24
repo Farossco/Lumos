@@ -5,17 +5,17 @@ void initDFPlayer ()
 	if (!SOUND_ENABLED)
 		return;
 
-	printlnNoPrefix(LEVEL_DEBUG);
+	println(LEVEL_DEBUG, false);
 	println (LEVEL_DEBUG, "Initializing DFPlayer...");
 
 	if (myDFPlayer.begin (Serial2)) // Use Serial2 to communicate with mp3.
 	{
-		printlnNoPrefix(LEVEL_INFO);
+		println(LEVEL_INFO, false);
 		println (LEVEL_INFO, "Done");
 	}
 	else
 	{
-		printlnNoPrefix(LEVEL_ERROR);
+		println(LEVEL_ERROR, false);
 		println (LEVEL_ERROR, "DFPlayer init failed!");
 		return;
 	}

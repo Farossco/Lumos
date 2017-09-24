@@ -104,7 +104,7 @@ const int SEEKBAR_MAX = 100;								 // Maximum app seek bars value
 
 // Wake up
 const int WAKEUP_HOURS = 06;
-const int WAKEUP_MINUTES = 00;
+const int WAKEUP_MINUTES = 30;
 const int WAKEUP_SECONDS = 00;
 
 // Prayer
@@ -129,8 +129,8 @@ const int MAX_TIME_BEETWIN_TWO_CLAPS = 600; // Maximum time to start second clap
 const int TIME_AFTER_START_OVER = 1000;		// Time to wait after double clap to start over
 
 // Debug and log levels
-const int SERIAL_LOG_LEVEL = LEVEL_INFO; // Serial log level
-const int SD_LOG_LEVEL = LEVEL_INFO;	 // SD logging level
+const int SERIAL_LOG_LEVEL = LEVEL_DEBUG; // Serial log level
+const int SD_LOG_LEVEL = LEVEL_INFO;	  // SD logging level
 
 // ************************************************************************** //
 // ************************* Variables declarations ************************* //
@@ -206,50 +206,27 @@ void printPrefix(int debugLevel);
 void printSdPrefix(int debugLevel);
 void debugPrintDigits(int digits);
 void sdPrintDigits(int digits);
-void debugClockDisplay();
-void sdClockDisplay();
-void print(int debugLevel, const __FlashStringHelper *message);
-void print(int debugLevel, const String &message);
-void print(int debugLevel, const char *message);
-void print(int debugLevel, unsigned char message, int base);
-void print(int debugLevel, int message, int base);
-void print(int debugLevel, unsigned int message, int base);
-void print(int debugLevel, long message, int base);
-void print(int debugLevel, unsigned long message, int base);
-void print(int debugLevel, double message, int base);
-void print(int debugLevel, const Printable &message);
-void printNoPrefix(int debugLevel, const __FlashStringHelper *message);
-void printNoPrefix(int debugLevel, const String &message);
-void printNoPrefix(int debugLevel, const char *message);
-void printNoPrefix(int debugLevel, unsigned char message, int base);
-void printNoPrefix(int debugLevel, int message, int base);
-void printNoPrefix(int debugLevel, unsigned int message, int base);
-void printNoPrefix(int debugLevel, long message, int base);
-void printNoPrefix(int debugLevel, unsigned long message, int base);
-void printNoPrefix(int debugLevel, double message, int base);
-void printNoPrefix(int debugLevel, const Printable &message);
-void println(int debugLevel);
-void println(int debugLevel, const __FlashStringHelper *message);
-void println(int debugLevel, const String &message);
-void println(int debugLevel, const char *message);
-void println(int debugLevel, unsigned char message, int base);
-void println(int debugLevel, int message, int base);
-void println(int debugLevel, unsigned int message, int base);
-void println(int debugLevel, long message, int base);
-void println(int debugLevel, unsigned long message, int base);
-void println(int debugLevel, double message, int base);
-void println(int debugLevel, const Printable &message);
-void printlnNoPrefix(int debugLevel);
-void printlnNoPrefix(int debugLevel, const __FlashStringHelper *message);
-void printlnNoPrefix(int debugLevel, const String &message);
-void printlnNoPrefix(int debugLevel, const char *message);
-void printlnNoPrefix(int debugLevel, unsigned char message, int base);
-void printlnNoPrefix(int debugLevel, int message, int base);
-void printlnNoPrefix(int debugLevel, unsigned int message, int base);
-void printlnNoPrefix(int debugLevel, long message, int base);
-void printlnNoPrefix(int debugLevel, unsigned long message, int base);
-void printlnNoPrefix(int debugLevel, double message, int base);
-void printlnNoPrefix(int debugLevel, const Printable &message);
+void print(int debugLevel, const __FlashStringHelper *message, boolean = true);
+void print(int debugLevel, const String &message, boolean prefix = true);
+void print(int debugLevel, const char *message, boolean prefix = true);
+void print(int debugLevel, unsigned char message, int base, boolean prefix = true);
+void print(int debugLevel, int message, int base, boolean prefix = true);
+void print(int debugLevel, unsigned int message, int base, boolean prefix = true);
+void print(int debugLevel, long message, int base, boolean prefix = true);
+void print(int debugLevel, unsigned long message, int base, boolean prefix = true);
+void print(int debugLevel, double message, int base, boolean prefix = true);
+void print(int debugLevel, const Printable &message, boolean prefix = true);
+void println(int debugLevel, boolean prefix = true);
+void println(int debugLevel, const __FlashStringHelper *message, boolean prefix = true);
+void println(int debugLevel, const String &message, boolean prefix = true);
+void println(int debugLevel, const char *message, boolean prefix = true);
+void println(int debugLevel, unsigned char message, int base, boolean prefix = true);
+void println(int debugLevel, int message, int base, boolean prefix = true);
+void println(int debugLevel, unsigned int message, int base, boolean prefix = true);
+void println(int debugLevel, long message, int base, boolean prefix = true);
+void println(int debugLevel, unsigned long message, int base, boolean prefix = true);
+void println(int debugLevel, double message, int base, boolean prefix = true);
+void println(int debugLevel, const Printable &message, boolean prefix = true);
 void decodeRequest(String request, long *pResult, int *pInfoMode, int *pInfoType, int *pErrorType);
 void eepromDump(unsigned int start, unsigned int limit);
 void eepromWrite();
@@ -283,8 +260,9 @@ String modeName(int mode, int caps);
 String infoTypeName(int infoType, boolean shortened);
 String errorTypeName(int infoType, boolean shortened);
 String debugLevelName(int debugLevel);
-void digitalClockDisplay();
-void printDigits(int digits);
+String debugLevelSpace(int debugLevel);
+void digitalClockDisplay(int debugLevel);
+void printDigits(int debugLevel, int digits);
 void softwareReset();
 void testVariableChange();
 void initVariableChange();

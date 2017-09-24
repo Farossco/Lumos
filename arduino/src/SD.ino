@@ -2,17 +2,17 @@
 
 void initSdCard()
 {
-	printlnNoPrefix(LEVEL_INFO);
+	println(LEVEL_INFO, false);
 	print(LEVEL_INFO, "Initializing SD card... ");
 
 	if (SD.begin(PIN_SD_CS))
 	{
-		printlnNoPrefix(LEVEL_INFO, "Done.");
+		println(LEVEL_INFO, "Done.", false);
 	}
 	else
 	{
-		printlnNoPrefix(LEVEL_INFO);
-		printlnNoPrefix(LEVEL_ERROR);
+		println(LEVEL_INFO, false);
+		println(LEVEL_ERROR, false);
 		println(LEVEL_ERROR, "SD Initialisation failed! No logging for this session...");
 		return;
 	}
@@ -24,7 +24,7 @@ boolean createLogFile()
 {
 	String loadingCreating = SD.exists(getLogFileName()) ? "Loading" : "Creating";
 
-	printlnNoPrefix(LEVEL_INFO);
+	println(LEVEL_INFO, false);
 
 	print(LEVEL_INFO, loadingCreating + " log file... ");
 
@@ -32,15 +32,16 @@ boolean createLogFile()
 
 	if (strlen(logFile.name()) < 1)
 	{
-		printlnNoPrefix(LEVEL_ERROR);
+		println(LEVEL_ERROR, false);
 		println(LEVEL_ERROR, loadingCreating + " log file failed! No logging for this session...");
 		return false;
 	}
 
-	printNoPrefix(LEVEL_INFO, "Done.");
-	printlnNoPrefix(LEVEL_DEBUG, " (");
-	printNoPrefix(LEVEL_DEBUG, logFile.name());
-	printlnNoPrefix(LEVEL_DEBUG, ")");
+	print(LEVEL_INFO, "Done.", false);
+	print(LEVEL_DEBUG, " (", false);
+	print(LEVEL_DEBUG, logFile.name(), false);
+	print(LEVEL_DEBUG, ")", false);
+	println(LEVEL_INFO, false);
 
 	logFile.close();
 
