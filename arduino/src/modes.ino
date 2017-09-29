@@ -19,6 +19,49 @@ void action ()
 	if (!on)
 		return;
 
+	switch (lastMode)
+	{
+		case MODE_FLASH:
+			if (mode != MODE_FLASH)
+			{
+				println (LEVEL_INFO, false);
+				println (LEVEL_INFO, "Leaving Flash mode");
+			}
+			break;
+
+		case MODE_STROBE:
+			if (mode != MODE_STROBE)
+			{
+				println (LEVEL_INFO, false);
+				println (LEVEL_INFO, "Leaving Flash mode");
+			}
+			break;
+
+		case MODE_FADE:
+			if (mode != MODE_FADE)
+			{
+				println (LEVEL_INFO, false);
+				println (LEVEL_INFO, "Leaving Flash mode");
+			}
+			break;
+
+		case MODE_SMOOTH:
+			if (mode != MODE_SMOOTH)
+			{
+				println (LEVEL_INFO, false);
+				println (LEVEL_INFO, "Leaving Flash mode");
+			}
+			break;
+
+		case MODE_WAKEUP:
+			if (mode != MODE_WAKEUP)
+			{
+				println (LEVEL_INFO, false);
+				println (LEVEL_INFO, "Leaving Flash mode");
+			}
+			break;
+	}
+
 	// Calling modes functions
 	switch (mode)
 	{
@@ -244,6 +287,8 @@ void modeWakeup ()
 		rgb[MODE_DEFAULT]   = rgb[MODE_WAKEUP];   // Transfer RGB final value to default mode
 		power[MODE_DEFAULT] = power[MODE_WAKEUP]; // Same for power
 		mode                = MODE_DEFAULT;       // Leaving the mode
+
+		println (LEVEL_INFO, false);
 		println (LEVEL_INFO, "Leaving Wakeup mode");
 	}
 

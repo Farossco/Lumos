@@ -1,49 +1,49 @@
 #include "arduino.h"
 
-void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfoType, int * pErrorType)
+void decodeRequest (String request, long & result, int & infoMode, int & infotype, int & errorType)
 {
 	char requestChar[20];
 	int requestLength = request.length();
 
-	*pResult    = 0;
-	*pInfoType  = 0;
-	*pErrorType = ERR_NOE;
-	*pInfoMode  = 0;
+	result    = 0;
+	infotype  = 0;
+	errorType = ERR_NOE;
+	infoMode  = 0;
 
 	if (request.indexOf ("INFO") == 0)
 	{
-		*pInfoType = TYPE_RIF;
+		infotype = TYPE_RIF;
 
 		println (LEVEL_DEBUG, "Received info request");
 		return;
 	}
 	if (request.indexOf ("TIME") == 0)
 	{
-		*pInfoType = TYPE_RTM;
+		infotype = TYPE_RTM;
 
 		println (LEVEL_DEBUG, "Received time request");
 		return;
 	}
 	else if (request.indexOf ("TIM") == 0)
-		*pInfoType = TYPE_TIM;
+		infotype = TYPE_TIM;
 	else if (request.indexOf ("RGB") == 0)
-		*pInfoType = TYPE_RGB;
+		infotype = TYPE_RGB;
 	else if (request.indexOf ("ONF") == 0)
-		*pInfoType = TYPE_ONF;
+		infotype = TYPE_ONF;
 	else if (request.indexOf ("POW") == 0)
-		*pInfoType = TYPE_POW;
+		infotype = TYPE_POW;
 	else if (request.indexOf ("MOD") == 0)
-		*pInfoType = TYPE_MOD;
+		infotype = TYPE_MOD;
 	else if (request.indexOf ("PRT") == 0)
-		*pInfoType = TYPE_PRT;
+		infotype = TYPE_PRT;
 	else if (request.indexOf ("SPE") == 0)
-		*pInfoType = TYPE_SPE;
+		infotype = TYPE_SPE;
 	else
 	{
 		if (SERIAL_LOG_ENABLED || SD_LOG_ENABLED)
 		{
-			*pInfoType  = TYPE_UNK;
-			*pErrorType = ERR_UKR;
+			infotype  = TYPE_UNK;
+			errorType = ERR_UKR;
 		}
 		else
 			return;
@@ -56,40 +56,40 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 	print (LEVEL_DEBUG, "Length: ");
 	println (LEVEL_DEBUG, requestLength, DEC, false);
 	print (LEVEL_DEBUG, "Type: ");
-	print (LEVEL_DEBUG, infoTypeName (*pInfoType, false) + " (", false);
-	print (LEVEL_DEBUG, *pInfoType, DEC, false);
+	print (LEVEL_DEBUG, infoTypeName (infotype, false) + " (", false);
+	print (LEVEL_DEBUG, infotype, DEC, false);
 	println (LEVEL_DEBUG, ")", false);
 
 	request.remove (0, 3);
 
-	if (*pInfoType == TYPE_POW || *pInfoType == TYPE_SPE)
+	if (infotype == TYPE_POW || infotype == TYPE_SPE)
 	{
-		*pInfoMode = request.charAt (0) - '0';
+		infoMode = request.charAt (0) - '0';
 		print (LEVEL_DEBUG, "Info mode: ");
-		print (LEVEL_DEBUG, modeName (*pInfoMode, CAPS_FIRST), false);
+		print (LEVEL_DEBUG, modeName (infoMode, CAPS_FIRST), false);
 		print (LEVEL_DEBUG, " (", false);
-		print (LEVEL_DEBUG, *pInfoMode, DEC, false);
+		print (LEVEL_DEBUG, infoMode, DEC, false);
 		println (LEVEL_DEBUG, ")", false);
 		request.remove (0, 1);
-		if (*pInfoMode < MODE_MIN || *pInfoMode > MODE_MAX)
-			*pErrorType = ERR_UKM;
+		if (infoMode < MODE_MIN || infoMode > MODE_MAX)
+			errorType = ERR_UKM;
 	}
-	else if (*pInfoType == TYPE_PRT)
+	else if (infotype == TYPE_PRT)
 	{
-		for (*pInfoMode = 0; *pInfoMode < N_PRAYER; (*pInfoMode)++)
-			if (request.charAt (0) == PRAYERS_NAME[*pInfoMode].charAt (0))
+		for (infoMode = 0; infoMode < N_PRAYER; (infoMode)++)
+			if (request.charAt (0) == PRAYERS_NAME[infoMode].charAt (0))
 				break;
 
 		print (LEVEL_DEBUG, "Prayer: ");
-		if (*pInfoMode < 0 || *pInfoMode >= N_PRAYER)
+		if (infoMode < 0 || infoMode >= N_PRAYER)
 		{
-			*pErrorType = ERR_UKP;
-			println (LEVEL_DEBUG, *pInfoMode, DEC, false);
+			errorType = ERR_UKP;
+			println (LEVEL_DEBUG, infoMode, DEC, false);
 		}
 		else
 		{
-			print (LEVEL_DEBUG, PRAYERS_NAME[*pInfoMode] + " (", false);
-			print (LEVEL_DEBUG, *pInfoMode, DEC, false);
+			print (LEVEL_DEBUG, PRAYERS_NAME[infoMode] + " (", false);
+			print (LEVEL_DEBUG, infoMode, DEC, false);
 			println (LEVEL_DEBUG, ")", false);
 		}
 
@@ -97,25 +97,25 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 		request.remove (0, 1);
 	}
 
-	print (LEVEL_DEBUG, infoTypeName (*pInfoType, false) + ": ");
+	print (LEVEL_DEBUG, infoTypeName (infotype, false) + ": ");
 	println (LEVEL_DEBUG, request, false);
 
 	request.toCharArray (requestChar, request.length() + 1);
 
-	print (LEVEL_DEBUG, infoTypeName (*pInfoType, false) + " (char): ");
+	print (LEVEL_DEBUG, infoTypeName (infotype, false) + " (char): ");
 	println (LEVEL_DEBUG, requestChar, false);
 
-	*pResult = strtol (requestChar, NULL, *pInfoType == TYPE_RGB ? 16 : 10);
+	result = strtol (requestChar, NULL, infotype == TYPE_RGB ? 16 : 10);
 
-	print (LEVEL_DEBUG, infoTypeName (*pInfoType, false) + " (decoded): ");
-	println (LEVEL_DEBUG, *pResult, *pInfoType == TYPE_RGB ? HEX : DEC, false);
+	print (LEVEL_DEBUG, infoTypeName (infotype, false) + " (decoded): ");
+	println (LEVEL_DEBUG, result, infotype == TYPE_RGB ? HEX : DEC, false);
 
-	if (*pErrorType == ERR_NOE)
-		switch (*pInfoType)
+	if (errorType == ERR_NOE)
+		switch (infotype)
 		{
 			case TYPE_TIM:
-				if (*pResult < 0)
-					*pErrorType = ERR_OOB;
+				if (result < 0)
+					errorType = ERR_OOB;
 				else
 					setTime (strtol (requestChar, NULL, 10));
 
@@ -127,10 +127,10 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 				break;
 
 			case TYPE_RGB:
-				if (*pResult < 0 || *pResult > 0xFFFFFF)
-					*pErrorType = ERR_OOB;
+				if (result < 0 || result > 0xFFFFFF)
+					errorType = ERR_OOB;
 				else
-					rgb[MODE_DEFAULT] = *pResult;
+					rgb[MODE_DEFAULT] = result;
 
 				// Debug
 				rgb2color();
@@ -145,10 +145,10 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 				break;
 
 			case TYPE_ONF:
-				if (*pResult != 0 && *pResult != 1)
-					*pErrorType = ERR_OOB;
+				if (result != 0 && result != 1)
+					errorType = ERR_OOB;
 				else
-					on = *pResult;
+					on = result;
 
 				// Debug
 				print (LEVEL_DEBUG, "On (Current value): ");
@@ -166,26 +166,26 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 				break;
 
 			case TYPE_POW:
-				if (*pResult < 0 || *pResult > 100)
-					*pErrorType = ERR_OOB;
+				if (result < 0 || result > 100)
+					errorType = ERR_OOB;
 				else
-					power[*pInfoMode] = *pResult;
+					power[infoMode] = result;
 
 				// Debug
 				print (LEVEL_DEBUG, "Power (Current value): ");
-				println (LEVEL_DEBUG, (int) power[*pInfoMode], DEC, false);
+				println (LEVEL_DEBUG, (int) power[infoMode], DEC, false);
 
 				break;
 
 			case TYPE_MOD:
-				if (*pResult < 0 || *pResult > MODE_MAX)
-					*pErrorType = ERR_OOB;
+				if (result < 0 || result > MODE_MAX)
+					errorType = ERR_OOB;
 				else
-					mode = *pResult;
+					mode = result;
 
 				// Debug
 				print (LEVEL_DEBUG, "Mode (Text): ");
-				println (LEVEL_DEBUG, modeName (*pResult, CAPS_FIRST), false);
+				println (LEVEL_DEBUG, modeName (result, CAPS_FIRST), false);
 				print (LEVEL_DEBUG, "Mode (Current value): ");
 				print (LEVEL_DEBUG, mode, DEC, false);
 				println (LEVEL_DEBUG, " (" + modeName (mode, CAPS_FIRST) + ")", false);
@@ -193,46 +193,46 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 				break;
 
 			case TYPE_PRT:
-				if (*pResult < 0 && *pResult > MODE_MAX)
-					*pErrorType = ERR_OOB;
+				if (result < 0 && result > MODE_MAX)
+					errorType = ERR_OOB;
 				else
 				{
-					prayerTime[*pInfoMode][2] = *pResult;
-					prayerTime[*pInfoMode][0] = prayerTime[*pInfoMode][2] / 60;
-					prayerTime[*pInfoMode][1] = prayerTime[*pInfoMode][2] % 60;
+					prayerTime[infoMode][2] = result;
+					prayerTime[infoMode][0] = prayerTime[infoMode][2] / 60;
+					prayerTime[infoMode][1] = prayerTime[infoMode][2] % 60;
 				}
 
 				// Debug
 				print (LEVEL_DEBUG, "Prayer time (Current value): ");
-				println (LEVEL_DEBUG, prayerTime[*pInfoMode][2], DEC, false);
+				println (LEVEL_DEBUG, prayerTime[infoMode][2], DEC, false);
 				print (LEVEL_DEBUG, "Prayer time (Current value) (Readable): ");
-				printDigits (LEVEL_DEBUG, prayerTime[*pInfoMode][0]);
+				printDigits (LEVEL_DEBUG, prayerTime[infoMode][0]);
 				print (LEVEL_DEBUG, ":", false);
-				printDigits (LEVEL_DEBUG, prayerTime[*pInfoMode][1]);
+				printDigits (LEVEL_DEBUG, prayerTime[infoMode][1]);
 				println (LEVEL_DEBUG, false);
 
 				initTimeAlarms();
 				break;
 
 			case TYPE_SPE:
-				if (*pResult < SEEKBAR_MIN || *pResult > SEEKBAR_MAX)
-					*pErrorType = ERR_OOB;
+				if (result < SEEKBAR_MIN || result > SEEKBAR_MAX)
+					errorType = ERR_OOB;
 				else
-					speed[*pInfoMode] = *pResult * (MAX_SPEED[*pInfoMode] - MIN_SPEED[*pInfoMode]) / (SEEKBAR_MAX - SEEKBAR_MIN) + (MIN_SPEED[*pInfoMode] - SEEKBAR_MIN);
+					speed[infoMode] = result * (MAX_SPEED[infoMode] - MIN_SPEED[infoMode]) / (SEEKBAR_MAX - SEEKBAR_MIN) + (MIN_SPEED[infoMode] - SEEKBAR_MIN);
 
 				// Debug
 				print (LEVEL_DEBUG, "Min Speed: ");
-				println (LEVEL_DEBUG, MIN_SPEED[*pInfoMode], DEC, false);
+				println (LEVEL_DEBUG, MIN_SPEED[infoMode], DEC, false);
 				print (LEVEL_DEBUG, "Max Speed: ");
-				println (LEVEL_DEBUG, MAX_SPEED[*pInfoMode], DEC, false);
+				println (LEVEL_DEBUG, MAX_SPEED[infoMode], DEC, false);
 				print (LEVEL_DEBUG, "Speed (Current value): ");
-				println (LEVEL_DEBUG, speed[*pInfoMode], DEC, false);
+				println (LEVEL_DEBUG, speed[infoMode], DEC, false);
 				break;
 		}
 
-	if (*pErrorType != ERR_NOE)
+	if (errorType != ERR_NOE)
 	{
 		println (LEVEL_DEBUG, false);
-		println (LEVEL_DEBUG, "Variable has not been changed (" + errorTypeName (*pErrorType, false) + ")");
+		println (LEVEL_DEBUG, "Variable has not been changed (" + errorTypeName (errorType, false) + ")");
 	}
 } // readWeb

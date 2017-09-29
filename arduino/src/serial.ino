@@ -60,7 +60,7 @@ void readSerial ()
 	if (!Serial.available() && !Serial1.available())
 		return;  // Waiting for incomming datas
 
-	decodeRequest (Serial.available() ? Serial.readStringUntil ('z') : Serial1.readStringUntil ('z'), &result, &infoMode, &infoType, &errorType);
+	decodeRequest (Serial.available() ? Serial.readStringUntil ('z') : Serial1.readStringUntil ('z'), result, infoMode, infoType, errorType);
 
 	if (infoType == TYPE_RTM)
 	{

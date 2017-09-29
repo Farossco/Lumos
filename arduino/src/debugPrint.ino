@@ -16,8 +16,7 @@ void printPrefix (int debugLevel)
 	debugPrintDigits (minute());
 	Serial.print (":");
 	debugPrintDigits (second());
-	Serial.print ("] [" + debugLevelName (debugLevel) + "]");
-	Serial.print (debugLevelSpace (debugLevel));
+	Serial.print ("]" + debugLevelSpace (debugLevel) + "[" + debugLevelName (debugLevel) + "] ");
 }
 
 void printSdPrefix (int debugLevel)
@@ -36,8 +35,7 @@ void printSdPrefix (int debugLevel)
 	sdPrintDigits (minute());
 	logFile.print (":");
 	sdPrintDigits (second());
-	logFile.print ("] [" + debugLevelName (debugLevel) + "] ");
-	logFile.print (debugLevelSpace (debugLevel));
+	logFile.print ("]" + debugLevelSpace (debugLevel) + " [" + debugLevelName (debugLevel) + "] ");
 }
 
 // Utility for digital clock display: prints leading 0

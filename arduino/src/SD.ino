@@ -11,13 +11,23 @@ void initSdCard ()
 	}
 	else
 	{
-		println (LEVEL_INFO, false);
+		println (LEVEL_INFO, "Failed!", false);
 		println (LEVEL_ERROR, false);
 		println (LEVEL_ERROR, "SD Initialisation failed! No logging for this session...");
 		return;
 	}
 
 	logFileAvailable = createLogFile();
+
+	if (logFileAvailable)
+	{
+		// Printing it as lowest level so it is printed for any debug level
+		// It's not a problem since it's not gonna print the prefix
+		println (0, false);
+		println (0, "------------------------------------------------------------------------------------------------------------", false);
+		println (0, "----------------------------------------------- SD log Start -----------------------------------------------", false);
+		println (0, "------------------------------------------------------------------------------------------------------------", false);
+	}
 }
 
 boolean createLogFile ()
@@ -32,6 +42,7 @@ boolean createLogFile ()
 
 	if (strlen (logFile.name()) < 1)
 	{
+		println (LEVEL_INFO, "Failed!", false);
 		println (LEVEL_ERROR, false);
 		println (LEVEL_ERROR, loadingCreating + " log file failed! No logging for this session...");
 		return false;

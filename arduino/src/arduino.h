@@ -16,8 +16,15 @@
 // **************** Global **************** //
 // **************************************** //
 
-const boolean SERIAL_LOG_ENABLED = true; // Serial logging
-const boolean SD_LOG_ENABLED     = true; // SD logging
+// Debug levels
+const int LEVEL_DEBUG = 2;
+const int LEVEL_INFO  = 1;
+const int LEVEL_ERROR = 0;
+
+const boolean SERIAL_LOG_ENABLED = true;        // Serial logging
+const int SERIAL_LOG_LEVEL       = LEVEL_DEBUG; // Serial log level
+const boolean SD_LOG_ENABLED     = true;        // SD logging
+const int SD_LOG_LEVEL           = LEVEL_INFO;  // SD logging level
 
 const long ESP_BAUD_RATE   = 9600;   // ESP8266 communication baud rate
 const long DEBUG_BAUD_RATE = 250000; // Debug baud rate
@@ -31,9 +38,9 @@ const boolean CLAP_ENABLED     = false; // Enable double claping
 // Pins
 const int PIN_SOUND        = 2;  // Sound detector IN pin
 const int PIN_LED_INFRARED = 5;  // Infrared IN pin
-const int PIN_LED_RED      = 4;  // Red LED OUT pin
+const int PIN_LED_RED      = 11; // Red LED OUT pin
 const int PIN_LED_GREEN    = 7;  // Green LED OUT pin
-const int PIN_LED_BLUE     = 11; // Blue LED OUT pin
+const int PIN_LED_BLUE     = 4;  // Blue LED OUT pin
 const int PIN_SD_CS        = 49; // SD Chip Select
 
 // ************************************* //
@@ -75,11 +82,6 @@ const int CAPS_NONE  = 0; // All letters in lower case
 const int CAPS_FIRST = 1; // First letter in upper case
 const int CAPS_ALL   = 2; // All letters in upper case
 
-// Debug levels
-const int LEVEL_DEBUG = 2;
-const int LEVEL_INFO  = 1;
-const int LEVEL_ERROR = 0;
-
 // ************************************************************* //
 // **************** Default, min and max values **************** //
 // ************************************************************* //
@@ -89,7 +91,7 @@ const unsigned long DEFAULT_RGB[N_MODE] =
 { 0xFFFFFF, 0xFF0000, 0xFFFFFF, 0xFFFFFF, 0xFF0000, 0x0000FF };    // Default color on program startup
 const float DEFAULT_POWER[N_MODE] = { 50, 100, 100, 100, 100, 0 }; // Default power on program startup
 const int DEFAULT_SPEED[N_MODE] = { -1, 0, 0, 750, 800, 2000 };    // Default speed on program startup
-const int DEFAULT_VOLUME = 30;                                     // DFPlayer default volume (0-30)
+const int DEFAULT_VOLUME = 30;                                     // DFPlayer default volume (0 - 30)
 
 // Min and Max
 const int MIN_SPEED[N_MODE] = { -1, 1, 1, 50, 10, 1 };         // Minimum speed or power value for each mode
@@ -98,6 +100,8 @@ const int MIN_POWER   = 0;                                     // Minimum power 
 const int MAX_POWER   = 100;                                   // Maximum power value
 const int SEEKBAR_MIN = 0;                                     // Minimum app seek bars value
 const int SEEKBAR_MAX = 100;                                   // Maximum app seek bars value
+const int MIN_VOLUME  = 0;                                     // Minimum DFPlayer volume
+const int MAX_VOLUME  = 30;                                    // Maximum DFPlayer volume
 
 // *************************************** //
 // **************** Other **************** //
@@ -128,10 +132,6 @@ const int MAX_CLAP_DURATION          = 100;  // Maximum clap duration in ms
 const int MIN_TIME_BEETWIN_TWO_CLAPS = 400;  // Minimum time before starting second clap
 const int MAX_TIME_BEETWIN_TWO_CLAPS = 600;  // Maximum time to start second clap
 const int TIME_AFTER_START_OVER      = 1000; // Time to wait after double clap to start over
-
-// Debug and log levels
-const int SERIAL_LOG_LEVEL = LEVEL_DEBUG; // Serial log level
-const int SD_LOG_LEVEL     = LEVEL_INFO;  // SD logging level
 
 // ************************************************************************** //
 // ************************* Variables declarations ************************* //
@@ -222,7 +222,7 @@ void println (int debugLevel, long message, int base, boolean prefix = true);
 void println (int debugLevel, unsigned long message, int base, boolean prefix = true);
 void println (int debugLevel, double message, int base, boolean prefix = true);
 void println (int debugLevel, const Printable &message, boolean prefix = true);
-void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfoType, int * pErrorType);
+void decodeRequest (String request, long & pResult, int & pInfoMode, int & pInfoType, int & pErrorType);
 void eepromDump (unsigned int start, unsigned int limit);
 void eepromWrite ();
 boolean eepromRead ();

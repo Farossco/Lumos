@@ -74,6 +74,8 @@ void readInfrared ()
 			IRCode = lastIRCode;
 		}
 
+		println (LEVEL_DEBUG, false);
+
 		// ON
 		if (IRCode == 0xFFB04F || IRCode == 0xF0C41643)
 		{
