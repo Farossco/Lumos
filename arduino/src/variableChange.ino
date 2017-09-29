@@ -12,8 +12,9 @@ void testVariableChange ()
 		print (LEVEL_DEBUG, changeOn ? "True" : "False", false);
 		print (LEVEL_DEBUG, " to ", false);
 		println (LEVEL_DEBUG, on ? "True" : "False", false);
-		changeOn     = on;
-		flagSendInfo = true;
+		changeOn        = on;
+		flagSendInfo    = true;
+		flagWriteEeprom = true;
 	}
 
 	if (changeRgb != rgb[MODE_DEFAULT])
@@ -139,5 +140,5 @@ void sendInfo ()
 		print (LEVEL_DEBUG, "z ", false);
 	}
 
-	print (LEVEL_DEBUG, ")", false);
+	println (LEVEL_DEBUG, ")", false);
 } // sendInfo

@@ -36,7 +36,11 @@ void eepromWrite ()
 	println (LEVEL_DEBUG, false);
 	println (LEVEL_DEBUG, "Writing EEPROM...");
 
-	EEPROM.write (address, (byte) 42);
+	if (EEPROM.read (address) != (byte) EEPROM_TEST_BYTE)
+	{
+		EEPROM.write (address, (byte) EEPROM_TEST_BYTE);
+		n++;
+	}
 
 	address++;
 
@@ -52,16 +56,25 @@ void eepromWrite ()
 	for (unsigned int j = MODE_MIN; j < N_MODE; j++)
 	{
 		if (j != MODE_WAKEUP)
+		{
 			for (unsigned int i = 0; i < sizeof(int); i++)
 				if (EEPROM.read (address + i) != (byte) ((int) power[j] >> (i * 8)))
 				{
 					EEPROM.write (address + i, (byte) ((int) power[j] >> (i * 8)));
 					n++;
 				}
-
+		}
+		else
+		{
+			for (unsigned int i = 0; i < sizeof(int); i++)
+				if (EEPROM.read (address + i) != (byte) 0)
+				{
+					EEPROM.write (address + i, (byte) 0);
+					n++;
+				}
+		}
 		address += sizeof(int);
 	}
-
 
 	for (unsigned int j = MODE_MIN; j < N_MODE; j++)
 	{
@@ -84,6 +97,14 @@ void eepromWrite ()
 
 	address += sizeof(int);
 
+	if (EEPROM.read (address) != (byte) on ? 1 : 0)
+	{
+		EEPROM.write (address, (byte) on ? 1 : 0);
+		n++;
+	}
+
+	address += sizeof(boolean);
+
 	print (LEVEL_DEBUG, "Done ! ");
 	print (LEVEL_DEBUG, n, DEC, false);
 	print (LEVEL_DEBUG, " byte", false);
@@ -98,13 +119,13 @@ boolean eepromRead ()
 
 	address = EEPROM_START;
 
-	if (EEPROM.read (address) != (byte) EEPROM_TEST_BYTE)
-		return true;
-
-	address++;
-
 	println (LEVEL_DEBUG, false);
 	println (LEVEL_DEBUG, "Reading EEPROM...");
+
+	if (EEPROM.read (address) != (byte) EEPROM_TEST_BYTE)
+		return true;  // Returns true to say that variables needs to be initialized
+
+	address++;
 
 	rgb[MODE_DEFAULT] = 0;
 	for (unsigned int i = 0; i < sizeof(long); i++)
@@ -115,9 +136,8 @@ boolean eepromRead ()
 	for (unsigned int j = MODE_MIN; j < N_MODE; j++)
 	{
 		power[j] = 0;
-		if (j != MODE_WAKEUP)
-			for (unsigned int i = 0; i < sizeof(int); i++)
-				power[j] += ((int) EEPROM.read (address + i)) << (i * 8);
+		for (unsigned int i = 0; i < sizeof(int); i++)
+			power[j] += ((int) EEPROM.read (address + i)) << (i * 8);
 
 		address += sizeof(int);
 	}
@@ -137,6 +157,10 @@ boolean eepromRead ()
 		mode += ((int) EEPROM.read (address + i)) << (i * 8);
 
 	address += sizeof(int);
+
+	on = (EEPROM.read (address) != 0);
+
+	address += sizeof(boolean);
 
 	print (LEVEL_DEBUG, "Done ! ");
 	print (LEVEL_DEBUG, address, DEC, false);

@@ -64,13 +64,11 @@ void initGlobal ()
 			power[i] = DEFAULT_POWER[i]; // Initializing powers their default value
 			speed[i] = DEFAULT_SPEED[i]; // Initializing speeds their default value
 		}
+		eepromWrite();
 	}
 	else
 	{
 		for (int i = MODE_FLASH; i < N_MODE; i++)
 			rgb[i] = DEFAULT_RGB[i];  // Initialize colors to their default values (Starting from flash mode)
 	}
-	on = false; // LEDs are off on startup
-
-	mode = MODE_DEFAULT; // Initialize mode to constant lightning
 }
