@@ -3,6 +3,7 @@
 
 #include <IRremote.h>
 #include <Time.h>
+#include <TimeAlarms.h>
 #include <DFRobotDFPlayerMini.h>
 #include <EEPROM.h>
 #include <SD.h>
@@ -148,7 +149,7 @@ unsigned char blue[N_MODE];  // Current blue value for each mode including light
 unsigned char mode;          // Current lighting mode (MODE_***)
 
 // Prayer
-int prayerTime[N_PRAYER][3]; // [0] = Hours / [1] = Minutes / [2] = Hours & Minutes
+int prayerTime[N_PRAYER][3]; // [0] = Hours / [1] = Minutes / [2] = Hours * 60 + Minutes
 
 // Read Claps
 int clapState;              // Same as "state" but for claps
@@ -167,16 +168,10 @@ unsigned long count;    // Delay counting
 unsigned char lastMode; // Mode in previous loop - Allows mode initializations
 
 // ******* Time Alarms ******* //
-// Prayer
-int flagEnter; // If we have to start fading
-int flagLeave; // If we have to stop fading
-int faded;     // If we already gave the order to start fading
-int unfaded;   // If we already gave the order to stop fading
-int prayerIndexStart;
-int prayerIndexStop;
-// Wake up
-int wokeUp;    // If we already gave the order to wake up
-int timeAsked; // If we already asked for time
+AlarmId wakeUpAlarm;
+AlarmId prayerStartAlarm[N_PRAYER];
+AlarmId prayerStopAlarm[N_PRAYER];
+AlarmId timeSyncTimer;
 
 // Variable Change
 boolean changeOn;
@@ -251,11 +246,11 @@ void initSerial ();
 void waitForTime ();
 void askForTime ();
 void readSerial ();
-void testPrayerTime ();
+void initTimeAlarms ();
+void clearAlarms ();
 void prayerStart ();
 void prayerStop ();
-void testWakeUpTime ();
-void peakTime ();
+void morningAlarm ();
 String modeName (int mode, int caps);
 String infoTypeName (int infoType, boolean shortened);
 String errorTypeName (int infoType, boolean shortened);

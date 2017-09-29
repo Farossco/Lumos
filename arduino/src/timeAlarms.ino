@@ -1,97 +1,88 @@
 #include "arduino.h"
 
-void testPrayerTime ()
+void initTimeAlarms ()
 {
-	flagEnter = false;
-	flagLeave = false;
+	clearAlarms();
 
-	for (prayerIndexStart = 0; prayerIndexStart < N_PRAYER; prayerIndexStart++)
-		if ((hour() * 60 + minute()) == prayerTime[prayerIndexStart][2])
-		{
-			flagEnter = true;
-			break;
-		}
+	timeSyncTimer = Alarm.timerRepeat (0, 60, 0, askForTime);
 
-	for (prayerIndexStop = 0; prayerIndexStop < N_PRAYER; prayerIndexStop++)
-		if ((hour() * 60 + minute()) == (prayerTime[prayerIndexStop][2] + 10))
-		{
-			flagLeave = true;
-			break;
-		}
+	wakeUpAlarm = Alarm.alarmRepeat (WAKEUP_HOURS, WAKEUP_MINUTES, WAKEUP_SECONDS, morningAlarm);
 
-
-	if (flagEnter && !faded)
-		prayerStart();
-	else if (!flagEnter)
-		faded = false;
-
-	if (flagLeave && !unfaded)
-		prayerStop();
-	else if (!flagLeave)
-		unfaded = false;
+	for (int i = 0; i < N_PRAYER; i++)
+	{
+		prayerStartAlarm[i] = Alarm.alarmRepeat (prayerTime[i][0], prayerTime[i][1], 0, prayerStart);
+		prayerStopAlarm[i]  = Alarm.alarmRepeat (prayerTime[i][0], prayerTime[i][1] + 10, 0, prayerStop);
+	}
 }
+
+void clearAlarms ()
+{
+	boolean cleared = false;
+
+	if (Alarm.isAllocated (timeSyncTimer))
+	{
+		Alarm.free (timeSyncTimer);
+		cleared = true;
+	}
+
+	if (Alarm.isAllocated (wakeUpAlarm))
+	{
+		Alarm.free (wakeUpAlarm);
+		cleared = true;
+	}
+
+	for (int i = 0; i < N_PRAYER; i++)
+	{
+		if (Alarm.isAllocated (prayerStartAlarm[i]))
+		{
+			Alarm.free (prayerStartAlarm[i]);
+			cleared = true;
+		}
+
+		if (Alarm.isAllocated (prayerStopAlarm[i]))
+		{
+			Alarm.free (prayerStopAlarm[i]);
+			cleared = true;
+		}
+	}
+
+	if (cleared)
+	{
+		println (LEVEL_DEBUG, false);
+		println (LEVEL_DEBUG, "Alarms cleared");
+	}
+	else
+	{
+		println (LEVEL_DEBUG, false);
+		println (LEVEL_DEBUG, "Nothing to clear");
+	}
+} // clearAlarms
 
 void prayerStart ()
 {
 	mode             = MODE_FADE;
-	speed[MODE_FADE] = 97;
+	speed[MODE_FADE] = PRAYER_FADE_SPEED;
 	on               = true;
-	faded            = true;
 
 	println (LEVEL_INFO, false);
-	print (LEVEL_INFO, "Started");
-	print (LEVEL_INFO, PRAYERS_NAME[prayerIndexStart], false);
-	println (LEVEL_INFO, " alert", false);
-	print (LEVEL_DEBUG, "It will stop at ");
-	print (LEVEL_DEBUG, (prayerTime[prayerIndexStart][2] + 10) / 60, DEC, false);
-	print (LEVEL_DEBUG, ":", false);
-	print (LEVEL_DEBUG, (prayerTime[prayerIndexStart][1] + 10) % 60, DEC, false);
-	print (LEVEL_DEBUG, " (", false);
-	print (LEVEL_DEBUG, prayerTime[prayerIndexStart][2] + 10, DEC, false);
-	println (LEVEL_DEBUG, ")", false);
+	println (LEVEL_INFO, "Starting prayer alert");
 }
 
 void prayerStop ()
 {
-	mode    = MODE_DEFAULT;
-	on      = false;
-	unfaded = true;
+	mode = MODE_DEFAULT;
+	on   = false;
 
 	println (LEVEL_INFO, false);
-	print (LEVEL_INFO, "Stopped ");
-	print (LEVEL_INFO, PRAYERS_NAME[prayerIndexStop], false);
-	println (LEVEL_INFO, " alert", false);
+	println (LEVEL_INFO, "Stopped prayer alert");
 }
 
 // Test wakeup time and peak hours for resynchronization
-void testWakeUpTime ()
+void morningAlarm ()
 {
-	// If actual time coorespond with wakeup time
-	if (hour() == WAKEUP_HOURS && minute() == WAKEUP_MINUTES && !wokeUp)
-	{
-		mode   = MODE_WAKEUP;
-		on     = true;
-		wokeUp = true;
+	mode = MODE_WAKEUP;
+	on   = true;
 
-		println (LEVEL_INFO, false);
-		println (LEVEL_INFO, "Starting wake up alert");
-	}
-	else if ((hour() != WAKEUP_HOURS || minute() != WAKEUP_MINUTES) && wokeUp)
-	{
-		wokeUp = false;
-	}
-}
-
-void peakTime ()
-{
-	// If we are on a peak time, we ask for time to make sure it's right
-	if (minute() == 0 && !timeAsked)
-	{
-		askForTime();
-		timeAsked = true;
-	}
-	else if (minute() != 0)
-	{
-		timeAsked = false;
-	}
+	println (LEVEL_INFO, false);
+	println (LEVEL_INFO, "Starting wake up alert");
 }

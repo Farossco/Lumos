@@ -8,13 +8,17 @@ void setup ()
 
 	println (LEVEL_INFO, "Starting program...");
 
+	waitForTime(); // Waiting for the ESP to send time (if WAIT_FOR_TIME)
+
+	initSdCard(); // Start SD logging
+
 	initInfrared(); // Initialize infrared reception
 
 	initDFPlayer(); // Initialize DFPlayer communication
 
-	initModes(); // Initialize default values for modes variables
+	initTimeAlarms();
 
-	waitForTime(); // Waiting for the ESP to send time (if WAIT_FOR_TIME)
+	initModes(); // Initialize default values for modes variables
 
 	initGlobal(); // Initialize defaut values for global variables
 
@@ -22,25 +26,19 @@ void setup ()
 
 	sendInfo(); // Sending global variables informations to the ESP8266
 
-	initSdCard(); // Start logging
-
 	println (LEVEL_INFO, false);
-	println (LEVEL_INFO, "-------------------- Program started! --------------------");
+	println (LEVEL_INFO, "Program started!");
 
 	isInitialized = true;
 } // setup
 
 void loop ()
 {
+	Alarm.delay (1); // Needed for timeAlarms to work
+
 	testVariableChange(); // Perform action at each variation of one of the global variables
 
-	peakTime(); // Perform action every peak time
-
 	readClaps(); // Lighting on double claps
-
-	testPrayerTime(); // Perform action at prayer time
-
-	testWakeUpTime(); // Perform action at wake up time
 
 	readInfrared(); // Read the in-comming IR signal if present
 

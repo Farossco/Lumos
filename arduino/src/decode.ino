@@ -210,6 +210,8 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 				print (LEVEL_DEBUG, ":", false);
 				printDigits (LEVEL_DEBUG, prayerTime[*pInfoMode][1]);
 				println (LEVEL_DEBUG, false);
+
+				initTimeAlarms();
 				break;
 
 			case TYPE_SPE:
