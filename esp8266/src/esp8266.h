@@ -12,7 +12,7 @@
 
 const boolean DEBUG_ENABLED = false; // Debug mode
 
-const int BAUD_RATE = 250000; // Serial baud rate
+const int BAUD_RATE = 9600; // Serial baud rate
 
 const int PIN_D0  = 16; // D0   USER   WAKE
 const int PIN_D1  = 5;  // D1

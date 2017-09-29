@@ -18,7 +18,7 @@
 const boolean SERIAL_LOG_ENABLED = true; // Serial logging
 const boolean SD_LOG_ENABLED     = true; // SD logging
 
-const long ESP_BAUD_RATE   = 250000; // ESP8266 communication baud rate
+const long ESP_BAUD_RATE   = 9600;   // ESP8266 communication baud rate
 const long DEBUG_BAUD_RATE = 250000; // Debug baud rate
 const long DFP_BAUD_RATE   = 9600;   // DFPlayer communication baud rate
 
