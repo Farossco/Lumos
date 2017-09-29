@@ -10,7 +10,7 @@ void readSerial ()
 		return;
 
 	printlnNoPrefix();
-	decodeRequest (Serial.readStringUntil ('z'), &result, &infoMode, &infoType, &errorType);
+	decodeRequest (Serial.readStringUntil ('z'), result, infoMode, infoType, errorType);
 
 	if (infoType == TYPE_RTM)
 		sendTime();  // We send the time to the Arduino

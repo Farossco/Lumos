@@ -1,51 +1,49 @@
 #include "esp8266.h"
 
-void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfoType, int * pErrorType)
+void decodeRequest (String request, long & result, int & infoMode, int & infoType, int & errorType)
 {
 	char requestChar[20];
 	int requestLength = request.length();
 
-	*pResult    = 0;
-	*pInfoType  = 0;
-	*pErrorType = ERR_NOE;
-	*pInfoMode  = 0;
+	result    = 0;
+	infoType  = 0;
+	errorType = ERR_NOE;
+	infoMode  = 0;
 
 	if (request.indexOf ("INFO") == 0)
 	{
-		*pInfoType = TYPE_RIF;
+		infoType = TYPE_RIF;
 
 		println ("Received info request");
 		return;
 	}
 	if (request.indexOf ("TIME") == 0)
 	{
-		*pInfoType = TYPE_RTM;
+		infoType = TYPE_RTM;
 
 		println ("Received time request");
 		return;
 	}
 	else if (request.indexOf ("TIM") == 0)
-		*pInfoType = TYPE_TIM;
+		infoType = TYPE_TIM;
 	else if (request.indexOf ("RGB") == 0)
-		*pInfoType = TYPE_RGB;
+		infoType = TYPE_RGB;
 	else if (request.indexOf ("ONF") == 0)
-		*pInfoType = TYPE_ONF;
+		infoType = TYPE_ONF;
 	else if (request.indexOf ("POW") == 0)
-		*pInfoType = TYPE_POW;
+		infoType = TYPE_POW;
 	else if (request.indexOf ("MOD") == 0)
-		*pInfoType = TYPE_MOD;
+		infoType = TYPE_MOD;
 	else if (request.indexOf ("PRT") == 0)
-		*pInfoType = TYPE_PRT;
+		infoType = TYPE_PRT;
 	else if (request.indexOf ("SPE") == 0)
-		*pInfoType = TYPE_SPE;
+		infoType = TYPE_SPE;
 	else
 	{
-		if (DEBUG_ENABLED)
-		{
-			*pInfoType  = TYPE_UNK;
-			*pErrorType = ERR_UKR;
-		}
-		else
+		infoType  = TYPE_UNK;
+		errorType = ERR_UKR;
+
+		if (!DEBUG_ENABLED)
 			return;
 	}
 
@@ -55,63 +53,63 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 	print ("Length: ");
 	printlnNoPrefix (requestLength, DEC);
 	print ("Type: ");
-	printNoPrefix (infoTypeName (*pInfoType, false) + " (");
-	printNoPrefix (*pInfoType, DEC);
+	printNoPrefix (infoTypeName (infoType, false) + " (");
+	printNoPrefix (infoType, DEC);
 	printlnNoPrefix (")");
 
 	request.remove (0, 3);
 
-	if (*pInfoType == TYPE_POW || *pInfoType == TYPE_SPE)
+	if (infoType == TYPE_POW || infoType == TYPE_SPE)
 	{
-		*pInfoMode = request.charAt (0) - '0';
+		infoMode = request.charAt (0) - '0';
 		print ("Info mode: ");
-		printNoPrefix (modeName (*pInfoMode));
+		printNoPrefix (modeName (infoMode));
 		printNoPrefix (" (");
-		printNoPrefix (*pInfoMode, DEC);
+		printNoPrefix (infoMode, DEC);
 		printlnNoPrefix (")");
 		request.remove (0, 1);
-		if (*pInfoMode < MODE_MIN || *pInfoMode > MODE_MAX)
-			*pErrorType = ERR_UKM;
+		if (infoMode < MODE_MIN || infoMode > MODE_MAX)
+			errorType = ERR_UKM;
 	}
-	else if (*pInfoType == TYPE_PRT)
+	else if (infoType == TYPE_PRT)
 	{
-		for (*pInfoMode = 0;; (*pInfoMode)++)
-			if (request.charAt (0) == PRAYERS_NAME[*pInfoMode].charAt (0))
+		for (infoMode = 0;; (infoMode)++)
+			if (request.charAt (0) == PRAYERS_NAME[infoMode].charAt (0))
 				break;
 
 		print ("Prayer: ");
-		if (*pInfoMode < 0 || *pInfoMode >= N_PRAYER)
+		if (infoMode < 0 || infoMode >= N_PRAYER)
 		{
-			*pErrorType = ERR_UKP;
-			printlnNoPrefix (*pInfoMode, DEC);
+			errorType = ERR_UKP;
+			printlnNoPrefix (infoMode, DEC);
 		}
 		else
 		{
-			printNoPrefix (PRAYERS_NAME[*pInfoMode] + " (");
-			printNoPrefix (*pInfoMode, DEC);
+			printNoPrefix (PRAYERS_NAME[infoMode] + " (");
+			printNoPrefix (infoMode, DEC);
 			printlnNoPrefix (")");
 		}
 	}
 
-	print (infoTypeName (*pInfoType, false) + ": ");
+	print (infoTypeName (infoType, false) + ": ");
 	printlnNoPrefix (request);
 
 	request.toCharArray (requestChar, request.length() + 1);
 
-	print (infoTypeName (*pInfoType, false) + " (char): ");
+	print (infoTypeName (infoType, false) + " (char): ");
 	printlnNoPrefix (requestChar);
 
-	*pResult = strtol (requestChar, NULL, *pInfoType == TYPE_RGB ? 16 : 10);
+	result = strtol (requestChar, NULL, infoType == TYPE_RGB ? 16 : 10);
 
-	print (infoTypeName (*pInfoType, false) + " (decoded): ");
-	printlnNoPrefix (*pResult, *pInfoType == TYPE_RGB ? HEX : DEC);
+	print (infoTypeName (infoType, false) + " (decoded): ");
+	printlnNoPrefix (result, infoType == TYPE_RGB ? HEX : DEC);
 
-	if (*pErrorType == ERR_NOE)
-		switch (*pInfoType)
+	if (errorType == ERR_NOE)
+		switch (infoType)
 		{
 			case TYPE_TIM:
-				if (*pResult < 0)
-					*pErrorType = ERR_OOB;
+				if (result < 0)
+					errorType = ERR_OOB;
 				else
 					setTime (strtol (requestChar, NULL, 10));
 
@@ -124,10 +122,10 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 				break;
 
 			case TYPE_RGB:
-				if (*pResult < 0 || *pResult > 0xFFFFFF)
-					*pErrorType = ERR_OOB;
+				if (result < 0 || result > 0xFFFFFF)
+					errorType = ERR_OOB;
 				else
-					rgb = *pResult;
+					rgb = result;
 
 				// Debug
 				rgb2color();
@@ -142,10 +140,10 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 				break;
 
 			case TYPE_ONF:
-				if (*pResult != 0 && *pResult != 1)
-					*pErrorType = ERR_OOB;
+				if (result != 0 && result != 1)
+					errorType = ERR_OOB;
 				else
-					on = *pResult;
+					on = result;
 
 				// Debug
 				print ("On (Current value): ");
@@ -160,26 +158,26 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 				break;
 
 			case TYPE_POW:
-				if (*pResult < 0 || *pResult > 100)
-					*pErrorType = ERR_OOB;
+				if (result < 0 || result > 100)
+					errorType = ERR_OOB;
 				else
-					power[*pInfoMode] = *pResult;
+					power[infoMode] = result;
 
 				// Debug
 				print ("Power (Current value): ");
-				printlnNoPrefix ((int) power[*pInfoMode], DEC);
+				printlnNoPrefix ((int) power[infoMode], DEC);
 
 				break;
 
 			case TYPE_MOD:
-				if (*pResult < 0 || *pResult > MODE_MAX)
-					*pErrorType = ERR_OOB;
+				if (result < 0 || result > MODE_MAX)
+					errorType = ERR_OOB;
 				else
-					mode = *pResult;
+					mode = result;
 
 				// Debug
 				print ("Mode (Text): ");
-				printlnNoPrefix (modeName (*pResult));
+				printlnNoPrefix (modeName (result));
 				print ("Mode (Current value): ");
 				printNoPrefix (mode, DEC);
 				printlnNoPrefix (" (" + modeName (mode) + ")");
@@ -187,38 +185,38 @@ void decodeRequest (String request, long * pResult, int * pInfoMode, int * pInfo
 				break;
 
 			case TYPE_PRT:
-				if (*pResult < 0 && *pResult > MODE_MAX)
-					*pErrorType = ERR_OOB;
+				if (result < 0 && result > MODE_MAX)
+					errorType = ERR_OOB;
 				else
 				{
-					prayerTime[*pInfoMode][2] = *pResult;
-					prayerTime[*pInfoMode][0] = prayerTime[*pInfoMode][2] / 60;
-					prayerTime[*pInfoMode][1] = prayerTime[*pInfoMode][2] % 60;
+					prayerTime[infoMode][2] = result;
+					prayerTime[infoMode][0] = prayerTime[infoMode][2] / 60;
+					prayerTime[infoMode][1] = prayerTime[infoMode][2] % 60;
 				}
 
 				// Debug
 				print ("Prayer time (Current value): ");
-				printlnNoPrefix (prayerTime[*pInfoMode][2], DEC);
+				printlnNoPrefix (prayerTime[infoMode][2], DEC);
 				print ("Prayer time (Current value) (Readable): ");
-				printDigits (prayerTime[*pInfoMode][0]);
+				printDigits (prayerTime[infoMode][0]);
 				printNoPrefix (":");
-				printDigits (prayerTime[*pInfoMode][1]);
+				printDigits (prayerTime[infoMode][1]);
 				printlnNoPrefix ("\n");
 
 				break;
 
 			case TYPE_SPE:
-				if (*pResult < SEEKBAR_MIN || *pResult > SEEKBAR_MAX)
-					*pErrorType = ERR_OOB;
+				if (result < SEEKBAR_MIN || result > SEEKBAR_MAX)
+					errorType = ERR_OOB;
 				else
-					speed[*pInfoMode] = *pResult;
+					speed[infoMode] = result;
 
 				// Debug
 				print ("Speed (Current value): ");
-				printlnNoPrefix (speed[*pInfoMode], DEC);
+				printlnNoPrefix (speed[infoMode], DEC);
 				break;
 		}
 
-	if (*pErrorType != ERR_NOE)
-		println ("Variable has not been changed (" + errorTypeName (*pErrorType, false) + ")\n");
+	if (errorType != ERR_NOE)
+		println ("Variable has not been changed (" + errorTypeName (errorType, false) + ")\n");
 } // readWeb

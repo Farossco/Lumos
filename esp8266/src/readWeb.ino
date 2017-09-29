@@ -11,7 +11,7 @@ void readWeb ()
 	while (!client.available()) // Wait until the client sends some data
 		delay (1);
 
-	decodeRequest (decodeWeb (client), &result, &infoMode, &infoType, &errorType);
+	decodeRequest (decodeWeb (client), result, infoMode, infoType, errorType);
 
 	if (infoType == TYPE_RIF)
 	{
