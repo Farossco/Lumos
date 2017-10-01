@@ -97,7 +97,7 @@ const int DEFAULT_VOLUME = 30;                                     // DFPlayer d
 const int MIN_SPEED[N_MODE] = { -1, 1, 1, 50, 10, 1 };         // Minimum speed or power value for each mode
 const int MAX_SPEED[N_MODE] = { -1, 25, 25, 600, 1000, 1000 }; // Maximum speed or power value for each mode
 const int MIN_POWER   = 0;                                     // Minimum power value
-const int MAX_POWER   = 100;                                   // Maximum power value
+const int MAX_POWER   = 255;                                   // Maximum power value
 const int SEEKBAR_MIN = 0;                                     // Minimum app seek bars value
 const int SEEKBAR_MAX = 100;                                   // Maximum app seek bars value
 const int MIN_VOLUME  = 0;                                     // Minimum DFPlayer volume
@@ -114,6 +114,7 @@ const int WAKEUP_SECONDS = 00;
 
 // Prayer
 const int PRAYER_FADE_SPEED         = 97; // Fade speed for prayer time
+const int PRAYER_ALERT_DURATION     = 10; // Prayer alert duration (in minutes)
 const int N_PRAYER                  = 6;  // Number of different prayer (including sunrise)
 const String PRAYERS_NAME[N_PRAYER] = { "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha" };
 
@@ -168,9 +169,9 @@ unsigned long count;    // Delay counting
 unsigned char lastMode; // Mode in previous loop - Allows mode initializations
 
 // ******* Time Alarms ******* //
-AlarmId wakeUpAlarm;
+AlarmId morningAlarm;
 AlarmId prayerStartAlarm[N_PRAYER];
-AlarmId prayerStopAlarm[N_PRAYER];
+AlarmId prayerStopAlarm;
 AlarmId timeSyncTimer;
 
 // Variable Change
@@ -196,6 +197,17 @@ void initDFPlayer ();
 void initSdCard ();
 boolean createLogFile ();
 char * getLogFileName ();
+void initAlarmsAndTimers ();
+void initTimeSyncTimer ();
+void initMorningAlarm ();
+void initPrayerAlarms ();
+void clearAlarms ();
+void clearTimeSyncTimer ();
+void clearMorningAlarm ();
+void clearPrayerAlarms ();
+void prayerStart ();
+void prayerStop ();
+void morningStartAlarm ();
 void readClaps ();
 void printPrefix (int debugLevel);
 void printSdPrefix (int debugLevel);
@@ -222,7 +234,7 @@ void println (int debugLevel, long message, int base, boolean prefix = true);
 void println (int debugLevel, unsigned long message, int base, boolean prefix = true);
 void println (int debugLevel, double message, int base, boolean prefix = true);
 void println (int debugLevel, const Printable &message, boolean prefix = true);
-void decodeRequest (String request, long & pResult, int & pInfoMode, int & pInfoType, int & pErrorType);
+void decodeRequest (String request, long & result, int & infoMode, int & infotype, int & errorType);
 void eepromDump (unsigned int start, unsigned int limit);
 void eepromWrite ();
 boolean eepromRead ();
@@ -246,11 +258,6 @@ void initSerial ();
 void waitForTime ();
 void askForTime ();
 void readSerial ();
-void initTimeAlarms ();
-void clearAlarms ();
-void prayerStart ();
-void prayerStop ();
-void morningAlarm ();
 String modeName (int mode, int caps);
 String infoTypeName (int infoType, boolean shortened);
 String errorTypeName (int infoType, boolean shortened);
@@ -259,6 +266,7 @@ String debugLevelSpace (int debugLevel);
 void digitalClockDisplay (int debugLevel);
 void printDigits (int debugLevel, int digits);
 void softwareReset ();
+int convertBoundaries (float input, float inMin, float inMax, float outMin, float outMax, boolean seekBarIsIn);
 void testVariableChange ();
 void initVariableChange ();
 void sendInfo ();

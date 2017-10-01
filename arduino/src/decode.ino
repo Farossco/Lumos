@@ -124,6 +124,8 @@ void decodeRequest (String request, long & result, int & infoMode, int & infotyp
 				println (LEVEL_DEBUG, now(), DEC, false);
 				print (LEVEL_DEBUG, "TIME (Current value) (readable): ");
 				digitalClockDisplay (LEVEL_DEBUG);
+
+				initMorningAlarm();
 				break;
 
 			case TYPE_RGB:
@@ -166,10 +168,10 @@ void decodeRequest (String request, long & result, int & infoMode, int & infotyp
 				break;
 
 			case TYPE_POW:
-				if (result < 0 || result > 100)
+				if (result < SEEKBAR_MIN || result > SEEKBAR_MAX)
 					errorType = ERR_OOB;
 				else
-					power[infoMode] = result;
+					power[infoMode] = convertBoundaries (result, SEEKBAR_MIN, SEEKBAR_MAX, MIN_POWER, MAX_POWER, true);
 
 				// Debug
 				print (LEVEL_DEBUG, "Power (Current value): ");
@@ -178,7 +180,7 @@ void decodeRequest (String request, long & result, int & infoMode, int & infotyp
 				break;
 
 			case TYPE_MOD:
-				if (result < 0 || result > MODE_MAX)
+				if (result < MODE_MIN || result > MODE_MAX)
 					errorType = ERR_OOB;
 				else
 					mode = result;
@@ -193,7 +195,7 @@ void decodeRequest (String request, long & result, int & infoMode, int & infotyp
 				break;
 
 			case TYPE_PRT:
-				if (result < 0 && result > MODE_MAX)
+				if (result < MODE_MIN && result > MODE_MAX)
 					errorType = ERR_OOB;
 				else
 				{
@@ -211,14 +213,27 @@ void decodeRequest (String request, long & result, int & infoMode, int & infotyp
 				printDigits (LEVEL_DEBUG, prayerTime[infoMode][1]);
 				println (LEVEL_DEBUG, false);
 
-				initTimeAlarms();
+				initPrayerAlarms();
 				break;
 
 			case TYPE_SPE:
-				if (result < SEEKBAR_MIN || result > SEEKBAR_MAX)
-					errorType = ERR_OOB;
+				if (infoMode == MODE_WAKEUP)
+				{
+					if (result < 0)
+						errorType = ERR_OOB;
+					else
+					{
+						speed[infoMode] = result;
+						initMorningAlarm();
+					}
+				}
 				else
-					speed[infoMode] = result * (MAX_SPEED[infoMode] - MIN_SPEED[infoMode]) / (SEEKBAR_MAX - SEEKBAR_MIN) + (MIN_SPEED[infoMode] - SEEKBAR_MIN);
+				{
+					if (result < SEEKBAR_MIN || result > SEEKBAR_MAX)
+						errorType = ERR_OOB;
+					else
+						speed[infoMode] = convertBoundaries (result, SEEKBAR_MIN, SEEKBAR_MAX, MIN_SPEED[infoMode], MAX_SPEED[infoMode], true);
+				}
 
 				// Debug
 				print (LEVEL_DEBUG, "Min Speed: ");

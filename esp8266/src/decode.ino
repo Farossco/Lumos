@@ -206,10 +206,20 @@ void decodeRequest (String request, long & result, int & infoMode, int & infoTyp
 				break;
 
 			case TYPE_SPE:
-				if (result < SEEKBAR_MIN || result > SEEKBAR_MAX)
-					errorType = ERR_OOB;
+				if (infoMode == MODE_WAKEUP)
+				{
+					if (result < 0)
+						errorType = ERR_OOB;
+					else
+						speed[infoMode] = result;
+				}
 				else
-					speed[infoMode] = result;
+				{
+					if (result < SEEKBAR_MIN || result > SEEKBAR_MAX)
+						errorType = ERR_OOB;
+					else
+						speed[infoMode] = result;
+				}
 
 				// Debug
 				print ("Speed (Current value): ");

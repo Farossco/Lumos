@@ -150,3 +150,11 @@ void softwareReset () // Just in case
 {
 	asm volatile ("  jmp 0");
 }
+
+int convertBoundaries (float input, float inMin, float inMax, float outMin, float outMax, boolean seekBarIsIn)
+{
+	if (seekBarIsIn)
+		return input * (outMax - outMin) / (inMax - inMin) + (outMin - inMin);
+	else
+		return ((input - (inMin - outMin)) * (outMax - outMin)) / (inMax - inMin);
+}

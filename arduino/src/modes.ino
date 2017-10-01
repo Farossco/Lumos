@@ -270,13 +270,16 @@ void initModeWakeup ()
 	lastMode           = MODE_WAKEUP; // Setting lastMode so we don't call init again
 
 	println (LEVEL_INFO, false);
-	println (LEVEL_INFO, "Entering Wakeup mode");
+	print (LEVEL_INFO, "Entering Wakeup mode for ");
+	print (LEVEL_INFO, speed[MODE_WAKEUP], DEC, false);
+	println (LEVEL_INFO, " min.", false);
 }
 
 // Wakeup Mode
 void modeWakeup ()
 {
-	if (millis() - count < (unsigned int) (10000 / speed[MODE_WAKEUP]))
+	// x60 to convert in seconds and x1000 to convert in milliseconds
+	if (millis() - count < (((unsigned long) speed[MODE_WAKEUP]) * 60 * 1000) / MAX_POWER)
 		return;
 
 	power[MODE_WAKEUP] += 1;        // Slowly increase power

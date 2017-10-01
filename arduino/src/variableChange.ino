@@ -120,11 +120,12 @@ void sendInfo ()
 	{
 		Serial1.print ("POW");
 		Serial1.print (i, DEC);
+		Serial1.print (convertBoundaries (power[i], MIN_POWER, MAX_POWER, SEEKBAR_MIN, SEEKBAR_MAX, false));
 		Serial1.print ((int) power[i], DEC);
 		Serial1.print ("z");
 		print (LEVEL_DEBUG, "POW", false);
 		print (LEVEL_DEBUG, i, DEC, false);
-		print (LEVEL_DEBUG, (int) power[i], DEC, false);
+		print (LEVEL_DEBUG, convertBoundaries (power[i], MIN_POWER, MAX_POWER, SEEKBAR_MIN, SEEKBAR_MAX, false), DEC, false);
 		print (LEVEL_DEBUG, "z ", false);
 	}
 
@@ -132,11 +133,17 @@ void sendInfo ()
 	{
 		Serial1.print ("SPE");
 		Serial1.print (i, DEC);
-		Serial1.print ((((long) speed[i] - (MIN_SPEED[i] - SEEKBAR_MIN)) * (SEEKBAR_MAX - SEEKBAR_MIN)) / (MAX_SPEED[i] - MIN_SPEED[i]), DEC);
+		if (i == MODE_WAKEUP)
+			Serial1.print (speed[i], DEC);
+		else
+			Serial1.print (convertBoundaries (speed[i], MIN_SPEED[i], MAX_SPEED[i], SEEKBAR_MIN, SEEKBAR_MAX, false));
 		Serial1.print ("z");
 		print (LEVEL_DEBUG, "SPE", false);
 		print (LEVEL_DEBUG, i, DEC, false);
-		print (LEVEL_DEBUG, (((long) speed[i] - (MIN_SPEED[i] - SEEKBAR_MIN)) * (SEEKBAR_MAX - SEEKBAR_MIN)) / (MAX_SPEED[i] - MIN_SPEED[i]), DEC, false);
+		if (i == MODE_WAKEUP)
+			print (LEVEL_DEBUG, speed[i], DEC, false);
+		else
+			print (LEVEL_DEBUG, convertBoundaries (speed[i], MIN_SPEED[i], MAX_SPEED[i], SEEKBAR_MIN, SEEKBAR_MAX, false), DEC, false);
 		print (LEVEL_DEBUG, "z ", false);
 	}
 

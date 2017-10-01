@@ -16,8 +16,6 @@ void setup ()
 
 	initDFPlayer(); // Initialize DFPlayer communication
 
-	initTimeAlarms();
-
 	initModes(); // Initialize default values for modes variables
 
 	initGlobal(); // Initialize defaut values for global variables
@@ -34,7 +32,7 @@ void setup ()
 
 void loop ()
 {
-	Alarm.delay (1); // Needed for timeAlarms to work
+	Alarm.delay (0); // Needed for timeAlarms to work
 
 	testVariableChange(); // Perform action at each variation of one of the global variables
 
