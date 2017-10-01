@@ -121,7 +121,6 @@ void sendInfo ()
 		Serial1.print ("POW");
 		Serial1.print (i, DEC);
 		Serial1.print (convertBoundaries (power[i], MIN_POWER, MAX_POWER, SEEKBAR_MIN, SEEKBAR_MAX, false));
-		Serial1.print ((int) power[i], DEC);
 		Serial1.print ("z");
 		print (LEVEL_DEBUG, "POW", false);
 		print (LEVEL_DEBUG, i, DEC, false);
