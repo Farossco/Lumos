@@ -166,7 +166,7 @@ size_t printlnNoPrefix (long message, int base);
 size_t printlnNoPrefix (unsigned long message, int base);
 size_t printlnNoPrefix (double message, int base);
 size_t printlnNoPrefix (const Printable & message);
-void decodeRequest (String request, long & pResult, int & pInfoMode, int & pInfoType, int & pErrorType);
+void decodeRequest (String request, long & result, int & infoMode, int & infoType, int & errorType);
 void sendJsonToSerial (String status, String message);
 void sendJsonToClient (String status, String message, WiFiClient client);
 void readWeb ();

@@ -16,6 +16,9 @@ void initTimeSyncTimer ()
 
 void initMorningAlarm ()
 {
+	if (!MORNING_ALARM_ENABLED || timeStatus() == timeNotSet)
+		return;
+
 	println (LEVEL_DEBUG, false);
 	println (LEVEL_DEBUG, "Setting morning alarm");
 
@@ -27,7 +30,10 @@ void initMorningAlarm ()
 
 void initPrayerAlarms ()
 {
-	println (false);
+	if (!PRAYER_ALARM_ENABLED || timeStatus() == timeNotSet)
+		return;
+
+	println (LEVEL_DEBUG, false);
 	println (LEVEL_DEBUG, "Setting prayer alarms");
 
 	clearPrayerAlarms();

@@ -24,11 +24,6 @@ unsigned long color[N_COLOR][3] =
 	{ 0xFF7B92, 0xFFF00F, 0x35A9425F } // B5
 };
 
-// ******* readInfrared ******* //
-unsigned long lastIRCode; // IR code in previous loop - Allows continious power / strobe speed increasion / dicreasion
-unsigned long IRCode;     // Current IR code
-boolean flag;
-
 void initInfrared ()
 {
 	if (!INFRARED_ENABLED)
@@ -50,8 +45,6 @@ void readInfrared ()
 {
 	if (!INFRARED_ENABLED)
 		return;
-
-	flag = false;
 
 	// If something is comming from IR reciever
 	if (irrecv.decode (&results))

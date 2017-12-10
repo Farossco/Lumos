@@ -250,4 +250,4 @@ void decodeRequest (String request, long & result, int & infoMode, int & infotyp
 		println (LEVEL_DEBUG, false);
 		println (LEVEL_DEBUG, "Variable has not been changed (" + errorTypeName (errorType, false) + ")");
 	}
-} // readWeb
+} // decodeRequest

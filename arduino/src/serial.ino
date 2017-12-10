@@ -12,23 +12,23 @@ void waitForTime ()
 	if (!WAIT_FOR_TIME)
 		return;
 
-	time_t lastMillis = millis();
-	boolean flag      = false;
+	time_t lastMillis     = millis();
+	boolean prayersAreSet = false;
 
-	while (timeStatus() == timeNotSet || !flag) // Doesn't start if time isn't set and we didn't receive all prayer times
+	while (timeStatus() == timeNotSet || (!prayersAreSet && PRAYER_ALARM_ENABLED)) // Doesn't start if time isn't set and we didn't receive all prayer times
 	{
 		readSerial();
 
-		flag = true;
+		prayersAreSet = true;
 
 		for (int i = 0; i < N_PRAYER; i++)
 			if (prayerTime[i][2] == 0)
-				flag = false;
+				prayersAreSet = false;
 
 		if (millis() - lastMillis >= 5000)
 		{
 			println (LEVEL_DEBUG, false);
-			if (timeStatus() == timeNotSet && !flag)
+			if (timeStatus() == timeNotSet && !prayersAreSet && PRAYER_ALARM_ENABLED)
 				println (LEVEL_DEBUG, "Neither time nor prayers are set");
 			else if (timeStatus() == timeNotSet)
 				println (LEVEL_DEBUG, "Time is not set");

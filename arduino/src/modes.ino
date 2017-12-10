@@ -155,10 +155,10 @@ void modeStrobe ()
 // Fade Mode initialization
 void initModeFade ()
 {
-	state          = 1;         // Setting state to Increasing state
-	rgb[MODE_FADE] = 0x000000;  // Setting color to white
-	count          = millis();  // Reseting milliseconds counter
-	lastMode       = MODE_FADE; // Setting lastMode so we don't call init again
+	state          = 0;                              // Setting state to Decreasing state
+	rgb[MODE_FADE] = 0xFFFFFF / power[MODE_DEFAULT]; // Setting color to white
+	count          = millis();                       // Reseting milliseconds counter
+	lastMode       = MODE_FADE;                      // Setting lastMode so we don't call init again
 
 	println (LEVEL_INFO, false);
 	println (LEVEL_INFO, "Entering Fade mode");
@@ -175,10 +175,10 @@ void modeFade ()
 	else
 		rgb[MODE_FADE] -= 0x010101;  // Decreasing all colors
 
-	if (rgb[MODE_FADE] >= 0xFFFFFF) // If color reach white, we start to decrease
-		state = 0;                  // Decreasing state
-	else if (rgb[MODE_FADE] <= 0)   // If color reach black, we start to increase
-		state = 1;                  // Increasing state
+	if (rgb[MODE_FADE] >= 0xFFFFFF)      // If color reach white, we start to decrease
+		state = 0;                       // Decreasing state
+	else if (rgb[MODE_FADE] <= 0x000000) // If color reach black, we start to increase
+		state = 1;                       // Increasing state
 
 	count = millis();
 }
