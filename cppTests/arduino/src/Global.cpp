@@ -2,13 +2,13 @@
 #include <Time.h>
 #include "Global.h"
 #include "Logger.h"
+#include "Memory.h"
 
-
-void Global::begin ()
+void Global::init ()
 {
-	// if (eepromRead()) // Returns True if EEPROM is not correctly initialized (This may be the first launch)
+	if (memory.read()) // Returns True if EEPROM is not correctly initialized (This may be the first launch)
 	{
-		Log.info ("This is first launch, variables will be initialized to their default values" endl);
+		Log.info ("This is first launch, variables will be initialized to their default values" dendl);
 
 		for (int i = MODE_MIN; i < N_MODE; i++)
 		{
@@ -16,16 +16,16 @@ void Global::begin ()
 			power[i] = DEFAULT_POWER[i]; // Initializing powers their default value
 			speed[i] = DEFAULT_SPEED[i]; // Initializing speeds their default value
 		}
-		// eepromWrite();
-	}
 
-	/*
-	 * else
-	 * {
-	 *  for (int i = MODE_FLASH; i < N_MODE; i++)
-	 *      rgb[i] = DEFAULT_RGB[i];  // Initialize colors to their default values (Starting from flash mode)
-	 * }
-	 */
+		memory.write();
+	}
+	else
+	{
+		for (int i = MODE_FLASH; i < N_MODE; i++)
+		{
+			rgb[i] = DEFAULT_RGB[i]; // Initialize colors to their default values (Starting from flash mode)
+		}
+	}
 }
 
 // Display the RGB value

@@ -9,7 +9,7 @@ Infrared::Infrared() : irrecv (0)
 	IRCode     = 0;
 }
 
-void Infrared::begin (int pin)
+void Infrared::init (int pin)
 {
 	irrecv = IRrecv (pin);
 

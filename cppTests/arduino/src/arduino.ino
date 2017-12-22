@@ -1,35 +1,52 @@
+#include <Time.h>
 #include "Global.h"
 #include "Logger.h"
 #include "Infrared.h"
 #include "SdCard.h"
 #include "VariableChange.h"
 #include "ArduinoSerial.h"
-#include <Time.h>
+#include "Alarms.h"
+#include "Mods.h"
+
 
 void setup ()
 {
-	setTime (1512833569);
+	serial.init (DEBUG_BAUD_RATE, ESP_BAUD_RATE);
 
-	serial.begin (DEBUG_BAUD_RATE);
+	sd.init (PIN_SD_CS);
 
-	global.begin();
+	Log.init (&Serial, LEVEL_VERBOSE);
 
-	Log.begin (&Serial, 250000, LEVEL_VERBOSE);
+	serial.waitForTime();
 
-	infrared.begin (PIN_LED_INFRARED);
+	infrared.init (PIN_LED_INFRARED);
 
-	sd.begin (PIN_SD_CS);
+	// init DF player
 
-	variableChange.begin();
+	mods.init();
+
+	global.init();
+
+	variableChange.init();
+
+	alarms.initAll();
+
+	variableChange.sendInfo();
 }
 
 void loop ()
 {
-	global.light();
+	Alarm.delay (0);
+
+	variableChange.check();
+
+	// read claps
 
 	infrared.read();
 
-	//variableChange.check();
-
 	serial.read();
+
+	mods.action();
+
+	global.light();
 }

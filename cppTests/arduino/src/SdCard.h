@@ -7,7 +7,7 @@ class SdCard
 {
 public:
 	SdCard();
-	void begin (int pin);
+	void init (int pin);
 
 private:
 	int pin;

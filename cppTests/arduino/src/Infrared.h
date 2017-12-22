@@ -36,7 +36,7 @@ class Infrared
 {
 public:
 	Infrared();
-	void begin (int pin);
+	void init (int pin);
 	void read ();
 
 private:

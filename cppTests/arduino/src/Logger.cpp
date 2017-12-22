@@ -14,15 +14,15 @@ Logger::Logger()
 	output2      = NULL;
 }
 
-void Logger::begin (Print * output1, long output1BaudRate, int output1Level)
+void Logger::init (Print * output1, int output1Level)
 {
 	this->output1Level = constrain (output1Level, LEVEL_SILENT, LEVEL_VERBOSE);
 	this->output1      = output1;
 }
 
-void Logger::begin (Print * output1, long output1BaudRate, int output1Level, Print * output2, int output2Level)
+void Logger::init (Print * output1, int output1Level, Print * output2, int output2Level)
 {
-	begin (output1, output1BaudRate, output1Level);
+	init (output1, output1Level);
 
 	this->output2Level = constrain (output2Level, LEVEL_SILENT, LEVEL_VERBOSE);
 	this->output2      = output2;

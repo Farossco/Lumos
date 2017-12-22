@@ -28,8 +28,8 @@ private:
 public:
 	Logger();
 
-	void begin (Print * output1, long output1BaudRate, int output1Level);
-	void begin (Print * output1, long output1BaudRate, int output1Level, Print * output2, int output2Level);
+	void init (Print * output1, int output1Level);
+	void init (Print * output1, int output1Level, Print * output2, int output2Level);
 
 	template <class T, typename ... Args> void error (T msg, Args ... args)
 	{

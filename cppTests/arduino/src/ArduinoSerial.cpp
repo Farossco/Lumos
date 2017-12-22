@@ -4,26 +4,27 @@
 #include "Global.h"
 #include "Request.h"
 #include "VariableChange.h"
+#include "Alarms.h"
 
-void ArduinoSerial::begin (long serialBaudRate)
+void ArduinoSerial::init (long serialBaudRate)
 {
 	Serial.begin (serialBaudRate); // Initialize debug communication
 }
 
-void ArduinoSerial::begin (long serialBaudRate, long serial1BaudRate)
+void ArduinoSerial::init (long serialBaudRate, long serial1BaudRate)
 {
 	Serial.begin (serialBaudRate);   // Initialize debug communication
 	Serial1.begin (serial1BaudRate); // Initialize ESP8266 communication
 }
 
-void ArduinoSerial::begin (long serialBaudRate, long serial1BaudRate, long serial2BaudRate)
+void ArduinoSerial::init (long serialBaudRate, long serial1BaudRate, long serial2BaudRate)
 {
 	Serial.begin (serialBaudRate);   // Initialize debug communication
 	Serial1.begin (serial1BaudRate); // Initialize ESP8266 communication
 	Serial2.begin (serial2BaudRate); // Initialize DFPlayer communication
 }
 
-void ArduinoSerial::begin (long serialBaudRate, long serial1BaudRate, long serial2BaudRate, long serial3BaudRate)
+void ArduinoSerial::init (long serialBaudRate, long serial1BaudRate, long serial2BaudRate, long serial3BaudRate)
 {
 	Serial.begin (serialBaudRate);   // Initialize debug communication
 	Serial1.begin (serial1BaudRate); // Initialize ESP8266 communication
@@ -36,27 +37,20 @@ void ArduinoSerial::waitForTime ()
 	if (!WAIT_FOR_TIME)
 		return;
 
-	time_t lastMillis     = millis();
-	boolean prayersAreSet = false;
+	time_t lastMillis = millis();
 
-	while (timeStatus() == timeNotSet || (!prayersAreSet && PRAYER_ALARM_ENABLED)) // Doesn't start if time isn't set and we didn't receive all prayer times
+	while (timeStatus() == timeNotSet || (alarms.prayersAreSet() != 0 && PRAYER_ALARM_ENABLED)) // Doesn't start if time isn't set and we didn't receive all prayer times
 	{
 		read();
 
-		prayersAreSet = true;
-
-		for (int i = 0; i < N_PRAYER; i++)
-			// if (prayer.prayerTime[i][2] == 0)
-			prayersAreSet = false;
-
 		if (millis() - lastMillis >= 5000)
 		{
-			if (timeStatus() == timeNotSet && !prayersAreSet && PRAYER_ALARM_ENABLED)
-				Log.verbose ("Neither time nor prayers are set" endl);
+			if (timeStatus() == timeNotSet && alarms.prayersAreSet() != 0 && PRAYER_ALARM_ENABLED)
+				Log.verbose ("Neither time nor prayers are set (Waiting for %d prayer%s)" endl, alarms.prayersAreSet(), alarms.prayersAreSet() > 1 ? "s" : "");
 			else if (timeStatus() == timeNotSet)
 				Log.verbose ("Time is not set" endl);
 			else
-				Log.verbose ("Prayers are not set" endl);
+				Log.verbose ("Prayers are not set (Waiting for %d prayer%s" endl, alarms.prayersAreSet(), alarms.prayersAreSet() > 1 ? "s" : "");
 
 			askForTime();
 			lastMillis = millis();
@@ -77,16 +71,16 @@ void ArduinoSerial::read ()
 {
 	long result, length;
 	int infoMode, infoType, errorType;
-	const int bufsize = 10;
-	char buf[bufsize] = "         ";
+	const int bufSize = 14;
+	char buf[bufSize] = "";
 
 	if (Serial.available())
 	{
-		length = Serial.readBytesUntil ('z', buf, bufsize);
+		length = Serial.readBytesUntil ('z', buf, bufSize);
 	}
 	else if (Serial1.available())
 	{
-		length = Serial1.readBytesUntil ('z', buf, bufsize);
+		length = Serial1.readBytesUntil ('z', buf, bufSize);
 	}
 	else
 	{

@@ -1,7 +1,5 @@
 #include "arduino.h"
 
-unsigned long dick;
-
 void initModes ()
 {
 	lastMode = MODE_DEFAULT;                  // Initialiazing last mode as well

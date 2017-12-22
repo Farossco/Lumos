@@ -4,6 +4,7 @@
 #include "Utils.h"
 #include "Logger.h"
 #include "Global.h"
+#include "Alarms.h"
 
 void Request::decode (char * request, long & result, int & infoMode, int & infotype, int & errorType)
 {
@@ -114,7 +115,7 @@ void Request::decode (char * request, long & result, int & infoMode, int & infot
 				Log.verbose ("Time (Current value): %d" endl, now());
 				Log.verbose ("Time (Current value) (readable): %s" endl, utils.clock (buf));
 
-				// alarm.initDawn();
+				alarms.initDawn();
 				break;
 
 			case TYPE_RGB:
@@ -142,11 +143,11 @@ void Request::decode (char * request, long & result, int & infoMode, int & infot
 
 				if (global.on != 0 && global.on != 1)
 				{
-					Log.verbosenp ("Error (%d)" endl, global.on);
+					Log.verbosenp ("Error (%d)" dendl, global.on);
 				}
 				else
 				{
-					Log.verbosenp ("%T" endl, global.on);
+					Log.verbosenp ("%T" dendl, global.on);
 				}
 
 				break;
@@ -157,7 +158,7 @@ void Request::decode (char * request, long & result, int & infoMode, int & infot
 				else
 					global.power[infoMode] = utils.convertBoundaries (result, SEEKBAR_MIN, SEEKBAR_MAX, MIN_POWER, MAX_POWER);
 
-				Log.verbose ("Power (Current value): %d" endl, global.power[infoMode]);
+				Log.verbose ("Power (Current value): %d" dendl, global.power[infoMode]);
 
 				break;
 
@@ -168,38 +169,40 @@ void Request::decode (char * request, long & result, int & infoMode, int & infot
 					global.mode = result;
 
 				Log.verbose ("Mode (Text): %s" endl, utils.modeName (result, CAPS_FIRST));
-				Log.verbose ("Mode (Current value): %s (%d)" endl, global.power[infoMode], utils.modeName (global.mode, CAPS_FIRST), global.mode);
+				Log.verbose ("Mode (Current value): %s (%d)" dendl, global.power[infoMode], utils.modeName (global.mode, CAPS_FIRST), global.mode);
 
 				break;
 
-			/*
-			 * case TYPE_PRT:
-			 *  if (result < MODE_MIN && result > MODE_MAX)
-			 *      errorType = ERR_OOB;
-			 *  else
-			 *  {
-			 *      prayer.prayerTime[infoMode][2] = result;
-			 *      prayer.prayerTime[infoMode][0] = prayerTime[infoMode][2] / 60;
-			 *      prayer.prayerTime[infoMode][1] = prayerTime[infoMode][2] % 60;
-			 *  }
-			 *
-			 *  // Debug
-			 *  Log.verbose("Prayer time (Current value): %d" endl, prayer.prayerTime[infoMode][2]);
-			 *  Log.verbose("Prayer time (Current value) (Readable): %d:%d" endl, prayer.prayerTime[infoMode][0], prayer.prayerTime[infoMode][1]);
-			 *
-			 *  //alarms.initPrayer();
-			 *  break;
-			 */
+			case TYPE_PRT:
+				if (result < MODE_MIN && result > MODE_MAX)
+					errorType = ERR_OOB;
+				else
+				{
+					alarms.prayerTime[infoMode][2] = result;
+					alarms.prayerTime[infoMode][0] = alarms.prayerTime[infoMode][2] / 60;
+					alarms.prayerTime[infoMode][1] = alarms.prayerTime[infoMode][2] % 60;
+
+					alarms.prayersSet[infoMode] = true;
+				}
+
+				// Debug
+				Log.verbose ("Prayer time (Current value): %d" endl, alarms.prayerTime[infoMode][2]);
+				Log.verbose ("Prayer time (Current value) (Readable): %d:%d" dendl, alarms.prayerTime[infoMode][0], alarms.prayerTime[infoMode][1]);
+
+				alarms.initPrayer();
+
+				break;
+
 
 			case TYPE_SPE:
-				if (infoMode == MODE_WAKEUP)
+				if (infoMode == MODE_DAWN)
 				{
 					if (result < 0)
 						errorType = ERR_OOB;
 					else
 					{
 						global.speed[infoMode] = result;
-						// alarms.initDawn();
+						alarms.initDawn();
 					}
 				}
 				else
@@ -213,7 +216,7 @@ void Request::decode (char * request, long & result, int & infoMode, int & infot
 				// Debug
 				Log.verbose ("Min Speed: %d" endl, MIN_SPEED[infoMode]);
 				Log.verbose ("Max Speed: %d" endl, MAX_SPEED[infoMode]);
-				Log.verbose ("Speed (Current value): %d" endl, global.speed[infoMode]);
+				Log.verbose ("Speed (Current value): %d" dendl, global.speed[infoMode]);
 
 				break;
 		}
@@ -221,10 +224,8 @@ void Request::decode (char * request, long & result, int & infoMode, int & infot
 	if (errorType != ERR_NOE)
 	{
 		Log.verbosenp (endl);
-		Log.warning ("Variable has not been changed (%s)" endl, utils.errorTypeName (errorType, false));
+		Log.warning ("Variable has not been changed (%s)" dendl, utils.errorTypeName (errorType, false));
 	}
-
-	Log.warningnp (endl);
 } // Request::decode
 
 Request request = Request();

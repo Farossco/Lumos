@@ -8,12 +8,11 @@ class VariableChange
 {
 public:
 	VariableChange();
-	void begin ();
+	void init ();
 	void check ();
 	void sendInfo ();
 
 private:
-	char buf[(N_MODE * 8) + 26];
 	boolean changeOn;
 	unsigned long changeRgb;
 	int changePower[N_MODE];

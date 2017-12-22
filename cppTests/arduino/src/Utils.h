@@ -14,7 +14,7 @@ const int MODE_FLASH   = 1; // Flash mode
 const int MODE_STROBE  = 2; // Strobe mode
 const int MODE_FADE    = 3; // Fade mode
 const int MODE_SMOOTH  = 4; // Smooth mode
-const int MODE_WAKEUP  = 5; // Wake up mode
+const int MODE_DAWN    = 5; // Dawn mode
 const int MODE_MAX     = 5; // -Maximum mode value-
 const int N_MODE       = 6; // --Number of different modes--
 
@@ -65,7 +65,7 @@ const char PRAYERS_NAME[N_PRAYER][8] = { "Fajr", "Sunrise", "Dhuhr", "Asr", "Mag
 const unsigned long DEFAULT_RGB[N_MODE] =
 { 0xFFFFFF, 0xFF0000, 0xFFFFFF, 0xFFFFFF, 0xFF0000, 0x0000FF };    // Default color on program startup
 const float DEFAULT_POWER[N_MODE] = { 50, 100, 100, 100, 100, 0 }; // Default power on program startup
-const int DEFAULT_SPEED[N_MODE] = { -1, 0, 0, 750, 800, 2000 };    // Default speed on program startup
+const int DEFAULT_SPEED[N_MODE] = { -1, 10, 10, 300, 500, 500 };    // Default speed on program startup
 const int DEFAULT_VOLUME = 30;                                     // DFPlayer default volume (0 - 30)
 
 // Min and Max

@@ -3,11 +3,12 @@
 #include "VariableChange.h"
 #include "Global.h"
 #include "Logger.h"
+#include "Memory.h"
 
 VariableChange::VariableChange()
 { }
 
-void VariableChange::begin ()
+void VariableChange::init ()
 {
 	// Initializing to default values
 	changeOn   = global.on;
@@ -42,7 +43,6 @@ void VariableChange::check ()
 		flagWriteEeprom = true;
 	}
 
-
 	for (int i = MODE_MIN; i < N_MODE; i++)
 		if (changePower[i] != global.power[i])
 		{
@@ -50,7 +50,7 @@ void VariableChange::check ()
 
 			changePower[i] = global.power[i];
 			flagSendInfo   = true;
-			if (i != MODE_WAKEUP)
+			if (i != MODE_DAWN)
 				flagWriteEeprom = true;
 		}
 
@@ -77,25 +77,31 @@ void VariableChange::check ()
 	if (flagSendInfo)
 		sendInfo();
 
-	if (flagWriteEeprom) ;
-	// eepromWrite();
-} // testVariableChange
+	if (flagWriteEeprom)
+		memory.write();
+} // VariableChange::check
+
+char varBuf[9 + 3 + 1 + (MODE_MAX < 10 ? 1 : 2) + 6 + N_MODE * 16];
 
 void VariableChange::sendInfo ()
 {
 	Log.trace ("Sending variables infos to the ESP8266" dendl);
 
-	sprintf (buf + strlen (buf), "ONF%dzMOD%dzRGB%lXz", global.on != 0, global.mode, global.rgb[MODE_DEFAULT]);
+	sprintf (varBuf, "ONF%dzMOD%dzRGB%lXz", global.on != 0, global.mode, global.rgb[MODE_DEFAULT]);
 
 	for (int i = MODE_MIN; i < N_MODE; i++)
-		sprintf (buf + strlen (buf), "POW%d%dz", i, utils.convertBoundaries (global.power[i], MIN_POWER, MAX_POWER, SEEKBAR_MIN, SEEKBAR_MAX));
+		sprintf (varBuf + strlen (varBuf), "POW%d%dz", i, utils.convertBoundaries (global.power[i], MIN_POWER, MAX_POWER, SEEKBAR_MIN, SEEKBAR_MAX));
 
-	for (int i = MODE_MIN; i < N_MODE; i++)
-		sprintf (buf + strlen (buf), "SPE%d%dz", i, i == 0 ? global.speed[i] : utils.convertBoundaries (global.speed[i], MIN_SPEED[i], MAX_SPEED[i], SEEKBAR_MIN, SEEKBAR_MAX));
 
-	Log.verbose ("%s" dendl, buf);
+	for (int i = MODE_MIN + 1; i < N_MODE; i++)
+		if (i != MODE_DEFAULT) // Not sending Default mod speed
+			sprintf (varBuf + strlen (varBuf), "SPE%d%dz", i, i == 0 ? global.speed[i] : utils.convertBoundaries (global.speed[i], MIN_SPEED[i], MAX_SPEED[i], SEEKBAR_MIN, SEEKBAR_MAX));
 
-	Serial1.print (buf);
-} // sendInfo
+	varBuf[strlen (varBuf)] = '\0';
+
+	Log.verbose ("%s" dendl, varBuf);
+
+	Serial1.print (varBuf);
+}
 
 VariableChange variableChange = VariableChange();

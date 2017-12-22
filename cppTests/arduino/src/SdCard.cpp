@@ -8,7 +8,7 @@ SdCard::SdCard()
 	pin = 0;
 }
 
-void SdCard::begin (int pin)
+void SdCard::init (int pin)
 {
 	this->pin = pin;
 

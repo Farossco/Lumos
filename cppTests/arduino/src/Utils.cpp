@@ -21,7 +21,7 @@ const char * Utils::modeName (int mode, int caps)
 		case MODE_SMOOTH:
 			return caps == 0 ? "smooth" : caps == 1 ? "Smooth" : "SMOOTH";
 
-		case MODE_WAKEUP:
+		case MODE_DAWN:
 			return caps == 0 ? "wake up" : caps == 1 ? "Wake up" : "WAKE UP";
 
 		default:
