@@ -79,17 +79,17 @@ void Infrared::read ()
 			// DOWN
 			case 0xFFB847:
 			case 0xA23C94BF:
-				if (global.power[global.mode] - IR_CHANGE_STEP >= MIN_IR_POWER)
-					global.power[global.mode] -= IR_CHANGE_STEP;
+				if (global.power[global.mod] - IR_CHANGE_STEP >= MIN_IR_POWER)
+					global.power[global.mod] -= IR_CHANGE_STEP;
 				else
-					global.power[global.mode] = MIN_IR_POWER;
+					global.power[global.mod] = MIN_IR_POWER;
 
 
 				global.rgb2color();
 
 				// [DEBUG] Prints current color and RED, GREEN, BLUE values
-				Log.trace ("Power (%s mode): %d" endl, utils.modeName (global.mode, CAPS_ALL), global.power[global.mode]);
-				Log.trace ("RED: %d / GREEN : %d / BLUE: %d" dendl, global.red[global.mode], global.green[global.mode], global.blue[global.mode]);
+				Log.trace ("Power (%s mod): %d" endl, utils.modName (global.mod, CAPS_ALL), global.power[global.mod]);
+				Log.trace ("RED: %d / GREEN : %d / BLUE: %d" dendl, global.red[global.mod], global.green[global.mod], global.blue[global.mod]);
 
 				lastIRCode = IRCode;
 
@@ -99,16 +99,16 @@ void Infrared::read ()
 			// UP
 			case 0xFF906F:
 			case 0xE5CFBD7F:
-				if (global.power[global.mode] + IR_CHANGE_STEP <= MAX_POWER)
-					global.power[global.mode] += IR_CHANGE_STEP;
+				if (global.power[global.mod] + IR_CHANGE_STEP <= MAX_POWER)
+					global.power[global.mod] += IR_CHANGE_STEP;
 				else
-					global.power[global.mode] = MAX_POWER;
+					global.power[global.mod] = MAX_POWER;
 
 				global.rgb2color();
 
 				// [DEBUG] Prints current color and RED, GREEN, BLUE values
-				Log.trace ("Power (%s mode): %d" endl, utils.modeName (global.mode, CAPS_ALL), global.power[global.mode]);
-				Log.trace ("RED: %d / GREEN : %d / BLUE: %d" dendl, global.red[global.mode], global.green[global.mode], global.blue[global.mode]);
+				Log.trace ("Power (%s mod): %d" endl, utils.modName (global.mod, CAPS_ALL), global.power[global.mod]);
+				Log.trace ("RED: %d / GREEN : %d / BLUE: %d" dendl, global.red[global.mod], global.green[global.mod], global.blue[global.mod]);
 
 				lastIRCode = IRCode;
 
@@ -118,28 +118,28 @@ void Infrared::read ()
 			// FLASH
 			case 0xFFB24D:
 			case 0x7EC31EF7:
-				global.mode = MODE_FLASH;
+				global.mod = MOD_FLASH;
 				break;
 				break;
 
 			// STROBE
 			case 0xFF00FF:
 			case 0xFA3F159F:
-				global.mode = MODE_STROBE;
+				global.mod = MOD_STROBE;
 				break;
 				break;
 
 			// FADE
 			case 0xFF58A7:
 			case 0xDC0197DB:
-				global.mode = MODE_FADE;
+				global.mod = MOD_FADE;
 				break;
 				break;
 
 			// SMOOTH
 			case 0xFF30CF:
 			case 0x9716BE3F:
-				global.mode = MODE_SMOOTH;
+				global.mod = MOD_SMOOTH;
 				break;
 				break;
 
@@ -149,8 +149,8 @@ void Infrared::read ()
 				for (int i = 0; i < N_COLOR; i++)
 					if (results.value == color[i][1] || results.value == color[i][2])
 					{
-						global.mode              = MODE_DEFAULT;
-						global.rgb[MODE_DEFAULT] = color[i][0];
+						global.mod              = MOD_DEFAULT;
+						global.rgb[MOD_DEFAULT] = color[i][0];
 					}
 				break;
 		}

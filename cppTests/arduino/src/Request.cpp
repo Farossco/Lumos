@@ -6,14 +6,14 @@
 #include "Global.h"
 #include "Alarms.h"
 
-void Request::decode (char * request, long & result, int & infoMode, int & infotype, int & errorType)
+void Request::decode (char * request, long & result, int & infoMod, int & infotype, int & errorType)
 {
 	int requestLength = strlen (request);
 
 	result    = 0;
 	infotype  = 0;
 	errorType = ERR_NOE;
-	infoMode  = 0;
+	infoMod   = 0;
 
 	if (strstr (request, "INFO") == request)
 	{
@@ -63,29 +63,29 @@ void Request::decode (char * request, long & result, int & infoMode, int & infot
 
 	if (infotype == TYPE_POW || infotype == TYPE_SPE)
 	{
-		infoMode = request[0] - '0';
-		Log.verbose ("Info mode: %s (%d)" endl, utils.modeName (infoMode, CAPS_FIRST), infoMode);
+		infoMod = request[0] - '0';
+		Log.verbose ("Info mod: %s (%d)" endl, utils.modName (infoMod, CAPS_FIRST), infoMod);
 
 		utils.reduceCharArray (&request, 1); // Remove first char of the array (mod specifier)
 
-		if (infoMode < MODE_MIN || infoMode > MODE_MAX)
+		if (infoMod < MOD_MIN || infoMod > MOD_MAX)
 			errorType = ERR_UKM;
 	}
 	else if (infotype == TYPE_PRT)
 	{
-		for (infoMode = 0; infoMode < N_PRAYER; (infoMode)++)
-			if (request[0] == PRAYERS_NAME[infoMode][0])
+		for (infoMod = 0; infoMod < N_PRAYER; (infoMod)++)
+			if (request[0] == PRAYERS_NAME[infoMod][0])
 				break;
 
 		Log.verbose ("Prayer: ");
-		if (infoMode < 0 || infoMode >= N_PRAYER)
+		if (infoMod < 0 || infoMod >= N_PRAYER)
 		{
 			errorType = ERR_UKP;
-			Log.verbosenp ("%d" endl, infoMode);
+			Log.verbosenp ("%d" endl, infoMod);
 		}
 		else
 		{
-			Log.verbosenp ("%s (%d)" endl, PRAYERS_NAME[infoMode], infoMode);
+			Log.verbosenp ("%s (%d)" endl, PRAYERS_NAME[infoMod], infoMod);
 		}
 
 		utils.reduceCharArray (&request, 1); // Remove first char of the array (prayer specifier)
@@ -122,14 +122,14 @@ void Request::decode (char * request, long & result, int & infoMode, int & infot
 				if (result < 0 || result > 0xFFFFFF)
 					errorType = ERR_OOB;
 				else
-					global.rgb[MODE_DEFAULT] = result;
+					global.rgb[MOD_DEFAULT] = result;
 
 				// Debug
 				global.rgb2color();
-				Log.verbose ("RGB   (Current value): %x" endl, global.rgb[MODE_DEFAULT]);
-				Log.verbose ("Red   (Current value): %d" endl, global.red[MODE_DEFAULT]);
-				Log.verbose ("Green (Current value): %d" endl, global.green[MODE_DEFAULT]);
-				Log.verbose ("Blue  (Current value): %d" endl, global.blue[MODE_DEFAULT]);
+				Log.verbose ("RGB   (Current value): %x" endl, global.rgb[MOD_DEFAULT]);
+				Log.verbose ("Red   (Current value): %d" endl, global.red[MOD_DEFAULT]);
+				Log.verbose ("Green (Current value): %d" endl, global.green[MOD_DEFAULT]);
+				Log.verbose ("Blue  (Current value): %d" endl, global.blue[MOD_DEFAULT]);
 
 				break;
 
@@ -156,38 +156,38 @@ void Request::decode (char * request, long & result, int & infoMode, int & infot
 				if (result < SEEKBAR_MIN || result > SEEKBAR_MAX)
 					errorType = ERR_OOB;
 				else
-					global.power[infoMode] = utils.convertBoundaries (result, SEEKBAR_MIN, SEEKBAR_MAX, MIN_POWER, MAX_POWER);
+					global.power[infoMod] = utils.convertBoundaries (result, SEEKBAR_MIN, SEEKBAR_MAX, MIN_POWER, MAX_POWER);
 
-				Log.verbose ("Power (Current value): %d" dendl, global.power[infoMode]);
+				Log.verbose ("Power (Current value): %d" dendl, global.power[infoMod]);
 
 				break;
 
 			case TYPE_MOD:
-				if (result < MODE_MIN || result > MODE_MAX)
+				if (result < MOD_MIN || result > MOD_MAX)
 					errorType = ERR_OOB;
 				else
-					global.mode = result;
+					global.mod = result;
 
-				Log.verbose ("Mode (Text): %s" endl, utils.modeName (result, CAPS_FIRST));
-				Log.verbose ("Mode (Current value): %s (%d)" dendl, global.power[infoMode], utils.modeName (global.mode, CAPS_FIRST), global.mode);
+				Log.verbose ("Mod (Text): %s" endl, utils.modName (result, CAPS_FIRST));
+				Log.verbose ("Mod (Current value): %s (%d)" dendl, global.power[infoMod], utils.modName (global.mod, CAPS_FIRST), global.mod);
 
 				break;
 
 			case TYPE_PRT:
-				if (result < MODE_MIN && result > MODE_MAX)
+				if (result < MOD_MIN && result > MOD_MAX)
 					errorType = ERR_OOB;
 				else
 				{
-					alarms.prayerTime[infoMode][2] = result;
-					alarms.prayerTime[infoMode][0] = alarms.prayerTime[infoMode][2] / 60;
-					alarms.prayerTime[infoMode][1] = alarms.prayerTime[infoMode][2] % 60;
+					alarms.prayerTime[infoMod][2] = result;
+					alarms.prayerTime[infoMod][0] = alarms.prayerTime[infoMod][2] / 60;
+					alarms.prayerTime[infoMod][1] = alarms.prayerTime[infoMod][2] % 60;
 
-					alarms.prayersSet[infoMode] = true;
+					alarms.prayersSet[infoMod] = true;
 				}
 
 				// Debug
-				Log.verbose ("Prayer time (Current value): %d" endl, alarms.prayerTime[infoMode][2]);
-				Log.verbose ("Prayer time (Current value) (Readable): %d:%d" dendl, alarms.prayerTime[infoMode][0], alarms.prayerTime[infoMode][1]);
+				Log.verbose ("Prayer time (Current value): %d" endl, alarms.prayerTime[infoMod][2]);
+				Log.verbose ("Prayer time (Current value) (Readable): %d:%d" dendl, alarms.prayerTime[infoMod][0], alarms.prayerTime[infoMod][1]);
 
 				alarms.initPrayer();
 
@@ -195,13 +195,13 @@ void Request::decode (char * request, long & result, int & infoMode, int & infot
 
 
 			case TYPE_SPE:
-				if (infoMode == MODE_DAWN)
+				if (infoMod == MOD_DAWN)
 				{
 					if (result < 0)
 						errorType = ERR_OOB;
 					else
 					{
-						global.speed[infoMode] = result;
+						global.speed[infoMod] = result;
 						alarms.initDawn();
 					}
 				}
@@ -210,13 +210,13 @@ void Request::decode (char * request, long & result, int & infoMode, int & infot
 					if (result < SEEKBAR_MIN || result > SEEKBAR_MAX)
 						errorType = ERR_OOB;
 					else
-						global.speed[infoMode] = utils.convertBoundaries (result, SEEKBAR_MIN, SEEKBAR_MAX, MIN_SPEED[infoMode], MAX_SPEED[infoMode]);
+						global.speed[infoMod] = utils.convertBoundaries (result, SEEKBAR_MIN, SEEKBAR_MAX, MIN_SPEED[infoMod], MAX_SPEED[infoMod]);
 				}
 
 				// Debug
-				Log.verbose ("Min Speed: %d" endl, MIN_SPEED[infoMode]);
-				Log.verbose ("Max Speed: %d" endl, MAX_SPEED[infoMode]);
-				Log.verbose ("Speed (Current value): %d" dendl, global.speed[infoMode]);
+				Log.verbose ("Min Speed: %d" endl, MIN_SPEED[infoMod]);
+				Log.verbose ("Max Speed: %d" endl, MAX_SPEED[infoMod]);
+				Log.verbose ("Speed (Current value): %d" dendl, global.speed[infoMod]);
 
 				break;
 		}

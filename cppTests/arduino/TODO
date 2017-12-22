@@ -1,5 +1,4 @@
 - Optimize SD open and close
 - Create new log file at midnight
 - Change modes speed to cycle time
-- Change mode to mod
 - Optimize prayers timeAlarms to be only one timeAlarm

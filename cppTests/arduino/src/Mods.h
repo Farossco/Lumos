@@ -6,27 +6,27 @@ class Mods
 public:
 
 	void init ();
-	void action (); // Perform mode action
+	void action (); // Perform mod action
 
-	void initFlash (); // Flash mode initialization
-	void flash ();     // Flash mode
+	void initFlash (); // Flash mod initialization
+	void flash ();     // Flash mod
 
-	void initStrobe (); // Strobe mode initialization
-	void strobe ();     // Strobe mode
+	void initStrobe (); // Strobe mod initialization
+	void strobe ();     // Strobe mod
 
-	void initFade (); // Fade Mode initialization
-	void fade ();     // Fade Mode
+	void initFade (); // Fade mod initialization
+	void fade ();     // Fade mod
 
-	void initSmooth (); // Smooth Mode Initialization
-	void smooth ();     // Smooth Mode
+	void initSmooth (); // Smooth mod Initialization
+	void smooth ();     // Smooth mod
 
-	void initDawn (); // Wakeup Mode initialization
-	void dawn ();     // Wakeup Mode
+	void initDawn (); // Wakeup mod initialization
+	void dawn ();     // Wakeup mod
 
 private:
-	int state;              // Current state used by some modes
-	unsigned long count;    // Delay counting
-	unsigned char lastMode; // Mode in previous loop - Allows mode initializations
+	int state;             // Current state used by some mods
+	unsigned long count;   // Delay counting
+	unsigned char lastMod; // Mod in previous loop - Allows mod initializations
 };
 
 extern Mods mods;

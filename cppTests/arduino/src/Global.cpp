@@ -10,7 +10,7 @@ void Global::init ()
 	{
 		Log.info ("This is first launch, variables will be initialized to their default values" dendl);
 
-		for (int i = MODE_MIN; i < N_MODE; i++)
+		for (int i = MOD_MIN; i < N_MOD; i++)
 		{
 			rgb[i]   = DEFAULT_RGB[i];   // Initialize colors to their default value
 			power[i] = DEFAULT_POWER[i]; // Initializing powers their default value
@@ -21,9 +21,9 @@ void Global::init ()
 	}
 	else
 	{
-		for (int i = MODE_FLASH; i < N_MODE; i++)
+		for (int i = MOD_FLASH; i < N_MOD; i++)
 		{
-			rgb[i] = DEFAULT_RGB[i]; // Initialize colors to their default values (Starting from flash mode)
+			rgb[i] = DEFAULT_RGB[i]; // Initialize colors to their default values (Starting from flash mod)
 		}
 	}
 }
@@ -33,15 +33,15 @@ void Global::light ()
 {
 	rgb2color(); // Convert RGB value to Red, Green and Blue values
 
-	analogWrite (PIN_LED_RED, on ? red[mode] : 0);
-	analogWrite (PIN_LED_GREEN, on ? green[mode] : 0);
-	analogWrite (PIN_LED_BLUE, on ? blue[mode] : 0);
+	analogWrite (PIN_LED_RED, on ? red[mod] : 0);
+	analogWrite (PIN_LED_GREEN, on ? green[mod] : 0);
+	analogWrite (PIN_LED_BLUE, on ? blue[mod] : 0);
 }
 
 // Convert RGB value to Red, Green and Blue values
 void Global::rgb2color ()
 {
-	for (int i = MODE_MIN; i < N_MODE; i++)
+	for (int i = MOD_MIN; i < N_MOD; i++)
 	{
 		// Lower is the power, lower is the color value - It allows you to control LEDs light power
 		red[i]   = ((rgb[i] & 0xFF0000) >> 16) * ((float) power[i] / MAX_POWER);

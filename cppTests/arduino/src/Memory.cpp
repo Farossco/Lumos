@@ -46,17 +46,17 @@ void Memory::write ()
 	address++;
 
 	for (unsigned int i = 0; i < sizeof(long); i++)
-		if (EEPROM.read (address + i) != (byte) (global.rgb[MODE_DEFAULT] >> (i * 8)))
+		if (EEPROM.read (address + i) != (byte) (global.rgb[MOD_DEFAULT] >> (i * 8)))
 		{
-			EEPROM.write (address + i, (byte) (global.rgb[MODE_DEFAULT] >> (i * 8)));
+			EEPROM.write (address + i, (byte) (global.rgb[MOD_DEFAULT] >> (i * 8)));
 			n++;
 		}
 
 	address += sizeof(long);
 
-	for (unsigned int j = MODE_MIN; j < N_MODE; j++)
+	for (unsigned int j = MOD_MIN; j < N_MOD; j++)
 	{
-		if (j != MODE_DAWN)
+		if (j != MOD_DAWN)
 		{
 			for (unsigned int i = 0; i < sizeof(int); i++)
 				if (EEPROM.read (address + i) != (byte) ((int) global.power[j] >> (i * 8)))
@@ -77,7 +77,7 @@ void Memory::write ()
 		address += sizeof(int);
 	}
 
-	for (unsigned int j = MODE_MIN; j < N_MODE; j++)
+	for (unsigned int j = MOD_MIN; j < N_MOD; j++)
 	{
 		for (unsigned int i = 0; i < sizeof(int); i++)
 			if (EEPROM.read (address + i) != (byte) ((int) global.speed[j] >> (i * 8)))
@@ -90,9 +90,9 @@ void Memory::write ()
 	}
 
 	for (unsigned int i = 0; i < sizeof(int); i++)
-		if (EEPROM.read (address + i) != (byte) (global.mode >> (i * 8)))
+		if (EEPROM.read (address + i) != (byte) (global.mod >> (i * 8)))
 		{
-			EEPROM.write (address + i, (byte) (global.mode >> (i * 8)));
+			EEPROM.write (address + i, (byte) (global.mod >> (i * 8)));
 			n++;
 		}
 
@@ -125,13 +125,13 @@ boolean Memory::read ()
 
 	address++;
 
-	global.rgb[MODE_DEFAULT] = 0;
+	global.rgb[MOD_DEFAULT] = 0;
 	for (unsigned int i = 0; i < sizeof(long); i++)
-		global.rgb[MODE_DEFAULT] += ((long) EEPROM.read (address + i)) << (i * 8);
+		global.rgb[MOD_DEFAULT] += ((long) EEPROM.read (address + i)) << (i * 8);
 
 	address += sizeof(long);
 
-	for (unsigned int j = MODE_MIN; j < N_MODE; j++)
+	for (unsigned int j = MOD_MIN; j < N_MOD; j++)
 	{
 		global.power[j] = 0;
 		for (unsigned int i = 0; i < sizeof(int); i++)
@@ -141,7 +141,7 @@ boolean Memory::read ()
 	}
 
 
-	for (unsigned int j = MODE_MIN; j < N_MODE; j++)
+	for (unsigned int j = MOD_MIN; j < N_MOD; j++)
 	{
 		global.speed[j] = 0;
 		for (unsigned int i = 0; i < sizeof(int); i++)
@@ -150,9 +150,9 @@ boolean Memory::read ()
 		address += sizeof(int);
 	}
 
-	global.mode = 0;
+	global.mod = 0;
 	for (unsigned int i = 0; i < sizeof(int); i++)
-		global.mode += ((int) EEPROM.read (address + i)) << (i * 8);
+		global.mod += ((int) EEPROM.read (address + i)) << (i * 8);
 
 	address += sizeof(int);
 

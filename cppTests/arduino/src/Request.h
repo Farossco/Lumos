@@ -6,7 +6,7 @@
 class Request
 {
 public:
-	void decode (char * request, long & result, int & infoMode, int & infotype, int & errorType);
+	void decode (char * request, long & result, int & infoMod, int & infotype, int & errorType);
 };
 
 extern Request request;

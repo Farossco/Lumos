@@ -12,7 +12,7 @@ public:
 	void init (long serialBaudRate, long serial1BaudRate, long serial2BaudRate, long serial3BaudRate);
 	void waitForTime ();
 	static void askForTime (); // Asking for time to the ESP8266 (via internet)
-	void read ();       // Receive datas from ESP8266 for Wi-Wi control
+	void read ();              // Receive datas from ESP8266 for Wi-Wi control
 };
 
 extern ArduinoSerial serial;

@@ -70,7 +70,7 @@ void ArduinoSerial::askForTime ()
 void ArduinoSerial::read ()
 {
 	long result, length;
-	int infoMode, infoType, errorType;
+	int infoMod, infoType, errorType;
 	const int bufSize = 14;
 	char buf[bufSize] = "";
 
@@ -89,7 +89,7 @@ void ArduinoSerial::read ()
 
 	buf[length] = '\0';
 
-	request.decode (buf, result, infoMode, infoType, errorType);
+	request.decode (buf, result, infoMod, infoType, errorType);
 
 	if (infoType == TYPE_RTM)
 	{

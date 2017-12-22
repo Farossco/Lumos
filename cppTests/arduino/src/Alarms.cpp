@@ -32,7 +32,7 @@ void Alarms::initDawn ()
 	clearDawn();
 
 	// Start the alarm a little time before
-	morningAlarm = Alarm.alarmRepeat (WAKEUP_HOURS * 3600 + WAKEUP_MINUTES * 60 + WAKEUP_SECONDS - global.speed[MODE_DAWN] * 60, this->dawnStart);
+	morningAlarm = Alarm.alarmRepeat (WAKEUP_HOURS * 3600 + WAKEUP_MINUTES * 60 + WAKEUP_SECONDS - global.speed[MOD_DAWN] * 60, this->dawnStart);
 }
 
 void Alarms::initPrayer ()
@@ -73,9 +73,9 @@ void Alarms::clearPrayer ()
 
 void Alarms::prayerStart ()
 {
-	global.mode             = MODE_FADE;
-	global.speed[MODE_FADE] = PRAYER_FADE_SPEED;
-	global.on               = true;
+	global.mod             = MOD_FADE;
+	global.speed[MOD_FADE] = PRAYER_FADE_SPEED;
+	global.on              = true;
 
 	Log.info ("Starting prayer alert" endl);
 	Log.trace ("It will stop in %d minutes..." dendl, PRAYER_ALERT_DURATION);
@@ -86,16 +86,16 @@ void Alarms::prayerStart ()
 
 void Alarms::prayerStop ()
 {
-	global.mode = MODE_DEFAULT;
-	global.on   = false;
+	global.mod = MOD_DEFAULT;
+	global.on  = false;
 
 	Log.info ("Stopped prayer alert" dendl);
 }
 
 void Alarms::dawnStart ()
 {
-	global.mode = MODE_DAWN;
-	global.on   = true;
+	global.mod = MOD_DAWN;
+	global.on  = true;
 
 	Log.info ("Starting dawn alert" dendl);
 }

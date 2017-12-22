@@ -15,9 +15,9 @@ public:
 private:
 	boolean changeOn;
 	unsigned long changeRgb;
-	int changePower[N_MODE];
-	int changeSpeed[N_MODE];
-	unsigned char changeMode;
+	int changePower[N_MOD];
+	int changeSpeed[N_MOD];
+	unsigned char changeMod;
 };
 
 extern VariableChange variableChange;

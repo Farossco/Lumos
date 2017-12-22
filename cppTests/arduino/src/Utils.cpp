@@ -2,26 +2,26 @@
 #include "Time.h"
 #include "Global.h"
 
-const char * Utils::modeName (int mode, int caps)
+const char * Utils::modName (int mod, int caps)
 {
-	switch (mode)
+	switch (mod)
 	{
-		case MODE_DEFAULT:
+		case MOD_DEFAULT:
 			return caps == 0 ? "default" : caps == 1 ? "Default" : "DEFAULT";
 
-		case MODE_FLASH:
+		case MOD_FLASH:
 			return caps == 0 ? "flash" : caps == 1 ? "Flash" : "FLASH";
 
-		case MODE_STROBE:
+		case MOD_STROBE:
 			return caps == 0 ? "strobe" : caps == 1 ? "Strobe" : "STROBE";
 
-		case MODE_FADE:
+		case MOD_FADE:
 			return caps == 0 ? "fade" : caps == 1 ? "Fade" : "FADE";
 
-		case MODE_SMOOTH:
+		case MOD_SMOOTH:
 			return caps == 0 ? "smooth" : caps == 1 ? "Smooth" : "SMOOTH";
 
-		case MODE_DAWN:
+		case MOD_DAWN:
 			return caps == 0 ? "wake up" : caps == 1 ? "Wake up" : "WAKE UP";
 
 		default:
@@ -46,7 +46,7 @@ const char * Utils::infoTypeName (int infoType, boolean shortened)
 			return shortened ? "POW" : "Power";
 
 		case TYPE_MOD:
-			return shortened ? "MOD" : "Mode";
+			return shortened ? "MOD" : "Mod";
 
 		case TYPE_PRT:
 			return shortened ? "PRT" : "Prayer time";
@@ -70,7 +70,7 @@ const char * Utils::errorTypeName (int infoType, boolean shortened)
 			return shortened ? "Out of bounds" : "Error: Value is out of bounds";
 
 		case ERR_UKM:
-			return shortened ? "Unknowm mode" : "Error: Unknowm mode";
+			return shortened ? "Unknowm mod" : "Error: Unknowm mod";
 
 		case ERR_UKR:
 			return shortened ? "Unknown request type" : "Error: Unknown request type";

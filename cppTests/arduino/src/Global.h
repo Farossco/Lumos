@@ -34,15 +34,15 @@ const int PIN_SD_CS        = 49; // SD Chip Select
 class Global
 {
 public:
-	boolean on;                  // If the leds are ON or OFF (True: ON / False: OFF)
-	boolean isInitialized;       // Set to true when program is complitely initialized
-	unsigned long rgb[N_MODE];   // Current RGB value for each mode (From 0x000000 to 0xFFFFFF)
-	int power[N_MODE];           // Current lightning power for each mode (from MINPOWER to MAXPOWER)
-	int speed[N_MODE];           // Current mode speed for each mode
-	unsigned char red[N_MODE];   // Current red value for each mode including lightning power (From 0 to 255)
-	unsigned char green[N_MODE]; // Current green value for each mode including lightning power (From 0 to 255)
-	unsigned char blue[N_MODE];  // Current blue value for each mode including lightning power (From 0 to 255)
-	unsigned char mode;          // Current lighting mode (MODE_***)
+	boolean on;                 // If the leds are ON or OFF (True: ON / False: OFF)
+	boolean isInitialized;      // Set to true when program is complitely initialized
+	unsigned long rgb[N_MOD];   // Current RGB value for each mod (From 0x000000 to 0xFFFFFF)
+	int power[N_MOD];           // Current lightning power for each mod (from MINPOWER to MAXPOWER)
+	int speed[N_MOD];           // Current mod speed for each mod
+	unsigned char red[N_MOD];   // Current red value for each mod including lightning power (From 0 to 255)
+	unsigned char green[N_MOD]; // Current green value for each mod including lightning power (From 0 to 255)
+	unsigned char blue[N_MOD];  // Current blue value for each mod including lightning power (From 0 to 255)
+	unsigned char mod;          // Current lighting mod (MOD_***)
 
 	void init ();
 	void light ();     // Display the RGB value
