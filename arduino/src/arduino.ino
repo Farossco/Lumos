@@ -1,70 +1,55 @@
-#include "arduino.h"
+#include <Time.h>
+#include "Global.h"
+#include "Logger.h"
+#include "Infrared.h"
+#include "SdCard.h"
+#include "VariableChange.h"
+#include "ArduinoSerial.h"
+#include "Alarms.h"
+#include "Mods.h"
 
 void setup ()
 {
-	isInitialized = false;
+	serial.init (DEBUG_BAUD_RATE, ESP_BAUD_RATE);
 
-	initSerial(); // Initialize serial communications
+	Log.init (&Serial, LEVEL_VERBOSE);
 
-	println (LEVEL_INFO, "Starting program...");
+	serial.waitForTime();
 
-	waitForTime(); // Waiting for the ESP to send time (if WAIT_FOR_TIME)
+	sd.init (PIN_SD_CS);
 
-	initSdCard(); // Start SD logging
+	Log.init (&Serial, LEVEL_VERBOSE, sd.getFile(), LEVEL_VERBOSE);
 
-	initInfrared(); // Initialize infrared reception
+	infrared.init (PIN_LED_INFRARED);
 
-	initDFPlayer(); // Initialize DFPlayer communication
+	// init DF player
 
-	initModes(); // Initialize default values for modes variables
+	mods.init();
 
-	initGlobal(); // Initialize defaut values for global variables
+	global.init();
 
-	initVariableChange(); // Initialize defaut values for change variables
+	variableChange.init();
 
-	sendInfo(); // Sending global variables informations to the ESP8266
+	alarms.initAll();
 
-	println (LEVEL_INFO, false);
-	println (LEVEL_INFO, "Program started!");
-
-	isInitialized = true;
-} // setup
+	variableChange.sendInfo();
+}
 
 void loop ()
 {
-	Alarm.delay (0); // Needed for timeAlarms to work
+	Alarm.delay (0);
 
-	testVariableChange(); // Perform action at each variation of one of the global variables
+	variableChange.check();
 
-	readClaps(); // Lighting on double claps
+	// read claps
 
-	readInfrared(); // Read the in-comming IR signal if present
+	infrared.read();
 
-	readSerial(); // Receive datas from ESP8266 for Wi-Wi control
+	serial.read();
 
-	action(); // Do something according to current mode
+	mods.action();
 
-	light(); // Finaly display the RGB value
-}
+	sd.closeFile();
 
-void initGlobal ()
-{
-	if (eepromRead()) // Returns True if EEPROM is not correctly initialized (This may be the first launch)
-	{
-		println (LEVEL_INFO, false);
-		println (LEVEL_INFO, "This is first launch, variables will be initialized to their default values");
-
-		for (int i = MODE_MIN; i < N_MODE; i++)
-		{
-			rgb[i]   = DEFAULT_RGB[i];   // Initialize colors to their default value
-			power[i] = DEFAULT_POWER[i]; // Initializing powers their default value
-			speed[i] = DEFAULT_SPEED[i]; // Initializing speeds their default value
-		}
-		eepromWrite();
-	}
-	else
-	{
-		for (int i = MODE_FLASH; i < N_MODE; i++)
-			rgb[i] = DEFAULT_RGB[i];  // Initialize colors to their default values (Starting from flash mode)
-	}
+	global.light();
 }

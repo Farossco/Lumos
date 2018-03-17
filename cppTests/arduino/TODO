@@ -1,5 +1,0 @@
-- Optimize SD open and close
-- Create new log file at midnight
-- Change modes speed to cycle time
-- Optimize prayers timeAlarms to be only one timeAlarm
-- !! Initialize ALL variables !!

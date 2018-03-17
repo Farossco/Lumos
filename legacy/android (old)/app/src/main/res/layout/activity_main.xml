@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	>
+
+	<TextView
+		android:id="@+id/textViewOnOff"
+		android:layout_width="80dp"
+		android:layout_height="50dp"
+		android:layout_marginTop="16dp"
+		android:text="@string/on_off"
+		android:textAlignment="center"
+		android:textColor="#000000"
+		android:textIsSelectable="false"
+		android:textStyle="bold"
+		/>
+
+	<Switch
+		android:id="@+id/switchOnOff"
+		android:layout_width="wrap_content"
+		android:layout_height="50dp"
+		android:layout_alignParentEnd="false"
+		android:layout_alignParentTop="true"
+		android:layout_marginStart="8dp"
+		android:layout_toEndOf="@id/textViewOnOff"
+		/>
+
+
+	<TextView
+		android:id="@+id/textViewRed"
+		android:layout_width="80dp"
+		android:layout_height="50dp"
+		android:layout_below="@id/textViewOnOff"
+		android:text="@string/red"
+		android:textAlignment="center"
+		android:textColor="@color/red_primary_dark"
+		android:textIsSelectable="false"
+		android:textStyle="bold"
+		/>
+
+	<SeekBar
+		android:id="@+id/seekBarRed"
+		android:layout_width="200dp"
+		android:layout_height="50dp"
+		android:layout_below="@id/switchOnOff"
+		android:layout_toEndOf="@id/textViewRed"
+		android:max="255"
+		/>
+
+	<TextView
+		android:id="@+id/textViewRedValue"
+		android:layout_width="wrap_content"
+		android:layout_height="50dp"
+		android:layout_alignParentEnd="true"
+		android:layout_below="@id/textViewOnOff"
+		android:layout_toEndOf="@id/seekBarRed"
+		android:textAlignment="center"
+		android:textColor="@color/red_primary_dark"
+		android:textIsSelectable="false"
+		android:textStyle="bold"
+		/>
+
+	<TextView
+		android:id="@+id/textViewGreen"
+		android:layout_width="80dp"
+		android:layout_height="50dp"
+		android:layout_below="@id/textViewRed"
+		android:text="@string/green"
+		android:textAlignment="center"
+		android:textColor="@color/green_primary_dark"
+		android:textIsSelectable="false"
+		android:textStyle="bold"
+		/>
+
+	<SeekBar
+		android:id="@+id/seekBarGreen"
+		android:layout_width="200dp"
+		android:layout_height="50dp"
+		android:layout_below="@id/seekBarRed"
+		android:layout_toEndOf="@id/textViewRed"
+		android:max="255"
+		/>
+
+	<TextView
+		android:id="@+id/textViewGreenValue"
+		android:layout_width="wrap_content"
+		android:layout_height="50dp"
+		android:layout_alignParentEnd="true"
+		android:layout_below="@id/textViewRedValue"
+		android:layout_toEndOf="@id/seekBarGreen"
+		android:textAlignment="center"
+		android:textColor="@color/green_primary_dark"
+		android:textIsSelectable="false"
+		android:textStyle="bold"
+		/>
+
+	<TextView
+		android:id="@+id/textViewBlue"
+		android:layout_width="80dp"
+		android:layout_height="50dp"
+		android:layout_below="@id/textViewGreen"
+		android:text="@string/blue"
+		android:textAlignment="center"
+		android:textColor="@color/blue_primary_dark"
+		android:textIsSelectable="false"
+		android:textStyle="bold"
+		/>
+
+	<SeekBar
+		android:id="@+id/seekBarBlue"
+		android:layout_width="200dp"
+		android:layout_height="50dp"
+		android:layout_below="@id/seekBarGreen"
+		android:layout_toEndOf="@id/textViewGreen"
+		android:max="255"
+		/>
+
+	<TextView
+		android:id="@+id/textViewBlueValue"
+		android:layout_width="wrap_content"
+		android:layout_height="50dp"
+		android:layout_alignParentEnd="true"
+		android:layout_below="@id/textViewGreenValue"
+		android:layout_toEndOf="@id/seekBarBlue"
+		android:textAlignment="center"
+		android:textColor="@color/blue_primary_dark"
+		android:textIsSelectable="false"
+		android:textStyle="bold"
+		/>
+
+	<RadioGroup
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:id="@+id/radioModeGroup"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentStart="true"
+		android:layout_below="@+id/textViewBlue"
+		android:layout_marginStart="10dp"
+		android:orientation="vertical"
+		>
+
+		<RadioButton
+			android:id="@+id/radioModeDefault"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:onClick="onModeChange"
+			android:text="Default"
+			/>
+
+		<Space
+			android:layout_width="match_parent"
+			android:layout_height="5dp"
+			/>
+
+		<RadioButton
+			android:id="@+id/radioModeFlash"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:onClick="onModeChange"
+			android:text="Flash"
+			/>
+
+		<Space
+			android:layout_width="match_parent"
+			android:layout_height="5dp"
+			/>
+
+		<RadioButton
+			android:id="@+id/radioModeStrobe"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:onClick="onModeChange"
+			android:text="Strobe"
+			/>
+
+		<Space
+			android:layout_width="match_parent"
+			android:layout_height="5dp"
+			/>
+
+		<RadioButton
+			android:id="@+id/radioModeFade"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:onClick="onModeChange"
+			android:text="Fade"
+			/>
+
+		<Space
+			android:layout_width="match_parent"
+			android:layout_height="5dp"
+			/>
+
+		<RadioButton
+			android:id="@+id/radioModeSmooth"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:onClick="onModeChange"
+			android:text="Smooth"
+			/>
+
+		<Space
+			android:layout_width="match_parent"
+			android:layout_height="5dp"
+			/>
+
+		<RadioButton
+			android:id="@+id/radioModeWakeUp"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:onClick="onModeChange"
+			android:text="Wake up"
+			/>
+	</RadioGroup>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/textViewBlue"
+		android:layout_toEndOf="@+id/radioModeGroup"
+		android:layout_marginRight="20dp"
+		android:orientation="vertical"
+		>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="32dp"
+			android:orientation="horizontal"
+			>
+
+			<SeekBar
+				android:id="@+id/seekBarPowerDefault"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:max="100"
+				/>
+
+		</LinearLayout>
+
+		<Space
+			android:layout_width="match_parent"
+			android:layout_height="5dp"
+			/>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="32dp"
+			android:orientation="horizontal"
+			>
+
+			<SeekBar
+				android:id="@+id/seekBarPowerFlash"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_weight="1.00"
+				android:max="100"
+				/>
+
+			<SeekBar
+				android:id="@+id/seekBarSpeedFlash"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_weight="1.00"
+				android:max="100"
+				/>
+
+		</LinearLayout>
+
+		<Space
+			android:layout_width="match_parent"
+			android:layout_height="5dp"
+			/>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="32dp"
+			android:orientation="horizontal"
+			>
+
+			<SeekBar
+				android:id="@+id/seekBarPowerStrobe"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_weight="1.00"
+				android:max="100"
+				/>
+
+			<SeekBar
+				android:id="@+id/seekBarSpeedStrobe"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_weight="1.00"
+				android:max="100"
+				/>
+
+		</LinearLayout>
+
+		<Space
+			android:layout_width="match_parent"
+			android:layout_height="5dp"
+			/>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="32dp"
+			android:orientation="horizontal"
+			>
+
+			<SeekBar
+				android:id="@+id/seekBarPowerFade"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_weight="1.00"
+				android:max="100"
+				/>
+
+			<SeekBar
+				android:id="@+id/seekBarSpeedFade"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_weight="1.00"
+				android:max="100"
+				/>
+
+		</LinearLayout>
+
+		<Space
+			android:layout_width="match_parent"
+			android:layout_height="5dp"
+			/>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="32dp"
+			android:orientation="horizontal"
+			>
+
+			<SeekBar
+				android:id="@+id/seekBarPowerSmooth"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_weight="1.00"
+				android:max="100"
+				/>
+
+			<SeekBar
+				android:id="@+id/seekBarSpeedSmooth"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_weight="1.00"
+				android:max="100"
+				/>
+
+		</LinearLayout>
+
+		<Space
+			android:layout_width="match_parent"
+			android:layout_height="5dp"
+			/>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="32dp"
+			android:orientation="horizontal"
+			>
+
+			<ProgressBar
+				android:id="@+id/seekBarWakeUpProgress"
+				style="?android:attr/progressBarStyleHorizontal"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_marginLeft="15dp"
+				android:layout_marginRight="15dp"
+				android:layout_weight="1.00"
+				android:max="100"
+				/>
+
+			<SeekBar
+				android:id="@+id/seekBarSpeedWakeUp"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_weight="1.00"
+				android:max="100"
+				/>
+
+		</LinearLayout>
+
+	</LinearLayout>
+
+	<TextView
+		android:id="@+id/text"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true"
+		android:layout_alignParentEnd="true"
+		android:layout_alignParentStart="true"
+		android:paddingTop="15dp"
+		android:textAlignment="center"
+		android:textStyle="bold"
+		/>
+
+</RelativeLayout>

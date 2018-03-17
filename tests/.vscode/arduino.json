@@ -1,0 +1,6 @@
+{
+    "sketch": "app.ino",
+    "board": "arduino:avr:mega",
+    "configuration": "cpu=atmega2560",
+    "port": "/dev/ttyUSB0"
+}
