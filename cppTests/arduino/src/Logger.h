@@ -2,7 +2,8 @@
 #define LOGGING_H
 
 #include <Arduino.h>
-#include "Utils.h"
+#include "Global.h"
+#include "SdCard.h"
 
 #define LEVEL_SILENT  0
 #define LEVEL_ERROR   1
@@ -14,16 +15,13 @@
 #define endl          "\n"
 #define dendl         "\n\n" // double endl
 
-const boolean SERIAL_LOG_ENABLED = true; // Serial logging
-const boolean SD_LOG_ENABLED     = true; // SD logging
-
 class Logger
 {
 private:
 	int output1Level, output2Level;
 	bool multiOutput;
 	Print * output1, * output2;
-	char buf[20];
+	char buf[35];
 
 public:
 	Logger();
@@ -87,42 +85,44 @@ private:
 	void printFormat (Print * output, const char format, va_list * args);
 	template <class T> void printLevel (boolean showPrefix, int level, T msg, ...)
 	{
+		if (multiOutput && output2Level >= level && sd.isEnabled())
+		{
+			if (showPrefix)
+			{
+				sd.openFile();
+
+				output2->print ("[");
+
+				output2->print (utils.clock (buf));
+				output2->print ("]");
+				output2->print (" [ ");
+				output2->print (debugLevelName (level));
+				output2->print (debugLevelSpace (level));
+				output2->print (" ] ");
+			}
+
+			va_list args;
+			va_start (args, msg);
+			print (output2, msg, args);
+		}
+
 		if (output1Level >= level)
 		{
 			if (showPrefix)
 			{
-				output1->print ("[");
+				output1->print (F ("["));
 
 				output1->print (utils.clock (buf));
-				output1->print ("]");
-				output1->print (" [ ");
+				output1->print (F ("]"));
+				output1->print (F (" [ "));
 				output1->print (debugLevelName (level));
 				output1->print (debugLevelSpace (level));
-				output1->print (" ] ");
+				output1->print (F (" ] "));
 			}
 
 			va_list args;
 			va_start (args, msg);
 			print (output1, msg, args);
-
-			if (multiOutput)
-			{
-				if (showPrefix)
-				{
-					output2->print ("[");
-
-					output2->print (utils.clock (buf));
-					output2->print ("]");
-					output2->print (" [ ");
-					output2->print (debugLevelName (level));
-					output2->print (debugLevelSpace (level));
-					output2->print (" ] ");
-				}
-
-				va_list args;
-				va_start (args, msg);
-				print (output2, msg, args);
-			}
 		}
 	} // printLevel
 

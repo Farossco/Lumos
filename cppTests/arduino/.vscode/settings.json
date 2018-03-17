@@ -1,4 +1,7 @@
 // Placez vos paramètres dans ce fichier pour remplacer les paramètres par défaut et les paramètres utilisateur.
 {
-	"platformio.baudRate": 250000
+	"platformio.baudRate": 250000,
+	"terminal.integrated.env.linux": {
+		"PATH": "/home/localhost/.platformio/penv/bin:/home/localhost/.nexustools:/home/localhost/bin:/home/localhost/.local/bin:/home/localhost/.nexustools:/home/localhost/bin:/home/localhost/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/lib/jvm/java-9-oracle/bin:/usr/lib/jvm/java-9-oracle/db/bin:/usr/local/go/bin:/usr/lib/jvm/java-9-oracle/bin:/usr/lib/jvm/java-9-oracle/db/bin:/usr/local/go/bin"
+	}
 }

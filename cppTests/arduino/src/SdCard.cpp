@@ -5,11 +5,15 @@
 
 SdCard::SdCard()
 {
-	pin = 0;
+	pin     = 0;
+	enabled = false;
 }
 
 void SdCard::init (int pin)
 {
+	if (!SD_LOG_ENABLED)
+		return;
+
 	this->pin = pin;
 
 	Log.info ("Initializing SD card... ");
@@ -34,20 +38,68 @@ void SdCard::init (int pin)
 		Log.errornp ("------------------------------------------------------------------------------------------------------------" endl);
 		Log.errornp ("----------------------------------------------- SD log Start -----------------------------------------------" endl);
 		Log.errornp ("------------------------------------------------------------------------------------------------------------" dendl);
+
+		enabled = true;
 	}
+}
+
+File * SdCard::getFile ()
+{
+	return &logFile;
+}
+
+boolean SdCard::fileIsOpened ()
+{
+	return fileOpened;
+}
+
+boolean SdCard::fileIsClosed ()
+{
+	return !fileOpened;
+}
+
+void SdCard::openFile ()
+{
+	if (!enabled)
+		return;
+
+	if (fileIsClosed())
+	{
+		logFile    = SD.open (sdFileName, FILE_WRITE);
+		fileOpened = true;
+		Log.verbose ("File opened" dendl);
+	}
+
+	fileLastOpened = millis();
+}
+
+void SdCard::closeFile ()
+{
+	if (!enabled || fileIsClosed())
+		return;
+
+	if (millis() - fileLastOpened > FILE_CLOSE_TIME * 1000)
+	{
+		Log.verbose ("File closed" dendl);
+		logFile.close();
+		fileOpened = false;
+	}
+}
+
+boolean SdCard::isEnabled ()
+{
+	return enabled;
 }
 
 boolean SdCard::createLogFile ()
 {
-	char logFileName[13];
+	getLogFileName (sdFileName);
 
-	getLogFileName (logFileName);
-
-	const char * loadingCreating = SD.exists (logFileName) ? "Loading" : "Creating";
+	const char * loadingCreating = SD.exists (sdFileName) ? "Loading" : "Creating";
 
 	Log.info ("%s log file... ", loadingCreating);
 
-	logFile = SD.open (logFileName, FILE_WRITE);
+	logFile = SD.open (sdFileName, FILE_WRITE);
 
 	if (strlen (logFile.name()) < 1)
 	{
@@ -56,9 +108,7 @@ boolean SdCard::createLogFile ()
 		return false;
 	}
 
-	Log.infonp ("Done.");
-	Log.tracenp (" (%s)", logFile.name());
-	Log.infonp (dendl);
+	Log.infonp ("Done. (%s)" dendl, logFile.name());
 
 	logFile.close();
 

@@ -8,16 +8,17 @@
 #include "Alarms.h"
 #include "Mods.h"
 
-
 void setup ()
 {
 	serial.init (DEBUG_BAUD_RATE, ESP_BAUD_RATE);
 
-	sd.init (PIN_SD_CS);
-
 	Log.init (&Serial, LEVEL_VERBOSE);
 
 	serial.waitForTime();
+
+	sd.init (PIN_SD_CS);
+
+	Log.init (&Serial, LEVEL_VERBOSE, sd.getFile(), LEVEL_VERBOSE);
 
 	infrared.init (PIN_LED_INFRARED);
 
@@ -47,6 +48,8 @@ void loop ()
 	serial.read();
 
 	mods.action();
+
+	sd.closeFile();
 
 	global.light();
 }

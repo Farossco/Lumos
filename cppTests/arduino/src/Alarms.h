@@ -4,6 +4,11 @@
 #include "Global.h"
 #include <TimeAlarms.h>
 
+// Wake up
+const int WAKEUP_HOURS   = 06;
+const int WAKEUP_MINUTES = 30;
+const int WAKEUP_SECONDS = 00;
+
 class Alarms
 {
 public:

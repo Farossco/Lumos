@@ -46,11 +46,6 @@ const int CAPS_ALL   = 2; // All letters in upper case
 // **************** Other **************** //
 // *************************************** //
 
-// Wake up
-const int WAKEUP_HOURS   = 06;
-const int WAKEUP_MINUTES = 30;
-const int WAKEUP_SECONDS = 00;
-
 // Prayer
 const int PRAYER_FADE_SPEED          = 97; // Fade speed for prayer time
 const int PRAYER_ALERT_DURATION      = 10; // Prayer alert duration (in minutes)

@@ -31,7 +31,7 @@ void Alarms::initDawn ()
 
 	clearDawn();
 
-	// Start the alarm a little time before
+	// Start the alarm before so it finishes at the time requested 
 	morningAlarm = Alarm.alarmRepeat (WAKEUP_HOURS * 3600 + WAKEUP_MINUTES * 60 + WAKEUP_SECONDS - global.speed[MOD_DAWN] * 60, this->dawnStart);
 }
 

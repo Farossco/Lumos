@@ -113,7 +113,7 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 
 				// Debug
 				Log.verbose ("Time (Current value): %d" endl, now());
-				Log.verbose ("Time (Current value) (readable): %s" endl, utils.clock (buf));
+				Log.trace ("Time (Current value) (readable): %s" endl, utils.clock (buf));
 
 				alarms.initDawn();
 				break;
@@ -126,7 +126,7 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 
 				// Debug
 				global.rgb2color();
-				Log.verbose ("RGB   (Current value): %x" endl, global.rgb[MOD_DEFAULT]);
+				Log.trace ("RGB   (Current value): %x" endl, global.rgb[MOD_DEFAULT]);
 				Log.verbose ("Red   (Current value): %d" endl, global.red[MOD_DEFAULT]);
 				Log.verbose ("Green (Current value): %d" endl, global.green[MOD_DEFAULT]);
 				Log.verbose ("Blue  (Current value): %d" endl, global.blue[MOD_DEFAULT]);
@@ -139,15 +139,15 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 				else
 					global.on = result;
 
-				Log.verbose ("On/Off (Current value): ");
+				Log.trace ("On/Off (Current value): ");
 
 				if (global.on != 0 && global.on != 1)
 				{
-					Log.verbosenp ("Error (%d)" dendl, global.on);
+					Log.tracenp ("Error (%d)" dendl, global.on);
 				}
 				else
 				{
-					Log.verbosenp ("%T" dendl, global.on);
+					Log.tracenp ("%T" dendl, global.on);
 				}
 
 				break;
@@ -158,7 +158,7 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 				else
 					global.power[infoMod] = utils.convertBoundaries (result, SEEKBAR_MIN, SEEKBAR_MAX, MIN_POWER, MAX_POWER);
 
-				Log.verbose ("Power (Current value): %d" dendl, global.power[infoMod]);
+				Log.trace ("Power of %s (Current value): %d" dendl, utils.modName (infoMod, CAPS_NONE), global.power[infoMod]);
 
 				break;
 
@@ -169,7 +169,7 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 					global.mod = result;
 
 				Log.verbose ("Mod (Text): %s" endl, utils.modName (result, CAPS_FIRST));
-				Log.verbose ("Mod (Current value): %s (%d)" dendl, global.power[infoMod], utils.modName (global.mod, CAPS_FIRST), global.mod);
+				Log.trace ("Mod (Current value): %s (%d)" dendl, utils.modName (global.mod, CAPS_FIRST), global.mod);
 
 				break;
 
@@ -187,7 +187,7 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 
 				// Debug
 				Log.verbose ("Prayer time (Current value): %d" endl, alarms.prayerTime[infoMod][2]);
-				Log.verbose ("Prayer time (Current value) (Readable): %d:%d" dendl, alarms.prayerTime[infoMod][0], alarms.prayerTime[infoMod][1]);
+				Log.trace ("Prayer time (Current value) (Readable): %d:%d" dendl, alarms.prayerTime[infoMod][0], alarms.prayerTime[infoMod][1]);
 
 				alarms.initPrayer();
 
@@ -216,7 +216,7 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 				// Debug
 				Log.verbose ("Min Speed: %d" endl, MIN_SPEED[infoMod]);
 				Log.verbose ("Max Speed: %d" endl, MAX_SPEED[infoMod]);
-				Log.verbose ("Speed (Current value): %d" dendl, global.speed[infoMod]);
+				Log.trace ("Speed of %s (Current value): %d" dendl, utils.modName (infoMod, CAPS_NONE), global.speed[infoMod]);
 
 				break;
 		}

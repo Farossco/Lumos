@@ -83,9 +83,10 @@ const char * Utils::errorTypeName (int infoType, boolean shortened)
 	}
 }
 
+// Requires a 23-char buffer
 char * Utils::clock (char * buf)
 {
-	sprintf (buf, "%.2d/%.2d/%.4d %.2d:%.2d:%.2d", day(), month(), year(), hour(), minute(), second());
+	sprintf (buf, "%.2d/%.2d/%.4d %.2d:%.2d:%.2d:%.2ld", day(), month(), year(), hour(), minute(), second(), (millis() - now() * 1000) / 10);
 
 	return buf;
 }
