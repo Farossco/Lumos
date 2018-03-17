@@ -39,8 +39,6 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 		infotype = TYPE_POW;
 	else if (strstr (request, "MOD") == request)
 		infotype = TYPE_MOD;
-	else if (strstr (request, "PRT") == request)
-		infotype = TYPE_PRT;
 	else if (strstr (request, "SPE") == request)
 		infotype = TYPE_SPE;
 	else
@@ -71,25 +69,6 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 		if (infoMod < MOD_MIN || infoMod > MOD_MAX)
 			errorType = ERR_UKM;
 	}
-	else if (infotype == TYPE_PRT)
-	{
-		for (infoMod = 0; infoMod < N_PRAYER; (infoMod)++)
-			if (request[0] == PRAYERS_NAME[infoMod][0])
-				break;
-
-		Log.verbose ("Prayer: ");
-		if (infoMod < 0 || infoMod >= N_PRAYER)
-		{
-			errorType = ERR_UKP;
-			Log.verbosenp ("%d" endl, infoMod);
-		}
-		else
-		{
-			Log.verbosenp ("%s (%d)" endl, PRAYERS_NAME[infoMod], infoMod);
-		}
-
-		utils.reduceCharArray (&request, 1); // Remove first char of the array (prayer specifier)
-	}
 
 	Log.verbose ("%s: %s" endl, utils.infoTypeName (infotype, false), request);
 
@@ -98,13 +77,13 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 	if (infotype == TYPE_RGB)
 		Log.verbose ("%s (decoded): %x" endl, utils.infoTypeName (infotype, false), result);
 	else
-		Log.verbose ("%s (decoded): %d" endl, utils.infoTypeName (infotype, false), result);
+		Log.verbose ("%s (decoded): %l" endl, utils.infoTypeName (infotype, false), result);
 
 	if (errorType == ERR_NOE)
 		switch (infotype)
 		{
 			case TYPE_TIM:
-				if (result < 0)
+				if (result <= 0)
 					errorType = ERR_OOB;
 				else
 					setTime (result);
@@ -112,10 +91,11 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 				char buf[20];
 
 				// Debug
-				Log.verbose ("Time (Current value): %d" endl, now());
+				Log.verbose ("Time (Current value): %l" endl, now());
 				Log.trace ("Time (Current value) (readable): %s" endl, utils.clock (buf));
 
 				alarms.initDawn();
+				sd.init (PIN_SD_CS);
 				break;
 
 			case TYPE_RGB:
@@ -156,7 +136,7 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 				if (result < SEEKBAR_MIN || result > SEEKBAR_MAX)
 					errorType = ERR_OOB;
 				else
-					global.power[infoMod] = utils.convertBoundaries (result, SEEKBAR_MIN, SEEKBAR_MAX, MIN_POWER, MAX_POWER);
+					global.power[infoMod] = utils.map (result, SEEKBAR_MIN, SEEKBAR_MAX, MIN_POWER, MAX_POWER);
 
 				Log.trace ("Power of %s (Current value): %d" dendl, utils.modName (infoMod, CAPS_NONE), global.power[infoMod]);
 
@@ -172,27 +152,6 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 				Log.trace ("Mod (Current value): %s (%d)" dendl, utils.modName (global.mod, CAPS_FIRST), global.mod);
 
 				break;
-
-			case TYPE_PRT:
-				if (result < MOD_MIN && result > MOD_MAX)
-					errorType = ERR_OOB;
-				else
-				{
-					alarms.prayerTime[infoMod][2] = result;
-					alarms.prayerTime[infoMod][0] = alarms.prayerTime[infoMod][2] / 60;
-					alarms.prayerTime[infoMod][1] = alarms.prayerTime[infoMod][2] % 60;
-
-					alarms.prayersSet[infoMod] = true;
-				}
-
-				// Debug
-				Log.verbose ("Prayer time (Current value): %d" endl, alarms.prayerTime[infoMod][2]);
-				Log.trace ("Prayer time (Current value) (Readable): %d:%d" dendl, alarms.prayerTime[infoMod][0], alarms.prayerTime[infoMod][1]);
-
-				alarms.initPrayer();
-
-				break;
-
 
 			case TYPE_SPE:
 				if (infoMod == MOD_DAWN)
@@ -210,7 +169,7 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 					if (result < SEEKBAR_MIN || result > SEEKBAR_MAX)
 						errorType = ERR_OOB;
 					else
-						global.speed[infoMod] = utils.convertBoundaries (result, SEEKBAR_MIN, SEEKBAR_MAX, MIN_SPEED[infoMod], MAX_SPEED[infoMod]);
+						global.speed[infoMod] = utils.map (result, SEEKBAR_MIN, SEEKBAR_MAX, MIN_SPEED[infoMod], MAX_SPEED[infoMod]);
 				}
 
 				// Debug

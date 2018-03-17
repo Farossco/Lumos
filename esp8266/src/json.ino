@@ -25,10 +25,6 @@ char * getJson (String status, String message)
 	for (int i = MODE_MIN; i < N_MODE; i++)
 		jsonRootDatasSpeed.add (speed[i]);
 
-	JsonArray& jsonRootPrayers = jsonRoot.createNestedArray ("Prayers");
-	for (int i = 0; i < N_PRAYER; i++)
-		jsonRootPrayers.add (prayerTime[i][2]);
-
 	jsonRoot.printTo (json, sizeof(json));
 
 	return json;

@@ -48,9 +48,6 @@ const char * Utils::infoTypeName (int infoType, boolean shortened)
 		case TYPE_MOD:
 			return shortened ? "MOD" : "Mod";
 
-		case TYPE_PRT:
-			return shortened ? "PRT" : "Prayer time";
-
 		case TYPE_SPE:
 			return shortened ? "SPE" : "Speed";
 
@@ -75,9 +72,6 @@ const char * Utils::errorTypeName (int infoType, boolean shortened)
 		case ERR_UKR:
 			return shortened ? "Unknown request type" : "Error: Unknown request type";
 
-		case ERR_UKP:
-			return shortened ? "Unknown prayer" : "Error: Unknown prayer";
-
 		default:
 			return "Unknown error";
 	}
@@ -86,7 +80,7 @@ const char * Utils::errorTypeName (int infoType, boolean shortened)
 // Requires a 23-char buffer
 char * Utils::clock (char * buf)
 {
-	sprintf (buf, "%.2d/%.2d/%.4d %.2d:%.2d:%.2d:%.2ld", day(), month(), year(), hour(), minute(), second(), (millis() - now() * 1000) / 10);
+	sprintf (buf, "%.2d/%.2d/%.4d %.2d:%.2d:%.2d::%.3ld", day(), month(), year(), hour(), minute(), second(), (millis() % 1000));
 
 	return buf;
 }
@@ -96,7 +90,9 @@ void Utils::softwareReset () // Just in case
 	asm volatile ("  jmp 0");
 }
 
-int Utils::convertBoundaries (float input, float inMin, float inMax, float outMin, float outMax)
+// Custom map function (more accurate)
+
+long Utils::map (float input, float inMin, float inMax, float outMin, float outMax)
 {
 	// Thanks to Alok Singhal from stackoverflow (https://stackoverflow.com/questions/5731863/mapping-a-numeric-range-onto-another/5732390#5732390)
 	double slope = 1.0 * (outMax - outMin) / (inMax - inMin);

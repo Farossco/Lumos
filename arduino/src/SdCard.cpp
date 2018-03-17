@@ -5,33 +5,47 @@
 
 SdCard::SdCard()
 {
-	pin     = 0;
-	enabled = false;
+	pin          = 0;
+	enabled      = false;
+	creationDate = -1;
 }
 
 void SdCard::init (int pin)
 {
+	// Si le log SD est décactivé, on arrête là
 	if (!SD_LOG_ENABLED)
+		return;
+
+	// Si la date de création du fichier est celle d'aujourd'hui, on ne recrée pas de fichier
+	if (creationDate == year() * 32 * 13 + month() * 32 + day())
 		return;
 
 	this->pin = pin;
 
 	Log.info ("Initializing SD card... ");
 
+	enabled = false;
+
+	closeFile(); // Fermeture du fichier s'il est ouvert
+
+	SD.end(); // Fermeture de la connexion à la carte SD
+
+	// Ouverture d'une connexion à la carte SD
 	if (SD.begin (pin))
 	{
 		Log.infonp ("Done." dendl);
 	}
-	else
+	else // En cas d'échec de la connexion
 	{
 		Log.infonp ("Failed!" dendl);
 		Log.error ("SD Initialisation failed! No logging for this session..." dendl);
 		return;
 	}
 
+	// Création du fichier log
 	logFileAvailable = createLogFile();
 
-	if (logFileAvailable)
+	if (logFileAvailable) // Si la création du fichier n'a pas échouée
 	{
 		// Printing it as lowest level so it is printed for any debug level
 		// It's not a problem since it's not gonna print the prefix
@@ -41,7 +55,9 @@ void SdCard::init (int pin)
 
 		enabled = true;
 	}
-}
+
+	creationDate = year() * 32 * 13 + month() * 32 + day();
+} // SdCard::init
 
 File * SdCard::getFile ()
 {
@@ -67,7 +83,7 @@ void SdCard::openFile ()
 	{
 		logFile    = SD.open (sdFileName, FILE_WRITE);
 		fileOpened = true;
-		Log.verbose ("File opened" dendl);
+		Log.trace ("File opened" dendl);
 	}
 
 	fileLastOpened = millis();
@@ -80,7 +96,7 @@ void SdCard::closeFile ()
 
 	if (millis() - fileLastOpened > FILE_CLOSE_TIME * 1000)
 	{
-		Log.verbose ("File closed" dendl);
+		Log.trace ("File closed" dendl);
 		logFile.close();
 		fileOpened = false;
 	}

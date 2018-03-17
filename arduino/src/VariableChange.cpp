@@ -90,12 +90,12 @@ void VariableChange::sendInfo ()
 	sprintf (varBuf, "ONF%dzMOD%dzRGB%lXz", global.on != 0, global.mod, global.rgb[MOD_DEFAULT]);
 
 	for (int i = MOD_MIN; i < N_MOD; i++)
-		sprintf (varBuf + strlen (varBuf), "POW%d%dz", i, utils.convertBoundaries (global.power[i], MIN_POWER, MAX_POWER, SEEKBAR_MIN, SEEKBAR_MAX));
+		sprintf (varBuf + strlen (varBuf), "POW%d%ldz", i, utils.map (global.power[i], MIN_POWER, MAX_POWER, SEEKBAR_MIN, SEEKBAR_MAX));
 
 
 	for (int i = MOD_MIN + 1; i < N_MOD; i++)
 		if (i != MOD_DEFAULT) // Not sending Default mod speed
-			sprintf (varBuf + strlen (varBuf), "SPE%d%dz", i, i == 0 ? global.speed[i] : utils.convertBoundaries (global.speed[i], MIN_SPEED[i], MAX_SPEED[i], SEEKBAR_MIN, SEEKBAR_MAX));
+			sprintf (varBuf + strlen (varBuf), "SPE%d%ldz", i, i == 0 ? global.speed[i] : utils.map (global.speed[i], MIN_SPEED[i], MAX_SPEED[i], SEEKBAR_MIN, SEEKBAR_MAX));
 
 	varBuf[strlen (varBuf)] = '\0';
 

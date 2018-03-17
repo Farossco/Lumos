@@ -34,8 +34,6 @@ void decodeRequest (String request, long & result, int & infoMode, int & infoTyp
 		infoType = TYPE_POW;
 	else if (request.indexOf ("MOD") == 0)
 		infoType = TYPE_MOD;
-	else if (request.indexOf ("PRT") == 0)
-		infoType = TYPE_PRT;
 	else if (request.indexOf ("SPE") == 0)
 		infoType = TYPE_SPE;
 	else
@@ -70,25 +68,6 @@ void decodeRequest (String request, long & result, int & infoMode, int & infoTyp
 		request.remove (0, 1);
 		if (infoMode < MODE_MIN || infoMode > MODE_MAX)
 			errorType = ERR_UKM;
-	}
-	else if (infoType == TYPE_PRT)
-	{
-		for (infoMode = 0;; (infoMode)++)
-			if (request.charAt (0) == PRAYERS_NAME[infoMode].charAt (0))
-				break;
-
-		print ("Prayer: ");
-		if (infoMode < 0 || infoMode >= N_PRAYER)
-		{
-			errorType = ERR_UKP;
-			printlnNoPrefix (infoMode, DEC);
-		}
-		else
-		{
-			printNoPrefix (PRAYERS_NAME[infoMode] + " (");
-			printNoPrefix (infoMode, DEC);
-			printlnNoPrefix (")");
-		}
 	}
 
 	print (infoTypeName (infoType, false) + ": ");
@@ -181,27 +160,6 @@ void decodeRequest (String request, long & result, int & infoMode, int & infoTyp
 				print ("Mode (Current value): ");
 				printNoPrefix (mode, DEC);
 				printlnNoPrefix (" (" + modeName (mode) + ")");
-
-				break;
-
-			case TYPE_PRT:
-				if (result < 0 && result > MODE_MAX)
-					errorType = ERR_OOB;
-				else
-				{
-					prayerTime[infoMode][2] = result;
-					prayerTime[infoMode][0] = prayerTime[infoMode][2] / 60;
-					prayerTime[infoMode][1] = prayerTime[infoMode][2] % 60;
-				}
-
-				// Debug
-				print ("Prayer time (Current value): ");
-				printlnNoPrefix (prayerTime[infoMode][2], DEC);
-				print ("Prayer time (Current value) (Readable): ");
-				printDigits (prayerTime[infoMode][0]);
-				printNoPrefix (":");
-				printDigits (prayerTime[infoMode][1]);
-				printlnNoPrefix ("\n");
 
 				break;
 

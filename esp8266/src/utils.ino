@@ -46,9 +46,6 @@ String infoTypeName (int infoType, boolean shortened)
 		case TYPE_MOD:
 			return shortened ? "MOD" : "Mode";
 
-		case TYPE_PRT:
-			return shortened ? "PRT" : "Prayer time";
-
 		case TYPE_SPE:
 			return shortened ? "SPE" : "Speed";
 
@@ -72,9 +69,6 @@ String errorTypeName (int infoType, boolean shortened)
 
 		case ERR_UKR:
 			return shortened ? "Unknown request type" : "Error: Unknown request type";
-
-		case ERR_UKP:
-			return shortened ? "Unknown prayer" : "Error: Unknown prayer";
 
 		default:
 			return "Unknown error";

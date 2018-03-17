@@ -39,19 +39,15 @@ void ArduinoSerial::waitForTime ()
 
 	time_t lastMillis = millis();
 
-	while (timeStatus() == timeNotSet || (alarms.prayersAreSet() != 0 && PRAYER_ALARM_ENABLED)) // Doesn't start if time isn't set and we didn't receive all prayer times
+	while (timeStatus() == timeNotSet) // Doesn't start if time isn't set
 	{
 		read();
 
 		if (millis() - lastMillis >= 5000)
 		{
-			if (timeStatus() == timeNotSet && alarms.prayersAreSet() != 0 && PRAYER_ALARM_ENABLED)
-				Log.verbose ("Neither time nor prayers are set (Waiting for %d prayer%s)" endl, alarms.prayersAreSet(), alarms.prayersAreSet() > 1 ? "s" : "");
-			else if (timeStatus() == timeNotSet)
+			if (timeStatus() == timeNotSet)
 				Log.verbose ("Time is not set" endl);
-			else
-				Log.verbose ("Prayers are not set (Waiting for %d prayer%s" endl, alarms.prayersAreSet(), alarms.prayersAreSet() > 1 ? "s" : "");
-
+				
 			askForTime();
 			lastMillis = millis();
 		}

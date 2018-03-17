@@ -3,7 +3,7 @@
 
 #include <SD.h>
 
-const float FILE_CLOSE_TIME = 2.5;
+const float FILE_CLOSE_TIME = 1.5;
 
 class SdCard
 {
@@ -24,6 +24,7 @@ private:
 	char sdFileName[13];
 	unsigned long fileLastOpened;
 	boolean enabled;
+	long creationDate; // La date à laquelle le fichier a été créé
 
 	boolean createLogFile ();
 	void getLogFileName (char * buf);

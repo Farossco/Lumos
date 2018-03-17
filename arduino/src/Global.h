@@ -8,11 +8,10 @@ const long ESP_BAUD_RATE   = 9600;   // ESP8266 communication baud rate
 const long DEBUG_BAUD_RATE = 250000; // Debug baud rate
 const long DFP_BAUD_RATE   = 9600;   // DFPlayer communication baud rate
 
-const boolean WAIT_FOR_TIME         = false; // If we have to wait for time sync (if true, program will not start until time is synced)
+const boolean WAIT_FOR_TIME         = true;  // If we have to wait for time sync (if true, program will not start until time is synced)
 const boolean INFRARED_ENABLED      = true;  // If we allow infrared communication
 const boolean SOUND_ENABLED         = false; // Enable sound
 const boolean CLAP_ENABLED          = false; // Enable double claping
-const boolean PRAYER_ALARM_ENABLED  = false; // Enable prayer alarms
 const boolean MORNING_ALARM_ENABLED = true;  // Enable morning alarm
 const boolean SERIAL_LOG_ENABLED    = true;  // Serial logging
 const boolean SD_LOG_ENABLED        = true;  // SD logging

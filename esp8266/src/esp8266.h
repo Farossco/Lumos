@@ -40,15 +40,13 @@ const int TYPE_RGB = 2;  // Provide : RGB
 const int TYPE_ONF = 3;  // Provide : On
 const int TYPE_POW = 4;  // Provide : Power
 const int TYPE_MOD = 5;  // Provide : Mode
-const int TYPE_PRT = 6;  // Provide : Prayer time
-const int TYPE_SPE = 7;  // Provide : Speed
+const int TYPE_SPE = 6;  // Provide : Speed
 
 // Serial reception errors
 const int ERR_NOE = 0; // No error
 const int ERR_OOB = 1; // Out of bound
 const int ERR_UKM = 2; // Unknown mode
 const int ERR_UKR = 3; // Unknown request
-const int ERR_UKP = 4; // Unknown prayer
 
 // Modes
 const int MODE_MIN     = 0; // -Minimum mode value-
@@ -65,15 +63,6 @@ const int N_MODE       = 6; // --Number of different modes--
 const String LATITUDE  = "48.866667";    // My latitude (Well... not really)
 const String LONGITUDE = "2.333333";     // My longitude (Not really either :p)
 const String TIME_ZONE = "Europe/Paris"; // My time zone
-
-// Prayers
-const int PRAYER_REQUEST_TIMEOUT    = 15000;             // Request timeout
-const int PRAYER_HTTP_PORT          = 80;                // HTTP port
-const char * PRAYER_HOST            = "api.aladhan.com"; // HTTP host
-const int PRAYER_METHOD             = 1;                 // Calculation method for times
-const int N_PRAYER                  = 6;                 // Number of different prayer (including sunrise);
-const String PRAYERS_NAME[N_PRAYER] =
-{ "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha" };
 
 // Time
 const int TIME_REQUEST_TIMEOUT = 15000;                // Request timeout
@@ -103,10 +92,6 @@ unsigned char blue;  // Current blue value including lightning power (From 0 to 
 int power[N_MODE];   // Current lightning power (from MINPOWER to MAXPOWER)
 int speed[N_MODE];   // Current mode speed
 unsigned char mode;  // Current lighting mode
-
-// Prayer
-int prayerTime[N_PRAYER][3]; // [0] = Hours / [1] = Minutes / [2] = Hours & Minutes
-boolean prayersAreSet;       // Set to true when all prayers are set
 
 // Wifi webserver
 WiFiServer server (80); // Web serveur declaration with port 80
@@ -174,7 +159,6 @@ String decodeWeb (WiFiClient client);
 void initWifiServer ();
 void sendTime ();
 void getTime ();
-void getPrayerTime ();
 String modeName (int mode);
 String infoTypeName (int infoType, boolean shortened);
 String errorTypeName (int infoType, boolean shortened);
