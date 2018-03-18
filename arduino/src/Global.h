@@ -22,7 +22,6 @@ const int PIN_LED_INFRARED = 5;  // Infrared IN pin
 const int PIN_LED_RED      = 11; // Red LED OUT pin
 const int PIN_LED_GREEN    = 7;  // Green LED OUT pin
 const int PIN_LED_BLUE     = 4;  // Blue LED OUT pin
-const int PIN_SD_CS        = 49; // SD Chip Select
 
 class Global
 {

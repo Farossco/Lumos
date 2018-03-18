@@ -16,7 +16,7 @@ void setup ()
 
 	serial.waitForTime();
 
-	sd.init (PIN_SD_CS);
+	sd.init();
 
 	Log.init (&Serial, LEVEL_VERBOSE, sd.getFile(), LEVEL_VERBOSE);
 
@@ -49,7 +49,7 @@ void loop ()
 
 	mods.action();
 
-	sd.closeFile();
+	sd.cardTests();
 
 	global.light();
 }

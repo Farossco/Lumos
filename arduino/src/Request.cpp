@@ -10,6 +10,9 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 {
 	int requestLength = strlen (request);
 
+	if (requestLength <= 0)
+		return;
+
 	result    = 0;
 	infotype  = 0;
 	errorType = ERR_NOE;
@@ -95,7 +98,7 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 				Log.trace ("Time (Current value) (readable): %s" endl, utils.clock (buf));
 
 				alarms.initDawn();
-				sd.init (PIN_SD_CS);
+
 				break;
 
 			case TYPE_RGB:

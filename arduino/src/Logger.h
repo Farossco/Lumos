@@ -83,23 +83,28 @@ private:
 	void print (Print * output, const char * format, va_list args);
 	void print (Print * output, const __FlashStringHelper * format, va_list args);
 	void printFormat (Print * output, const char format, va_list * args);
+	void printPrefix (Print * output, int level)
+	{
+		output->print (F ("["));
+		output->print (utils.clock (buf));
+		output->print (F ("] ["));
+		if (sd.isEnabled())
+			output->print (F ("CARD] ["));
+		else
+			output->print (F ("NOCA] ["));
+		output->print (debugLevelName (level));
+		output->print (debugLevelSpace (level));
+		output->print (F ("] "));
+	}
+
 	template <class T> void printLevel (boolean showPrefix, int level, T msg, ...)
 	{
 		if (multiOutput && output2Level >= level && sd.isEnabled())
 		{
+			sd.openFile();
+
 			if (showPrefix)
-			{
-				sd.openFile();
-
-				output2->print ("[");
-
-				output2->print (utils.clock (buf));
-				output2->print ("]");
-				output2->print (" [ ");
-				output2->print (debugLevelName (level));
-				output2->print (debugLevelSpace (level));
-				output2->print (" ] ");
-			}
+				printPrefix (output2, level);
 
 			va_list args;
 			va_start (args, msg);
@@ -109,16 +114,7 @@ private:
 		if (output1Level >= level)
 		{
 			if (showPrefix)
-			{
-				output1->print (F ("["));
-
-				output1->print (utils.clock (buf));
-				output1->print (F ("]"));
-				output1->print (F (" [ "));
-				output1->print (debugLevelName (level));
-				output1->print (debugLevelSpace (level));
-				output1->print (F (" ] "));
-			}
+				printPrefix (output1, level);
 
 			va_list args;
 			va_start (args, msg);
