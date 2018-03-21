@@ -7,6 +7,7 @@
 #include "ArduinoSerial.h"
 #include "Alarms.h"
 #include "Mods.h"
+#include "Bluetooth.h"
 
 void setup ()
 {
