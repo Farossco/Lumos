@@ -2,8 +2,8 @@
 #define LOGGING_H
 
 #include <Arduino.h>
-#include "Global.h"
 #include "SdCard.h"
+#include "Utils.h"
 
 #define LEVEL_SILENT  0
 #define LEVEL_ERROR   1
@@ -14,6 +14,9 @@
 
 #define endl          "\n"
 #define dendl         "\n\n" // double endl
+
+const boolean SERIAL_LOG_ENABLED = true; // Serial logging
+const boolean SD_LOG_ENABLED     = true; // SD logging
 
 class Logger
 {

@@ -1,13 +1,15 @@
 #include <Time.h>
-#include "Global.h"
 #include "Logger.h"
-#include "Infrared.h"
 #include "SdCard.h"
 #include "VariableChange.h"
 #include "ArduinoSerial.h"
 #include "Alarms.h"
-#include "Mods.h"
 #include "Bluetooth.h"
+#include "Light.h"
+
+const long ESP_BAUD_RATE   = 250000; // ESP8266 communication baud rate
+const long DEBUG_BAUD_RATE = 250000; // Debug baud rate
+const long DFP_BAUD_RATE   = 9600;   // DFPlayer communication baud rate
 
 void setup ()
 {
@@ -21,19 +23,17 @@ void setup ()
 
 	Log.init (&Serial, LEVEL_VERBOSE, sd.getFile(), LEVEL_VERBOSE);
 
-	infrared.init (PIN_LED_INFRARED);
+	// infrared.init (PIN_LED_INFRARED);
 
-	// init DF player
 
-	mods.init();
-
-	global.init();
+	light.init();
 
 	variableChange.init();
 
 	alarms.initAll();
 
 	variableChange.sendInfo();
+	// bluetooth.init();
 }
 
 void loop ()
@@ -44,13 +44,13 @@ void loop ()
 
 	// read claps
 
-	infrared.read();
+	// infrared.read();
 
 	serial.read();
 
-	mods.action();
-
 	sd.cardTests();
 
-	global.light();
+	// bluetooth.action();
+
+	light.action();
 }

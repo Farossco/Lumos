@@ -3,7 +3,7 @@
 #include "Request.h"
 #include "Utils.h"
 #include "Logger.h"
-#include "Global.h"
+#include "Light.h"
 #include "Alarms.h"
 
 void Request::decode (char * request, long & result, int & infoMod, int & infotype, int & errorType)
@@ -105,14 +105,13 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 				if (result < 0 || result > 0xFFFFFF)
 					errorType = ERR_OOB;
 				else
-					global.rgb[MOD_DEFAULT] = result;
+					light.setRgb (result, MOD_CONTINUOUS);
 
 				// Debug
-				global.rgb2color();
-				Log.trace ("RGB   (Current value): %x" endl, global.rgb[MOD_DEFAULT]);
-				Log.verbose ("Red   (Current value): %d" endl, global.red[MOD_DEFAULT]);
-				Log.verbose ("Green (Current value): %d" endl, global.green[MOD_DEFAULT]);
-				Log.verbose ("Blue  (Current value): %d" endl, global.blue[MOD_DEFAULT]);
+				Log.trace ("RGB   (Current value): %x" endl, light.getRgb (MOD_CONTINUOUS));
+				Log.verbose ("Red   (Current value): %d" endl, light.getRed (MOD_CONTINUOUS));
+				Log.verbose ("Green (Current value): %d" endl, light.getGreen (MOD_CONTINUOUS));
+				Log.verbose ("Blue  (Current value): %d" endl, light.getBlue (MOD_CONTINUOUS));
 
 				break;
 
@@ -120,18 +119,14 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 				if (result != 0 && result != 1)
 					errorType = ERR_OOB;
 				else
-					global.on = result;
-
-				Log.trace ("On/Off (Current value): ");
-
-				if (global.on != 0 && global.on != 1)
 				{
-					Log.tracenp ("Error (%d)" dendl, global.on);
+					if (result)
+						light.switchOn();
+					else
+						light.switchOff();
 				}
-				else
-				{
-					Log.tracenp ("%T" dendl, global.on);
-				}
+
+				Log.trace ("On/Off (Current value): %T" dendl, light.isOn());
 
 				break;
 
@@ -139,9 +134,9 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 				if (result < SEEKBAR_MIN || result > SEEKBAR_MAX)
 					errorType = ERR_OOB;
 				else
-					global.power[infoMod] = utils.map (result, SEEKBAR_MIN, SEEKBAR_MAX, MIN_POWER, MAX_POWER);
+					light.setPower (utils.map (result, SEEKBAR_MIN, SEEKBAR_MAX, MIN_POWER, MAX_POWER), infoMod);
 
-				Log.trace ("Power of %s (Current value): %d" dendl, utils.modName (infoMod, CAPS_NONE), global.power[infoMod]);
+				Log.trace ("Power of %s (Current value): %d" dendl, utils.modName (infoMod, CAPS_NONE), light.getPower (infoMod));
 
 				break;
 
@@ -149,10 +144,10 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 				if (result < MOD_MIN || result > MOD_MAX)
 					errorType = ERR_OOB;
 				else
-					global.mod = result;
+					light.setMod (result);
 
 				Log.verbose ("Mod (Text): %s" endl, utils.modName (result, CAPS_FIRST));
-				Log.trace ("Mod (Current value): %s (%d)" dendl, utils.modName (global.mod, CAPS_FIRST), global.mod);
+				Log.trace ("Mod (Current value): %s (%d)" dendl, utils.modName (light.getMod(), CAPS_FIRST), light.getMod());
 
 				break;
 
@@ -163,7 +158,7 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 						errorType = ERR_OOB;
 					else
 					{
-						global.speed[infoMod] = result;
+						light.setSpeed (result, infoMod);
 						alarms.initDawn();
 					}
 				}
@@ -172,13 +167,13 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 					if (result < SEEKBAR_MIN || result > SEEKBAR_MAX)
 						errorType = ERR_OOB;
 					else
-						global.speed[infoMod] = utils.map (result, SEEKBAR_MIN, SEEKBAR_MAX, MIN_SPEED[infoMod], MAX_SPEED[infoMod]);
+						light.setSpeed (utils.map (result, SEEKBAR_MIN, SEEKBAR_MAX, MIN_SPEED[infoMod], MAX_SPEED[infoMod]), infoMod);
 				}
 
 				// Debug
 				Log.verbose ("Min Speed: %d" endl, MIN_SPEED[infoMod]);
 				Log.verbose ("Max Speed: %d" endl, MAX_SPEED[infoMod]);
-				Log.trace ("Speed of %s (Current value): %d" dendl, utils.modName (infoMod, CAPS_NONE), global.speed[infoMod]);
+				Log.trace ("Speed of %s (Current value): %d" dendl, utils.modName (infoMod, CAPS_NONE), light.getSpeed (infoMod));
 
 				break;
 		}

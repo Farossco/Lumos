@@ -1,12 +1,12 @@
 #include "Utils.h"
 #include "Time.h"
-#include "Global.h"
+#include "Light.h"
 
 const char * Utils::modName (int mod, int caps)
 {
 	switch (mod)
 	{
-		case MOD_DEFAULT:
+		case MOD_CONTINUOUS:
 			return caps == 0 ? "default" : caps == 1 ? "Default" : "DEFAULT";
 
 		case MOD_FLASH:
@@ -23,6 +23,9 @@ const char * Utils::modName (int mod, int caps)
 
 		case MOD_DAWN:
 			return caps == 0 ? "wake up" : caps == 1 ? "Wake up" : "WAKE UP";
+
+		case MOD_START_ANIM:
+			return caps == 0 ? "start animation" : caps == 1 ? "Start animation" : "START ANIMATION";
 
 		default:
 			return caps == 0 ? "unknown" : caps == 1 ? "Unknown" : "UNKNOWN";

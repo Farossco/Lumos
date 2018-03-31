@@ -7,17 +7,6 @@
 // **************** IDs **************** //
 // ************************************* //
 
-// Mods
-const int MOD_MIN     = 0; // -Minimum mod value-
-const int MOD_DEFAULT = 0; // Default mod
-const int MOD_FLASH   = 1; // Flash mod
-const int MOD_STROBE  = 2; // Strobe mod
-const int MOD_FADE    = 3; // Fade mod
-const int MOD_SMOOTH  = 4; // Smooth mod
-const int MOD_DAWN    = 5; // Dawn mod
-const int MOD_MAX     = 5; // -Maximum mod value-
-const int N_MOD       = 6; // --Number of different mods--
-
 // Serial reception types
 const int TYPE_RTM = -2; // Request : Time
 const int TYPE_RIF = -1; // Request : Info
@@ -44,18 +33,7 @@ const int CAPS_ALL   = 2; // All letters in upper case
 // **************** Default, min and max values **************** //
 // ************************************************************* //
 
-// Default
-const unsigned long DEFAULT_RGB[N_MOD] =
-{ 0xFFFFFF, 0xFF0000, 0xFFFFFF, 0xFFFFFF, 0xFF0000, 0x0000FF };   // Default color on program startup
-const float DEFAULT_POWER[N_MOD] = { 50, 100, 100, 100, 100, 0 }; // Default power on program startup
-const int DEFAULT_SPEED[N_MOD]   = { -1, 10, 10, 300, 500, 500 }; // Default speed on program startup
-const int DEFAULT_VOLUME         = 30;                            // DFPlayer default volume (0 - 30)
-
 // Min and Max
-const int MIN_SPEED[N_MOD] = { -1, 1, 1, 50, 10, 1 };         // Minimum speed or power value for each mod
-const int MAX_SPEED[N_MOD] = { -1, 25, 25, 600, 1000, 1000 }; // Maximum speed or power value for each mod
-const int MIN_POWER        = 0;                               // Minimum power value
-const int MAX_POWER        = 255;                             // Maximum power value
 const int SEEKBAR_MIN      = 0;                               // Minimum app seek bars value
 const int SEEKBAR_MAX      = 100;                             // Maximum app seek bars value
 const int MIN_VOLUME       = 0;                               // Minimum DFPlayer volume

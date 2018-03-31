@@ -1,6 +1,7 @@
 #include "Alarms.h"
 #include "ArduinoSerial.h"
 #include "Logger.h"
+#include "Light.h"
 
 Alarms::Alarms()
 { }
@@ -28,7 +29,7 @@ void Alarms::initDawn ()
 	clearDawn();
 
 	// Start the alarm before so it finishes at the time requested
-	morningAlarm = Alarm.alarmRepeat (WAKEUP_HOURS * 3600 + WAKEUP_MINUTES * 60 + WAKEUP_SECONDS - global.speed[MOD_DAWN] * 60, this->dawnStart);
+	morningAlarm = Alarm.alarmRepeat (WAKEUP_HOURS * 3600 + WAKEUP_MINUTES * 60 + WAKEUP_SECONDS - light.getDawnDuration() * 60, this->dawnStart);
 }
 
 void Alarms::clearAll ()
@@ -49,8 +50,8 @@ void Alarms::clearDawn ()
 
 void Alarms::dawnStart ()
 {
-	global.mod = MOD_DAWN;
-	global.on  = true;
+	light.setMod (MOD_DAWN);
+	light.switchOn();
 
 	Log.info ("Starting dawn alert" dendl);
 }

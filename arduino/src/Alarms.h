@@ -1,8 +1,9 @@
 #ifndef ALARMS_H
 #define ALARMS_H
 
-#include "Global.h"
 #include <TimeAlarms.h>
+
+const boolean MORNING_ALARM_ENABLED = true; // Enable morning alarm
 
 // Wake up
 const int WAKEUP_HOURS   = 06;

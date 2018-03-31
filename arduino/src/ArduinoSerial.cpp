@@ -1,7 +1,6 @@
 #include <Time.h>
 #include "ArduinoSerial.h"
 #include "Logger.h"
-#include "Global.h"
 #include "Request.h"
 #include "VariableChange.h"
 #include "Alarms.h"
@@ -37,6 +36,8 @@ void ArduinoSerial::waitForTime ()
 	if (!WAIT_FOR_TIME)
 		return;
 
+	askForTime();
+
 	time_t lastMillis = millis();
 
 	while (timeStatus() == timeNotSet) // Doesn't start if time isn't set
@@ -47,7 +48,7 @@ void ArduinoSerial::waitForTime ()
 		{
 			if (timeStatus() == timeNotSet)
 				Log.verbose ("Time is not set" endl);
-				
+
 			askForTime();
 			lastMillis = millis();
 		}

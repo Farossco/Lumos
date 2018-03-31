@@ -1,9 +1,9 @@
+#include <Arduino.h>
 #include <stdlib.h>
 #include <inttypes.h>
 #include <stdarg.h>
 #include <Time.h>
 #include "Logger.h"
-#include "Global.h"
 
 Logger::Logger()
 {

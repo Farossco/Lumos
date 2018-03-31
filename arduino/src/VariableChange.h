@@ -2,7 +2,7 @@
 #define VARIABLE_CHANGE_H
 
 #include <Arduino.h>
-#include "Utils.h"
+#include "Light.h"
 
 class VariableChange
 {
@@ -14,9 +14,9 @@ public:
 
 private:
 	boolean changeOn;
-	unsigned long changeRgb;
 	int changePower[N_MOD];
 	int changeSpeed[N_MOD];
+	unsigned long changeRgb;
 	unsigned char changeMod;
 };
 

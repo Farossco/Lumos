@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 
+const boolean WAIT_FOR_TIME = true; // If we have to wait for time sync (if true, program will not start until time is synced)
+
 class ArduinoSerial
 {
 public:

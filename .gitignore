@@ -3,3 +3,5 @@ esp8266/\.vscode/
 
 arduino/\.vscode/
 tests/Bluetooth/
+
+arduino/lib/
