@@ -92,12 +92,12 @@ unsigned char Light::getMod ()
 	return mod;
 }
 
-boolean Light::isOn ()
+bool Light::isOn ()
 {
 	return on != 0;
 }
 
-boolean Light::isOff ()
+bool Light::isOff ()
 {
 	return on == 0;
 }

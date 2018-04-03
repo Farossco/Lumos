@@ -99,7 +99,7 @@ void VariableChange::sendInfo ()
 
 	for (uint8_t i = TYPE_SEND_MIN; i <= TYPE_SEND_MAX; i++)
 	{
-		for (int j = utils.infoTypeComplement (i, COMPLEMENT_MIN); j <= utils.infoTypeComplement (i, COMPLEMENT_MAX); j++)
+		for (int j = utils.infoTypeComplementBounds (i, COMPLEMENT_MIN); j <= utils.infoTypeComplementBounds (i, COMPLEMENT_MAX); j++)
 		{
 			char information[15] = "\n";
 

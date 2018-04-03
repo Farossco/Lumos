@@ -19,9 +19,9 @@ void Json::send (char * status, char * message, WiFiClient * client)
 
 	// *** Light *** //
 	JsonObject& jsonRootLight = jsonBuffer.createObject();
-	jsonRoot["Light"]     = jsonRootLight;
-	jsonRootLight["On"]   = light.isOn();
-	jsonRootLight["Mode"] = light.getMod();
+	jsonRoot["Light"]    = jsonRootLight;
+	jsonRootLight["On"]  = light.isOn();
+	jsonRootLight["Mod"] = light.getMod();
 
 	JsonArray& jsonRootLightRgb = jsonRootLight.createNestedArray ("Rgb");
 	for (int i = LIGHT_MOD_MIN; i <= LIGHT_MOD_MAX; i++)
@@ -29,18 +29,18 @@ void Json::send (char * status, char * message, WiFiClient * client)
 
 	JsonArray& jsonRootLightPower = jsonRootLight.createNestedArray ("Power");
 	for (int i = LIGHT_MOD_MIN; i <= LIGHT_MOD_MAX; i++)
-		jsonRootLightPower.add ((uint8) light.getPower (i));
+		jsonRootLightPower.add ((uint8_t) utils.map (light.getPower (i), LIGHT_MIN_POWER, LIGHT_MAX_POWER, SEEKBAR_MIN, SEEKBAR_MAX));
 
 	JsonArray& jsonRootLightModSpeed = jsonRootLight.createNestedArray ("Speed");
 	for (int i = LIGHT_MOD_MIN; i <= LIGHT_MOD_MAX; i++)
-		jsonRootLightModSpeed.add ((unsigned int) light.getSpeed (i));
+		jsonRootLightModSpeed.add ((unsigned int) utils.map (light.getSpeed (i), LIGHT_MIN_SPEED[i], LIGHT_MAX_SPEED[i], SEEKBAR_MIN, SEEKBAR_MAX));
 
 	// *** Sound *** //
 	JsonObject& jsonRootSound = jsonBuffer.createObject();
 	jsonRoot["Sound"]       = jsonRootSound;
 	jsonRootSound["On"]     = sound.isOn();
 	jsonRootSound["Volume"] = sound.getVolume();
-	jsonRootSound["Mode"]   = sound.getMod();
+	jsonRootSound["Mod"]    = sound.getMod();
 
 	Log.trace ("Sending to client: ");
 	if (SERIAL_LOG_ENABLED)
@@ -54,7 +54,7 @@ void Json::send (char * status, char * message, WiFiClient * client)
 	client->println (""); // Do not forget this one
 	jsonRoot.prettyPrintTo (*client);
 
-	Log.trace (dendl);
+	Log.tracenp (dendl);
 } // Json::sendJsonToClient
 
 Json json = Json();

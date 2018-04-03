@@ -10,16 +10,13 @@ Wifi::Wifi() : server (80)
 
 void Wifi::init ()
 {
-	int bufSize = 20;
+	const int bufSize = 20;
 	char buf[bufSize];
 
 	WiFi.mode (WIFI_STA);
 
-	while (!Serial)
-		;
-
 	// Connect to WiFi network
-	Log.trace ("Connecting to %s" dendl, SSID0);
+	Log.trace ("Connecting to %s", SSID0);
 
 	WiFi.begin (SSID0, PASS0);
 
@@ -165,6 +162,11 @@ void Wifi::receiveAndDecode ()
 
 	length      = client.readBytesUntil ('\r', buf, bufSize);
 	buf[length] = '\0';
+	if (strstr (buf, "favicon.ico") == buf)
+	{
+		Log.verbose ("Favicon request, ignoring..." dendl);
+		return;
+	}
 	Log.trace ("Request: %s" dendl, buf);
 
 	// Remove unwanted characteres (GET /)
@@ -172,18 +174,12 @@ void Wifi::receiveAndDecode ()
 
 	*strstr (buf, " ") = '\0'; // Terminating the array at the first space
 
-	if (strstr (buf, "favicon.ico") == buf)
-	{
-		Log.trace ("Favicon request, ignoring...");
-		return;
-	}
-
 	request.decode (buf, type, complement, information, error);
 
 	if (error == TYPE_RIF)
 	{
 		Log.trace ("Sending to arduino: Nothing" dendl);
-		json.send ("OK", "", &client);
+		json.send ((char *) "OK", (char *) "", &client);
 		client.flush();
 		client.stop();
 		return;
@@ -191,7 +187,7 @@ void Wifi::receiveAndDecode ()
 	if (error != ERR_NOE)
 	{
 		Log.trace ("Sending to arduino: Nothing" dendl);
-		json.send ("ERROR", (char *) utils.errorTypeName (error, true), &client);
+		json.send ((char *) "ERROR", (char *) utils.errorTypeName (error, true), &client);
 		client.flush();
 		client.stop();
 		return;
@@ -207,7 +203,7 @@ void Wifi::receiveAndDecode ()
 
 	Log.tracenp (dendl);
 
-	json.send ("OK", "", &client);
+	json.send ((char *) "OK", (char *) "", &client);
 
 	client.flush();
 	client.stop();

@@ -124,19 +124,39 @@ const char * Utils::errorTypeName (uint8_t infoType, boolean shortened)
 	}
 }
 
-const uint8_t Utils::infoTypeComplement (uint8_t infoType, uint8_t complement)
+const uint8_t Utils::infoTypeComplementBounds (uint8_t infoType, uint8_t minMax)
 {
 	switch (infoType)
 	{
 		case TYPE_RGB:
 		case TYPE_POW:
 		case TYPE_SPE:
-			return complement == COMPLEMENT_MIN ? LIGHT_MOD_MIN : LIGHT_MOD_MAX;
+			return minMax == COMPLEMENT_MIN ? LIGHT_MOD_MIN : LIGHT_MOD_MAX;
+
+		case TYPE_SCO:
+			return minMax == COMPLEMENT_MIN ? SOUND_COMMAND_MIN : SOUND_COMMAND_MAX;
 
 		default:
-			return complement == COMPLEMENT_MIN ? 0 : 0;
+			return minMax == COMPLEMENT_MIN ? 0 : 0;
 	}
-} // Utils::infoTypeComplement
+}
+
+const uint8_t Utils::infoTypeComplementType (uint8_t infoType)
+{
+	switch (infoType)
+	{
+		case TYPE_RGB:
+		case TYPE_POW:
+		case TYPE_SPE:
+			return COMPLEMENT_TYPE_LMO;
+
+		case TYPE_SCO:
+			return COMPLEMENT_TYPE_SCP;
+
+		default:
+			return COMPLEMENT_TYPE_NONE;
+	}
+}
 
 // Requires a 23-char buffer
 char * Utils::clock (char * buf)

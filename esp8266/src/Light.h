@@ -64,8 +64,8 @@ public:
 	unsigned char getPower (unsigned char affectedMod);
 	unsigned int getSpeed (unsigned char affectedMod);
 	unsigned char getMod ();
-	boolean isOn ();
-	boolean isOff ();
+	bool isOn ();
+	bool isOff ();
 
 	int getDawnDuration ();
 
@@ -100,7 +100,7 @@ private:
 	int32_t counter;                       // Counter that is used by some mods
 	unsigned long delayCount, delayCount2; // Delay counting
 	unsigned char lastMod;                 // Mod in previous loop - Allows mod initializations
-	boolean on;                            // If the leds are ON or OFF (True: ON / False: OFF)
+	bool on;                               // If the leds are ON or OFF (True: ON / False: OFF)
 	unsigned char power[LIGHT_N_MOD];      // Current lightning power for each mod (from MINPOWER to MAXPOWER)
 	unsigned int speed[LIGHT_N_MOD];       // Current mod speed for each mod
 	unsigned char red[LIGHT_N_MOD];        // Current red value for each mod including lightning power (From 0 to 255)

@@ -50,26 +50,24 @@ void Request::decode (char * request, uint8_t & type, uint8_t & complement, int3
 
 	utils.reduceCharArray (&request, 3); // Remove 3 first char of the array (The prefix)
 
-
-	if (type == TYPE_POW || type == TYPE_SPE || type == TYPE_SCO)
+	if (utils.infoTypeComplementType (type) != COMPLEMENT_TYPE_NONE)
 	{
 		complement = request[0] - '0';
 		utils.reduceCharArray (&request, 1); // Remove first char of the array (mod specifier)
 
-		if (type == TYPE_POW || type == TYPE_SPE)
+		if (utils.infoTypeComplementType (type) == COMPLEMENT_TYPE_LMO)
 		{
-			Log.verbose ("Mod: %s (%d)" endl, utils.lightModName (complement, CAPS_FIRST), complement);
+			Log.verbose ("Complement: %s (%d)" endl, utils.lightModName (complement, CAPS_FIRST), complement);
 			if (complement < LIGHT_MOD_MIN || complement > LIGHT_MOD_MAX)
 				error = ERR_UKC;
 		}
-		else if (type == TYPE_SCO)
+		else if (utils.infoTypeComplementType (type) == COMPLEMENT_TYPE_SCP)
 		{
 			Log.verbose ("Command type: %s (%d)" endl, utils.soundCommandName (complement, CAPS_FIRST), complement);
 			if (complement < SOUND_COMMAND_MIN || complement > SOUND_COMMAND_MAX)
 				error = ERR_UKC;
 		}
 	}
-
 
 	Log.verbose ("%s: %s" endl, utils.infoTypeName (type, false), request);
 
@@ -103,13 +101,13 @@ void Request::decode (char * request, uint8_t & type, uint8_t & complement, int3
 				if (information < 0 || information > 0xFFFFFF)
 					error = ERR_OOB;
 				else
-					light.setRgb (information, LIGHT_MOD_CONTINUOUS);
+					light.setRgb (information, complement);
 
 				// Debug
-				Log.trace ("RGB   (Current value): %x" endl, light.getRgb (LIGHT_MOD_CONTINUOUS));
-				Log.verbose ("Red   (Current value): %d" endl, light.getRed (LIGHT_MOD_CONTINUOUS));
-				Log.verbose ("Green (Current value): %d" endl, light.getGreen (LIGHT_MOD_CONTINUOUS));
-				Log.verbose ("Blue  (Current value): %d" endl, light.getBlue (LIGHT_MOD_CONTINUOUS));
+				Log.trace ("RGB   (Current value): %x" endl, light.getRgb (complement));
+				Log.verbose ("Red   (Current value): %d" endl, light.getRed (complement));
+				Log.verbose ("Green (Current value): %d" endl, light.getGreen (complement));
+				Log.verbose ("Blue  (Current value): %d" endl, light.getBlue (complement));
 
 				break;
 
