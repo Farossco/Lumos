@@ -1,9 +1,7 @@
 #include "esp8266.h"
 
-char * getJson (String status, String message)
+void sendJsonToClient (String status, String message, WiFiClient client)
 {
-	char json[2048];
-
 	DynamicJsonBuffer jsonBuffer;
 
 	JsonObject& jsonRoot = jsonBuffer.createObject();
@@ -25,25 +23,9 @@ char * getJson (String status, String message)
 	for (int i = MODE_MIN; i < N_MODE; i++)
 		jsonRootDatasSpeed.add (speed[i]);
 
-	jsonRoot.printTo (json, sizeof(json));
-
-	return json;
-} // getJson
-
-void sendJsonToSerial (String status, String message)
-{
-	char * json = getJson (status, message);
-
-	print ("Sending to serial: ");
-	Serial.print (json);
-}
-
-void sendJsonToClient (String status, String message, WiFiClient client)
-{
-	char * json = getJson (status, message);
-
 	print ("Sending to client: ");
-	printlnNoPrefix (json);
+	if (DEBUG_ENABLED)
+		jsonRoot.printTo (Serial);
 
 	// Return the response to the client
 	client.print ("HTTP/1.1 ");
@@ -51,5 +33,5 @@ void sendJsonToClient (String status, String message, WiFiClient client)
 	client.println ("Content-Type: application/json");
 	client.println ("Device: ESP8266");
 	client.println (""); // Do not forget this one
-	client.print (json);
-}
+	jsonRoot.prettyPrintTo (client);
+} // sendJsonToClient

@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
-#include <Time.h>
+#include <TimeLib.h>
 
 // ************************************************************************** //
 // ************************* Constants declarations ************************* //
