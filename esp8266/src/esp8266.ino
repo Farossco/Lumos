@@ -1,30 +1,23 @@
-#include "esp8266.h"
+#include "ESPSerial.h"
+#include "Wifi.h"
+#include "Logger.h"
 
 void setup ()
 {
-	initGpios();
+	Log.init(&Serial, 115200);
 
-	initSerial();
+	serial.init(9600);
 
-	initWifiServer();
+	wifi.init();
 
-	sendTime();
+	wifi.getTime();
+
+	serial.sendTime();
 }
 
 void loop ()
 {
-	readSerial();
+	serial.receiveAndDecode();
 
-	readWeb();
-}
-
-void initGpios ()
-{
-	pinMode (PIN_D0, OUTPUT);
-	pinMode (PIN_D1, OUTPUT);
-	pinMode (PIN_D2, OUTPUT);
-	pinMode (PIN_D3, OUTPUT);
-	pinMode (PIN_D4, OUTPUT);
-	pinMode (PIN_D5, OUTPUT);
-	pinMode (PIN_D6, OUTPUT);
+	wifi.receiveAndDecode();
 }
