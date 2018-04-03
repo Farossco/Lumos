@@ -1,3 +1,6 @@
 - Change modes speed to cycle time
-- Change on to allOff
+- Change ONF to SON
 - !! Initialize ALL variables !!
+- remove timeAlarms
+- colorize light music mod
+- "if (mode != lastMode)" instead of caparca

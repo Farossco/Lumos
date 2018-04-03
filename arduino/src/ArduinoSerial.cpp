@@ -33,16 +33,13 @@ void ArduinoSerial::init (long serialBaudRate, long serial1BaudRate, long serial
 
 void ArduinoSerial::waitForTime ()
 {
-	if (!WAIT_FOR_TIME)
-		return;
-
 	askForTime();
 
 	time_t lastMillis = millis();
 
 	while (timeStatus() == timeNotSet) // Doesn't start if time isn't set
 	{
-		read();
+		receiveAndDecode();
 
 		if (millis() - lastMillis >= 5000)
 		{
@@ -64,36 +61,35 @@ void ArduinoSerial::askForTime ()
 }
 
 // Receive datas from ESP8266 for Wi-Wi control
-void ArduinoSerial::read ()
+void ArduinoSerial::receiveAndDecode ()
 {
-	long result, length;
-	int infoMod, infoType, errorType;
+	if (!Serial.available() && !Serial1.available())
+		return;
+
 	const int bufSize = 14;
-	char buf[bufSize] = "";
+	char buf[bufSize];
+	uint8_t type = TYPE_UNK;
+	uint8_t complement;
+	int32_t information;
+	int8_t error;
+
+	uint8_t length;
 
 	if (Serial.available())
-	{
 		length = Serial.readBytesUntil ('z', buf, bufSize);
-	}
 	else if (Serial1.available())
-	{
 		length = Serial1.readBytesUntil ('z', buf, bufSize);
-	}
-	else
-	{
-		return;
-	}
 
 	buf[length] = '\0';
 
-	request.decode (buf, result, infoMod, infoType, errorType);
+	request.decode (buf, type, complement, information, error);
 
-	if (infoType == TYPE_RTM)
+	if (type == TYPE_RTM)
 	{
 		Log.trace ("I don't know anything about time... Let me ask the ESP" dendl);
 		askForTime();
 	}
-	else if (infoType == TYPE_RIF)
+	else if (type == TYPE_RIF)
 	{
 		variableChange.sendInfo(); // We send the variables values to the ESP8266
 	}

@@ -14,10 +14,11 @@ public:
 
 private:
 	boolean changeOn;
-	int changePower[N_MOD];
-	int changeSpeed[N_MOD];
+	unsigned char changePower[LIGHT_N_MOD];
+	unsigned int changeSpeed[LIGHT_N_MOD];
 	unsigned long changeRgb;
-	unsigned char changeMod;
+	unsigned char changeLightMod;
+	unsigned char changeSoundMod;
 };
 
 extern VariableChange variableChange;

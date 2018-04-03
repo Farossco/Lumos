@@ -50,7 +50,7 @@ void Alarms::clearDawn ()
 
 void Alarms::dawnStart ()
 {
-	light.setMod (MOD_DAWN);
+	light.setMod (LIGHT_MOD_DAWN);
 	light.switchOn();
 
 	Log.info ("Starting dawn alert" dendl);

@@ -7,8 +7,8 @@ class Bluetooth
 {
 public:
 	Bluetooth();
-	void testInit ();
-	void testLoop ();
+	void init ();
+	void action();
 
 private:
 	BM70 module;

@@ -1,6 +1,7 @@
 #include "Light.h"
 #include "Logger.h"
 #include "Memory.h"
+#include "Sound.h"
 
 Light::Light() : strip (STRIP_LENGTH, PIN_DATA, PIN_CLOCK, DOTSTAR_BGR)
 { }
@@ -13,7 +14,22 @@ void Light::init ()
 	{
 		Log.info ("This is first launch, variables will be initialized to their default values" dendl);
 
-		for (int i = MOD_MIN; i < N_MOD; i++)
+		reset();
+	}
+
+	lastMod = LIGHT_MOD_CONTINUOUS; // Initialiazing last mod as well
+
+	if (LIGHT_START_ANIMATION_ENABLE)
+		mod = LIGHT_MOD_START_ANIM;
+	else
+		mod = LIGHT_MOD_CONTINUOUS;
+
+	switchOn();
+}
+
+void Light::reset ()
+{
+	for (int i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
 		{
 			red[i]   = DEFAULT_RED[i];   // Initialize colors to their default value
 			green[i] = DEFAULT_GREEN[i]; // Initialize colors to their default value
@@ -23,18 +39,6 @@ void Light::init ()
 		}
 
 		memory.write();
-	}
-
-	lastMod = MOD_CONTINUOUS;               // Initialiazing last mod as well
-	for (int i = MOD_FLASH; i < N_MOD; i++) // Starting from flash mod
-		speed[i] = DEFAULT_SPEED[i];        // Initializing speed to its default value
-
-	if (START_ANIMATION_ENABLE)
-		mod = MOD_START_ANIM;
-	else
-		mod = MOD_CONTINUOUS;
-
-	switchOn();
 }
 
 void Light::lightAll (unsigned char red, unsigned char green, unsigned char blue)
@@ -98,7 +102,7 @@ void Light::switchOff ()
 
 int Light::getDawnDuration ()
 {
-	return speed[MOD_DAWN];
+	return speed[LIGHT_MOD_DAWN];
 }
 
 unsigned char Light::getRed (unsigned char affectedMod)
@@ -126,7 +130,7 @@ unsigned char Light::getPower (unsigned char affectedMod)
 	return power[affectedMod == CURRENT_MOD ? mod : affectedMod];
 }
 
-int Light::getSpeed (unsigned char affectedMod)
+unsigned int Light::getSpeed (unsigned char affectedMod)
 {
 	return speed[affectedMod == CURRENT_MOD ? mod : affectedMod];
 }
@@ -160,52 +164,59 @@ void Light::action ()
 
 	switch (lastMod)
 	{
-		case MOD_CONTINUOUS:
-			if (mod != MOD_CONTINUOUS)
+		case LIGHT_MOD_CONTINUOUS:
+			if (mod != LIGHT_MOD_CONTINUOUS)
 			{
 				Log.info ("Leaving Default mod" dendl);
 			}
 			break;
 
-		case MOD_FLASH:
-			if (mod != MOD_FLASH)
+		case LIGHT_MOD_FLASH:
+			if (mod != LIGHT_MOD_FLASH)
 			{
 				Log.info ("Leaving Flash mod" dendl);
 			}
 			break;
 
-		case MOD_STROBE:
-			if (mod != MOD_STROBE)
+		case LIGHT_MOD_STROBE:
+			if (mod != LIGHT_MOD_STROBE)
 			{
 				Log.info ("Leaving Strobe mod" dendl);
 			}
 			break;
 
-		case MOD_FADE:
-			if (mod != MOD_FADE)
+		case LIGHT_MOD_FADE:
+			if (mod != LIGHT_MOD_FADE)
 			{
 				Log.info ("Leaving Fade mod" dendl);
 			}
 			break;
 
-		case MOD_SMOOTH:
-			if (mod != MOD_SMOOTH)
+		case LIGHT_MOD_SMOOTH:
+			if (mod != LIGHT_MOD_SMOOTH)
 			{
 				Log.info ("Leaving Smooth mod" dendl);
 			}
 			break;
 
-		case MOD_DAWN:
-			if (mod != MOD_DAWN)
+		case LIGHT_MOD_DAWN:
+			if (mod != LIGHT_MOD_DAWN)
 			{
 				Log.info ("Leaving Dawn mod" dendl);
 			}
 			break;
 
-		case MOD_START_ANIM:
-			if (mod != MOD_START_ANIM)
+		case LIGHT_MOD_START_ANIM:
+			if (mod != LIGHT_MOD_START_ANIM)
 			{
 				Log.info ("End of start animation" dendl);
+			}
+			break;
+
+		case LIGHT_MOD_MUSIC:
+			if (mod != LIGHT_MOD_MUSIC)
+			{
+				Log.info ("Leaving Music mod" dendl);
 			}
 			break;
 	}
@@ -213,46 +224,52 @@ void Light::action ()
 	// Calling mods functions
 	switch (mod)
 	{
-		case MOD_CONTINUOUS:
-			if (lastMod != MOD_CONTINUOUS) // If this is first call of the function, we call init function (lastMod will be set in init function)
+		case LIGHT_MOD_CONTINUOUS:
+			if (lastMod != LIGHT_MOD_CONTINUOUS) // If this is first call of the function, we call init function (lastMod will be set in init function)
 				initContinuous();
 			continuous();
 			break;
 
-		case MOD_FLASH:
-			if (lastMod != MOD_FLASH)
+		case LIGHT_MOD_FLASH:
+			if (lastMod != LIGHT_MOD_FLASH)
 				initFlash();
 			flash();
 			break;
 
-		case MOD_STROBE:
-			if (lastMod != MOD_STROBE)
+		case LIGHT_MOD_STROBE:
+			if (lastMod != LIGHT_MOD_STROBE)
 				initStrobe();
 			strobe();
 			break;
 
-		case MOD_FADE:
-			if (lastMod != MOD_FADE)
+		case LIGHT_MOD_FADE:
+			if (lastMod != LIGHT_MOD_FADE)
 				initFade();
 			fade();
 			break;
 
-		case MOD_SMOOTH:
-			if (lastMod != MOD_SMOOTH)
+		case LIGHT_MOD_SMOOTH:
+			if (lastMod != LIGHT_MOD_SMOOTH)
 				initSmooth();
 			smooth();
 			break;
 
-		case MOD_DAWN:
-			if (lastMod != MOD_DAWN)
+		case LIGHT_MOD_DAWN:
+			if (lastMod != LIGHT_MOD_DAWN)
 				initDawn();
 			dawn();
 			break;
 
-		case MOD_START_ANIM:
-			if (lastMod != MOD_START_ANIM)
+		case LIGHT_MOD_START_ANIM:
+			if (lastMod != LIGHT_MOD_START_ANIM)
 				initStartAnimation();
 			startAnimation();
+			break;
+
+		case LIGHT_MOD_MUSIC:
+			if (lastMod != LIGHT_MOD_MUSIC)
+				initMusic();
+			music();
 			break;
 	}
 } // action
@@ -260,24 +277,24 @@ void Light::action ()
 // Flash mod initialization
 void Light::initContinuous ()
 {
-	lastMod = MOD_CONTINUOUS; // Setting lastMod so we don't call init again
+	lastMod = LIGHT_MOD_CONTINUOUS; // Setting lastMod so we don't call init again
 
 	Log.info ("Entering Default mod" dendl);
 }
 
 void Light::continuous ()
 {
-	strip.setBrightness (power[MOD_CONTINUOUS]);
-	lightAll (red[MOD_CONTINUOUS], green[MOD_CONTINUOUS], blue[MOD_CONTINUOUS]);
+	strip.setBrightness (power[LIGHT_MOD_CONTINUOUS]);
+	lightAll (red[LIGHT_MOD_CONTINUOUS], green[LIGHT_MOD_CONTINUOUS], blue[LIGHT_MOD_CONTINUOUS]);
 	strip.show();
 }
 
 // Flash mod initialization
 void Light::initFlash ()
 {
-	state      = 0;         // Set initial state to 0
-	delayCount = -1;        // Reseting milliseconds counter
-	lastMod    = MOD_FLASH; // Setting lastMod so we don't call init again
+	state      = 0;               // Set initial state to 0
+	delayCount = -1;              // Reseting milliseconds counter
+	lastMod    = LIGHT_MOD_FLASH; // Setting lastMod so we don't call init again
 
 	Log.info ("Entering Flash mod" dendl);
 }
@@ -285,7 +302,7 @@ void Light::initFlash ()
 // Flash mod
 void Light::flash ()
 {
-	if (millis() - delayCount >= (unsigned int) (1000 / speed[MOD_FLASH]))
+	if (millis() - delayCount >= (unsigned int) (1000 / speed[LIGHT_MOD_FLASH]))
 	{
 		if (state >= 2)
 			state = 0;
@@ -296,16 +313,16 @@ void Light::flash ()
 		delayCount = millis();
 	}
 
-	strip.setBrightness (power[MOD_FLASH]);
+	strip.setBrightness (power[LIGHT_MOD_FLASH]);
 	strip.show();
 }
 
 // Strobe mod initialization
 void Light::initStrobe ()
 {
-	state      = 0;          // Set initial state to 0
-	delayCount = -1;         // Reseting milliseconds counter
-	lastMod    = MOD_STROBE; // Setting lastMod so we don't call init again
+	state      = 0;                // Set initial state to 0
+	delayCount = -1;               // Reseting milliseconds counter
+	lastMod    = LIGHT_MOD_STROBE; // Setting lastMod so we don't call init again
 
 	Log.info ("Entering Strobe mod" dendl);
 }
@@ -313,19 +330,19 @@ void Light::initStrobe ()
 // Strobe mod
 void Light::strobe ()
 {
-	if (millis() - delayCount >= (unsigned int) (1000 / speed[MOD_STROBE]))
+	if (millis() - delayCount >= (unsigned int) (1000 / speed[LIGHT_MOD_STROBE]))
 	{
 		state = !state; // Inverting state
 
 		if (state)
-			lightAll (red[MOD_STROBE], green[MOD_STROBE], blue[MOD_STROBE]);
+			lightAll (red[LIGHT_MOD_STROBE], green[LIGHT_MOD_STROBE], blue[LIGHT_MOD_STROBE]);
 		else
 			lightAll (0x000000);
 
 		delayCount = millis();
 	}
 
-	strip.setBrightness (power[MOD_STROBE]);
+	strip.setBrightness (power[LIGHT_MOD_STROBE]);
 	strip.show();
 }
 
@@ -335,7 +352,7 @@ void Light::initFade ()
 	state      = 0;  // Setting state to Decreasing state
 	delayCount = -1; // Reseting milliseconds counter
 	counter    = 0;
-	lastMod    = MOD_FADE; // Setting lastMod so we don't call init again
+	lastMod    = LIGHT_MOD_FADE; // Setting lastMod so we don't call init again
 
 	Log.info ("Entering Fade mod" dendl);
 }
@@ -343,24 +360,24 @@ void Light::initFade ()
 // Fade Mod
 void Light::fade ()
 {
-	if (millis() - delayCount >= (unsigned int) (1000 / speed[MOD_FADE]))
+	if (millis() - delayCount >= (unsigned int) (1000 / speed[LIGHT_MOD_FADE]))
 	{
 		if (state)
 			counter++;  // Increasing all colors
 		else
 			counter--;  // Decreasing all colors
 
-		if (counter >= MAX_POWER)      // If color reach white, we start to decrease
-			state = 0;                 // Decreasing state
-		else if (counter <= MIN_POWER) // If color reach black, we start to increase
-			state = 1;                 // Increasing state
+		if (counter >= LIGHT_MAX_POWER)      // If color reach white, we start to decrease
+			state = 0;                       // Decreasing state
+		else if (counter <= LIGHT_MIN_POWER) // If color reach black, we start to increase
+			state = 1;                       // Increasing state
 
-		lightAll (red[MOD_FADE], green[MOD_FADE], blue[MOD_FADE]);
+		lightAll (red[LIGHT_MOD_FADE], green[LIGHT_MOD_FADE], blue[LIGHT_MOD_FADE]);
 
 		delayCount = millis();
 	}
 
-	strip.setBrightness (counter * (power[MOD_FADE]) / MAX_POWER);
+	strip.setBrightness (counter * (power[LIGHT_MOD_FADE]) / LIGHT_MAX_POWER);
 	strip.show();
 }
 
@@ -370,7 +387,7 @@ void Light::initSmooth ()
 	state      = 0;  // Init state to 0
 	delayCount = -1; // Reseting milliseconds counter
 	counter    = 0;
-	lastMod    = MOD_SMOOTH; // Setting lastMod so we don't call init again
+	lastMod    = LIGHT_MOD_SMOOTH; // Setting lastMod so we don't call init again
 
 	Log.info ("Entering Smooth mod" dendl);
 }
@@ -378,7 +395,7 @@ void Light::initSmooth ()
 // Smooth Mod
 void Light::smooth ()
 {
-	if (millis() - delayCount >= (unsigned int) (1000 / speed[MOD_SMOOTH]))
+	if (millis() - delayCount >= (unsigned int) (1000 / speed[LIGHT_MOD_SMOOTH]))
 	{
 		switch (state)
 		{
@@ -440,36 +457,36 @@ void Light::smooth ()
 		delayCount = millis();
 	}
 
-	strip.setBrightness (power[MOD_SMOOTH]);
+	strip.setBrightness (power[LIGHT_MOD_SMOOTH]);
 	strip.show();
 } // Light::smooth
 
 // Dawn Mod initialization
 void Light::initDawn ()
 {
-	delayCount = -1;       // Reseting milliseconds counter
-	lastMod    = MOD_DAWN; // Setting lastMod so we don't call init again
+	delayCount = -1;             // Reseting milliseconds counter
+	lastMod    = LIGHT_MOD_DAWN; // Setting lastMod so we don't call init again
 
-	Log.info ("Entering Dawn mod for %d min." dendl, speed[MOD_DAWN]);
+	Log.info ("Entering Dawn mod for %d min." dendl, speed[LIGHT_MOD_DAWN]);
 }
 
 // Dawn Mod
 void Light::dawn ()
 {
 	// x60 to convert in seconds and x1000 to convert in milliseconds
-	if (millis() - delayCount >= (((unsigned long) speed[MOD_DAWN]) * 60 * 1000) / MAX_POWER)
+	if (millis() - delayCount >= (((unsigned long) speed[LIGHT_MOD_DAWN]) * 60 * 1000) / LIGHT_MAX_POWER)
 	{
 		counter++;
 
-		lightAll (red[MOD_DAWN], green[MOD_DAWN], blue[MOD_DAWN]);
+		lightAll (red[LIGHT_MOD_DAWN], green[LIGHT_MOD_DAWN], blue[LIGHT_MOD_DAWN]);
 
-		if (counter >= MAX_POWER) // When max power is reached
+		if (counter >= LIGHT_MAX_POWER) // When max power is reached
 		{
-			red  [MOD_CONTINUOUS] = red  [MOD_DAWN]; // Transfer RGB final value to default mod
-			green[MOD_CONTINUOUS] = green[MOD_DAWN]; // Transfer RGB final value to default mod
-			blue [MOD_CONTINUOUS] = blue [MOD_DAWN]; // Transfer RGB final value to default mod
-			power[MOD_CONTINUOUS] = power[MOD_DAWN]; // Same for power
-			mod                   = MOD_CONTINUOUS;  // Leaving the mod
+			red [LIGHT_MOD_CONTINUOUS]  = red [LIGHT_MOD_DAWN];  // Transfer RGB final value to default mod
+			green[LIGHT_MOD_CONTINUOUS] = green[LIGHT_MOD_DAWN]; // Transfer RGB final value to default mod
+			blue[LIGHT_MOD_CONTINUOUS]  = blue[LIGHT_MOD_DAWN];  // Transfer RGB final value to default mod
+			power[LIGHT_MOD_CONTINUOUS] = power[LIGHT_MOD_DAWN]; // Same for power
+			mod                         = LIGHT_MOD_CONTINUOUS;  // Leaving the mod
 
 			Log.info ("Leaving Dawn mod" dendl);
 		}
@@ -477,7 +494,7 @@ void Light::dawn ()
 		delayCount = millis();
 	}
 
-	strip.setBrightness (counter * (power[MOD_DAWN] / MAX_POWER));
+	strip.setBrightness (counter * (power[LIGHT_MOD_DAWN] / LIGHT_MAX_POWER));
 	strip.show();
 }
 
@@ -493,7 +510,7 @@ void Light::initStartAnimation ()
 	counter = 0;
 
 	delayCount = -1;
-	lastMod    = MOD_START_ANIM; // Setting lastMod so we don't call init again
+	lastMod    = LIGHT_MOD_START_ANIM; // Setting lastMod so we don't call init again
 
 	lightAll (0x000000);
 
@@ -503,7 +520,7 @@ void Light::initStartAnimation ()
 // Start animation mod
 void Light::startAnimation ()
 {
-	if (millis() - delayCount >= speed[MOD_START_ANIM] / (STRIP_LENGTH) +0.5)
+	if (millis() - delayCount >= speed[LIGHT_MOD_START_ANIM] / (STRIP_LENGTH) +0.5)
 	{
 		switch (state)
 		{
@@ -581,15 +598,76 @@ void Light::startAnimation ()
 		counter++;
 	}
 
-	strip.setBrightness (power[MOD_START_ANIM]);
+	strip.setBrightness (power[LIGHT_MOD_START_ANIM]);
 	strip.show();
 
 	if (counter >= STRIP_LENGTH)
 	{
-		mod = MOD_CONTINUOUS;
+		mod = LIGHT_MOD_CONTINUOUS;
 		switchOff();
 		Log.trace ("End of start animation" dendl);
 	}
 } // Light::startAnimation
+
+// Music Mod initialization
+void Light::initMusic ()
+{
+	lastMod = LIGHT_MOD_MUSIC; // Setting lastMod so we don't call init again
+
+	delayCount = -1;
+
+	counter = 100;
+
+	Log.info ("Entering Music mod" dendl);
+}
+
+// Music Mod
+void Light::music ()
+{
+	int32_t level = utils.map (abs (510 - analogRead (PIN_MUSIC_IN)), 0, 25, 0, STRIP_LENGTH);
+
+	if (level < 0)
+		level = 0;
+
+	if (level >= STRIP_LENGTH)
+		return;
+
+	if (millis() - delayCount >= 20)
+	{
+		if (counter > level)
+			counter--;
+
+		if (counter < 0)
+			counter = 0;
+
+		delayCount = millis();
+	}
+
+	if (millis() - delayCount2 >= 2)
+	{
+		if (counter < level)
+			counter++;
+
+		delayCount2 = millis();
+	}
+
+
+	for (uint8_t i = 0; i < STRIP_LENGTH; i++)
+	{
+		if (i < counter)
+		{
+			strip.setPixelColor (i, 0xFFFF00);
+		}
+		else
+		{
+			strip.setPixelColor (i, 0x000000);
+		}
+	}
+
+	strip.setPixelColor (counter, 0x0000FF);
+
+	strip.setBrightness (power[LIGHT_MOD_MUSIC]);
+	strip.show();
+} // Light::music
 
 Light light = Light();

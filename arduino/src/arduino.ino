@@ -6,25 +6,29 @@
 #include "Alarms.h"
 #include "Bluetooth.h"
 #include "Light.h"
+#include "Sound.h"
+
+const boolean WAIT_FOR_TIME = false; // If we have to wait for time sync (if true, program will not start until time is synced)
 
 const long ESP_BAUD_RATE   = 250000; // ESP8266 communication baud rate
 const long DEBUG_BAUD_RATE = 250000; // Debug baud rate
-const long DFP_BAUD_RATE   = 9600;   // DFPlayer communication baud rate
 
 void setup ()
 {
+	light.lightAll (0x000000);
+
 	serial.init (DEBUG_BAUD_RATE, ESP_BAUD_RATE);
 
 	Log.init (&Serial, LEVEL_VERBOSE);
 
-	serial.waitForTime();
+	if (WAIT_FOR_TIME)
+		serial.waitForTime();
 
 	sd.init();
 
 	Log.init (&Serial, LEVEL_VERBOSE, sd.getFile(), LEVEL_VERBOSE);
 
-	// infrared.init (PIN_LED_INFRARED);
-
+	sound.init (Serial3);
 
 	light.init();
 
@@ -33,6 +37,7 @@ void setup ()
 	alarms.initAll();
 
 	variableChange.sendInfo();
+
 	// bluetooth.init();
 }
 
@@ -42,15 +47,13 @@ void loop ()
 
 	variableChange.check();
 
-	// read claps
-
-	// infrared.read();
-
-	serial.read();
+	serial.receiveAndDecode();
 
 	sd.cardTests();
 
 	// bluetooth.action();
 
 	light.action();
+
+	sound.action();
 }

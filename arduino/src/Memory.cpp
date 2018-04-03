@@ -46,7 +46,7 @@ void Memory::write ()
 
 	address++;
 
-	for (unsigned int i = MOD_MIN; i < N_MOD; i++)
+	for (unsigned int i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
 	{
 		for (unsigned int j = 0; j < sizeof(long); j++)
 			if (EEPROM.read (address + j) != (byte) (light.getRgb (i) >> (j * 8)))
@@ -58,7 +58,7 @@ void Memory::write ()
 		address += sizeof(long);
 	}
 
-	for (unsigned int j = MOD_MIN; j < N_MOD; j++)
+	for (unsigned int j = LIGHT_MOD_MIN; j < LIGHT_N_MOD; j++)
 	{
 		if (EEPROM.read (address) != (byte) (light.getPower (j)))
 		{
@@ -69,10 +69,10 @@ void Memory::write ()
 		address += sizeof(char);
 	}
 
-	for (unsigned int j = MOD_MIN; j < N_MOD; j++)
+	for (unsigned int j = LIGHT_MOD_MIN; j < LIGHT_N_MOD; j++)
 	{
 		for (unsigned int i = 0; i < sizeof(int); i++)
-			if (EEPROM.read (address + i) != (byte) ((int) light.getSpeed (j) >> (i * 8)))
+			if (EEPROM.read (address + i) != (byte) (light.getSpeed (j) >> (i * 8)))
 			{
 				EEPROM.write (address + i, (byte) (light.getSpeed (j) >> (i * 8)));
 				n++;
@@ -100,7 +100,7 @@ boolean Memory::read ()
 
 	address++;
 
-	for (unsigned int i = MOD_MIN; i < N_MOD; i++)
+	for (unsigned int i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
 	{
 		unsigned long rgb;
 
@@ -113,16 +113,16 @@ boolean Memory::read ()
 		address += sizeof(long);
 	}
 
-	for (unsigned int i = MOD_MIN; i < N_MOD; i++)
+	for (unsigned int i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
 	{
 		light.setPower (EEPROM.read (address), i);
 
 		address += sizeof(char);
 	}
 
-	for (unsigned int i = MOD_MIN; i < N_MOD; i++)
+	for (unsigned int i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
 	{
-		int speed;
+		unsigned int speed;
 
 		speed = 0;
 		for (unsigned int j = 0; j < sizeof(int); j++)

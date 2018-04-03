@@ -5,91 +5,89 @@
 #include "Logger.h"
 #include "Light.h"
 #include "Alarms.h"
+#include "Sound.h"
 
-void Request::decode (char * request, long & result, int & infoMod, int & infotype, int & errorType)
+void Request::decode (char * request, uint8_t & type, uint8_t & complement, int32_t & information, int8_t & error)
 {
-	int requestLength = strlen (request);
+	int16_t requestLength = strlen (request);
 
 	if (requestLength <= 0)
 		return;
 
-	result    = 0;
-	infotype  = 0;
-	errorType = ERR_NOE;
-	infoMod   = 0;
+	information = 0;
+	complement  = 0;
 
 	if (strstr (request, "INFO") == request)
 	{
-		infotype = TYPE_RIF;
+		type = TYPE_RIF;
 		Log.trace ("Received info request" dendl);
 		return;
 	}
 	if (strstr (request, "TIME") == request)
 	{
-		infotype = TYPE_RTM;
+		type = TYPE_RTM;
 
 		Log.trace ("Received time request" dendl);
 
 		return;
 	}
-	else if (strstr (request, "TIM") == request)
-		infotype = TYPE_TIM;
-	else if (strstr (request, "RGB") == request)
-		infotype = TYPE_RGB;
-	else if (strstr (request, "ONF") == request)
-		infotype = TYPE_ONF;
-	else if (strstr (request, "POW") == request)
-		infotype = TYPE_POW;
-	else if (strstr (request, "MOD") == request)
-		infotype = TYPE_MOD;
-	else if (strstr (request, "SPE") == request)
-		infotype = TYPE_SPE;
-	else
-	{
-		if (SERIAL_LOG_ENABLED || SD_LOG_ENABLED)
+
+	type  = TYPE_UNK;
+	error = ERR_UKR;
+
+	for (uint8_t i = TYPE_SEND_MIN; i <= TYPE_MAX; i++)
+		if (strstr (request, utils.infoTypeName (i, true)) == request)
 		{
-			infotype  = TYPE_UNK;
-			errorType = ERR_UKR;
+			type  = i;
+			error = ERR_NOE;
+			break;
 		}
-		else
-			return;
-	}
 
 	// [DEBUG] Printing full word, world length and information type
 	Log.verbose ("Word: %s" endl, request);
 	Log.verbose ("Length: %d" endl, requestLength);
-	Log.verbose ("Type: %s (%d)" endl, utils.infoTypeName (infotype, false), infotype);
+	Log.verbose ("Type: %s (%d)" endl, utils.infoTypeName (type, false), type);
 
 	utils.reduceCharArray (&request, 3); // Remove 3 first char of the array (The prefix)
 
-	if (infotype == TYPE_POW || infotype == TYPE_SPE)
+  
+	if (type == TYPE_POW || type == TYPE_SPE || type == TYPE_SCO)
 	{
-		infoMod = request[0] - '0';
-		Log.verbose ("Info mod: %s (%d)" endl, utils.modName (infoMod, CAPS_FIRST), infoMod);
-
+		complement = request[0] - '0';
 		utils.reduceCharArray (&request, 1); // Remove first char of the array (mod specifier)
 
-		if (infoMod < MOD_MIN || infoMod > MOD_MAX)
-			errorType = ERR_UKM;
+		if (type == TYPE_POW || type == TYPE_SPE)
+		{
+			Log.verbose ("Mod: %s (%d)" endl, utils.lightModName (complement, CAPS_FIRST), complement);
+			if (complement < LIGHT_MOD_MIN || complement > LIGHT_MOD_MAX)
+				error = ERR_UKC;
+		}
+		else if (type == TYPE_SCO)
+		{
+			Log.verbose ("Command type: %s (%d)" endl, utils.soundCommandName (complement, CAPS_FIRST), complement);
+			if (complement < SOUND_COMMAND_MIN || complement > SOUND_COMMAND_MAX)
+				error = ERR_UKC;
+		}
 	}
 
-	Log.verbose ("%s: %s" endl, utils.infoTypeName (infotype, false), request);
 
-	result = strtol (request, NULL, infotype == TYPE_RGB ? 16 : 10);
+	Log.verbose ("%s: %s" endl, utils.infoTypeName (type, false), request);
 
-	if (infotype == TYPE_RGB)
-		Log.verbose ("%s (decoded): %x" endl, utils.infoTypeName (infotype, false), result);
+	information = strtol (request, NULL, type == TYPE_RGB ? 16 : 10);
+
+	if (type == TYPE_RGB)
+		Log.verbose ("%s (decoded): %x" endl, utils.infoTypeName (type, false), information);
 	else
-		Log.verbose ("%s (decoded): %l" endl, utils.infoTypeName (infotype, false), result);
+		Log.verbose ("%s (decoded): %l" endl, utils.infoTypeName (type, false), information);
 
-	if (errorType == ERR_NOE)
-		switch (infotype)
+	if (error == ERR_NOE)
+		switch (type)
 		{
 			case TYPE_TIM:
-				if (result <= 0)
-					errorType = ERR_OOB;
+				if (information <= 0)
+					error = ERR_OOB;
 				else
-					setTime (result);
+					setTime (information);
 
 				char buf[20];
 
@@ -102,25 +100,25 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 				break;
 
 			case TYPE_RGB:
-				if (result < 0 || result > 0xFFFFFF)
-					errorType = ERR_OOB;
+				if (information < 0 || information > 0xFFFFFF)
+					error = ERR_OOB;
 				else
-					light.setRgb (result, MOD_CONTINUOUS);
+					light.setRgb (information, LIGHT_MOD_CONTINUOUS);
 
 				// Debug
-				Log.trace ("RGB   (Current value): %x" endl, light.getRgb (MOD_CONTINUOUS));
-				Log.verbose ("Red   (Current value): %d" endl, light.getRed (MOD_CONTINUOUS));
-				Log.verbose ("Green (Current value): %d" endl, light.getGreen (MOD_CONTINUOUS));
-				Log.verbose ("Blue  (Current value): %d" endl, light.getBlue (MOD_CONTINUOUS));
+				Log.trace ("RGB   (Current value): %x" endl, light.getRgb (LIGHT_MOD_CONTINUOUS));
+				Log.verbose ("Red   (Current value): %d" endl, light.getRed (LIGHT_MOD_CONTINUOUS));
+				Log.verbose ("Green (Current value): %d" endl, light.getGreen (LIGHT_MOD_CONTINUOUS));
+				Log.verbose ("Blue  (Current value): %d" endl, light.getBlue (LIGHT_MOD_CONTINUOUS));
 
 				break;
 
 			case TYPE_ONF:
-				if (result != 0 && result != 1)
-					errorType = ERR_OOB;
+				if (information != 0 && information != 1)
+					error = ERR_OOB;
 				else
 				{
-					if (result)
+					if (information)
 						light.switchOn();
 					else
 						light.switchOff();
@@ -131,57 +129,99 @@ void Request::decode (char * request, long & result, int & infoMod, int & infoty
 				break;
 
 			case TYPE_POW:
-				if (result < SEEKBAR_MIN || result > SEEKBAR_MAX)
-					errorType = ERR_OOB;
+				if (information < SEEKBAR_MIN || information > SEEKBAR_MAX)
+					error = ERR_OOB;
 				else
-					light.setPower (utils.map (result, SEEKBAR_MIN, SEEKBAR_MAX, MIN_POWER, MAX_POWER), infoMod);
+					light.setPower (utils.map (information, SEEKBAR_MIN, SEEKBAR_MAX, LIGHT_MIN_POWER, LIGHT_MAX_POWER), complement);
 
-				Log.trace ("Power of %s (Current value): %d" dendl, utils.modName (infoMod, CAPS_NONE), light.getPower (infoMod));
+				Log.trace ("Power of %s (Current value): %d" dendl, utils.lightModName (complement, CAPS_NONE), light.getPower (complement));
 
 				break;
 
-			case TYPE_MOD:
-				if (result < MOD_MIN || result > MOD_MAX)
-					errorType = ERR_OOB;
+			case TYPE_LMO:
+				if (information < LIGHT_MOD_MIN || information > LIGHT_MOD_MAX)
+					error = ERR_OOB;
 				else
-					light.setMod (result);
+					light.setMod (information);
 
-				Log.verbose ("Mod (Text): %s" endl, utils.modName (result, CAPS_FIRST));
-				Log.trace ("Mod (Current value): %s (%d)" dendl, utils.modName (light.getMod(), CAPS_FIRST), light.getMod());
+				Log.verbose ("Light mod (Text): %s (%d)" endl, utils.lightModName (information, CAPS_FIRST), information);
+				Log.trace ("Light mod (Current value): %s (%d)" dendl, utils.lightModName (light.getMod(), CAPS_FIRST), light.getMod());
 
 				break;
 
 			case TYPE_SPE:
-				if (infoMod == MOD_DAWN)
+				if (complement == LIGHT_MOD_DAWN)
 				{
-					if (result < 0)
-						errorType = ERR_OOB;
+					if (information < 0)
+						error = ERR_OOB;
 					else
 					{
-						light.setSpeed (result, infoMod);
+						light.setSpeed (information, complement);
 						alarms.initDawn();
 					}
 				}
 				else
 				{
-					if (result < SEEKBAR_MIN || result > SEEKBAR_MAX)
-						errorType = ERR_OOB;
+					if (information < SEEKBAR_MIN || information > SEEKBAR_MAX)
+						error = ERR_OOB;
 					else
-						light.setSpeed (utils.map (result, SEEKBAR_MIN, SEEKBAR_MAX, MIN_SPEED[infoMod], MAX_SPEED[infoMod]), infoMod);
+						light.setSpeed (utils.map (information, SEEKBAR_MIN, SEEKBAR_MAX, LIGHT_MIN_SPEED[complement], LIGHT_MAX_SPEED[complement]), complement);
 				}
 
 				// Debug
-				Log.verbose ("Min Speed: %d" endl, MIN_SPEED[infoMod]);
-				Log.verbose ("Max Speed: %d" endl, MAX_SPEED[infoMod]);
-				Log.trace ("Speed of %s (Current value): %d" dendl, utils.modName (infoMod, CAPS_NONE), light.getSpeed (infoMod));
+				Log.verbose ("Min Speed: %d" endl, LIGHT_MIN_SPEED[complement]);
+				Log.verbose ("Max Speed: %d" endl, LIGHT_MAX_SPEED[complement]);
+				Log.trace ("Speed of %s (Current value): %d" dendl, utils.lightModName (complement, CAPS_NONE), light.getSpeed (complement));
+
+				break;
+
+			case TYPE_SMO:
+				if (information < SOUND_MOD_MIN || information > SOUND_MOD_MAX)
+					error = ERR_OOB;
+				else
+					sound.setMod (information);
+
+				Log.verbose ("Sound mod (Text): %s (%d)" endl, utils.soundModName (information, CAPS_FIRST), information);
+				Log.trace ("Sound mod (Current value): %s (%d)" dendl, utils.soundModName (sound.getMod(), CAPS_FIRST), sound.getMod());
+
+				break;
+
+			case TYPE_VOL:
+				if (information < SOUND_VOLUME_MIN || information > SOUND_VOLUME_MAX)
+					error = ERR_OOB;
+				else
+					sound.setVolume (information);
+
+				Log.trace ("Volume (Current value): %d" dendl, sound.getVolume());
+
+				break;
+
+			case TYPE_SON:
+				if (information != 0 && information != 1)
+					error = ERR_OOB;
+				else
+				{
+					if (information)
+						sound.switchOn();
+					else
+						sound.switchOff();
+				}
+
+				Log.trace ("On/Off (Current value): %T" dendl, sound.isOn());
+				break;
+
+			case TYPE_SCO:
+				Log.verbose ("Command data: (%d)" dendl, information);
+
+				sound.command (complement, information);
 
 				break;
 		}
 
-	if (errorType != ERR_NOE)
+	if (error != ERR_NOE)
 	{
 		Log.verbosenp (endl);
-		Log.warning ("Variable has not been changed (%s)" dendl, utils.errorTypeName (errorType, false));
+		Log.warning ("Variable has not been changed (%s)" dendl, utils.errorTypeName (error, false));
 	}
 } // Request::decode
 
