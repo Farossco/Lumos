@@ -3,7 +3,7 @@
 .clang_complete
 .gcc-flags.json
 .travis.yml
-lib/readme.txt
 .pioenvs
 .piolibdeps
 .vscode*
+lib

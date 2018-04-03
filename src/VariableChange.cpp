@@ -96,6 +96,7 @@ void VariableChange::check ()
 void VariableChange::sendInfo ()
 {
 	Log.trace ("Sending variables infos to the ESP8266" dendl);
+	Log.trace ("");
 
 	for (uint8_t i = TYPE_SEND_MIN; i <= TYPE_SEND_MAX; i++)
 	{
@@ -141,7 +142,7 @@ void VariableChange::sendInfo ()
 			}
 			sprintf (information + strlen (information), "z"); // Suffix
 
-			Log.verbose ("%s", information);
+			Log.verbosenp ("%s", information);
 			Serial1.print (information);
 		}
 	}

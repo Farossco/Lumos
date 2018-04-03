@@ -17,6 +17,9 @@ void Light::init ()
 		reset();
 	}
 
+	light.lightAll (0x000000);
+	strip.show();
+
 	lastMod = LIGHT_MOD_CONTINUOUS; // Initialiazing last mod as well
 
 	if (LIGHT_START_ANIMATION_ENABLE)

@@ -15,11 +15,11 @@ const long DEBUG_BAUD_RATE = 250000; // Debug baud rate
 
 void setup ()
 {
-	light.lightAll (0x000000);
-
 	serial.init (DEBUG_BAUD_RATE, ESP_BAUD_RATE);
 
 	Log.init (&Serial, LEVEL_VERBOSE);
+
+	light.init();
 
 	if (WAIT_FOR_TIME)
 		serial.waitForTime();
@@ -30,7 +30,7 @@ void setup ()
 
 	sound.init (Serial3);
 
-	light.init();
+	
 
 	variableChange.init();
 
