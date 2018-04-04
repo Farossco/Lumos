@@ -2,6 +2,7 @@
 #include <EEPROM.h>
 #include "Light.h"
 #include "Logger.h"
+#include "Alarms.h"
 
 Memory::Memory()
 { }
@@ -29,14 +30,26 @@ void Memory::dump (unsigned int start, unsigned int limit)
 	Log.trace (endl);
 }
 
-void Memory::write ()
+void Memory::writeForAll ()
+{
+	writeForLight();
+	writeForSound();
+	writeForAlarms();
+}
+
+bool Memory::readForAll ()
+{
+	return readForLight() || readForSound() || readForAlarms();
+}
+
+void Memory::writeForLight ()
 {
 	unsigned int address, n;
 
-	address = EEPROM_START;
+	address = EEPROM_LIGHT_START;
 	n       = 0;
 
-	Log.trace ("Writing EEPROM... ");
+	Log.trace ("Writing EEPROM for light variables... ");
 
 	if (EEPROM.read (address) != (byte) EEPROM_TEST_BYTE)
 	{
@@ -46,6 +59,7 @@ void Memory::write ()
 
 	address++;
 
+	// All RGB values
 	for (unsigned int i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
 	{
 		for (unsigned int j = 0; j < sizeof(long); j++)
@@ -58,6 +72,7 @@ void Memory::write ()
 		address += sizeof(long);
 	}
 
+	// All Light values
 	for (unsigned int j = LIGHT_MOD_MIN; j < LIGHT_N_MOD; j++)
 	{
 		if (EEPROM.read (address) != (byte) (light.getPower (j)))
@@ -69,6 +84,7 @@ void Memory::write ()
 		address += sizeof(char);
 	}
 
+	// All speed values
 	for (unsigned int j = LIGHT_MOD_MIN; j < LIGHT_N_MOD; j++)
 	{
 		for (unsigned int i = 0; i < sizeof(int); i++)
@@ -82,15 +98,15 @@ void Memory::write ()
 	}
 
 	Log.tracenp ("Done ! (%d byte%s written)" dendl, n, n > 1 ? "s" : "");
-} // Memory::write
+} // Memory::writeForLight
 
-boolean Memory::read ()
+bool Memory::readForLight ()
 {
 	unsigned int address;
 
-	address = EEPROM_START;
+	address = EEPROM_LIGHT_START;
 
-	Log.trace ("Reading EEPROM... ");
+	Log.trace ("Reading EEPROM for light variables... ");
 
 	if (EEPROM.read (address) != (byte) EEPROM_TEST_BYTE)
 	{
@@ -133,9 +149,110 @@ boolean Memory::read ()
 		address += sizeof(int);
 	}
 
-	Log.tracenp ("Done ! (%d byte%s read)" dendl, address, address > 1 ? "s" : "");
+	Log.tracenp ("Done ! (%d byte%s read)" dendl, address - EEPROM_LIGHT_START, address > 1 ? "s" : "");
 
 	return false;
-} // writeData
+} // Memory::readForLight
+
+void Memory::writeForSound ()
+{
+	unsigned int address, n;
+
+	address = EEPROM_SOUND_START;
+	n       = 0;
+
+	Log.trace ("Writing EEPROM for sound variables... ");
+
+	if (EEPROM.read (address) != (byte) EEPROM_TEST_BYTE)
+	{
+		EEPROM.write (address, (byte) EEPROM_TEST_BYTE);
+		n++;
+	}
+
+	address++;
+
+	Log.tracenp ("Done ! (%d byte%s written)" dendl, n, n > 1 ? "s" : "");
+}
+
+bool Memory::readForSound ()
+{
+	unsigned int address;
+
+	address = EEPROM_SOUND_START;
+
+	Log.trace ("Reading EEPROM for sound variables... ");
+
+	if (EEPROM.read (address) != (byte) EEPROM_TEST_BYTE)
+	{
+		Log.tracenp (dendl);
+		return true; // Returns true to say that variables needs to be initialized
+	}
+
+	address++;
+
+	Log.tracenp ("Done ! (%d byte%s read)" dendl, address - EEPROM_SOUND_START, address > 1 ? "s" : "");
+
+	return false;
+}
+
+void Memory::writeForAlarms ()
+{
+	unsigned int address, n;
+
+	address = EEPROM_ALARM_START;
+	n       = 0;
+
+	Log.trace ("Writing EEPROM for alarm variables... ");
+
+	if (EEPROM.read (address) != (byte) EEPROM_TEST_BYTE)
+	{
+		EEPROM.write (address, (byte) EEPROM_TEST_BYTE);
+		n++;
+	}
+
+	address++;
+
+	for (unsigned int i = 0; i < sizeof(uint8_t); i++)
+		if (EEPROM.read (address + i) != (byte) (alarms.getDawnTime() >> (i * 8)))
+		{
+			EEPROM.write (address + i, (byte) (alarms.getDawnTime() >> (i * 8)));
+			n++;
+		}
+
+	address += sizeof(int);
+
+	Log.tracenp ("Done ! (%d byte%s written)" dendl, n, n > 1 ? "s" : "");
+}
+
+bool Memory::readForAlarms ()
+{
+	unsigned int address;
+
+	address = EEPROM_ALARM_START;
+
+	Log.trace ("Reading EEPROM for alarm variables... ");
+
+	if (EEPROM.read (address) != (byte) EEPROM_TEST_BYTE)
+	{
+		Log.tracenp (dendl);
+		return true; // Returns true to say that variables needs to be initialized
+	}
+
+	address++;
+
+	unsigned int dawnTime;
+
+	dawnTime = 0;
+	for (unsigned int i = 0; i < sizeof(int); i++)
+		dawnTime += ((int) EEPROM.read (address + i)) << (i * 8);
+
+	alarms.setDawnTime (dawnTime);
+
+	address += sizeof(uint32_t);
+
+	Log.tracenp ("Done ! (%d byte%s read)" dendl, address - EEPROM_ALARM_START, address > 1 ? "s" : "");
+
+	return false;
+}
 
 Memory memory = Memory();

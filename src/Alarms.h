@@ -1,33 +1,30 @@
 #ifndef ALARMS_H
 #define ALARMS_H
 
-#include <TimeAlarms.h>
+#include <TimeLib.h>
 
-const boolean MORNING_ALARM_ENABLED = true; // Enable morning alarm
+const bool MORNING_ALARM_ENABLED = true; // Enable morning alarm
 
 // Wake up
-const int WAKEUP_HOURS   = 06;
-const int WAKEUP_MINUTES = 30;
-const int WAKEUP_SECONDS = 00;
+const int DEFAULT_DAWN_TIME = 7 * 60 + 30; // 08h30
 
 class Alarms
 {
 public:
 	Alarms();
 
-	void initAll ();
-	void initTimeSync ();
-	void initDawn ();
+	void init ();
+	void action ();
 
-	void clearAll ();
-	void clearTimeSync ();
-	void clearDawn ();
+	uint16_t currentTime ();
 
-	AlarmId morningAlarm;
-	AlarmId timeSyncTimer;
+	void setDawnTime (uint16_t time);
+	uint16_t getDawnTime ();
 
 private:
 	static void dawnStart ();
+	uint16_t dawnTime; // in minutes
+	bool dawnTriggered;
 };
 
 extern Alarms alarms;

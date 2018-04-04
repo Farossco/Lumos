@@ -87,7 +87,7 @@ void VariableChange::check ()
 		sendInfo();
 
 	if (flagWriteEeprom)
-		memory.write();
+		memory.writeForAll();
 } // VariableChange::check
 
 // char varBuf[9 + 3 + 1 + (MOD_MAX < 10 ? 1 : MOD_MAX < 100 ? 2 : 1) + 6 + N_MOD * 16];

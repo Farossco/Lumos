@@ -10,9 +10,9 @@ void Light::init ()
 {
 	strip.begin();
 
-	if (memory.read()) // Returns True if EEPROM is not correctly initialized (This may be the first launch)
+	if (memory.readForLight()) // Returns True if EEPROM is not correctly initialized (This may be the first launch)
 	{
-		Log.info ("This is first launch, variables will be initialized to their default values" dendl);
+		Log.info ("This is first launch, light variables will be initialized to their default values" dendl);
 
 		reset();
 	}
@@ -41,7 +41,7 @@ void Light::reset ()
 			speed[i] = DEFAULT_SPEED[i]; // Initializing speeds their default value
 		}
 
-		memory.write();
+		memory.writeForLight();
 }
 
 void Light::lightAll (unsigned char red, unsigned char green, unsigned char blue)

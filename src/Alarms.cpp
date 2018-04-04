@@ -1,51 +1,53 @@
 #include "Alarms.h"
-#include "ArduinoSerial.h"
 #include "Logger.h"
 #include "Light.h"
+#include "Memory.h"
 
 Alarms::Alarms()
 { }
 
-void Alarms::initAll ()
+void Alarms::init ()
 {
-	initTimeSync();
-	initDawn();
+	dawnTriggered = false;
+
+	if (memory.readForAlarms())
+	{
+		dawnTime = DEFAULT_DAWN_TIME;
+	}
 }
 
-void Alarms::initTimeSync ()
-{
-	clearTimeSync();
-
-	timeSyncTimer = Alarm.timerRepeat (0, 60, 0, ArduinoSerial::askForTime);
-}
-
-void Alarms::initDawn ()
+void Alarms::action ()
 {
 	if (!MORNING_ALARM_ENABLED || timeStatus() == timeNotSet)
 		return;
 
-	Log.trace ("Setting morning alarm" dendl);
-
-	clearDawn();
-
-	// Start the alarm before so it finishes at the time requested
-	morningAlarm = Alarm.alarmRepeat (WAKEUP_HOURS * 3600 + WAKEUP_MINUTES * 60 + WAKEUP_SECONDS - light.getDawnDuration() * 60, this->dawnStart);
+	if (currentTime() == dawnTime)
+	{
+		if (dawnTriggered == false)
+		{
+			dawnStart();
+			dawnTriggered = true;
+		}
+	}
+	else
+	{
+		dawnTriggered = false;
+	}
 }
 
-void Alarms::clearAll ()
+uint16_t Alarms::currentTime ()
 {
-	clearTimeSync();
-	clearDawn();
+	return (uint16_t) (hour() * 60 + minute());
 }
 
-void Alarms::clearTimeSync ()
+void Alarms::setDawnTime (uint16_t time)
 {
-	Alarm.free (timeSyncTimer);
+	dawnTime = time;
 }
 
-void Alarms::clearDawn ()
+uint16_t Alarms::getDawnTime ()
 {
-	Alarm.free (morningAlarm);
+	return dawnTime;
 }
 
 void Alarms::dawnStart ()
@@ -53,7 +55,7 @@ void Alarms::dawnStart ()
 	light.setMod (LIGHT_MOD_DAWN);
 	light.switchOn();
 
-	Log.info ("Starting dawn alert" dendl);
+	Log.info ("Entering dawn mod from Alarms" dendl);
 }
 
 Alarms alarms = Alarms();

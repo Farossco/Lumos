@@ -3,16 +3,25 @@
 
 #include <Arduino.h>
 
-const int EEPROM_START      = 0x0000; // EEPROM start address
-const byte EEPROM_TEST_BYTE = 0xAD;   // Byte I use to know if EEPROM has been initialized or not
+const int EEPROM_LIGHT_START = 0x0000; // EEPROM start address
+const int EEPROM_SOUND_START = 0x1000; // EEPROM start address
+const int EEPROM_ALARM_START = 0x2000; // EEPROM start address
+const byte EEPROM_TEST_BYTE  = 0xAD;   // Byte I use to know if EEPROM has been initialized or not
 
 class Memory
 {
 public:
 	Memory();
 	void dump (unsigned int start, unsigned int limit);
-	void write ();
-	boolean read ();
+
+	void writeForAll ();
+	bool readForAll ();
+	void writeForLight ();
+	bool readForLight ();
+	void writeForSound ();
+	bool readForSound ();
+	void writeForAlarms ();
+	bool readForAlarms ();
 };
 
 extern Memory memory;

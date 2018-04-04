@@ -8,9 +8,9 @@
 #include "Light.h"
 #include "Sound.h"
 
-const boolean WAIT_FOR_TIME = false; // If we have to wait for time sync (if true, program will not start until time is synced)
+const boolean WAIT_FOR_TIME = true; // If we have to wait for time sync (if true, program will not start until time is synced)
 
-const long ESP_BAUD_RATE   = 9600; // ESP8266 communication baud rate
+const long ESP_BAUD_RATE   = 9600;   // ESP8266 communication baud rate
 const long DEBUG_BAUD_RATE = 250000; // Debug baud rate
 
 void setup ()
@@ -30,11 +30,9 @@ void setup ()
 
 	sound.init (Serial3);
 
-	
-
 	variableChange.init();
 
-	alarms.initAll();
+	alarms.init();
 
 	variableChange.sendInfo();
 
@@ -43,8 +41,6 @@ void setup ()
 
 void loop ()
 {
-	Alarm.delay (0);
-
 	variableChange.check();
 
 	serial.receiveAndDecode();
@@ -56,4 +52,6 @@ void loop ()
 	light.action();
 
 	sound.action();
+
+	alarms.action();
 }

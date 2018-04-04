@@ -35,7 +35,7 @@ void Request::decode (char * request, uint8_t & type, uint8_t & complement, int3
 	type  = TYPE_UNK;
 	error = ERR_UKR;
 
-	for (uint8_t i = TYPE_SEND_MIN; i <= TYPE_MAX; i++)
+	for (uint8_t i = TYPE_MIN; i <= TYPE_MAX; i++)
 		if (strstr (request, utils.infoTypeName (i, true)) == request)
 		{
 			type  = i;
@@ -92,8 +92,6 @@ void Request::decode (char * request, uint8_t & type, uint8_t & complement, int3
 				// Debug
 				Log.verbose ("Time (Current value): %l" endl, now());
 				Log.trace ("Time (Current value) (readable): %s" endl, utils.clock (buf));
-
-				alarms.initDawn();
 
 				break;
 
@@ -155,7 +153,6 @@ void Request::decode (char * request, uint8_t & type, uint8_t & complement, int3
 					else
 					{
 						light.setSpeed (information, complement);
-						alarms.initDawn();
 					}
 				}
 				else
