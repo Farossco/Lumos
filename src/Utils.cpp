@@ -56,9 +56,6 @@ const char * Utils::soundCommandName (uint8_t command, uint8_t caps)
 		case SOUND_COMMAND_PLAY:
 			return caps == 0 ? "play" : caps == 1 ? "Play" : "PLAY";
 
-		case SOUND_COMMAND_VOLUME:
-			return caps == 0 ? "volume" : caps == 1 ? "Volume" : "VOLUME";
-
 		default:
 			return caps == 0 ? "unknown" : caps == 1 ? "Unknown" : "UNKNOWN";
 	}

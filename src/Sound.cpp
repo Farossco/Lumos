@@ -72,16 +72,13 @@ void Sound::command (uint8_t command, int32_t information)
 			Log.trace ("Playing music nb %d with volume %d/%d" dendl, information, volume, SOUND_VOLUME_MAX);
 			break;
 
-		case SOUND_COMMAND_VOLUME:
-			volume = constrain (information, SOUND_VOLUME_MIN, SOUND_VOLUME_MAX);
-			myDFPlayer.volume (volume);
-			break;
 	}
 }
 
 void Sound::setVolume (uint8_t newVolume)
 {
 	volume = newVolume;
+	myDFPlayer.volume (volume);
 }
 
 void Sound::setMod (uint8_t newMod)

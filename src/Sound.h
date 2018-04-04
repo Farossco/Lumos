@@ -16,10 +16,9 @@ const uint8_t SOUND_MOD_MIN  = 0; // -Minimum mod value-
 const uint8_t SOUND_MOD_FREE = 0; // Free choice mod
 const uint8_t SOUND_MOD_MAX  = 0; // -Maximum mod value-
 
-const uint8_t SOUND_COMMAND_MIN    = 0;
-const uint8_t SOUND_COMMAND_PLAY   = 0;
-const uint8_t SOUND_COMMAND_VOLUME = 1;
-const uint8_t SOUND_COMMAND_MAX    = 2;
+const uint8_t SOUND_COMMAND_MIN  = 0;
+const uint8_t SOUND_COMMAND_PLAY = 0;
+const uint8_t SOUND_COMMAND_MAX  = 0;
 
 class Sound
 {
