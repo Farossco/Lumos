@@ -157,7 +157,8 @@ void Request::decode (char * request, uint8_t & type, uint8_t & complement, int3
 						error = ERR_OOB;
 				}
 
-				light.setSpeed (utils.map (information, SEEKBAR_MIN, SEEKBAR_MAX, LIGHT_MIN_SPEED[complement], LIGHT_MAX_SPEED[complement]), complement);
+				if (error == ERR_NOE)
+					light.setSpeed (utils.map (information, SEEKBAR_MIN, SEEKBAR_MAX, LIGHT_MIN_SPEED[complement], LIGHT_MAX_SPEED[complement]), complement);
 
 				// Debug
 				Log.verbose ("Min Speed: %d" endl, LIGHT_MIN_SPEED[complement]);
