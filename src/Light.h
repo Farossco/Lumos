@@ -21,22 +21,24 @@ const uint8_t LIGHT_MOD_STROBE     = 2; // Strobe mod
 const uint8_t LIGHT_MOD_FADE       = 3; // Fade mod
 const uint8_t LIGHT_MOD_SMOOTH     = 4; // Smooth mod
 const uint8_t LIGHT_MOD_DAWN       = 5; // Dawn mod
-const uint8_t LIGHT_MOD_START_ANIM = 6; // Start animation mod
-const uint8_t LIGHT_MOD_MUSIC      = 7; // Music mod
-const uint8_t LIGHT_MOD_MAX        = 7; // -Maximum mod value-
+const uint8_t LIGHT_MOD_SUNSET     = 6; // Sunset mod
+const uint8_t LIGHT_MOD_START_ANIM = 7; // Start animation mod
+const uint8_t LIGHT_MOD_MUSIC      = 8; // Music mod
+const uint8_t LIGHT_MOD_MAX        = 8; // -Maximum mod value-
 
 const uint8_t LIGHT_N_MOD = LIGHT_MOD_MAX - LIGHT_MOD_MIN + 1; // --Number of different mods--
 
-//                                                 CONT  FLAS  STRO  FADE  SMOO  DAWN  STAN  MUSI
-const unsigned char DEFAULT_RED[LIGHT_N_MOD]    = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00 }; // Default red color on program startup
-const unsigned char DEFAULT_GREEN[LIGHT_N_MOD]  = { 0xFF, 0x00, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00 }; // Default green color on program startup
-const unsigned char DEFAULT_BLUE[LIGHT_N_MOD]   = { 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0xFF, 0x00, 0x00 }; // Default blue color on program startup
-const unsigned char DEFAULT_POWER[LIGHT_N_MOD]  = { 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F }; // Default power on program startup
-const unsigned int DEFAULT_SPEED[LIGHT_N_MOD]   = { 0000, 10, 10, 300, 500, 0, 5000, 0000 };          // Default speed on program startup
-const unsigned int LIGHT_MIN_SPEED[LIGHT_N_MOD] = { 0000, 1, 1, 50, 10, 0, 1, 000 };                  // Minimum speed or power value for each mod
-const unsigned int LIGHT_MAX_SPEED[LIGHT_N_MOD] = { 0000, 25, 25, 600, 1000, 0, 10000, 000 };         // Maximum speed or power value for each mod
-const unsigned char LIGHT_MIN_POWER             = 0;                                                  // Minimum power value
-const unsigned char LIGHT_MAX_POWER             = 25;                                                 // Maximum power value
+//                                                  CONT  FLAS  STRO  FADE  SMOO  DAWN  SUNS  STAN  MUSI
+const unsigned char DEFAULT_RED[LIGHT_N_MOD]    = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00 }; // Default red color on program startup
+const unsigned char DEFAULT_GREEN[LIGHT_N_MOD]  = { 0xFF, 0x00, 0xFF, 0xFF, 0xFF, 0x7F, 0x7F, 0x00, 0x00 }; // Default green color on program startup
+const unsigned char DEFAULT_BLUE[LIGHT_N_MOD]   = { 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00 }; // Default blue color on program startup
+const unsigned int DEFAULT_SPEED[LIGHT_N_MOD]   = { 0, 10, 10, 300, 500, 0, 0, 1000, 0000 };                // Default speed on program startup
+const unsigned int LIGHT_MIN_SPEED[LIGHT_N_MOD] = { 0, 1, 1, 50, 10, 45, 0, 1, 000 };                       // Minimum speed or power value for each mod
+const unsigned int LIGHT_MAX_SPEED[LIGHT_N_MOD] = { 0, 25, 25, 600, 1000, 0, 0, 10000, 000 };               // Maximum speed or power value for each mod
+const unsigned char LIGHT_MIN_POWER             = 0;                                                        // Minimum power value
+const unsigned char LIGHT_MAX_POWER             = 25;                                                       // Maximum power value
+
+const unsigned char DEFAULT_POWER[LIGHT_N_MOD] = { LIGHT_MAX_POWER, LIGHT_MAX_POWER, LIGHT_MAX_POWER, LIGHT_MAX_POWER, LIGHT_MAX_POWER, LIGHT_MAX_POWER, LIGHT_MAX_POWER, LIGHT_MAX_POWER }; // Default power on program startup
 
 class Light
 {
@@ -88,6 +90,9 @@ private:
 
 	void initDawn (); // Dawn mod initialization
 	void dawn ();     // Dawn mod
+
+	void initSunset (); // Sunset mod initialization
+	void sunset ();     // Sunset mod
 
 	void initStartAnimation (); // Start animation mod initialization
 	void startAnimation ();     // Start animation mod

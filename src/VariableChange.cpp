@@ -90,13 +90,10 @@ void VariableChange::check ()
 		memory.writeForAll();
 } // VariableChange::check
 
-// char varBuf[9 + 3 + 1 + (MOD_MAX < 10 ? 1 : MOD_MAX < 100 ? 2 : 1) + 6 + N_MOD * 16];
-// char varBuf[(3 + 1 + 1) + (3 + (LIGHT_MOD_MAX < 10 ? 1 : LIGHT_MOD_MAX < 100 ? 2 : 1) + 1) + (3 + (SOUND_MOD_MAX < 10 ? 1 : SOUND_MOD_MAX < 100 ? 2 : 1) + 1) + LIGHT_N_MOD * (3 + 1 + 6 + 1) + LIGHT_N_MOD * (3 + 1 + 3 + 1) + LIGHT_N_MOD * (3 + 1 + 3 + 1) + 1];
-
 void VariableChange::sendInfo ()
 {
 	Log.trace ("Sending variables infos to the ESP8266" dendl);
-	Log.trace ("");
+	Log.verbose ("");
 
 	for (uint8_t i = TYPE_SEND_MIN; i <= TYPE_SEND_MAX; i++)
 	{

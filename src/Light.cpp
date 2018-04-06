@@ -165,64 +165,8 @@ void Light::action ()
 		return;
 	}
 
-	switch (lastMod)
-	{
-		case LIGHT_MOD_CONTINUOUS:
-			if (mod != LIGHT_MOD_CONTINUOUS)
-			{
-				Log.info ("Leaving Default mod" dendl);
-			}
-			break;
-
-		case LIGHT_MOD_FLASH:
-			if (mod != LIGHT_MOD_FLASH)
-			{
-				Log.info ("Leaving Flash mod" dendl);
-			}
-			break;
-
-		case LIGHT_MOD_STROBE:
-			if (mod != LIGHT_MOD_STROBE)
-			{
-				Log.info ("Leaving Strobe mod" dendl);
-			}
-			break;
-
-		case LIGHT_MOD_FADE:
-			if (mod != LIGHT_MOD_FADE)
-			{
-				Log.info ("Leaving Fade mod" dendl);
-			}
-			break;
-
-		case LIGHT_MOD_SMOOTH:
-			if (mod != LIGHT_MOD_SMOOTH)
-			{
-				Log.info ("Leaving Smooth mod" dendl);
-			}
-			break;
-
-		case LIGHT_MOD_DAWN:
-			if (mod != LIGHT_MOD_DAWN)
-			{
-				Log.info ("Leaving Dawn mod" dendl);
-			}
-			break;
-
-		case LIGHT_MOD_START_ANIM:
-			if (mod != LIGHT_MOD_START_ANIM)
-			{
-				Log.info ("End of start animation" dendl);
-			}
-			break;
-
-		case LIGHT_MOD_MUSIC:
-			if (mod != LIGHT_MOD_MUSIC)
-			{
-				Log.info ("Leaving Music mod" dendl);
-			}
-			break;
-	}
+	if (mod != lastMod)
+		Log.info ("Leaving %s mod" dendl, utils.lightModName (lastMod, CAPS_FIRST));
 
 	// Calling mods functions
 	switch (mod)
@@ -261,6 +205,12 @@ void Light::action ()
 			if (lastMod != LIGHT_MOD_DAWN)
 				initDawn();
 			dawn();
+			break;
+
+		case LIGHT_MOD_SUNSET:
+			if (lastMod != LIGHT_MOD_SUNSET)
+				initSunset();
+			sunset();
 			break;
 
 		case LIGHT_MOD_START_ANIM:
@@ -461,8 +411,6 @@ void Light::initDawn ()
 	counter    = 0;
 	counter2   = 1;
 
-	setRgb (0xFF7F00, LIGHT_MOD_DAWN);
-
 	lightAll (0x000000);
 
 	Log.info ("Entering Dawn mod for %d min." dendl, speed[LIGHT_MOD_DAWN]);
@@ -471,9 +419,7 @@ void Light::initDawn ()
 // Dawn Mod
 void Light::dawn ()
 {
-	const unsigned long step = ((uint64_t) speed[LIGHT_MOD_DAWN] * (uint64_t) 60000.) / ((uint64_t) (STRIP_LENGTH / 2.) * (uint64_t) LIGHT_MAX_POWER);
-
-	// const int totalStep = 1000;
+	const unsigned long step = (((uint64_t) speed[LIGHT_MOD_DAWN] ) * 60000.) / ( (((uint64_t) STRIP_LENGTH) / 2.) * ((uint64_t) LIGHT_MAX_POWER));
 
 	if (millis() - delayCount >= step)
 	{
@@ -495,18 +441,74 @@ void Light::dawn ()
 			else
 			{
 				counter2++;
-				Log.verbose ("Counter2: %d" endl, counter2);
 			}
 		}
 		else
 		{
 			counter++;
-			Log.verbose ("Counter: %d" endl, counter);
 		}
 
 		delayCount = millis();
 	}
 } // Light::dawn
+
+// Sunset Mod initialization
+void Light::initSunset ()
+{
+	delayCount = millis();         // Reseting milliseconds counter
+	lastMod    = LIGHT_MOD_SUNSET; // Setting lastMod so we don't call init again
+	counter    = 0;
+	counter2   = LIGHT_MAX_POWER;
+	state      = 0;
+
+	lightAll (getRgb (LIGHT_MOD_SUNSET));
+
+	Log.info ("Entering Sunset mod for %d min." dendl, speed[LIGHT_MOD_SUNSET]);
+}
+
+// Sunset Mod
+void Light::sunset ()
+{
+	if (state == 0)
+	{
+		if ((millis() - delayCount) >= ((uint64_t) speed[LIGHT_MOD_SUNSET]) * 60000UL)
+		{
+			state = 1;
+			Log.trace ("Starting to shut down. Completely off in 1 minute" dendl);
+		}
+	}
+	else if (state == 1)
+	{
+		const unsigned long step = 60000.0 / (((uint64_t) STRIP_LENGTH / 2.) * ((uint64_t) LIGHT_MAX_POWER));
+
+		if (millis() - delayCount >= step)
+		{
+			strip.setPixelColor ((STRIP_LENGTH / 2 + counter), getRed (LIGHT_MOD_SUNSET) * (counter2 / (float)  LIGHT_MAX_POWER), getGreen (LIGHT_MOD_SUNSET) * (counter2 / (float) LIGHT_MAX_POWER), getBlue (LIGHT_MOD_SUNSET) * (counter2 / (float) LIGHT_MAX_POWER));
+			strip.setPixelColor ((STRIP_LENGTH / 2 - counter), getRed (LIGHT_MOD_SUNSET) * (counter2 / (float)  LIGHT_MAX_POWER), getGreen (LIGHT_MOD_SUNSET) * (counter2 / (float) LIGHT_MAX_POWER), getBlue (LIGHT_MOD_SUNSET) * (counter2 / (float) LIGHT_MAX_POWER));
+
+			if (counter >= (STRIP_LENGTH / 2.))
+			{
+				counter = 0;
+
+				if (counter2 <= LIGHT_MIN_POWER)
+				{
+					mod = LIGHT_MOD_CONTINUOUS; // Leaving the mod
+					switchOff();
+				}
+				else
+				{
+					counter2--;
+				}
+			}
+			else
+			{
+				counter++;
+			}
+
+			delayCount = millis();
+		}
+	}
+} // Light::sunset
 
 // Start animation mod initialization
 void Light::initStartAnimation ()
@@ -530,7 +532,7 @@ void Light::initStartAnimation ()
 // Start animation mod
 void Light::startAnimation ()
 {
-	if (millis() - delayCount >= speed[LIGHT_MOD_START_ANIM] / (STRIP_LENGTH) +0.5)
+	if (millis() - delayCount >= ((speed[LIGHT_MOD_START_ANIM] / (STRIP_LENGTH)) + 0.5))
 	{
 		switch (state)
 		{
@@ -623,7 +625,7 @@ void Light::initMusic ()
 
 	delayCount = -1;
 
-	counter = 100;
+	counter = 0;
 
 	Log.info ("Entering Music mod" dendl);
 }

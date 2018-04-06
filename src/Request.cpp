@@ -138,7 +138,10 @@ void Request::decode (char * request, uint8_t & type, uint8_t & complement, int3
 				if (information < LIGHT_MOD_MIN || information > LIGHT_MOD_MAX)
 					error = ERR_OOB;
 				else
+				{
 					light.setMod (information);
+					light.switchOn();
+				}
 
 				Log.verbose ("Light mod (Text): %s (%d)" endl, utils.lightModName (information, CAPS_FIRST), information);
 				Log.trace ("Light mod (Current value): %s (%d)" dendl, utils.lightModName (light.getMod(), CAPS_FIRST), light.getMod());

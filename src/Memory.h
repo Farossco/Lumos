@@ -6,7 +6,7 @@
 const int EEPROM_LIGHT_START = 0x0000; // EEPROM start address
 const int EEPROM_SOUND_START = 0x1000; // EEPROM start address
 const int EEPROM_ALARM_START = 0x2000; // EEPROM start address
-const byte EEPROM_TEST_BYTE  = 0xAD;   // Byte I use to know if EEPROM has been initialized or not
+const byte EEPROM_TEST_BYTE  = 0xAF;   // Byte I use to know if EEPROM has been initialized or not
 
 class Memory
 {

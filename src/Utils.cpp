@@ -26,6 +26,9 @@ const char * Utils::lightModName (uint8_t mod, uint8_t caps)
 		case LIGHT_MOD_DAWN:
 			return caps == 0 ? "wake up" : caps == 1 ? "Wake up" : "WAKE UP";
 
+		case LIGHT_MOD_SUNSET:
+			return caps == 0 ? "sunset" : caps == 1 ? "Sunset" : "SUNSET";
+
 		case LIGHT_MOD_START_ANIM:
 			return caps == 0 ? "start animation" : caps == 1 ? "Start animation" : "START ANIMATION";
 
@@ -35,7 +38,7 @@ const char * Utils::lightModName (uint8_t mod, uint8_t caps)
 		default:
 			return caps == 0 ? "unknown" : caps == 1 ? "Unknown" : "UNKNOWN";
 	}
-}
+} // Utils::lightModName
 
 const char * Utils::soundModName (uint8_t mod, uint8_t caps)
 {
