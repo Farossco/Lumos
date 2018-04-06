@@ -36,7 +36,7 @@ const unsigned int DEFAULT_SPEED[LIGHT_N_MOD]   = { 0000, 10, 10, 300, 500, 500,
 const unsigned int LIGHT_MIN_SPEED[LIGHT_N_MOD] = { 0000, 1, 1, 50, 10, 1, 1, 000 };                  // Minimum speed or power value for each mod
 const unsigned int LIGHT_MAX_SPEED[LIGHT_N_MOD] = { 0000, 25, 25, 600, 1000, 1000, 10000, 000 };      // Maximum speed or power value for each mod
 const unsigned char LIGHT_MIN_POWER             = 0;                                                  // Minimum power value
-const unsigned char LIGHT_MAX_POWER             = 255;                                                // Maximum power value
+const unsigned char LIGHT_MAX_POWER             = 25;                                                 // Maximum power value
 
 class Light
 {
