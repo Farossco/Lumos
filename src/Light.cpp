@@ -471,7 +471,7 @@ void Light::initDawn ()
 // Dawn Mod
 void Light::dawn ()
 {
-	const int step = ((uint64_t) speed[LIGHT_MOD_DAWN] * (uint64_t) 60000.) / ((uint64_t) (STRIP_LENGTH / 2.) * (uint64_t) LIGHT_MAX_POWER);
+	const unsigned long step = ((uint64_t) speed[LIGHT_MOD_DAWN] * (uint64_t) 60000.) / ((uint64_t) (STRIP_LENGTH / 2.) * (uint64_t) LIGHT_MAX_POWER);
 
 	// const int totalStep = 1000;
 

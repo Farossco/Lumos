@@ -32,9 +32,9 @@ const unsigned char DEFAULT_RED[LIGHT_N_MOD]    = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 const unsigned char DEFAULT_GREEN[LIGHT_N_MOD]  = { 0xFF, 0x00, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00 }; // Default green color on program startup
 const unsigned char DEFAULT_BLUE[LIGHT_N_MOD]   = { 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0xFF, 0x00, 0x00 }; // Default blue color on program startup
 const unsigned char DEFAULT_POWER[LIGHT_N_MOD]  = { 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F }; // Default power on program startup
-const unsigned int DEFAULT_SPEED[LIGHT_N_MOD]   = { 0000, 10, 10, 300, 500, 500, 5000, 0000 };        // Default speed on program startup
-const unsigned int LIGHT_MIN_SPEED[LIGHT_N_MOD] = { 0000, 1, 1, 50, 10, 1, 1, 000 };                  // Minimum speed or power value for each mod
-const unsigned int LIGHT_MAX_SPEED[LIGHT_N_MOD] = { 0000, 25, 25, 600, 1000, 1000, 10000, 000 };      // Maximum speed or power value for each mod
+const unsigned int DEFAULT_SPEED[LIGHT_N_MOD]   = { 0000, 10, 10, 300, 500, 0, 5000, 0000 };          // Default speed on program startup
+const unsigned int LIGHT_MIN_SPEED[LIGHT_N_MOD] = { 0000, 1, 1, 50, 10, 0, 1, 000 };                  // Minimum speed or power value for each mod
+const unsigned int LIGHT_MAX_SPEED[LIGHT_N_MOD] = { 0000, 25, 25, 600, 1000, 0, 10000, 000 };         // Maximum speed or power value for each mod
 const unsigned char LIGHT_MIN_POWER             = 0;                                                  // Minimum power value
 const unsigned char LIGHT_MAX_POWER             = 25;                                                 // Maximum power value
 

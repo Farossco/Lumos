@@ -146,22 +146,18 @@ void Request::decode (char * request, uint8_t & type, uint8_t & complement, int3
 				break;
 
 			case TYPE_SPE:
-				if (complement == LIGHT_MOD_DAWN)
+				if (LIGHT_MIN_SPEED[complement] == 0 && LIGHT_MAX_SPEED[complement] == 0)
 				{
 					if (information < 0)
 						error = ERR_OOB;
-					else
-					{
-						light.setSpeed (information, complement);
-					}
 				}
 				else
 				{
 					if (information < SEEKBAR_MIN || information > SEEKBAR_MAX)
 						error = ERR_OOB;
-					else
-						light.setSpeed (utils.map (information, SEEKBAR_MIN, SEEKBAR_MAX, LIGHT_MIN_SPEED[complement], LIGHT_MAX_SPEED[complement]), complement);
 				}
+
+				light.setSpeed (utils.map (information, SEEKBAR_MIN, SEEKBAR_MAX, LIGHT_MIN_SPEED[complement], LIGHT_MAX_SPEED[complement]), complement);
 
 				// Debug
 				Log.verbose ("Min Speed: %d" endl, LIGHT_MIN_SPEED[complement]);
