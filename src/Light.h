@@ -98,8 +98,8 @@ private:
 	Adafruit_DotStar strip;
 
 	int state;                             // Current state used by some mods
-	int32_t counter;                       // Counter that is used by some mods
-	unsigned long delayCount, delayCount2; // Delay counting
+	int32_t counter, counter2;             // Counters that are used by some mods
+	unsigned long delayCount, delayCount2; // Delay counters
 	unsigned char lastMod;                 // Mod in previous loop - Allows mod initializations
 	bool on;                               // If the leds are ON or OFF (True: ON / False: OFF)
 	unsigned char power[LIGHT_N_MOD];      // Current lightning power for each mod (from MINPOWER to MAXPOWER)
