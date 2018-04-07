@@ -36,8 +36,8 @@ void setup ()
 
 	variableChange.sendInfo();
 
-	// bluetooth.init();
-}
+	bluetooth.init();
+} // setup
 
 void loop ()
 {
@@ -47,11 +47,11 @@ void loop ()
 
 	sd.cardTests();
 
-	// bluetooth.action();
-
 	light.action();
 
 	sound.action();
 
 	alarms.action();
+
+	bluetooth.action();
 }

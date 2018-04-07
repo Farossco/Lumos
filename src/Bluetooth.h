@@ -8,10 +8,14 @@ class Bluetooth
 public:
 	Bluetooth();
 	void init ();
-	void action();
+	void action ();
+	void makeConnection ();
+	bool isEnabled ();
 
 private:
 	BM70 module;
+	uint32_t counter;
+	uint8_t connectionState;
 };
 
 extern Bluetooth bluetooth;
