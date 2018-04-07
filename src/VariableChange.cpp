@@ -109,7 +109,7 @@ void VariableChange::sendInfo ()
 					sprintf (information + strlen (information), "%d%lX", j, light.getRgb (j));
 					break;
 
-				case TYPE_ONF:
+				case TYPE_LON:
 					sprintf (information + strlen (information), "%d", light.isOn());
 					break;
 

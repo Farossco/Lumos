@@ -74,8 +74,8 @@ const char * Utils::infoTypeName (uint8_t infoType, boolean shortened)
 		case TYPE_RGB:
 			return "RGB";
 
-		case TYPE_ONF:
-			return shortened ? "ONF" : "Light On/Off";
+		case TYPE_LON:
+			return shortened ? "LON" : "Light On/Off";
 
 		case TYPE_POW:
 			return shortened ? "POW" : "Light power";

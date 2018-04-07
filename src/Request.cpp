@@ -108,7 +108,7 @@ void Request::process (uint8_t type, uint8_t complement, int32_t information, in
 
 				break;
 
-			case TYPE_ONF:
+			case TYPE_LON:
 				if (information != 0 && information != 1)
 					error = ERR_OOB;
 				else
