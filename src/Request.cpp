@@ -7,30 +7,19 @@
 #include "Alarms.h"
 #include "Sound.h"
 
-void Request::decode (char * request, uint8_t & type, uint8_t & complement, int32_t & information, int8_t & error)
+void Request::decode (char * request)
 {
 	int16_t requestLength = strlen (request);
+	uint8_t type;
+	uint8_t complement;
+	int32_t information;
+	int8_t error;
 
 	if (requestLength <= 0)
 		return;
 
 	information = 0;
 	complement  = 0;
-
-	if (strstr (request, "INFO") == request)
-	{
-		type = TYPE_RIF;
-		Log.trace ("Received info request" dendl);
-		return;
-	}
-	if (strstr (request, "TIME") == request)
-	{
-		type = TYPE_RTM;
-
-		Log.trace ("Received time request" dendl);
-
-		return;
-	}
 
 	type  = TYPE_UNK;
 	error = ERR_UKR;
@@ -42,6 +31,7 @@ void Request::decode (char * request, uint8_t & type, uint8_t & complement, int3
 			error = ERR_NOE;
 			break;
 		}
+
 
 	// [DEBUG] Printing full word, world length and information type
 	Log.verbose ("Word: %s" endl, request);
@@ -92,7 +82,6 @@ void Request::decode (char * request, uint8_t & type, uint8_t & complement, int3
 				// Debug
 				Log.verbose ("Time (Current value): %l" endl, now());
 				Log.trace ("Time (Current value) (readable): %s" endl, utils.clock (buf));
-
 				break;
 
 			case TYPE_RGB:

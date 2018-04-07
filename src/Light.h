@@ -2,7 +2,7 @@
 #define LIGHT_H
 
 #include <Adafruit_DotStar.h>
-#include <stdint-gcc.h>
+#include <Arduino.h>
 
 #define CURRENT_MOD 255
 

@@ -4,8 +4,6 @@
 #include <Arduino.h>
 
 // Serial reception types
-const uint8_t TYPE_RTM      = -2; // Request : Time
-const uint8_t TYPE_RIF      = -1; // Request : Info
 const uint8_t TYPE_MIN      = 0;  // - Provide type minimum value -
 const uint8_t TYPE_UNK      = 0;  // Unknown type
 const uint8_t TYPE_TIM      = 1;  // Provide : Time
@@ -31,7 +29,8 @@ const int ERR_UKR = 3; // Unknown request
 class Request
 {
 public:
-	void decode (char * request, uint8_t & type, uint8_t & complement, int32_t & information, int8_t & error);
+	void decode (char * request);
+	void process(uint8_t type, uint8_t complement, int32_t information, int8_t error);
 };
 
 extern Request request;

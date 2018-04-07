@@ -68,10 +68,6 @@ void ArduinoSerial::receiveAndDecode ()
 
 	const int bufSize = 14;
 	char buf[bufSize];
-	uint8_t type = TYPE_UNK;
-	uint8_t complement;
-	int32_t information;
-	int8_t error;
 
 	uint8_t length;
 
@@ -82,17 +78,7 @@ void ArduinoSerial::receiveAndDecode ()
 
 	buf[length] = '\0';
 
-	request.decode (buf, type, complement, information, error);
-
-	if (type == TYPE_RTM)
-	{
-		Log.trace ("I don't know anything about time... Let me ask the ESP" dendl);
-		askForTime();
-	}
-	else if (type == TYPE_RIF)
-	{
-		variableChange.sendInfo(); // We send the variables values to the ESP8266
-	}
+	request.decode (buf);
 } // readSerial
 
 ArduinoSerial serial = ArduinoSerial();
