@@ -95,6 +95,9 @@ const char * Utils::infoTypeName (uint8_t infoType, boolean shortened)
 		case TYPE_SON:
 			return shortened ? "SON" : "Sound On/Off";
 
+		case TYPE_DTM:
+			return shortened ? "DTM" : "Dawn time";
+
 		case TYPE_SCO:
 			return shortened ? "SCO" : "Sound command";
 

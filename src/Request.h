@@ -18,9 +18,10 @@ const uint8_t TYPE_SPE      = 6;  // Provide : Light mod Speed
 const uint8_t TYPE_SMO      = 7;  // Provide : Sound mod
 const uint8_t TYPE_VOL      = 8;  // Provide : Sound volume
 const uint8_t TYPE_SON      = 9;  // Provide : Sound on/off
-const uint8_t TYPE_SEND_MAX = 9;  // ...to this -
-const uint8_t TYPE_SCO      = 10; // Provide : Sound free choice mod commands
-const uint8_t TYPE_MAX      = 10; // - Provide type maximum value -
+const uint8_t TYPE_DTM      = 10; // Provide : Dawn time
+const uint8_t TYPE_SEND_MAX = 10; // ...to this -
+const uint8_t TYPE_SCO      = 11; // Provide : Sound free choice mod commands
+const uint8_t TYPE_MAX      = 11; // - Provide type maximum value -
 
 const uint8_t SOURCE_ARDUINO_SERIAL    = 0;
 const uint8_t SOURCE_ARDUINO_BLUETOOTH = 1;

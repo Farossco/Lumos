@@ -4,9 +4,9 @@
 #include <Arduino.h>
 
 const int EEPROM_LIGHT_START = 0x0000; // EEPROM start address
-const int EEPROM_SOUND_START = 0x1000; // EEPROM start address
-const int EEPROM_ALARM_START = 0x2000; // EEPROM start address
-const byte EEPROM_TEST_BYTE  = 0xAF;   // Byte I use to know if EEPROM has been initialized or not
+const int EEPROM_SOUND_START = 0x4000; // EEPROM start address
+const int EEPROM_ALARM_START = 0x8000; // EEPROM start address
+const byte EEPROM_TEST_BYTE  = 0xB1;   // Byte I use to know if EEPROM has been initialized or not
 
 class Memory
 {

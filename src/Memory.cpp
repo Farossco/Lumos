@@ -212,14 +212,14 @@ void Memory::writeForAlarms ()
 
 	address++;
 
-	for (unsigned int i = 0; i < sizeof(uint8_t); i++)
+	for (unsigned int i = 0; i < sizeof(uint16_t); i++)
 		if (EEPROM.read (address + i) != (byte) (alarms.getDawnTime() >> (i * 8)))
 		{
 			EEPROM.write (address + i, (byte) (alarms.getDawnTime() >> (i * 8)));
 			n++;
 		}
 
-	address += sizeof(int);
+	address += sizeof(uint16_t);
 
 	Log.tracenp ("Done ! (%d byte%s written)" dendl, n, n > 1 ? "s" : "");
 }
@@ -240,15 +240,15 @@ bool Memory::readForAlarms ()
 
 	address++;
 
-	unsigned int dawnTime;
+	uint16_t dawnTime;
 
 	dawnTime = 0;
-	for (unsigned int i = 0; i < sizeof(int); i++)
-		dawnTime += ((int) EEPROM.read (address + i)) << (i * 8);
+	for (unsigned int i = 0; i < sizeof(uint16_t); i++)
+		dawnTime += ((uint16_t) EEPROM.read (address + i)) << (i * 8);
 
 	alarms.setDawnTime (dawnTime);
 
-	address += sizeof(uint32_t);
+	address += sizeof(uint16_t);
 
 	Log.tracenp ("Done ! (%d byte%s read)" dendl, address - EEPROM_ALARM_START, address > 1 ? "s" : "");
 

@@ -13,12 +13,13 @@ public:
 	void sendInfo ();
 
 private:
-	boolean changeOn;
-	unsigned char changePower[LIGHT_N_MOD];
-	unsigned int changeSpeed[LIGHT_N_MOD];
-	unsigned long changeRgb;
-	unsigned char changeLightMod;
-	unsigned char changeSoundMod;
+	bool changeOn;
+	uint8_t changePower[LIGHT_N_MOD];
+	uint16_t changeSpeed[LIGHT_N_MOD];
+	uint32_t changeRgb;
+	uint8_t changeLightMod;
+	uint8_t changeSoundMod;
+	uint16_t changeDawnTime;
 };
 
 extern VariableChange variableChange;

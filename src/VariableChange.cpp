@@ -7,6 +7,7 @@
 #include "Sound.h"
 #include "Request.h"
 #include "Utils.h"
+#include "Alarms.h"
 
 VariableChange::VariableChange()
 { }
@@ -22,6 +23,7 @@ void VariableChange::init ()
 		changePower[i] = light.getPower (i);
 	for (int i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
 		changeSpeed[i] = light.getSpeed (i);
+	changeDawnTime = alarms.getDawnTime();
 }
 
 void VariableChange::check ()
@@ -71,16 +73,27 @@ void VariableChange::check ()
 	{
 		Log.verbose ("\"Light mod\" changed from %s (%d) to %s (%d)" dendl, utils.lightModName (changeLightMod, CAPS_NONE), changeLightMod, utils.lightModName (light.getMod(), CAPS_NONE), light.getMod());
 
-		changeLightMod = light.getMod();
-		flagSendInfo   = true;
+		changeLightMod  = light.getMod();
+		flagSendInfo    = true;
+		flagWriteEeprom = true;
 	}
 
 	if (changeSoundMod != sound.getMod())
 	{
 		Log.verbose ("\"Sound mod\" changed from %s (%d) to %s (%d)" dendl, utils.soundModName (changeSoundMod, CAPS_NONE), changeSoundMod, utils.soundModName (sound.getMod(), CAPS_NONE), sound.getMod());
 
-		changeSoundMod = sound.getMod();
-		flagSendInfo   = true;
+		changeSoundMod  = sound.getMod();
+		flagSendInfo    = true;
+		flagWriteEeprom = true;
+	}
+
+	if (changeDawnTime != alarms.getDawnTime())
+	{
+		Log.verbose ("\"Dawn time\" changed from %d:%d (%d) to %d:%d (%d)" dendl, changeDawnTime / 60, changeDawnTime % 60, changeDawnTime, alarms.getDawnTime() / 60, alarms.getDawnTime() % 60, alarms.getDawnTime());
+
+		changeDawnTime  = alarms.getDawnTime();
+		flagSendInfo    = true;
+		flagWriteEeprom = true;
 	}
 
 	if (flagSendInfo)
@@ -136,6 +149,9 @@ void VariableChange::sendInfo ()
 				case TYPE_SON:
 					sprintf (information + strlen (information), "%d", sound.isOn());
 					break;
+
+				case TYPE_DTM:
+					sprintf (information + strlen (information), "%d", alarms.getDawnTime());
 			}
 			sprintf (information + strlen (information), "z"); // Suffix
 
