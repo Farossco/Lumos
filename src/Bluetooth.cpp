@@ -6,7 +6,12 @@
 
 Bluetooth::Bluetooth() : module (&Serial2)
 {
+	pinMode (PIN_BLE_LED_RED, OUTPUT);
+	pinMode (PIN_BLE_LED_GREEN, OUTPUT);
+	pinMode (PIN_BLE_LED_BLUE, OUTPUT);
+
 	connectionState = 0;
+	lightOff();
 }
 
 void Bluetooth::init ()
@@ -24,6 +29,10 @@ void Bluetooth::init ()
 	module.removePaired (0xFF);
 
 	Log.infonp ("Done" dendl);
+
+	connectionState = 0;
+
+	lightIdle();
 }
 
 void Bluetooth::action ()
@@ -38,8 +47,6 @@ void Bluetooth::action ()
 
 		module.transparentRead (data);
 
-		data[5] = '\0';
-
 		Log.verbose ("Received data from bluetooth: %s" dendl, data);
 
 		request.decode (data, SOURCE_ARDUINO_BLUETOOTH);
@@ -49,7 +56,10 @@ void Bluetooth::action ()
 void Bluetooth::makeConnection ()
 {
 	if (module.getStatus() == BM70_STATUS_IDLE)
+	{
 		connectionState = 0;
+		lightIdle();
+	}
 
 	switch (connectionState)
 	{
@@ -71,10 +81,10 @@ void Bluetooth::makeConnection ()
 				Log.trace ("Waiting for pairing..." dendl);
 				counter = millis();
 			}
-			else if (millis() - counter >= 50000)
+			else if (millis() - counter >= 5000)
 			{
 				connectionState = 0;
-				Log.trace ("No connection after 50s, resetting" dendl);
+				Log.trace ("No connection after 5s, resetting" dendl);
 				module.reset();
 			}
 			break;
@@ -85,7 +95,7 @@ void Bluetooth::makeConnection ()
 				connectionState = 3;
 				Log.trace ("Pairing succeeded." dendl);
 			}
-			else if (millis() - counter >= 30000)
+			else if (millis() - counter >= 10000)
 			{
 				connectionState = 0;
 				Log.warning ("Pairing timed out, restarting" dendl);
@@ -107,9 +117,10 @@ void Bluetooth::makeConnection ()
 			if (module.getStatus() == BM70_STATUS_TRANSCOM)
 			{
 				connectionState = 5;
+				lightConnected();
 				Log.trace ("Transparent is enabled, connection completed!" dendl);
 			}
-			else if (millis() - counter >= 50000)
+			else if (millis() - counter >= 5000)
 			{
 				connectionState = 0;
 				Log.warning ("Enabling local transparent timed out, restarting" dendl);
@@ -125,6 +136,27 @@ void Bluetooth::makeConnection ()
 bool Bluetooth::isEnabled ()
 {
 	return connectionState == 5;
+}
+
+void Bluetooth::lightConnected ()
+{
+	analogWrite (PIN_BLE_LED_RED, LOW);
+	analogWrite (PIN_BLE_LED_GREEN, BLE_INDICATOR_POWER);
+	analogWrite (PIN_BLE_LED_BLUE, LOW);
+}
+
+void Bluetooth::lightIdle ()
+{
+	analogWrite (PIN_BLE_LED_RED, LOW);
+	analogWrite (PIN_BLE_LED_GREEN, LOW);
+	analogWrite (PIN_BLE_LED_BLUE, BLE_INDICATOR_POWER);
+}
+
+void Bluetooth::lightOff ()
+{
+	digitalWrite (PIN_BLE_LED_RED, LOW);
+	digitalWrite (PIN_BLE_LED_GREEN, LOW);
+	digitalWrite (PIN_BLE_LED_BLUE, LOW);
 }
 
 Bluetooth bluetooth = Bluetooth();

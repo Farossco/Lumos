@@ -315,7 +315,7 @@ void SdCard::getLogFileName (char * buf)
 
 void SdCard::lightError ()
 {
-	analogWrite (PIN_SD_LED_RED, INDICATOR_POWER);
+	analogWrite (PIN_SD_LED_RED, SD_INDICATOR_POWER);
 	analogWrite (PIN_SD_LED_GREEN, LOW);
 	analogWrite (PIN_SD_LED_BLUE, LOW);
 }
@@ -323,22 +323,22 @@ void SdCard::lightError ()
 void SdCard::lightConnected ()
 {
 	analogWrite (PIN_SD_LED_RED, LOW);
-	analogWrite (PIN_SD_LED_GREEN, INDICATOR_POWER);
+	analogWrite (PIN_SD_LED_GREEN, SD_INDICATOR_POWER);
 	analogWrite (PIN_SD_LED_BLUE, LOW);
 }
 
 void SdCard::lightIdle ()
 {
-	analogWrite (PIN_SD_LED_RED, INDICATOR_POWER / 2);
-	analogWrite (PIN_SD_LED_GREEN, INDICATOR_POWER / 2);
+	analogWrite (PIN_SD_LED_RED, SD_INDICATOR_POWER / 2);
+	analogWrite (PIN_SD_LED_GREEN, SD_INDICATOR_POWER / 2);
 	analogWrite (PIN_SD_LED_BLUE, LOW);
 }
 
 void SdCard::lightNoCard ()
 {
-	analogWrite (PIN_SD_LED_RED, INDICATOR_POWER / 2);
+	analogWrite (PIN_SD_LED_RED, SD_INDICATOR_POWER / 2);
 	analogWrite (PIN_SD_LED_GREEN, LOW);
-	analogWrite (PIN_SD_LED_BLUE, INDICATOR_POWER / 2);
+	analogWrite (PIN_SD_LED_BLUE, SD_INDICATOR_POWER / 2);
 }
 
 void SdCard::lightOff ()

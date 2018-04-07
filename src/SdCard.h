@@ -12,7 +12,7 @@ const int PIN_SD_CD        = 53; // Card Detect
 const int PIN_SD_LED_RED   = 44; // RGB Red pin
 const int PIN_SD_LED_GREEN = 45; // RGB Green pin
 const int PIN_SD_LED_BLUE  = 46; // RGB Blue pin
-const int INDICATOR_POWER  = 5;
+const int SD_INDICATOR_POWER  = 10;
 
 class SdCard
 {

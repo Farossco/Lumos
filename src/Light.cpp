@@ -320,7 +320,7 @@ void Light::fade ()
 		else if (counter <= LIGHT_MIN_POWER) // If color reach black, we start to increase
 			state = 1;                       // Increasing state
 
-		lightAll (red[LIGHT_MOD_FADE] * (counter / LIGHT_MAX_POWER), green[LIGHT_MOD_FADE] * (counter / LIGHT_MAX_POWER), blue[LIGHT_MOD_FADE] * (counter / LIGHT_MAX_POWER));
+		lightAll (red[LIGHT_MOD_FADE] * (counter / (float) LIGHT_MAX_POWER), green[LIGHT_MOD_FADE] * (counter / (float) LIGHT_MAX_POWER), blue[LIGHT_MOD_FADE] * (counter / (float) LIGHT_MAX_POWER));
 
 		delayCount = millis();
 	}
