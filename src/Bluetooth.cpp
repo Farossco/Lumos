@@ -11,10 +11,10 @@ Bluetooth::Bluetooth() : module (&Serial2)
 
 void Bluetooth::init ()
 {
-	Log.info (F("Initializing Bluetooth module... "));
+	Log.info ("Initializing Bluetooth module... ");
 
 	module.reset();
- 
+
 	while (module.getStatus() != BM70_STATUS_IDLE)
 	{
 		module.reset();
@@ -40,9 +40,9 @@ void Bluetooth::action ()
 
 		data[5] = '\0';
 
-		Log.verbose (F("Received data from bluetooth: %s" dendl), data);
+		Log.verbose ("Received data from bluetooth: %s" dendl, data);
 
-		request.decode (data);
+		request.decode (data, SOURCE_ARDUINO_BLUETOOTH);
 	}
 }
 
@@ -55,11 +55,11 @@ void Bluetooth::makeConnection ()
 	{
 		case 0:
 			connectionState = 1;
-			Log.trace (F("Configure auto-connect as master... "));
+			Log.trace ("Configure auto-connect as master... ");
 			module.configureAutoConnect (true, 0x3481F42F22A7, (char *) "123456");
-			Log.tracenp (F("Done." dendl));
+			Log.tracenp ("Done." dendl);
 
-			Log.trace (F("Waiting for connection..." dendl));
+			Log.trace ("Waiting for connection..." dendl);
 			counter = millis();
 			break;
 
@@ -67,14 +67,14 @@ void Bluetooth::makeConnection ()
 			if (module.getStatus() == BM70_STATUS_CONNECTED)
 			{
 				connectionState = 2;
-				Log.trace (F("Connected!" dendl));
-				Log.trace (F("Waiting for pairing..." dendl));
+				Log.trace ("Connected!" dendl);
+				Log.trace ("Waiting for pairing..." dendl);
 				counter = millis();
 			}
 			else if (millis() - counter >= 50000)
 			{
 				connectionState = 0;
-				Log.trace (F("No connection after 50s, resetting" dendl));
+				Log.trace ("No connection after 50s, resetting" dendl);
 				module.reset();
 			}
 			break;
@@ -83,23 +83,23 @@ void Bluetooth::makeConnection ()
 			if (module.isPaired())
 			{
 				connectionState = 3;
-				Log.trace (F("Pairing succeeded." dendl));
+				Log.trace ("Pairing succeeded." dendl);
 			}
 			else if (millis() - counter >= 30000)
 			{
 				connectionState = 0;
-				Log.warning (F("Pairing timed out, restarting" dendl));
+				Log.warning ("Pairing timed out, restarting" dendl);
 				module.reset();
 			}
 			break;
 
 		case 3:
 			connectionState = 4;
-			Log.trace (F("Enabling remote transparent... "));
+			Log.trace ("Enabling remote transparent... ");
 			module.enableTransparent();
-			Log.tracenp (F("Done." dendl));
+			Log.tracenp ("Done." dendl);
 
-			Log.trace (F("Waiting for local transparent to be enabled..." dendl));
+			Log.trace ("Waiting for local transparent to be enabled..." dendl);
 			counter = millis();
 			break;
 
@@ -107,12 +107,12 @@ void Bluetooth::makeConnection ()
 			if (module.getStatus() == BM70_STATUS_TRANSCOM)
 			{
 				connectionState = 5;
-				Log.trace (F("Transparent is enabled, connection completed!" dendl));
+				Log.trace ("Transparent is enabled, connection completed!" dendl);
 			}
 			else if (millis() - counter >= 50000)
 			{
 				connectionState = 0;
-				Log.warning (F("Enabling local transparent timed out, restarting" dendl));
+				Log.warning ("Enabling local transparent timed out, restarting" dendl);
 				module.reset();
 			}
 			break;

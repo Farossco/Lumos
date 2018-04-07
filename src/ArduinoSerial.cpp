@@ -69,7 +69,7 @@ void ArduinoSerial::receiveAndDecode ()
 	const int bufSize = 14;
 	char buf[bufSize];
 
-	uint8_t length;
+	uint8_t length; 
 
 	if (Serial.available())
 		length = Serial.readBytesUntil ('z', buf, bufSize);
@@ -78,7 +78,7 @@ void ArduinoSerial::receiveAndDecode ()
 
 	buf[length] = '\0';
 
-	request.decode (buf);
+	request.decode (buf, SOURCE_ARDUINO_SERIAL);
 } // readSerial
 
 ArduinoSerial serial = ArduinoSerial();

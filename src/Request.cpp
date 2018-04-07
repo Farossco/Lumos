@@ -6,68 +6,78 @@
 #include "Light.h"
 #include "Alarms.h"
 #include "Sound.h"
+#include "ArduinoSerial.h"
+#include "VariableChange.h"
 
-void Request::decode (char * request)
+void Request::decode (char * request, uint8_t source)
 {
 	int16_t requestLength = strlen (request);
 	uint8_t type;
 	uint8_t complement;
 	int32_t information;
-	int8_t error;
+	int8_t error = ERR_NOE;
 
 	if (requestLength <= 0)
 		return;
 
-	information = 0;
-	complement  = 0;
-
-	type  = TYPE_UNK;
-	error = ERR_UKR;
-
-	for (uint8_t i = TYPE_MIN; i <= TYPE_MAX; i++)
-		if (strstr (request, utils.infoTypeName (i, true)) == request)
-		{
-			type  = i;
-			error = ERR_NOE;
-			break;
-		}
-
-
-	// [DEBUG] Printing full word, world length and information type
-	Log.verbose ("Word: %s" endl, request);
-	Log.verbose ("Length: %d" endl, requestLength);
-	Log.verbose ("Type: %s (%d)" endl, utils.infoTypeName (type, false), type);
-
-	utils.reduceCharArray (&request, 3); // Remove 3 first char of the array (The prefix)
-
-	if (utils.infoTypeComplementType (type) != COMPLEMENT_TYPE_NONE)
+	if (strstr (request, "INFO") == request)
+		type = TYPE_RIF;
+	else if (strstr (request, "TIME") == request)
+		type = TYPE_RTM;
+	else
 	{
-		complement = request[0] - '0';
-		utils.reduceCharArray (&request, 1); // Remove first char of the array (mod specifier)
+		type  = TYPE_UNK;
+		error = ERR_UKR;
 
-		if (utils.infoTypeComplementType (type) == COMPLEMENT_TYPE_LMO)
+		for (uint8_t i = TYPE_MIN; i <= TYPE_MAX; i++)
+			if (strstr (request, utils.infoTypeName (i, true)) == request)
+			{
+				type  = i;
+				error = ERR_NOE;
+				break;
+			}
+
+		// [DEBUG] Printing full word, world length and information type
+		Log.verbose ("Word: %s" endl, request);
+		Log.verbose ("Length: %d" endl, requestLength);
+		Log.verbose ("Type: %s (%d)" endl, utils.infoTypeName (type, false), type);
+
+		utils.reduceCharArray (&request, 3); // Remove 3 first char of the array (The prefix)
+
+		if (utils.infoTypeComplementType (type) != COMPLEMENT_TYPE_NONE)
 		{
-			Log.verbose ("Complement: %s (%d)" endl, utils.lightModName (complement, CAPS_FIRST), complement);
-			if (complement < LIGHT_MOD_MIN || complement > LIGHT_MOD_MAX)
-				error = ERR_UKC;
+			complement = request[0] - '0';
+			utils.reduceCharArray (&request, 1); // Remove first char of the array (mod specifier)
+
+			if (utils.infoTypeComplementType (type) == COMPLEMENT_TYPE_LMO)
+			{
+				Log.verbose ("Complement: %s (%d)" endl, utils.lightModName (complement, CAPS_FIRST), complement);
+				if (complement < LIGHT_MOD_MIN || complement > LIGHT_MOD_MAX)
+					error = ERR_UKC;
+			}
+			else if (utils.infoTypeComplementType (type) == COMPLEMENT_TYPE_SCP)
+			{
+				Log.verbose ("Command type: %s (%d)" endl, utils.soundCommandName (complement, CAPS_FIRST), complement);
+				if (complement < SOUND_COMMAND_MIN || complement > SOUND_COMMAND_MAX)
+					error = ERR_UKC;
+			}
 		}
-		else if (utils.infoTypeComplementType (type) == COMPLEMENT_TYPE_SCP)
-		{
-			Log.verbose ("Command type: %s (%d)" endl, utils.soundCommandName (complement, CAPS_FIRST), complement);
-			if (complement < SOUND_COMMAND_MIN || complement > SOUND_COMMAND_MAX)
-				error = ERR_UKC;
-		}
+
+		Log.verbose ("%s: %s" endl, utils.infoTypeName (type, false), request);
+
+		information = strtol (request, NULL, type == TYPE_RGB ? 16 : 10);
+
+		if (type == TYPE_RGB)
+			Log.verbose ("%s (decoded): %x" endl, utils.infoTypeName (type, false), information);
+		else
+			Log.verbose ("%s (decoded): %l" endl, utils.infoTypeName (type, false), information);
 	}
 
-	Log.verbose ("%s: %s" endl, utils.infoTypeName (type, false), request);
+	process (type, complement, information, error, source);
+} // Request::decode
 
-	information = strtol (request, NULL, type == TYPE_RGB ? 16 : 10);
-
-	if (type == TYPE_RGB)
-		Log.verbose ("%s (decoded): %x" endl, utils.infoTypeName (type, false), information);
-	else
-		Log.verbose ("%s (decoded): %l" endl, utils.infoTypeName (type, false), information);
-
+void Request::process (uint8_t type, uint8_t complement, int32_t information, int8_t error, uint8_t source)
+{
 	if (error == ERR_NOE)
 		switch (type)
 		{
@@ -207,6 +217,20 @@ void Request::decode (char * request)
 		Log.verbosenp (endl);
 		Log.warning ("Variable has not been changed (%s)" dendl, utils.errorTypeName (error, false));
 	}
-} // Request::decode
+
+	switch (source)
+	{
+		case SOURCE_ARDUINO_SERIAL:
+			if (type == TYPE_RTM)
+			{
+				Log.trace ("I don't know anything about time... Let me ask the ESP" dendl);
+				serial.askForTime();
+			}
+			else if (type == TYPE_RIF)
+			{
+				variableChange.sendInfo(); // We send the variables values to the ESP8266
+			}
+	}
+} // Request::process
 
 Request request = Request();
