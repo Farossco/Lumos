@@ -64,16 +64,54 @@ void Sound::action ()
 
 void Sound::command (uint8_t command, int32_t information)
 {
+	if (mod != SOUND_MOD_FREE)
+		return;
+
 	switch (command)
 	{
-		case SOUND_COMMAND_PLAY:
+		case SOUND_COMMAND_PLAY_RANDOM:
 			myDFPlayer.volume (volume);
-			myDFPlayer.playMp3Folder (information);
-			Log.trace ("Playing music nb %d with volume %d/%d" dendl, information, volume, SOUND_VOLUME_MAX);
+			myDFPlayer.randomAll();
+			Log.trace ("Playing random mp3 until stop" dendl);
 			break;
 
+		case SOUND_COMMAND_PLAY_ONE:
+			myDFPlayer.volume (volume);
+			myDFPlayer.playMp3Folder (information);
+			Log.trace ("Playing mp3 %d with volume %d/%d" dendl, information, (int) volume, (int) SOUND_VOLUME_MAX);
+			break;
+
+		case SOUND_COMMAND_PLAY_NEXT:
+			myDFPlayer.volume (volume);
+			myDFPlayer.next();
+			Log.trace ("Playing next mp3" dendl);
+			break;
+
+		case SOUND_COMMAND_PLAY_PREVIOUS:
+			myDFPlayer.volume (volume);
+			myDFPlayer.previous();
+			Log.trace ("Playing previous mp3" dendl);
+			break;
+
+		case SOUND_COMMAND_PAUSE:
+			myDFPlayer.volume (volume);
+			myDFPlayer.pause();
+			Log.trace ("Pausing mp3 play" dendl);
+			break;
+
+		case SOUND_COMMAND_RESUME:
+			myDFPlayer.volume (volume);
+			myDFPlayer.start();
+			Log.trace ("Resuming mp3 play" dendl);
+			break;
+
+		case SOUND_COMMAND_PLAY_DAWN:
+			myDFPlayer.volume (volume);
+			myDFPlayer.playFolder (1, 1);
+			Log.trace ("Playing dawn mp3" dendl);
+			break;
 	}
-}
+} // Sound::command
 
 void Sound::setVolume (uint8_t newVolume)
 {

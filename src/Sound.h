@@ -2,7 +2,7 @@
 #define SOUND_H
 
 #include <DFRobotDFPlayerMini.h>
-#include <stdint-gcc.h>
+#include <Arduino.h>
 
 const long DFP_BAUD_RATE = 9600; // DFPlayer communication baud rate
 
@@ -16,9 +16,15 @@ const uint8_t SOUND_MOD_MIN  = 0; // -Minimum mod value-
 const uint8_t SOUND_MOD_FREE = 0; // Free choice mod
 const uint8_t SOUND_MOD_MAX  = 0; // -Maximum mod value-
 
-const uint8_t SOUND_COMMAND_MIN  = 0;
-const uint8_t SOUND_COMMAND_PLAY = 0;
-const uint8_t SOUND_COMMAND_MAX  = 0;
+const uint8_t SOUND_COMMAND_MIN           = 0;
+const uint8_t SOUND_COMMAND_PLAY_RANDOM   = 0;
+const uint8_t SOUND_COMMAND_PLAY_ONE      = 1;
+const uint8_t SOUND_COMMAND_PLAY_NEXT     = 2;
+const uint8_t SOUND_COMMAND_PLAY_PREVIOUS = 3;
+const uint8_t SOUND_COMMAND_PAUSE         = 4;
+const uint8_t SOUND_COMMAND_RESUME        = 5;
+const uint8_t SOUND_COMMAND_PLAY_DAWN     = 6;
+const uint8_t SOUND_COMMAND_MAX           = 6;
 
 class Sound
 {

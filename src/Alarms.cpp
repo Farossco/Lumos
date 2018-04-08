@@ -2,6 +2,7 @@
 #include "Logger.h"
 #include "Light.h"
 #include "Memory.h"
+#include "Sound.h"
 
 Alarms::Alarms()
 { }
@@ -54,6 +55,7 @@ void Alarms::dawnStart ()
 {
 	light.setMod (LIGHT_MOD_DAWN);
 	light.switchOn();
+	sound.command(SOUND_COMMAND_PLAY_DAWN, 0);
 
 	Log.info ("Entering dawn mod from Alarms" dendl);
 }

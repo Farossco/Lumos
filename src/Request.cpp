@@ -214,6 +214,7 @@ void Request::process (uint8_t type, uint8_t complement, int32_t information, in
 
 				Log.trace ("Dawn time (Current value): %d:%d (%d)" dendl, alarms.getDawnTime() / 60, alarms.getDawnTime() % 60, alarms.getDawnTime());
 				break;
+				
 			case TYPE_SCO:
 				Log.verbose ("Command data: (%d)" dendl, information);
 

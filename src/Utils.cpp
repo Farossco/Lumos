@@ -56,8 +56,26 @@ const char * Utils::soundCommandName (uint8_t command, uint8_t caps)
 {
 	switch (command)
 	{
-		case SOUND_COMMAND_PLAY:
-			return caps == 0 ? "play" : caps == 1 ? "Play" : "PLAY";
+		case SOUND_COMMAND_PLAY_RANDOM:
+			return caps == 0 ? "play random" : caps == 1 ? "Play random" : "PLAY RANDOM";
+
+		case SOUND_COMMAND_PLAY_ONE:
+			return caps == 0 ? "play one" : caps == 1 ? "Play one" : "PLAY ONE";
+
+		case SOUND_COMMAND_PLAY_NEXT:
+			return caps == 0 ? "play next" : caps == 1 ? "Play next" : "PLAY NEXT";
+
+		case SOUND_COMMAND_PLAY_PREVIOUS:
+			return caps == 0 ? "play previous" : caps == 1 ? "Play previous" : "PLAY PREVIOUS";
+
+		case SOUND_COMMAND_PAUSE:
+			return caps == 0 ? "pause" : caps == 1 ? "Pause" : "PAUSE";
+
+		case SOUND_COMMAND_RESUME:
+			return caps == 0 ? "resume" : caps == 1 ? "Resume" : "RESUME";
+
+		case SOUND_COMMAND_PLAY_DAWN:
+			return caps == 0 ? "play dawn" : caps == 1 ? "Play dawn" : "PLAY DAWN";
 
 		default:
 			return caps == 0 ? "unknown" : caps == 1 ? "Unknown" : "UNKNOWN";
