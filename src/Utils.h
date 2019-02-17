@@ -38,7 +38,6 @@ public:
 	const uint8_t infoTypeComplementBounds (uint8_t infoType, uint8_t minMax);
 	const uint8_t infoTypeComplementType (uint8_t infoType);
 	char * clock (char * buf); // a 20-char buf is necessary
-	void softwareReset ();     // Just in case
 	char * reduceCharArray (char ** array, uint16_t length);
 	uint32_t map (float input, float inMin, float inMax, float outMin, float outMax);
 };

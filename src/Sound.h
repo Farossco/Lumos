@@ -1,8 +1,11 @@
 #ifndef SOUND_H
 #define SOUND_H
 
-#include <DFRobotDFPlayerMini.h>
 #include <Arduino.h>
+
+#if defined(__AVR_ATmega2560__)
+# include <DFRobotDFPlayerMini.h>
+#endif
 
 const uint32_t DFP_BAUD_RATE = 9600; // DFPlayer communication baud rate
 
@@ -42,15 +45,18 @@ public:
 
 	uint8_t getVolume ();
 	uint8_t getMod ();
-	boolean isOn ();
-	boolean isOff ();
+	bool isOn ();
+	bool isOff ();
 
 private:
-	DFRobotDFPlayerMini myDFPlayer;
 	uint8_t volume;
 	uint8_t mod;
 	uint8_t lastMod;
 	bool on;
+
+	#if defined(__AVR_ATmega2560__)
+	DFRobotDFPlayerMini myDFPlayer;
+	#endif
 };
 
 extern Sound sound;

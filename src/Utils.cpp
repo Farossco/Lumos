@@ -187,11 +187,6 @@ char * Utils::clock (char * buf)
 	return buf;
 }
 
-void Utils::softwareReset () // Just in case
-{
-	asm volatile ("  jmp 0");
-}
-
 // Custom map function (more accurate) - Thanks to Alok Singhal from stackoverflow (https://stackoverflow.com/questions/5731863/mapping-a-numeric-range-onto-another/5732390#5732390)
 uint32_t Utils::map (float input, float inMin, float inMax, float outMin, float outMax)
 {

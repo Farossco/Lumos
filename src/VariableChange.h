@@ -1,8 +1,10 @@
 #ifndef VARIABLE_CHANGE_H
 #define VARIABLE_CHANGE_H
 
-#include <Arduino.h>
-#include "Light.h"
+#if defined(__AVR_ATmega2560__)
+
+# include <Arduino.h>
+# include "Light.h"
 
 class VariableChange
 {
@@ -23,5 +25,7 @@ private:
 };
 
 extern VariableChange variableChange;
+
+#endif // if defined(__AVR_ATmega2560__)
 
 #endif // ifndef VARIABLE_CHANGE_H

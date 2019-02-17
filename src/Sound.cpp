@@ -1,8 +1,65 @@
 #include "Sound.h"
 #include "Logger.h"
 
+#if defined(__AVR_ATmega2560__)
+
 Sound::Sound() : myDFPlayer()
 { }
+
+#endif
+
+#if defined(ESP8266_PERI_H_INCLUDED)
+
+Sound::Sound()
+{ }
+
+#endif
+
+void Sound::setVolume (uint8_t newVolume)
+{
+	volume = newVolume;
+
+	#if defined(__AVR_ATmega2560__)
+	myDFPlayer.volume (volume);
+	#endif
+}
+
+void Sound::setMod (uint8_t newMod)
+{
+	mod = newMod;
+}
+
+void Sound::switchOn ()
+{
+	on = true;
+}
+
+void Sound::switchOff ()
+{
+	on = false;
+}
+
+uint8_t Sound::getVolume ()
+{
+	return volume;
+}
+
+uint8_t Sound::getMod ()
+{
+	return mod;
+}
+
+bool Sound::isOn ()
+{
+	return on != 0;
+}
+
+bool Sound::isOff ()
+{
+	return on == 0;
+}
+
+#if defined(__AVR_ATmega2560__)
 
 void Sound::init (HardwareSerial &serial)
 {
@@ -114,45 +171,6 @@ void Sound::command (uint8_t command, int32_t information)
 	}
 } // Sound::command
 
-void Sound::setVolume (uint8_t newVolume)
-{
-	volume = newVolume;
-	myDFPlayer.volume (volume);
-}
-
-void Sound::setMod (uint8_t newMod)
-{
-	mod = newMod;
-}
-
-void Sound::switchOn ()
-{
-	on = true;
-}
-
-void Sound::switchOff ()
-{
-	on = false;
-}
-
-uint8_t Sound::getVolume ()
-{
-	return volume;
-}
-
-uint8_t Sound::getMod ()
-{
-	return mod;
-}
-
-bool Sound::isOn ()
-{
-	return on != 0;
-}
-
-bool Sound::isOff ()
-{
-	return on == 0;
-}
+#endif // if defined(__AVR_ATmega2560__)
 
 Sound sound = Sound();

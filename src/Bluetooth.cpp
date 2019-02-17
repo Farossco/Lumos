@@ -1,3 +1,5 @@
+#if defined(__AVR_ATmega2560__)
+
 #include "Bluetooth.h"
 #include "Logger.h"
 #include "Request.h"
@@ -158,3 +160,5 @@ void Bluetooth::lightOff ()
 }
 
 Bluetooth bluetooth = Bluetooth();
+
+#endif // if defined(__AVR_ATmega2560__)

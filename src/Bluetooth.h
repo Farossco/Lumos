@@ -1,7 +1,9 @@
 #ifndef BLUETOOTH_H
 #define BLUETOOTH_H
 
-#include <BM70.h>
+#if defined(__AVR_ATmega2560__)
+
+# include <BM70.h>
 
 const uint8_t PIN_BLE_LED_RED     = 47; // RGB Red pin
 const uint8_t PIN_BLE_LED_GREEN   = 44; // RGB Green pin
@@ -27,5 +29,7 @@ private:
 };
 
 extern Bluetooth bluetooth;
+
+#endif // if defined(__AVR_ATmega2560__)
 
 #endif // ifndef BLUETOOTH_H

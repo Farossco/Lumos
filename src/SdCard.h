@@ -1,7 +1,9 @@
 #ifndef SDCARD_H
 #define SDCARD_H
 
-#include <SD.h>
+#if defined(__AVR_ATmega2560__)
+
+# include <SD.h>
 
 const float FILE_CLOSE_TIME = 1.0;
 const float CARD_CLOSE_TIME = 10.0;
@@ -51,5 +53,7 @@ private:
 };
 
 extern SdCard sd;
+
+#endif // if defined(__AVR_ATmega2560__)
 
 #endif // ifndef SDCARD_H

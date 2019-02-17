@@ -1,3 +1,5 @@
+#if defined(__AVR_ATmega2560__)
+
 #include <Time.h>
 #include "ArduinoSerial.h"
 #include "Logger.h"
@@ -82,3 +84,5 @@ void ArduinoSerial::receiveAndDecode ()
 }
 
 ArduinoSerial serial = ArduinoSerial();
+
+#endif // if defined(__AVR_ATmega2560__)

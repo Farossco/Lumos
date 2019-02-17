@@ -1,3 +1,5 @@
+#if defined(__AVR_ATmega2560__)
+
 #include <stdlib.h>
 #include <Time.h>
 #include "SdCard.h"
@@ -349,3 +351,5 @@ void SdCard::lightOff ()
 }
 
 SdCard sd = SdCard();
+
+#endif // if defined(__AVR_ATmega2560__)

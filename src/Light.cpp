@@ -3,58 +3,19 @@
 #include "Memory.h"
 #include "Sound.h"
 
+#if defined(__AVR_ATmega2560__)
+
 Light::Light() : strip (STRIP_LENGTH, PIN_DATA, PIN_CLOCK, DOTSTAR_BGR)
 { }
 
-void Light::init ()
-{
-	strip.begin();
+#endif
 
-	if (memory.readForLight()) // Returns True if EEPROM is not correctly initialized (This may be the first launch)
-	{
-		Log.info ("This is first launch, light variables will be initialized to their default values" dendl);
+#if defined(ESP8266_PERI_H_INCLUDED)
 
-		reset();
-	}
+Light::Light()
+{ }
 
-	light.lightAll (0x000000);
-	strip.show();
-
-	lastMod = LIGHT_MOD_CONTINUOUS; // Initialiazing last mod as well
-
-	if (LIGHT_START_ANIMATION_ENABLE)
-		mod = LIGHT_MOD_START_ANIM;
-	else
-		mod = LIGHT_MOD_CONTINUOUS;
-
-	switchOn();
-}
-
-void Light::reset ()
-{
-	for (int i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
-	{
-		red[i]   = DEFAULT_RED[i];   // Initialize colors to their default value
-		green[i] = DEFAULT_GREEN[i]; // Initialize colors to their default value
-		blue[i]  = DEFAULT_BLUE[i];  // Initialize colors to their default value
-		power[i] = DEFAULT_POWER[i]; // Initializing powers their default value
-		speed[i] = DEFAULT_SPEED[i]; // Initializing speeds their default value
-	}
-
-	memory.writeForLight();
-}
-
-void Light::lightAll (uint8_t red, uint8_t green, uint8_t blue)
-{
-	for (int i = 0; i < STRIP_LENGTH; i++)
-		strip.setPixelColor (i, red, green, blue);
-}
-
-void Light::lightAll (uint32_t rgb)
-{
-	for (int i = 0; i < STRIP_LENGTH; i++)
-		strip.setPixelColor (i, rgb);
-}
+#endif
 
 void Light::setRed (uint8_t newRed, uint8_t affectedMod)
 {
@@ -151,6 +112,58 @@ bool Light::isOn ()
 bool Light::isOff ()
 {
 	return on == 0;
+}
+
+#if defined(__AVR_ATmega2560__)
+
+void Light::init ()
+{
+	strip.begin();
+
+	if (memory.readForLight()) // Returns True if EEPROM is not correctly initialized (This may be the first launch)
+	{
+		Log.info ("This is first launch, light variables will be initialized to their default values" dendl);
+
+		reset();
+	}
+
+	light.lightAll (0x000000);
+	strip.show();
+
+	lastMod = LIGHT_MOD_CONTINUOUS; // Initialiazing last mod as well
+
+	if (LIGHT_START_ANIMATION_ENABLE)
+		mod = LIGHT_MOD_START_ANIM;
+	else
+		mod = LIGHT_MOD_CONTINUOUS;
+
+	switchOn();
+}
+
+void Light::reset ()
+{
+	for (int i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
+	{
+		red[i]   = DEFAULT_RED[i];   // Initialize colors to their default value
+		green[i] = DEFAULT_GREEN[i]; // Initialize colors to their default value
+		blue[i]  = DEFAULT_BLUE[i];  // Initialize colors to their default value
+		power[i] = DEFAULT_POWER[i]; // Initializing powers their default value
+		speed[i] = DEFAULT_SPEED[i]; // Initializing speeds their default value
+	}
+
+	memory.writeForLight();
+}
+
+void Light::lightAll (uint8_t red, uint8_t green, uint8_t blue)
+{
+	for (int i = 0; i < STRIP_LENGTH; i++)
+		strip.setPixelColor (i, red, green, blue);
+}
+
+void Light::lightAll (uint32_t rgb)
+{
+	for (int i = 0; i < STRIP_LENGTH; i++)
+		strip.setPixelColor (i, rgb);
 }
 
 // Perform mod action
@@ -675,5 +688,7 @@ void Light::music ()
 
 	strip.setPixelColor (counter, 0x0000FF);
 } // Light::music
+
+#endif // if defined(__AVR_ATmega2560__)
 
 Light light = Light();

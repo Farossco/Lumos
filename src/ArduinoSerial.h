@@ -1,7 +1,9 @@
 #ifndef ARDUINO_SERIAL_H
 #define ARDUINO_SERIAL_H
 
-#include <Arduino.h>
+#if defined(__AVR_ATmega2560__)
+
+# include <Arduino.h>
 
 class ArduinoSerial
 {
@@ -16,5 +18,7 @@ public:
 };
 
 extern ArduinoSerial serial;
+
+#endif // if defined(__AVR_ATmega2560__)
 
 #endif // ifndef ARDUINO_SERIAL_H

@@ -1,3 +1,5 @@
+#if defined(__AVR_ATmega2560__)
+
 #include "Memory.h"
 #include <EEPROM.h>
 #include "Light.h"
@@ -256,3 +258,5 @@ bool Memory::readForAlarms ()
 }
 
 Memory memory = Memory();
+
+#endif // if defined(__AVR_ATmega2560__)

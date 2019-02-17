@@ -1,7 +1,9 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
-#include <Arduino.h>
+#if defined(__AVR_ATmega2560__)
+
+# include <Arduino.h>
 
 const uint16_t EEPROM_START  = 0x0000;
 const uint16_t EEPROM_OFFSET = 0x0200;
@@ -28,5 +30,7 @@ public:
 };
 
 extern Memory memory;
+
+#endif // if defined(__AVR_ATmega2560__)
 
 #endif // ifndef MEMORY_H

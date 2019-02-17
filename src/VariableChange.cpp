@@ -1,3 +1,5 @@
+#if defined(__AVR_ATmega2560__)
+
 #include <stdlib.h>
 #include <string.h>
 #include "VariableChange.h"
@@ -164,3 +166,5 @@ void VariableChange::sendInfo ()
 } // VariableChange::sendInfo
 
 VariableChange variableChange = VariableChange();
+
+#endif // if defined(__AVR_ATmega2560__)

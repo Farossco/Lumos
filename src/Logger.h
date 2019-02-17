@@ -1,8 +1,12 @@
 #ifndef LOGGING_H
 #define LOGGING_H
 
-#include "SdCard.h"
+#include <Arduino.h>
 #include "Utils.h"
+
+#if defined(__AVR_ATmega2560__)
+# include "SdCard.h"
+#endif
 
 #define LEVEL_SILENT  0
 #define LEVEL_ERROR   1
@@ -30,6 +34,7 @@ public:
 
 	void init (Print * output1, uint8_t output1Level);
 	void init (Print * output1, uint8_t output1Level, Print * output2, uint8_t output2Level);
+	bool isEnabledFor (int level, int output);
 
 	template <class T, typename ... Args> void error (T msg, Args ... args)
 	{
@@ -90,10 +95,16 @@ private:
 		output->print (F ("["));
 		output->print (utils.clock (buf));
 		output->print (F ("] ["));
+
+		#if defined(__AVR_ATmega2560__)
+
 		if (sd.isEnabled())
 			output->print (F ("CARD] ["));
 		else
 			output->print (F ("NOCA] ["));
+
+		#endif
+
 		output->print (debugLevelName (level));
 		output->print (debugLevelSpace (level));
 		output->print (F ("] "));
@@ -101,6 +112,8 @@ private:
 
 	template <class T> void printLevel (boolean showPrefix, uint8_t level, T msg, ...)
 	{
+		#if defined(__AVR_ATmega2560__)
+
 		if (multiOutput && output2Level >= level && sd.isEnabled())
 		{
 			sd.openFile();
@@ -112,6 +125,8 @@ private:
 			va_start (args, msg);
 			print (output2, msg, args);
 		}
+
+		#endif // if defined(__AVR_ATmega2560__)
 
 		if (output1Level >= level)
 		{

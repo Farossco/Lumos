@@ -1,7 +1,10 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
-#include <Adafruit_DotStar.h>
+#if defined(__AVR_ATmega2560__)
+# include <Adafruit_DotStar.h>
+#endif
+
 #include <Arduino.h>
 
 #define CURRENT_MOD 255
@@ -100,8 +103,6 @@ private:
 	void initMusic (); // Music mod initialization
 	void music ();     // Music mod
 
-	Adafruit_DotStar strip;
-
 	uint8_t state;                    // Current state used by some mods
 	int32_t counter, counter2;        // Counters that are used by some mods
 	uint32_t delayCount, delayCount2; // Delay counters
@@ -119,6 +120,10 @@ private:
 	uint8_t tempRed;
 	uint8_t tempGreen;
 	uint8_t tempBlue;
+
+	#if defined(__AVR_ATmega2560__)
+	Adafruit_DotStar strip;
+	#endif
 };
 
 extern Light light;

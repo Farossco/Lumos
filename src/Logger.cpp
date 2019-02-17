@@ -18,7 +18,11 @@ void Logger::init (Print * output1, uint8_t output1Level)
 {
 	this->output1Level = constrain (output1Level, LEVEL_SILENT, LEVEL_VERBOSE);
 	this->output1      = output1;
+
+	multiOutput = false;
 }
+
+#if defined(__AVR_ATmega2560__)
 
 void Logger::init (Print * output1, uint8_t output1Level, Print * output2, uint8_t output2Level)
 {
@@ -28,6 +32,13 @@ void Logger::init (Print * output1, uint8_t output1Level, Print * output2, uint8
 	this->output2      = output2;
 
 	multiOutput = true;
+}
+
+#endif // if defined(__AVR_ATmega2560__)
+
+bool Logger::isEnabledFor (int level, int output)
+{
+	return output == 1 ? (output1Level >= level) : output == 2 ? (output2Level >= level) : 0;
 }
 
 void Logger::print (Print * output, const __FlashStringHelper * format, va_list args)

@@ -7,6 +7,18 @@
 Alarms::Alarms()
 { }
 
+void Alarms::setDawnTime (uint16_t time)
+{
+	dawnTime = time;
+}
+
+uint16_t Alarms::getDawnTime ()
+{
+	return dawnTime;
+}
+
+#if defined(__AVR_ATmega2560__)
+
 void Alarms::init ()
 {
 	dawnTriggered = false;
@@ -41,16 +53,6 @@ uint16_t Alarms::currentTime ()
 	return (uint16_t) (hour() * 60 + minute());
 }
 
-void Alarms::setDawnTime (uint16_t time)
-{
-	dawnTime = time;
-}
-
-uint16_t Alarms::getDawnTime ()
-{
-	return dawnTime;
-}
-
 void Alarms::dawnStart ()
 {
 	light.setMod (LIGHT_MOD_DAWN);
@@ -60,5 +62,7 @@ void Alarms::dawnStart ()
 
 	Log.info ("Entering dawn mod from Alarms" dendl);
 }
+
+#endif // if defined(__AVR_ATmega2560__)
 
 Alarms alarms = Alarms();

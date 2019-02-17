@@ -6,8 +6,17 @@
 #include "Light.h"
 #include "Alarms.h"
 #include "Sound.h"
-#include "ArduinoSerial.h"
-#include "VariableChange.h"
+
+#if defined(__AVR_ATmega2560__)
+# include "ArduinoSerial.h"
+# include "VariableChange.h"
+#endif
+
+#if defined(ESP8266_PERI_H_INCLUDED)
+# include "ESPSerial.h"
+# include "Json.h"
+# include "Wifi.h"
+#endif
 
 void Request::decode (char * request, uint8_t source)
 {
@@ -218,7 +227,9 @@ void Request::process (uint8_t type, uint8_t complement, int32_t information, in
 			case TYPE_SCO:
 				Log.verbose ("Command data: (%d)" dendl, information);
 
+				#if defined(__AVR_ATmega2560__)
 				sound.command (complement, information);
+				#endif
 
 				break;
 		}
@@ -231,6 +242,8 @@ void Request::process (uint8_t type, uint8_t complement, int32_t information, in
 
 	switch (source)
 	{
+		#if defined(__AVR_ATmega2560__)
+
 		case SOURCE_ARDUINO_SERIAL:
 			if (type == TYPE_RTM)
 			{
@@ -241,6 +254,45 @@ void Request::process (uint8_t type, uint8_t complement, int32_t information, in
 			{
 				variableChange.sendInfo(); // We send the variables values to the ESP8266
 			}
+
+		#endif // if defined(__AVR_ATmega2560__)
+
+		#if defined(ESP8266_PERI_H_INCLUDED)
+
+		case SOURCE_ESP8266_SERIAL:
+			if (type == TYPE_RTM)
+				serial.sendTime();  // We send the time to the Arduino
+			else if (type == TYPE_RIF)
+				Log.trace ("Info request needs to be sent by web client");
+			break;
+
+		case SOURCE_ESP8266_WEBSERVER:
+			if (type == TYPE_RIF)
+			{
+				Log.trace ("Sending to arduino: Nothing" dendl);
+				json.send ((char *) "OK", (char *) "", &wifi.client);
+				return;
+			}
+			if (error != ERR_NOE)
+			{
+				Log.trace ("Sending to arduino: Nothing" dendl);
+				json.send ((char *) "ERROR", (char *) utils.errorTypeName (error, true), &wifi.client);
+				return;
+			}
+
+			Log.trace ("Sending to arduino: ");
+
+			Serial.print (utils.infoTypeName (type, true));
+			if (type == TYPE_RGB || type == TYPE_POW || type == TYPE_SPE || type == TYPE_SCO)
+				Serial.print (complement, DEC);
+			Serial.print (information, type == TYPE_RGB ? HEX : DEC);
+			Serial.print ('z'); // End character
+
+			Log.tracenp (dendl);
+
+			json.send ((char *) "OK", (char *) "", &wifi.client);
+
+		#endif // if defined(ESP8266_PERI_H_INCLUDED)
 	}
 } // Request::process
 

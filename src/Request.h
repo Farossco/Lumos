@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 // Serial reception types
-const uint8_t TYPE_RTM      = -2; // Request : Time 
+const uint8_t TYPE_RTM      = -2; // Request : Time
 const uint8_t TYPE_RIF      = -1; // Request : Info
 const uint8_t TYPE_MIN      = 0;  // - Provide type minimum value -
 const uint8_t TYPE_UNK      = 0;  // Unknown type
