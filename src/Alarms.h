@@ -6,7 +6,7 @@
 const bool MORNING_ALARM_ENABLED = true; // Enable morning alarm
 
 // Wake up
-const int DEFAULT_DAWN_TIME = 7 * 60 + 30; // 08h30
+const int DEFAULT_DAWN_TIME = 8 * 60 + 30; // 08h30
 
 class Alarms
 {

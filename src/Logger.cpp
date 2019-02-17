@@ -14,13 +14,13 @@ Logger::Logger()
 	output2      = NULL;
 }
 
-void Logger::init (Print * output1, int output1Level)
+void Logger::init (Print * output1, uint8_t output1Level)
 {
 	this->output1Level = constrain (output1Level, LEVEL_SILENT, LEVEL_VERBOSE);
 	this->output1      = output1;
 }
 
-void Logger::init (Print * output1, int output1Level, Print * output2, int output2Level)
+void Logger::init (Print * output1, uint8_t output1Level, Print * output2, uint8_t output2Level)
 {
 	init (output1, output1Level);
 
@@ -159,7 +159,7 @@ void Logger::printFormat (Print * output, const char format, va_list * args)
 	}
 } // Logging::printFormat
 
-const char * Logger::debugLevelName (int debugLevel)
+const char * Logger::debugLevelName (uint8_t debugLevel)
 {
 	switch (debugLevel)
 	{
@@ -183,7 +183,7 @@ const char * Logger::debugLevelName (int debugLevel)
 	}
 }
 
-const char * Logger::debugLevelSpace (int debugLevel)
+const char * Logger::debugLevelSpace (uint8_t debugLevel)
 {
 	switch (debugLevel)
 	{

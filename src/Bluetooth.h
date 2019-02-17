@@ -3,10 +3,10 @@
 
 #include <BM70.h>
 
-const int PIN_BLE_LED_RED     = 4; // RGB Red pin
-const int PIN_BLE_LED_GREEN   = 5; // RGB Green pin
-const int PIN_BLE_LED_BLUE    = 6; // RGB Blue pin
-const int BLE_INDICATOR_POWER = 10;
+const uint8_t PIN_BLE_LED_RED     = 47; // RGB Red pin
+const uint8_t PIN_BLE_LED_GREEN   = 44; // RGB Green pin
+const uint8_t PIN_BLE_LED_BLUE    = 43; // RGB Blue pin
+const uint8_t BLE_INDICATOR_POWER = 10;
 
 class Bluetooth
 {

@@ -4,7 +4,7 @@
 #include <DFRobotDFPlayerMini.h>
 #include <Arduino.h>
 
-const long DFP_BAUD_RATE = 9600; // DFPlayer communication baud rate
+const uint32_t DFP_BAUD_RATE = 9600; // DFPlayer communication baud rate
 
 const boolean SOUND_ENABLED        = true; // Enable sound
 const uint8_t SOUND_VOLUME_DEFAULT = 5;    // DFPlayer default volume (0 - 30)

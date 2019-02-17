@@ -27,6 +27,7 @@ void Sound::init (HardwareSerial &serial)
 	volume = SOUND_VOLUME_DEFAULT;
 
 	myDFPlayer.pause();
+	myDFPlayer.volume (volume);
 }
 
 void Sound::action ()
@@ -77,8 +78,8 @@ void Sound::command (uint8_t command, int32_t information)
 
 		case SOUND_COMMAND_PLAY_ONE:
 			myDFPlayer.volume (volume);
-			myDFPlayer.playMp3Folder (information);
-			Log.trace ("Playing mp3 %d with volume %d/%d" dendl, information, (int) volume, (int) SOUND_VOLUME_MAX);
+			myDFPlayer.playFolder (2, (uint8_t) information);
+			Log.trace ("Playing mp3 %d with volume %d/%d" dendl, (uint16_t) information, volume, SOUND_VOLUME_MAX);
 			break;
 
 		case SOUND_COMMAND_PLAY_NEXT:

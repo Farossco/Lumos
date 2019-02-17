@@ -6,10 +6,10 @@
 class ArduinoSerial
 {
 public:
-	void init (long serialBaudRate);
-	void init (long serialBaudRate, long serial1BaudRate);
-	void init (long serialBaudRate, long serial1BaudRate, long serial2BaudRate);
-	void init (long serialBaudRate, long serial1BaudRate, long serial2BaudRate, long serial3BaudRate);
+	void init (uint32_t serialBaudRate);
+	void init (uint32_t serialBaudRate, uint32_t serial1BaudRate);
+	void init (uint32_t serialBaudRate, uint32_t serial1BaudRate, uint32_t serial2BaudRate);
+	void init (uint32_t serialBaudRate, uint32_t serial1BaudRate, uint32_t serial2BaudRate, uint32_t serial3BaudRate);
 	void waitForTime ();
 	static void askForTime (); // Asking for time to the ESP8266 (via internet)
 	void receiveAndDecode ();  // Receive datas from ESP8266 for Wi-Fi control

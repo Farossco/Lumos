@@ -8,10 +8,9 @@
 #include "Light.h"
 #include "Sound.h"
 
-const boolean WAIT_FOR_TIME = true; // If we have to wait for time sync (if true, program will not start until time is synced)
-
-const long ESP_BAUD_RATE   = 9600;   // ESP8266 communication baud rate
-const long DEBUG_BAUD_RATE = 250000; // Debug baud rate
+const boolean WAIT_FOR_TIME = true;   // If we have to wait for time sync (if true, program will not start until time is synced)
+const long ESP_BAUD_RATE    = 9600;   // ESP8266 communication baud rate
+const long DEBUG_BAUD_RATE  = 250000; // Debug baud rate
 
 void setup ()
 {
@@ -36,8 +35,8 @@ void setup ()
 
 	variableChange.sendInfo();
 
-	bluetooth.init();
-} // setup
+	// bluetooth.init();
+}
 
 void loop ()
 {
@@ -53,5 +52,5 @@ void loop ()
 
 	alarms.action();
 
-	bluetooth.action();
+	// bluetooth.action();
 }

@@ -20,7 +20,7 @@ const boolean SD_LOG_ENABLED     = true; // SD logging
 class Logger
 {
 private:
-	int output1Level, output2Level;
+	uint8_t output1Level, output2Level;
 	bool multiOutput;
 	Print * output1, * output2;
 	char buf[35];
@@ -28,8 +28,8 @@ private:
 public:
 	Logger();
 
-	void init (Print * output1, int output1Level);
-	void init (Print * output1, int output1Level, Print * output2, int output2Level);
+	void init (Print * output1, uint8_t output1Level);
+	void init (Print * output1, uint8_t output1Level, Print * output2, uint8_t output2Level);
 
 	template <class T, typename ... Args> void error (T msg, Args ... args)
 	{
@@ -85,7 +85,7 @@ private:
 	void print (Print * output, const char * format, va_list args);
 	void print (Print * output, const __FlashStringHelper * format, va_list args);
 	void printFormat (Print * output, const char format, va_list * args);
-	void printPrefix (Print * output, int level)
+	void printPrefix (Print * output, uint8_t level)
 	{
 		output->print (F ("["));
 		output->print (utils.clock (buf));
@@ -99,7 +99,7 @@ private:
 		output->print (F ("] "));
 	}
 
-	template <class T> void printLevel (boolean showPrefix, int level, T msg, ...)
+	template <class T> void printLevel (boolean showPrefix, uint8_t level, T msg, ...)
 	{
 		if (multiOutput && output2Level >= level && sd.isEnabled())
 		{
@@ -122,10 +122,10 @@ private:
 			va_start (args, msg);
 			print (output1, msg, args);
 		}
-	} // printLevel
+	}
 
-	const char * debugLevelName (int debugLevel);
-	const char * debugLevelSpace (int debugLevel);
+	const char * debugLevelName (uint8_t debugLevel);
+	const char * debugLevelSpace (uint8_t debugLevel);
 };
 
 extern Logger Log;

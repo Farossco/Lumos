@@ -193,7 +193,7 @@ void Utils::softwareReset () // Just in case
 }
 
 // Custom map function (more accurate) - Thanks to Alok Singhal from stackoverflow (https://stackoverflow.com/questions/5731863/mapping-a-numeric-range-onto-another/5732390#5732390)
-long Utils::map (float input, float inMin, float inMax, float outMin, float outMax)
+uint32_t Utils::map (float input, float inMin, float inMax, float outMin, float outMax)
 {
 	if ((inMin == 0 && inMax == 0) || (outMin == 0 && outMax == 0))
 		return input;
@@ -207,7 +207,7 @@ long Utils::map (float input, float inMin, float inMax, float outMin, float outM
 	}
 }
 
-char * Utils::reduceCharArray (char ** array, int length)
+char * Utils::reduceCharArray (char ** array, uint16_t length)
 {
 	*array += length;
 

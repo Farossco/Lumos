@@ -19,9 +19,9 @@ void VariableChange::init ()
 	changeRgb      = light.getRgb (LIGHT_MOD_CONTINUOUS);
 	changeLightMod = light.getMod();
 	changeSoundMod = sound.getMod();
-	for (int i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
+	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
 		changePower[i] = light.getPower (i);
-	for (int i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
+	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
 		changeSpeed[i] = light.getSpeed (i);
 	changeDawnTime = alarms.getDawnTime();
 }
@@ -48,7 +48,7 @@ void VariableChange::check ()
 		flagWriteEeprom = true;
 	}
 
-	for (int i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
+	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
 	{
 		if (changePower[i] != light.getPower (i))
 		{
@@ -106,11 +106,11 @@ void VariableChange::check ()
 void VariableChange::sendInfo ()
 {
 	Log.trace ("Sending variables infos to the ESP8266" dendl);
-	Log.verbose ("");
+	Log.verbose (""); // Printing prefix once before entering the loop
 
 	for (uint8_t i = TYPE_SEND_MIN; i <= TYPE_SEND_MAX; i++)
 	{
-		for (int j = utils.infoTypeComplementBounds (i, COMPLEMENT_MIN); j <= utils.infoTypeComplementBounds (i, COMPLEMENT_MAX); j++)
+		for (uint8_t j = utils.infoTypeComplementBounds (i, COMPLEMENT_MIN); j <= utils.infoTypeComplementBounds (i, COMPLEMENT_MAX); j++)
 		{
 			char information[15] = "\n";
 
@@ -127,7 +127,7 @@ void VariableChange::sendInfo ()
 					break;
 
 				case TYPE_POW:
-					sprintf (information + strlen (information), "%d%d", j, (unsigned char) utils.map (light.getPower (j), LIGHT_MIN_POWER, LIGHT_MAX_POWER, SEEKBAR_MIN, SEEKBAR_MAX));
+					sprintf (information + strlen (information), "%d%d", j, (uint8_t) utils.map (light.getPower (j), LIGHT_MIN_POWER, LIGHT_MAX_POWER, SEEKBAR_MIN, SEEKBAR_MAX));
 					break;
 
 				case TYPE_LMO:
@@ -135,7 +135,7 @@ void VariableChange::sendInfo ()
 					break;
 
 				case TYPE_SPE:
-					sprintf (information + strlen (information), "%d%d", j, (unsigned int) utils.map (light.getSpeed (j), LIGHT_MIN_SPEED[j], LIGHT_MAX_SPEED[j], SEEKBAR_MIN, SEEKBAR_MAX));
+					sprintf (information + strlen (information), "%d%d", j, (uint16_t) utils.map (light.getSpeed (j), LIGHT_MIN_SPEED[j], LIGHT_MAX_SPEED[j], SEEKBAR_MIN, SEEKBAR_MAX));
 					break;
 
 				case TYPE_SMO:
@@ -161,21 +161,6 @@ void VariableChange::sendInfo ()
 	}
 
 	Log.verbosenp (dendl);
-
-	/*
-	 * sprintf (varBuf, "ONF%d\nLMO%d\nSMO%d\n", light.isOn(), light.getMod(), sound.getMod());
-	 *
-	 * for (int i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
-	 *  sprintf (varBuf + strlen (varBuf), "RGB%d%lX\n", i, light.getRgb (i));
-	 *
-	 * for (int i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
-	 *  sprintf (varBuf + strlen (varBuf), "POW%d%ld\n", i, utils.map (light.getPower (i), LIGHT_MIN_POWER, LIGHT_MAX_POWER, SEEKBAR_MIN, SEEKBAR_MAX));
-	 *
-	 * for (int i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
-	 *  sprintf (varBuf + strlen (varBuf), "SPE%d%ld\n", i, i == 0 ? light.getSpeed (i) : utils.map (light.getSpeed (i), MIN_SPEED[i], MAX_SPEED[i], SEEKBAR_MIN, SEEKBAR_MAX));
-	 *
-	 * varBuf[strlen (varBuf)] = '\0';
-	 */
 } // VariableChange::sendInfo
 
 VariableChange variableChange = VariableChange();

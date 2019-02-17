@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 // Serial reception types
-const uint8_t TYPE_RTM      = -2; // Request : Time
+const uint8_t TYPE_RTM      = -2; // Request : Time 
 const uint8_t TYPE_RIF      = -1; // Request : Info
 const uint8_t TYPE_MIN      = 0;  // - Provide type minimum value -
 const uint8_t TYPE_UNK      = 0;  // Unknown type
@@ -29,10 +29,10 @@ const uint8_t SOURCE_ESP8266_SERIAL    = 2;
 const uint8_t SOURCE_ESP8266_WEBSERVER = 3;
 
 // Serial reception errors
-const int ERR_NOE = 0; // No error
-const int ERR_OOB = 1; // Out of bound
-const int ERR_UKC = 2; // Unknown complement
-const int ERR_UKR = 3; // Unknown request
+const uint8_t ERR_NOE = 0; // No error
+const uint8_t ERR_OOB = 1; // Out of bound
+const uint8_t ERR_UKC = 2; // Unknown complement
+const uint8_t ERR_UKR = 3; // Unknown request
 
 class Request
 {

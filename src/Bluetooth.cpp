@@ -11,7 +11,7 @@ Bluetooth::Bluetooth() : module (&Serial2)
 	pinMode (PIN_BLE_LED_BLUE, OUTPUT);
 
 	connectionState = 0;
-	lightOff();
+	lightIdle();
 }
 
 void Bluetooth::init ()
@@ -31,8 +31,6 @@ void Bluetooth::init ()
 	Log.infonp ("Done" dendl);
 
 	connectionState = 0;
-
-	lightIdle();
 }
 
 void Bluetooth::action ()
@@ -81,10 +79,10 @@ void Bluetooth::makeConnection ()
 				Log.trace ("Waiting for pairing..." dendl);
 				counter = millis();
 			}
-			else if (millis() - counter >= 5000)
+			else if (millis() - counter >= 60000)
 			{
 				connectionState = 0;
-				Log.trace ("No connection after 5s, resetting" dendl);
+				Log.trace ("No connection after 1 min, resetting" dendl);
 				module.reset();
 			}
 			break;

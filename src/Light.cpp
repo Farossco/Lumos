@@ -44,51 +44,51 @@ void Light::reset ()
 	memory.writeForLight();
 }
 
-void Light::lightAll (unsigned char red, unsigned char green, unsigned char blue)
+void Light::lightAll (uint8_t red, uint8_t green, uint8_t blue)
 {
 	for (int i = 0; i < STRIP_LENGTH; i++)
 		strip.setPixelColor (i, red, green, blue);
 }
 
-void Light::lightAll (unsigned long rgb)
+void Light::lightAll (uint32_t rgb)
 {
 	for (int i = 0; i < STRIP_LENGTH; i++)
 		strip.setPixelColor (i, rgb);
 }
 
-void Light::setRed (unsigned char newRed, unsigned char affectedMod)
+void Light::setRed (uint8_t newRed, uint8_t affectedMod)
 {
 	red[affectedMod == CURRENT_MOD ? mod : affectedMod] = newRed;
 }
 
-void Light::setGreen (unsigned char newGreen, unsigned char affectedMod)
+void Light::setGreen (uint8_t newGreen, uint8_t affectedMod)
 {
 	green[affectedMod == CURRENT_MOD ? mod : affectedMod] = newGreen;
 }
 
-void Light::setBlue (unsigned char newBlue, unsigned char affectedMod)
+void Light::setBlue (uint8_t newBlue, uint8_t affectedMod)
 {
 	blue[affectedMod == CURRENT_MOD ? mod : affectedMod] = newBlue;
 }
 
-void Light::setRgb (unsigned long newRgb, unsigned char affectedMod)
+void Light::setRgb (uint32_t newRgb, uint8_t affectedMod)
 {
-	red[affectedMod == CURRENT_MOD ? mod : affectedMod]   = (unsigned char) (newRgb >> 16);
-	green[affectedMod == CURRENT_MOD ? mod : affectedMod] = (unsigned char) (newRgb >> 8);
-	blue[affectedMod == CURRENT_MOD ? mod : affectedMod]  = (unsigned char) newRgb;
+	red[affectedMod == CURRENT_MOD ? mod : affectedMod]   = (uint8_t) (newRgb >> 16);
+	green[affectedMod == CURRENT_MOD ? mod : affectedMod] = (uint8_t) (newRgb >> 8);
+	blue[affectedMod == CURRENT_MOD ? mod : affectedMod]  = (uint8_t) newRgb;
 }
 
-void Light::setPower (unsigned char newPower, unsigned char affectedMod)
+void Light::setPower (uint8_t newPower, uint8_t affectedMod)
 {
 	power[affectedMod == CURRENT_MOD ? mod : affectedMod] = newPower;
 }
 
-void Light::setSpeed (int newSpeed, unsigned char affectedMod)
+void Light::setSpeed (uint16_t newSpeed, uint8_t affectedMod)
 {
 	speed[affectedMod == CURRENT_MOD ? mod : affectedMod] = newSpeed;
 }
 
-void Light::setMod (unsigned char newMod)
+void Light::setMod (uint8_t newMod)
 {
 	mod = newMod;
 }
@@ -103,42 +103,42 @@ void Light::switchOff ()
 	on = false;
 }
 
-int Light::getDawnDuration ()
+uint16_t Light::getDawnDuration ()
 {
 	return speed[LIGHT_MOD_DAWN];
 }
 
-unsigned char Light::getRed (unsigned char affectedMod)
+uint8_t Light::getRed (uint8_t affectedMod)
 {
 	return red[affectedMod == CURRENT_MOD ? mod : affectedMod];
 }
 
-unsigned char Light::getGreen (unsigned char affectedMod)
+uint8_t Light::getGreen (uint8_t affectedMod)
 {
 	return green[affectedMod == CURRENT_MOD ? mod : affectedMod];
 }
 
-unsigned char Light::getBlue (unsigned char affectedMod)
+uint8_t Light::getBlue (uint8_t affectedMod)
 {
 	return blue[affectedMod == CURRENT_MOD ? mod : affectedMod];
 }
 
-unsigned long Light::getRgb (unsigned char affectedMod)
+uint32_t Light::getRgb (uint8_t affectedMod)
 {
-	return (((unsigned long) red[affectedMod == CURRENT_MOD ? mod : affectedMod]) << 16) + (((unsigned long) green[affectedMod == CURRENT_MOD ? mod : affectedMod]) << 8) + blue[affectedMod == CURRENT_MOD ? mod : affectedMod];
+	return (((uint32_t) red[affectedMod == CURRENT_MOD ? mod : affectedMod]) << 16) + (((uint32_t) green[affectedMod == CURRENT_MOD ? mod : affectedMod]) << 8) + blue[affectedMod == CURRENT_MOD ? mod : affectedMod];
 }
 
-unsigned char Light::getPower (unsigned char affectedMod)
+uint8_t Light::getPower (uint8_t affectedMod)
 {
 	return power[affectedMod == CURRENT_MOD ? mod : affectedMod];
 }
 
-unsigned int Light::getSpeed (unsigned char affectedMod)
+uint16_t Light::getSpeed (uint8_t affectedMod)
 {
 	return speed[affectedMod == CURRENT_MOD ? mod : affectedMod];
 }
 
-unsigned char Light::getMod ()
+uint8_t Light::getMod ()
 {
 	return mod;
 }
@@ -256,7 +256,7 @@ void Light::initFlash ()
 // Flash mod
 void Light::flash ()
 {
-	if (millis() - delayCount >= (unsigned int) (1000 / speed[LIGHT_MOD_FLASH]))
+	if (millis() - delayCount >= (uint32_t) (1000 / speed[LIGHT_MOD_FLASH]))
 	{
 		if (state >= 2)
 			state = 0;
@@ -281,7 +281,7 @@ void Light::initStrobe ()
 // Strobe mod
 void Light::strobe ()
 {
-	if (millis() - delayCount >= (unsigned int) (1000 / speed[LIGHT_MOD_STROBE]))
+	if (millis() - delayCount >= (uint32_t) (1000 / speed[LIGHT_MOD_STROBE]))
 	{
 		state = !state; // Inverting state
 
@@ -308,7 +308,7 @@ void Light::initFade ()
 // Fade Mod
 void Light::fade ()
 {
-	if (millis() - delayCount >= (unsigned int) (1000 / speed[LIGHT_MOD_FADE]))
+	if (millis() - delayCount >= (uint32_t) (1000 / speed[LIGHT_MOD_FADE]))
 	{
 		if (state)
 			counter++;  // Increasing all colors
@@ -340,7 +340,7 @@ void Light::initSmooth ()
 // Smooth Mod
 void Light::smooth ()
 {
-	if (millis() - delayCount >= (unsigned int) (1000 / speed[LIGHT_MOD_SMOOTH]))
+	if (millis() - delayCount >= (uint32_t) (1000 / speed[LIGHT_MOD_SMOOTH]))
 	{
 		switch (state)
 		{
@@ -419,7 +419,7 @@ void Light::initDawn ()
 // Dawn Mod
 void Light::dawn ()
 {
-	const unsigned long step = (((uint64_t) speed[LIGHT_MOD_DAWN] ) * 60000.) / ( (((uint64_t) STRIP_LENGTH) / 2.) * ((uint64_t) LIGHT_MAX_POWER));
+	const uint32_t step = (((uint64_t) speed[LIGHT_MOD_DAWN] ) * 60000.) / ( (((uint64_t) STRIP_LENGTH) / 2.) * ((uint64_t) LIGHT_MAX_POWER));
 
 	if (millis() - delayCount >= step)
 	{
@@ -479,7 +479,7 @@ void Light::sunset ()
 	}
 	else if (state == 1)
 	{
-		const unsigned long step = 60000.0 / (((uint64_t) STRIP_LENGTH / 2.) * ((uint64_t) LIGHT_MAX_POWER));
+		const uint32_t step = 60000.0 / (((uint64_t) STRIP_LENGTH / 2.) * ((uint64_t) LIGHT_MAX_POWER));
 
 		if (millis() - delayCount >= step)
 		{

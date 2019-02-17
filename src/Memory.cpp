@@ -7,16 +7,16 @@
 Memory::Memory()
 { }
 
-void Memory::dump (unsigned int start, unsigned int limit)
+void Memory::dump (uint16_t start, uint16_t limit)
 {
-	byte value;
+	uint8_t value;
 
 	if (limit > EEPROM.length())
 		limit = EEPROM.length();
 
 	Log.trace ("EEPROM dump from %X to %X" dendl, start, limit);
 
-	for (unsigned int index = start; index <= limit; index++)
+	for (uint16_t index = start; index <= limit; index++)
 	{
 		value = EEPROM.read (index);
 
@@ -44,7 +44,7 @@ bool Memory::readForAll ()
 
 void Memory::writeForLight ()
 {
-	unsigned int address, n;
+	uint16_t address, n;
 
 	address = EEPROM_LIGHT_START;
 	n       = 0;
@@ -60,41 +60,41 @@ void Memory::writeForLight ()
 	address++;
 
 	// All RGB values
-	for (unsigned int i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
+	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
 	{
-		for (unsigned int j = 0; j < sizeof(long); j++)
-			if (EEPROM.read (address + j) != (byte) (light.getRgb (i) >> (j * 8)))
+		for (unsigned int j = 0; j < sizeof(uint32_t); j++)
+			if (EEPROM.read (address + j) != (uint8_t) (light.getRgb (i) >> (j * 8)))
 			{
-				EEPROM.write (address + j, (byte) (light.getRgb (i) >> (j * 8)));
+				EEPROM.write (address + j, (uint8_t) (light.getRgb (i) >> (j * 8)));
 				n++;
 			}
 
-		address += sizeof(long);
+		address += sizeof(uint32_t);
 	}
 
 	// All Light values
-	for (unsigned int j = LIGHT_MOD_MIN; j < LIGHT_N_MOD; j++)
+	for (uint8_t j = LIGHT_MOD_MIN; j < LIGHT_N_MOD; j++)
 	{
-		if (EEPROM.read (address) != (byte) (light.getPower (j)))
+		if (EEPROM.read (address) != light.getPower (j))
 		{
-			EEPROM.write (address, (byte) (light.getPower (j)));
+			EEPROM.write (address, light.getPower (j));
 			n++;
 		}
 
-		address += sizeof(char);
+		address += sizeof(uint8_t);
 	}
 
 	// All speed values
-	for (unsigned int j = LIGHT_MOD_MIN; j < LIGHT_N_MOD; j++)
+	for (uint8_t j = LIGHT_MOD_MIN; j < LIGHT_N_MOD; j++)
 	{
-		for (unsigned int i = 0; i < sizeof(int); i++)
-			if (EEPROM.read (address + i) != (byte) (light.getSpeed (j) >> (i * 8)))
+		for (unsigned int i = 0; i < sizeof(uint16_t); i++)
+			if (EEPROM.read (address + i) != (uint8_t) (light.getSpeed (j) >> (i * 8)))
 			{
-				EEPROM.write (address + i, (byte) (light.getSpeed (j) >> (i * 8)));
+				EEPROM.write (address + i, (uint8_t) (light.getSpeed (j) >> (i * 8)));
 				n++;
 			}
 
-		address += sizeof(int);
+		address += sizeof(uint16_t);
 	}
 
 	Log.tracenp ("Done ! (%d byte%s written)" dendl, n, n > 1 ? "s" : "");
@@ -102,13 +102,13 @@ void Memory::writeForLight ()
 
 bool Memory::readForLight ()
 {
-	unsigned int address;
+	uint16_t address;
 
 	address = EEPROM_LIGHT_START;
 
 	Log.trace ("Reading EEPROM for light variables... ");
 
-	if (EEPROM.read (address) != (byte) EEPROM_TEST_BYTE)
+	if (EEPROM.read (address) != EEPROM_TEST_BYTE)
 	{
 		Log.tracenp (dendl);
 		return true; // Returns true to say that variables needs to be initialized
@@ -116,37 +116,37 @@ bool Memory::readForLight ()
 
 	address++;
 
-	for (unsigned int i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
+	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
 	{
-		unsigned long rgb;
+		uint32_t rgb;
 
 		rgb = 0;
-		for (unsigned int j = 0; j < sizeof(long); j++)
-			rgb += ((long) EEPROM.read (address + j)) << (j * 8);
+		for (unsigned int j = 0; j < sizeof(uint32_t); j++)
+			rgb += ((uint32_t) EEPROM.read (address + j)) << (j * 8);
 
 		light.setRgb (rgb, i);
 
-		address += sizeof(long);
+		address += sizeof(uint32_t);
 	}
 
-	for (unsigned int i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
+	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
 	{
 		light.setPower (EEPROM.read (address), i);
 
-		address += sizeof(char);
+		address += sizeof(uint8_t);
 	}
 
-	for (unsigned int i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
+	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
 	{
-		unsigned int speed;
+		uint16_t speed;
 
 		speed = 0;
 		for (unsigned int j = 0; j < sizeof(int); j++)
-			speed += ((int) EEPROM.read (address + j)) << (j * 8);
+			speed += ((uint16_t) EEPROM.read (address + j)) << (j * 8);
 
 		light.setSpeed (speed, i);
 
-		address += sizeof(int);
+		address += sizeof(uint16_t);
 	}
 
 	Log.tracenp ("Done ! (%d byte%s read)" dendl, address - EEPROM_LIGHT_START, address > 1 ? "s" : "");
@@ -156,16 +156,16 @@ bool Memory::readForLight ()
 
 void Memory::writeForSound ()
 {
-	unsigned int address, n;
+	uint16_t address, n;
 
 	address = EEPROM_SOUND_START;
 	n       = 0;
 
 	Log.trace ("Writing EEPROM for sound variables... ");
 
-	if (EEPROM.read (address) != (byte) EEPROM_TEST_BYTE)
+	if (EEPROM.read (address) != EEPROM_TEST_BYTE)
 	{
-		EEPROM.write (address, (byte) EEPROM_TEST_BYTE);
+		EEPROM.write (address, EEPROM_TEST_BYTE);
 		n++;
 	}
 
@@ -176,13 +176,13 @@ void Memory::writeForSound ()
 
 bool Memory::readForSound ()
 {
-	unsigned int address;
+	uint16_t address;
 
 	address = EEPROM_SOUND_START;
 
 	Log.trace ("Reading EEPROM for sound variables... ");
 
-	if (EEPROM.read (address) != (byte) EEPROM_TEST_BYTE)
+	if (EEPROM.read (address) != EEPROM_TEST_BYTE)
 	{
 		Log.tracenp (dendl);
 		return true; // Returns true to say that variables needs to be initialized
@@ -197,25 +197,25 @@ bool Memory::readForSound ()
 
 void Memory::writeForAlarms ()
 {
-	unsigned int address, n;
+	uint16_t address, n;
 
 	address = EEPROM_ALARM_START;
 	n       = 0;
 
 	Log.trace ("Writing EEPROM for alarm variables... ");
 
-	if (EEPROM.read (address) != (byte) EEPROM_TEST_BYTE)
+	if (EEPROM.read (address) != EEPROM_TEST_BYTE)
 	{
-		EEPROM.write (address, (byte) EEPROM_TEST_BYTE);
+		EEPROM.write (address, EEPROM_TEST_BYTE);
 		n++;
 	}
 
 	address++;
 
 	for (unsigned int i = 0; i < sizeof(uint16_t); i++)
-		if (EEPROM.read (address + i) != (byte) (alarms.getDawnTime() >> (i * 8)))
+		if (EEPROM.read (address + i) != (uint8_t) (alarms.getDawnTime() >> (i * 8)))
 		{
-			EEPROM.write (address + i, (byte) (alarms.getDawnTime() >> (i * 8)));
+			EEPROM.write (address + i, (uint8_t) (alarms.getDawnTime() >> (i * 8)));
 			n++;
 		}
 
@@ -232,7 +232,7 @@ bool Memory::readForAlarms ()
 
 	Log.trace ("Reading EEPROM for alarm variables... ");
 
-	if (EEPROM.read (address) != (byte) EEPROM_TEST_BYTE)
+	if (EEPROM.read (address) != EEPROM_TEST_BYTE)
 	{
 		Log.tracenp (dendl);
 		return true; // Returns true to say that variables needs to be initialized

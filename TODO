@@ -1,3 +1,5 @@
 - Change modes speed to cycle time
 - !! Initialize ALL variables !!
 - colorize light music mod
+- EEPROM for Sound variables
+- Initialyse EEPROM for Alarm (Values for when EEPROM is new)
