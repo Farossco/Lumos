@@ -1,4 +1,4 @@
-# BedControl
+# Lumos
 
 This is a personnal project to create a fully automated alarm clock.
 
@@ -10,4 +10,8 @@ This project is composed of 3 main components which are :
 * An ESP8266
 * An Android Application
 
-Each of these components has it's own piece of code in their own branch. This is why the master branch is empty.
+The application is made using `Visual Studio Code` with the `PlatformIO` plugin. You can use an IDE other than `Visual Studio Code` but `PlatformIO` is needed.
+
+You will probably need to change the `upload_port` and `monitor_port` entries in the `platformio.ini` file.
+
+Compiling this project with PlatformIO will give you the 2 binary files.
