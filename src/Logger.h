@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include "Utils.h"
 
-#if defined(__AVR_ATmega2560__)
+#if defined(LUMOS_ARDUINO_MEGA)
 # include "SdCard.h"
 #endif
 
@@ -96,7 +96,7 @@ private:
 		output->print (utils.clock (buf));
 		output->print (F ("] ["));
 
-		#if defined(__AVR_ATmega2560__)
+		#if defined(LUMOS_ARDUINO_MEGA)
 
 		if (sd.isEnabled())
 			output->print (F ("CARD] ["));
@@ -112,7 +112,7 @@ private:
 
 	template <class T> void printLevel (boolean showPrefix, uint8_t level, T msg, ...)
 	{
-		#if defined(__AVR_ATmega2560__)
+		#if defined(LUMOS_ARDUINO_MEGA)
 
 		if (multiOutput && output2Level >= level && sd.isEnabled())
 		{
@@ -126,7 +126,7 @@ private:
 			print (output2, msg, args);
 		}
 
-		#endif // if defined(__AVR_ATmega2560__)
+		#endif // if defined(LUMOS_ARDUINO_MEGA)
 
 		if (output1Level >= level)
 		{

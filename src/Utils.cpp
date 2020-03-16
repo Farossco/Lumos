@@ -9,7 +9,7 @@ const char * Utils::lightModName (uint8_t mod, uint8_t caps)
 	switch (mod)
 	{
 		case LIGHT_MOD_CONTINUOUS:
-			return caps == 0 ? "default" : caps == 1 ? "Default" : "DEFAULT";
+			return caps == 0 ? "continuous" : caps == 1 ? "Continuous" : "CONTINUOUS";
 
 		case LIGHT_MOD_FLASH:
 			return caps == 0 ? "flash" : caps == 1 ? "Flash" : "FLASH";

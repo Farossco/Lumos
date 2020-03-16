@@ -3,14 +3,14 @@
 #include "Memory.h"
 #include "Sound.h"
 
-#if defined(__AVR_ATmega2560__)
+#if defined(LUMOS_ARDUINO_MEGA)
 
 Light::Light() : strip (STRIP_LENGTH, PIN_DATA, PIN_CLOCK, DOTSTAR_BGR)
 { }
 
 #endif
 
-#if defined(ESP8266_PERI_H_INCLUDED)
+#if defined(LUMOS_ESP8266)
 
 Light::Light()
 { }
@@ -19,39 +19,59 @@ Light::Light()
 
 void Light::setRed (uint8_t newRed, uint8_t affectedMod)
 {
-	red[affectedMod == CURRENT_MOD ? mod : affectedMod] = newRed;
+	if (affectedMod == CURRENT_MOD)
+		affectedMod = mod;
+
+	red[affectedMod] = constrain (newRed, LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
 }
 
 void Light::setGreen (uint8_t newGreen, uint8_t affectedMod)
 {
-	green[affectedMod == CURRENT_MOD ? mod : affectedMod] = newGreen;
+	if (affectedMod == CURRENT_MOD)
+		affectedMod = mod;
+
+	green[affectedMod] = constrain (newGreen, LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
 }
 
 void Light::setBlue (uint8_t newBlue, uint8_t affectedMod)
 {
-	blue[affectedMod == CURRENT_MOD ? mod : affectedMod] = newBlue;
+	if (affectedMod == CURRENT_MOD)
+		affectedMod = mod;
+
+	blue[affectedMod] = constrain (newBlue, LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
 }
 
 void Light::setRgb (uint32_t newRgb, uint8_t affectedMod)
 {
-	red[affectedMod == CURRENT_MOD ? mod : affectedMod]   = (uint8_t) (newRgb >> 16);
-	green[affectedMod == CURRENT_MOD ? mod : affectedMod] = (uint8_t) (newRgb >> 8);
-	blue[affectedMod == CURRENT_MOD ? mod : affectedMod]  = (uint8_t) newRgb;
+	if (affectedMod == CURRENT_MOD)
+		affectedMod = mod;
+
+	newRgb = constrain (newRgb, LIGHT_MIN_RGB, LIGHT_MAX_RGB);
+
+	red[affectedMod]   = constrain ((uint8_t) (newRgb >> 16), LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
+	green[affectedMod] = constrain ((uint8_t) (newRgb >> 8), LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
+	blue[affectedMod]  = constrain ((uint8_t) newRgb, LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
 }
 
 void Light::setPower (uint8_t newPower, uint8_t affectedMod)
 {
-	power[affectedMod == CURRENT_MOD ? mod : affectedMod] = newPower;
+	if (affectedMod == CURRENT_MOD)
+		affectedMod = mod;
+
+	power[affectedMod] = constrain (newPower, LIGHT_MIN_POWER, LIGHT_MAX_POWER);
 }
 
 void Light::setSpeed (uint16_t newSpeed, uint8_t affectedMod)
 {
-	speed[affectedMod == CURRENT_MOD ? mod : affectedMod] = newSpeed;
+	if (affectedMod == CURRENT_MOD)
+		affectedMod = mod;
+
+	speed[affectedMod] = constrain (newSpeed, LIGHT_MIN_SPEED[affectedMod], LIGHT_MAX_SPEED[affectedMod] == 0 ? 65535 : LIGHT_MAX_SPEED[affectedMod]);
 }
 
 void Light::setMod (uint8_t newMod)
 {
-	mod = newMod;
+	mod = constrain (newMod, LIGHT_MOD_MIN, LIGHT_MOD_MAX);
 }
 
 void Light::switchOn ()
@@ -62,6 +82,22 @@ void Light::switchOn ()
 void Light::switchOff ()
 {
 	on = false;
+}
+
+uint8_t Light::addPower (uint8_t powerAdd, uint8_t affectedMod)
+{
+	if (affectedMod == CURRENT_MOD)
+		affectedMod = mod;
+
+	return power[affectedMod] = constrain (power[affectedMod] + powerAdd, LIGHT_MIN_POWER, LIGHT_MAX_POWER);
+}
+
+uint8_t Light::subtractPower (uint8_t powerAdd, uint8_t affectedMod)
+{
+	if (affectedMod == CURRENT_MOD)
+		affectedMod = mod;
+
+	return power[affectedMod] = constrain (power[affectedMod] - powerAdd, LIGHT_MIN_POWER, LIGHT_MAX_POWER);
 }
 
 uint16_t Light::getDawnDuration ()
@@ -114,7 +150,7 @@ bool Light::isOff ()
 	return on == 0;
 }
 
-#if defined(__AVR_ATmega2560__)
+#if defined(LUMOS_ARDUINO_MEGA)
 
 void Light::init ()
 {
@@ -556,7 +592,7 @@ void Light::startAnimation ()
 					tempGreen = 255;
 				}
 				else
-					tempGreen = (tempGreen + step) > 255 ? 255 : tempGreen + step;
+					tempGreen = constrain (tempGreen + step, 0, 255);
 				break;
 
 			case 1:
@@ -566,7 +602,7 @@ void Light::startAnimation ()
 					tempRed = 0;
 				}
 				else
-					tempRed = (tempRed - step) < 0 ? 0 : tempRed - step;
+					tempRed = constrain (tempRed - step, 0, 255);
 				break;
 
 			case 2:
@@ -576,7 +612,7 @@ void Light::startAnimation ()
 					tempBlue = 255;
 				}
 				else
-					tempBlue = (tempBlue + step) > 255 ? 255 : tempBlue + step;
+					tempBlue = constrain (tempBlue + step, 0, 255);
 				break;
 
 			case 3:
@@ -586,7 +622,7 @@ void Light::startAnimation ()
 					tempGreen = 0;
 				}
 				else
-					tempGreen = (tempGreen - step) < 0 ? 0 : tempGreen - step;
+					tempGreen = constrain (tempGreen - step, 0, 255);
 				break;
 
 			case 4:
@@ -596,7 +632,7 @@ void Light::startAnimation ()
 					tempRed = 255;
 				}
 				else
-					tempRed = (tempRed + step) > 255 ? 255 : tempRed + step;
+					tempRed = constrain (tempRed + step, 0, 255);
 				break;
 
 			case 5:
@@ -606,7 +642,7 @@ void Light::startAnimation ()
 					tempBlue = 0;
 				}
 				else
-					tempBlue = (tempBlue - step) < 0 ? 0 : tempBlue - step;
+					tempBlue = constrain (tempBlue - step, 0, 255);
 				break;
 		}
 
@@ -689,6 +725,6 @@ void Light::music ()
 	strip.setPixelColor (counter, 0x0000FF);
 } // Light::music
 
-#endif // if defined(__AVR_ATmega2560__)
+#endif // if defined(LUMOS_ARDUINO_MEGA)
 
 Light light = Light();

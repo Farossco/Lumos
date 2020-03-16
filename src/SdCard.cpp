@@ -1,4 +1,4 @@
-#if defined(__AVR_ATmega2560__)
+#if defined(LUMOS_ARDUINO_MEGA)
 
 #include <stdlib.h>
 #include <Time.h>
@@ -352,4 +352,4 @@ void SdCard::lightOff ()
 
 SdCard sd = SdCard();
 
-#endif // if defined(__AVR_ATmega2560__)
+#endif // if defined(LUMOS_ARDUINO_MEGA)

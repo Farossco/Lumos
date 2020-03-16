@@ -17,7 +17,7 @@ uint16_t Alarms::getDawnTime ()
 	return dawnTime;
 }
 
-#if defined(__AVR_ATmega2560__)
+#if defined(LUMOS_ARDUINO_MEGA)
 
 void Alarms::init ()
 {
@@ -57,12 +57,12 @@ void Alarms::dawnStart ()
 {
 	light.setMod (LIGHT_MOD_DAWN);
 	light.switchOn();
-	sound.setVolume (25);
+	sound.setVolume (15);
 	sound.command (SOUND_COMMAND_PLAY_DAWN, 0);
 
 	Log.info ("Entering dawn mod from Alarms" dendl);
 }
 
-#endif // if defined(__AVR_ATmega2560__)
+#endif // if defined(LUMOS_ARDUINO_MEGA)
 
 Alarms alarms = Alarms();

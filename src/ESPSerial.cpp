@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-#if defined(ESP8266_PERI_H_INCLUDED)
+#if defined(LUMOS_ESP8266)
 
 # include <Time.h>
 # include "ESPSerial.h"
@@ -28,6 +28,8 @@ void ESPSerial::receiveAndDecode ()
 		length = Serial.readBytesUntil ('z', buf, bufSize);
 	else if (Serial1.available())
 		length = Serial1.readBytesUntil ('z', buf, bufSize);
+	else
+		length = 0;
 
 	buf[length] = '\0';
 
@@ -60,4 +62,4 @@ void ESPSerial::sendTime ()
 
 ESPSerial serial = ESPSerial();
 
-#endif // if defined(ESP8266_PERI_H_INCLUDED)
+#endif // if defined(LUMOS_ESP8266)

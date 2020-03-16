@@ -1,7 +1,7 @@
 #ifndef ARDUINO_SERIAL_H
 #define ARDUINO_SERIAL_H
 
-#if defined(__AVR_ATmega2560__)
+#if defined(LUMOS_ARDUINO_MEGA)
 
 # include <Arduino.h>
 
@@ -19,6 +19,6 @@ public:
 
 extern ArduinoSerial serial;
 
-#endif // if defined(__AVR_ATmega2560__)
+#endif // if defined(LUMOS_ARDUINO_MEGA)
 
 #endif // ifndef ARDUINO_SERIAL_H

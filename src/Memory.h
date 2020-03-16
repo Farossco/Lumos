@@ -1,7 +1,7 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
-#if defined(__AVR_ATmega2560__)
+#if defined(LUMOS_ARDUINO_MEGA)
 
 # include <Arduino.h>
 
@@ -31,6 +31,6 @@ public:
 
 extern Memory memory;
 
-#endif // if defined(__AVR_ATmega2560__)
+#endif // if defined(LUMOS_ARDUINO_MEGA)
 
 #endif // ifndef MEMORY_H

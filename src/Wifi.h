@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-#if defined(ESP8266_PERI_H_INCLUDED)
+#if defined(LUMOS_ESP8266)
 
 # include <ESP8266WiFi.h>
 
@@ -35,6 +35,7 @@ public:
 	void receiveAndDecode ();
 
 	WiFiClient client;
+	time_t clientTimeout, restartTimeout;
 
 private:
 	WiFiServer server;
@@ -42,6 +43,6 @@ private:
 
 extern Wifi wifi;
 
-#endif // if defined(ESP8266_PERI_H_INCLUDED)
+#endif // if defined(LUMOS_ESP8266)
 
 #endif // ifndef ESP_WIFI_H

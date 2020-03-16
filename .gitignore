@@ -1,9 +1,3 @@
-.pioenvs
-.piolibdeps
-.clang_complete
-.gcc-flags.json
-.travis.yml
-.pioenvs
-.piolibdeps
-.vscode*
+.pio
+.vscode
 lib

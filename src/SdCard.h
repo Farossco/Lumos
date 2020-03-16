@@ -1,7 +1,7 @@
 #ifndef SDCARD_H
 #define SDCARD_H
 
-#if defined(__AVR_ATmega2560__)
+#if defined(LUMOS_ARDUINO_MEGA)
 
 # include <SD.h>
 
@@ -54,6 +54,6 @@ private:
 
 extern SdCard sd;
 
-#endif // if defined(__AVR_ATmega2560__)
+#endif // if defined(LUMOS_ARDUINO_MEGA)
 
 #endif // ifndef SDCARD_H

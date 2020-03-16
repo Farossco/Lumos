@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-#if defined(__AVR_ATmega2560__)
+#if defined(LUMOS_ARDUINO_MEGA)
 # include <DFRobotDFPlayerMini.h>
 #endif
 
@@ -54,7 +54,7 @@ private:
 	uint8_t lastMod;
 	bool on;
 
-	#if defined(__AVR_ATmega2560__)
+	#if defined(LUMOS_ARDUINO_MEGA)
 	DFRobotDFPlayerMini myDFPlayer;
 	#endif
 };

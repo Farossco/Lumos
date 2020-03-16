@@ -7,17 +7,15 @@
 #include "Bluetooth.h"
 #include "Light.h"
 #include "Sound.h"
-
-#if defined(__AVR_ATmega2560__)
-#endif
-
-#if defined(ESP8266_PERI_H_INCLUDED)
-#endif
+#include "ESPSerial.h"
+#include "Wifi.h"
+#include "Infrared.h"
 
 const boolean WAIT_FOR_TIME = true;   // If we have to wait for time sync (if true, program will not start until time is synced)
 const long ESP_BAUD_RATE    = 9600;   // ESP8266 communication baud rate
 const long DEBUG_BAUD_RATE  = 250000; // Debug baud rate
 
+#if defined(LUMOS_ARDUINO_MEGA) // Arduino code
 void setup ()
 {
 	serial.init (DEBUG_BAUD_RATE, ESP_BAUD_RATE);
@@ -32,6 +30,8 @@ void setup ()
 	// sd.init();
 
 	Log.init (&Serial, LEVEL_VERBOSE, sd.getFile(), LEVEL_VERBOSE);
+
+	infrared.init();
 
 	sound.init (Serial3);
 
@@ -52,6 +52,8 @@ void loop ()
 
 	// sd.cardTests();
 
+	infrared.read();
+
 	light.action();
 
 	sound.action();
@@ -60,3 +62,28 @@ void loop ()
 
 	// bluetooth.action();
 }
+
+#endif // if defined(LUMOS_ARDUINO_MEGA)
+
+#if defined(LUMOS_ESP8266) // ESP8266 Code
+void setup ()
+{
+	serial.init (9600);
+
+	Log.init (&Serial, LEVEL_TRACE);
+
+	wifi.init();
+
+	wifi.getTime();
+
+	serial.sendTime();
+}
+
+void loop ()
+{
+	serial.receiveAndDecode();
+
+	wifi.receiveAndDecode();
+}
+
+#endif // if defined(LUMOS_ESP8266)

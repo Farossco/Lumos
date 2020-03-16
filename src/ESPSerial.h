@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-#if defined(ESP8266_PERI_H_INCLUDED)
+#if defined(LUMOS_ESP8266)
 
 class ESPSerial
 {
@@ -15,6 +15,6 @@ public:
 
 extern ESPSerial serial;
 
-#endif // if defined(ESP8266_PERI_H_INCLUDED)
+#endif // if defined(LUMOS_ESP8266)
 
 #endif // ifndef ESP_SERIAL_H

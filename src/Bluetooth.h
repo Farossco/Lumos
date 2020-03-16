@@ -1,7 +1,7 @@
 #ifndef BLUETOOTH_H
 #define BLUETOOTH_H
 
-#if defined(__AVR_ATmega2560__)
+#if defined(LUMOS_ARDUINO_MEGA)
 
 # include <BM70.h>
 
@@ -30,6 +30,6 @@ private:
 
 extern Bluetooth bluetooth;
 
-#endif // if defined(__AVR_ATmega2560__)
+#endif // if defined(LUMOS_ARDUINO_MEGA)
 
 #endif // ifndef BLUETOOTH_H

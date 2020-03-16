@@ -1,4 +1,4 @@
-#if defined(__AVR_ATmega2560__)
+#if defined(LUMOS_ARDUINO_MEGA)
 
 #include "Bluetooth.h"
 #include "Logger.h"
@@ -161,4 +161,4 @@ void Bluetooth::lightOff ()
 
 Bluetooth bluetooth = Bluetooth();
 
-#endif // if defined(__AVR_ATmega2560__)
+#endif // if defined(LUMOS_ARDUINO_MEGA)

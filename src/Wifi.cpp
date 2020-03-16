@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-#if defined(ESP8266_PERI_H_INCLUDED)
+#if defined(LUMOS_ESP8266)
 
 # include "Wifi.h"
 # include <ArduinoJson.h>
@@ -36,25 +36,29 @@ void Wifi::init ()
 	// Start the server
 	server.begin();
 
-	WiFi.localIP().toString().toCharArray (buf, bufSize);
+	if (Log.isEnabledFor (LEVEL_TRACE, 1))
+		WiFi.localIP().toString().toCharArray (buf, bufSize);
 
 	Log.trace ("Server started" dendl);
 	Log.trace ("Local IP: %s" dendl, buf);
+
+	restartTimeout = millis();
 }
 
 void Wifi::getTime ()
 {
-	DynamicJsonBuffer jsonBuffer;
+	const size_t capacity =
+	  JSON_OBJECT_SIZE (3) // root (status, message, timestamp)
+	  + 50;                // String duplications + security margin
+	DynamicJsonDocument doc (capacity);
+
 	WiFiClient client;
 	const int lineSize = 200;
-	char lineArray[lineSize];
-	char * line = lineArray;
-	unsigned long timeout;
-	int code;
-	const char * json, * status, * timestamp;
-
-	timestamp = 0;
-	status    = "";
+	char line[lineSize];
+	char * pLine     = line; // we create a pointer that we can increment
+	const char url[] = "/v2.1/get-time-zone?format=" TIME_FORMAT "&key=" TIME_KEY "&by=" TIME_BY "&zone=" TIME_ZONE "&fields=" TIME_FIELDS;
+	const char * status;
+	unsigned long timeout, timestamp;
 
 	Log.trace ("Connecting to %s" dendl, TIME_HOST);
 
@@ -66,7 +70,6 @@ void Wifi::getTime ()
 	}
 
 	// We now create an url for the request
-	const char url[] = "/v2/get-time-zone?format=" TIME_FORMAT "&key=" TIME_KEY "&by=" TIME_BY "&zone=" TIME_ZONE "&fields=" TIME_FIELDS;
 
 	// [DEBUG] Printing the url
 	Log.trace ("Requesting URL: %s" dendl, url);
@@ -93,36 +96,38 @@ void Wifi::getTime ()
 	// Read all the lines of the reply from server and print them to Serial
 	while (client.available())
 	{
-		size_t length = client.readBytesUntil ('\r', line, lineSize);
-		line[length] = '\0';
+		size_t length = client.readBytesUntil ('\r', pLine, lineSize);
+		pLine[length] = '\0';
 
-		Log.verbose ("%s" endl, line[0] == '\n' || line[0] == '\r' ? line + 1 : line); // [DEBUG] We print the line we're currently reading
-		if (strstr (line, "{\"status\"") == line + 1)
+		Log.verbose ("%s" endl, pLine[0] == '\n' || pLine[0] == '\r' ? pLine + 1 : pLine); // [DEBUG] We print the line we're currently reading
+		if (strstr (pLine, "{\"status\"") == pLine + 1)
 			break;
 	}
 	Log.verbose ("<========================================= End =========================================>" dendl);
 
-	if (strstr (line, "{\"status\"") == line + 1)
+	if (strstr (pLine, "{\"status\"") == pLine + 1)
 	{
 		Log.trace ("Success !" dendl);
-		// The first charactere is a nl, so we don't want it
-		line++;
+
+		pLine++; // The first charactere is a nl, so we don't want it
 	}
 	else
 	{
-		Log.error ("Failed ! (%d)" dendl, strstr (line, "{\"status\"") - line);
+		Log.error ("Failed ! (%d)" dendl, strstr (pLine, "{\"status\"") - pLine);
 	}
 
 	Log.trace ("Closing connection" dendl);
 
-	// At this point, the last line of the answer is in the line variable,
+	// At this point, the json of the answer is in the pline variable,
 	// that's actually the one we want
 
-	Log.verbose ("Json: %s" dendl, line);
+	Log.verbose ("Json: \"%s\"" dendl, pLine);
 
-	JsonObject& jsonRoot = jsonBuffer.parseObject (line);
-	status    = jsonRoot["status"];
-	timestamp = jsonRoot["timestamp"];
+	// Deserialize the JSON document
+	deserializeJson (doc, pLine);
+
+	status    = doc["status"];
+	timestamp = doc["timestamp"];
 
 	Log.trace ("Status: %s" dendl, status);
 
@@ -132,11 +137,11 @@ void Wifi::getTime ()
 		return;
 	}
 
-	Log.trace ("Timestamp: %s" dendl, timestamp);
+	Log.trace ("Timestamp: %l" dendl, timestamp);
 
-	Log.trace ("Setting Time to: %l" dendl, strtol (timestamp, NULL, 10));
+	Log.trace ("Setting Time to: %l" dendl, timestamp);
 
-	setTime (strtol (timestamp, NULL, 10));
+	setTime (timestamp);
 
 	Log.trace ("Time set!" dendl);
 } // Wifi::getTime
@@ -145,9 +150,18 @@ void Wifi::receiveAndDecode ()
 {
 	client = server.available();
 
+	if (millis() - restartTimeout > 300000) // Reconnecting to Wi-Fi every 5 min to avoid getting strangely stuck
+	{
+		Log.trace ("Disconnecting from Wi-FI..." dendl);
+		client.stop();
+		WiFi.disconnect();
+
+		init();
+	}
+
 	if (!client) return;  // If nobody connected, we stop here
 
-	const int bufSize = 50;
+	const int bufSize = 500;
 	char bufArray[bufSize];
 	char * buf              = bufArray;
 	const int ipAddressSize = 20;
@@ -155,12 +169,29 @@ void Wifi::receiveAndDecode ()
 
 	uint8_t length;
 
-	while (!client.available()) // Wait until the client sends some data
-		delay (1);
-
 	client.remoteIP().toString().toCharArray (ipAddress, ipAddressSize);
 
 	Log.trace ("Received request from %s" dendl, ipAddress);
+
+	clientTimeout = millis();
+	while (!client.available()) // Wait until the client sends some data
+	{
+		if (Log.isEnabledFor (LEVEL_VERBOSE, 1))
+			delay (100);
+		else
+			delay (1);
+
+		Log.verbose ("Waiting for client data..." endl);
+
+		if (millis() - clientTimeout > 2000)
+		{
+			Log.warning ("Client data timed out" endl);
+			client.stop();
+			return;
+		}
+	}
+
+	Log.verbosenp (endl);
 
 	length      = client.readBytesUntil ('\r', buf, bufSize);
 	buf[length] = '\0';
@@ -177,11 +208,8 @@ void Wifi::receiveAndDecode ()
 	*strstr (buf, " ") = '\0'; // Terminating the array at the first space
 
 	request.decode (buf, SOURCE_ESP8266_WEBSERVER);
-
-	client.flush();
-	client.stop();
 } // Wifi::receiveAndDecode
 
 Wifi wifi = Wifi();
 
-#endif // if defined(ESP8266_PERI_H_INCLUDED)
+#endif // if defined(LUMOS_ESP8266)

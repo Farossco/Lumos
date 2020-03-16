@@ -1,4 +1,4 @@
-#if defined(__AVR_ATmega2560__)
+#if defined(LUMOS_ARDUINO_MEGA)
 
 #include <stdlib.h>
 #include <string.h>
@@ -167,4 +167,4 @@ void VariableChange::sendInfo ()
 
 VariableChange variableChange = VariableChange();
 
-#endif // if defined(__AVR_ATmega2560__)
+#endif // if defined(LUMOS_ARDUINO_MEGA)

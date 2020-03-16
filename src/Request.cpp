@@ -7,12 +7,12 @@
 #include "Alarms.h"
 #include "Sound.h"
 
-#if defined(__AVR_ATmega2560__)
+#if defined(LUMOS_ARDUINO_MEGA)
 # include "ArduinoSerial.h"
 # include "VariableChange.h"
 #endif
 
-#if defined(ESP8266_PERI_H_INCLUDED)
+#if defined(LUMOS_ESP8266)
 # include "ESPSerial.h"
 # include "Json.h"
 # include "Wifi.h"
@@ -28,6 +28,9 @@ void Request::decode (char * request, uint8_t source)
 
 	if (requestLength <= 0)
 		return;
+
+	complement  = 0;
+	information = 0;
 
 	if (strstr (request, "INFO") == request)
 		type = TYPE_RIF;
@@ -227,7 +230,7 @@ void Request::process (uint8_t type, uint8_t complement, int32_t information, in
 			case TYPE_SCO:
 				Log.verbose ("Command data: (%d)" dendl, information);
 
-				#if defined(__AVR_ATmega2560__)
+				#if defined(LUMOS_ARDUINO_MEGA)
 				sound.command (complement, information);
 				#endif
 
@@ -242,7 +245,7 @@ void Request::process (uint8_t type, uint8_t complement, int32_t information, in
 
 	switch (source)
 	{
-		#if defined(__AVR_ATmega2560__)
+		#if defined(LUMOS_ARDUINO_MEGA)
 
 		case SOURCE_ARDUINO_SERIAL:
 			if (type == TYPE_RTM)
@@ -255,9 +258,9 @@ void Request::process (uint8_t type, uint8_t complement, int32_t information, in
 				variableChange.sendInfo(); // We send the variables values to the ESP8266
 			}
 
-		#endif // if defined(__AVR_ATmega2560__)
+		#endif // if defined(LUMOS_ARDUINO_MEGA)
 
-		#if defined(ESP8266_PERI_H_INCLUDED)
+		#if defined(LUMOS_ESP8266)
 
 		case SOURCE_ESP8266_SERIAL:
 			if (type == TYPE_RTM)
@@ -292,7 +295,7 @@ void Request::process (uint8_t type, uint8_t complement, int32_t information, in
 
 			json.send ((char *) "OK", (char *) "", &wifi.client);
 
-		#endif // if defined(ESP8266_PERI_H_INCLUDED)
+		#endif // if defined(LUMOS_ESP8266)
 	}
 } // Request::process
 

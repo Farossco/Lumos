@@ -1,4 +1,4 @@
-#if defined(__AVR_ATmega2560__)
+#if defined(LUMOS_ARDUINO_MEGA)
 
 #include <Time.h>
 #include "ArduinoSerial.h"
@@ -58,7 +58,7 @@ void ArduinoSerial::waitForTime ()
 // Asking for time to the ESP8266 (via internet)
 void ArduinoSerial::askForTime ()
 {
-	Log.verbose ("Kindly asking for time" dendl);
+	Log.verbose ("Kindly asking ESP for time" dendl);
 	Serial1.print ("TIMEPLEASEz"); // z is the end character
 }
 
@@ -85,4 +85,4 @@ void ArduinoSerial::receiveAndDecode ()
 
 ArduinoSerial serial = ArduinoSerial();
 
-#endif // if defined(__AVR_ATmega2560__)
+#endif // if defined(LUMOS_ARDUINO_MEGA)

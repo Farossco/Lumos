@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-#if defined(ESP8266_PERI_H_INCLUDED)
+#if defined(LUMOS_ESP8266)
 
 # include <ESP8266WiFi.h>
 
@@ -16,6 +16,6 @@ public:
 
 extern Json json;
 
-#endif // if defined(ESP8266_PERI_H_INCLUDED)
+#endif // if defined(LUMOS_ESP8266)
 
 #endif // ifndef JSON_H

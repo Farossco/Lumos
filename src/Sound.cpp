@@ -1,14 +1,14 @@
 #include "Sound.h"
 #include "Logger.h"
 
-#if defined(__AVR_ATmega2560__)
+#if defined(LUMOS_ARDUINO_MEGA)
 
 Sound::Sound() : myDFPlayer()
 { }
 
 #endif
 
-#if defined(ESP8266_PERI_H_INCLUDED)
+#if defined(LUMOS_ESP8266)
 
 Sound::Sound()
 { }
@@ -19,7 +19,7 @@ void Sound::setVolume (uint8_t newVolume)
 {
 	volume = newVolume;
 
-	#if defined(__AVR_ATmega2560__)
+	#if defined(LUMOS_ARDUINO_MEGA)
 	myDFPlayer.volume (volume);
 	#endif
 }
@@ -59,7 +59,7 @@ bool Sound::isOff ()
 	return on == 0;
 }
 
-#if defined(__AVR_ATmega2560__)
+#if defined(LUMOS_ARDUINO_MEGA)
 
 void Sound::init (HardwareSerial &serial)
 {
@@ -171,6 +171,6 @@ void Sound::command (uint8_t command, int32_t information)
 	}
 } // Sound::command
 
-#endif // if defined(__AVR_ATmega2560__)
+#endif // if defined(LUMOS_ARDUINO_MEGA)
 
 Sound sound = Sound();

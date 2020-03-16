@@ -1,4 +1,4 @@
-#if defined(__AVR_ATmega2560__)
+#if defined(LUMOS_ARDUINO_MEGA)
 
 #include "Memory.h"
 #include <EEPROM.h>
@@ -259,4 +259,4 @@ bool Memory::readForAlarms ()
 
 Memory memory = Memory();
 
-#endif // if defined(__AVR_ATmega2560__)
+#endif // if defined(LUMOS_ARDUINO_MEGA)

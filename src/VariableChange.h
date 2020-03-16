@@ -1,7 +1,7 @@
 #ifndef VARIABLE_CHANGE_H
 #define VARIABLE_CHANGE_H
 
-#if defined(__AVR_ATmega2560__)
+#if defined(LUMOS_ARDUINO_MEGA)
 
 # include <Arduino.h>
 # include "Light.h"
@@ -26,6 +26,6 @@ private:
 
 extern VariableChange variableChange;
 
-#endif // if defined(__AVR_ATmega2560__)
+#endif // if defined(LUMOS_ARDUINO_MEGA)
 
 #endif // ifndef VARIABLE_CHANGE_H

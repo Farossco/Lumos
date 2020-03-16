@@ -22,7 +22,7 @@ void Logger::init (Print * output1, uint8_t output1Level)
 	multiOutput = false;
 }
 
-#if defined(__AVR_ATmega2560__)
+#if defined(LUMOS_ARDUINO_MEGA)
 
 void Logger::init (Print * output1, uint8_t output1Level, Print * output2, uint8_t output2Level)
 {
@@ -34,7 +34,7 @@ void Logger::init (Print * output1, uint8_t output1Level, Print * output2, uint8
 	multiOutput = true;
 }
 
-#endif // if defined(__AVR_ATmega2560__)
+#endif // if defined(LUMOS_ARDUINO_MEGA)
 
 bool Logger::isEnabledFor (int level, int output)
 {
