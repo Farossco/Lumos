@@ -2,6 +2,7 @@
 #define UTILS_H
 
 #include <Arduino.h>
+#include "Request.h"
 
 #define COMPLEMENT_MIN 0
 #define COMPLEMENT_MAX 1
@@ -33,13 +34,13 @@ public:
 	const char * lightModName (uint8_t mod, uint8_t caps);
 	const char * soundModName (uint8_t mod, uint8_t caps);
 	const char * soundCommandName (uint8_t mod, uint8_t caps);
-	const char * infoTypeName (uint8_t infoType, boolean shortened);
-	const char * errorTypeName (uint8_t infoType, boolean shortened);
-	const uint8_t infoTypeComplementBounds (uint8_t infoType, uint8_t minMax);
-	const uint8_t infoTypeComplementType (uint8_t infoType);
+	const char * messageTypeName (ReqMes messageType, boolean shortened);
+	const char * errorTypeName (ReqErr errorType, boolean shortened);
+	const uint8_t messageTypeComplementBounds (ReqMes messageType, uint8_t minMax);
+	const uint8_t messageTypeComplementType (ReqMes messageType);
 	char * clock (char * buf); // a 20-char buf is necessary
-	char * reduceCharArray (char ** array, uint16_t length);
 	uint32_t map (float input, float inMin, float inMax, float outMin, float outMax);
+	void printHeader (Stream & stream);
 };
 
 extern Utils utils;

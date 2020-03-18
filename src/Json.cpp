@@ -7,11 +7,12 @@
 # include "Light.h"
 # include "Sound.h"
 # include "Logger.h"
+# include "Utils.h"
 
 Json::Json()
 { }
 
-void Json::send (char * status, char * message, WiFiClient * client)
+void Json::send (const char * status, const char * message, Stream * stream, bool printHeader)
 {
 	const size_t capacity =
 	  JSON_OBJECT_SIZE (4)                 // root (status/message/light/sound)
@@ -50,19 +51,15 @@ void Json::send (char * status, char * message, WiFiClient * client)
 	rootSound["Mod"]    = sound.getMod();
 
 	Log.trace ("Sending to client: ");
-	if (Log.isEnabledFor (LEVEL_TRACE, 1))
+	if (Log.isEnabledFor (LEVEL_TRACE))
 		serializeJson (root, Serial);
 
 	// Return the response to the client
-	client->print ("HTTP/1.1 ");
-	client->println ("200 OK");
-	client->println ("Content-Type: application/json");
-	client->println ("Device: ESP8266");
-	client->println (""); // Do not forget this one
-	serializeJson (root, *client);
+	utils.printHeader (*stream);
+	serializeJson (root, *stream);
 
 	Log.tracenp (dendl);
-} // Json::sendJsonToClient
+} // send
 
 Json json = Json();
 

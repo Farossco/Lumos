@@ -110,50 +110,54 @@ void VariableChange::sendInfo ()
 	Log.trace ("Sending variables infos to the ESP8266" dendl);
 	Log.verbose (""); // Printing prefix once before entering the loop
 
-	for (uint8_t i = TYPE_SEND_MIN; i <= TYPE_SEND_MAX; i++)
+	for (ReqMes i = SEND_MIN; i <= SEND_MAX; i++)
 	{
-		for (uint8_t j = utils.infoTypeComplementBounds (i, COMPLEMENT_MIN); j <= utils.infoTypeComplementBounds (i, COMPLEMENT_MAX); j++)
+		for (uint8_t j = utils.messageTypeComplementBounds (i, COMPLEMENT_MIN); j <= utils.messageTypeComplementBounds (i, COMPLEMENT_MAX); j++)
 		{
 			char information[15] = "\n";
 
-			sprintf (information, "%s", utils.infoTypeName (i, true)); // Prefix
+			sprintf (information, "%s", utils.messageTypeName (static_cast<ReqMes>(i), true)); // Prefix
 
 			switch (i) // info
 			{
-				case TYPE_RGB:
+				case RGB:
 					sprintf (information + strlen (information), "%d%lX", j, light.getRgb (j));
 					break;
 
-				case TYPE_LON:
+				case LON:
 					sprintf (information + strlen (information), "%d", light.isOn());
 					break;
 
-				case TYPE_POW:
+				case POW:
 					sprintf (information + strlen (information), "%d%d", j, (uint8_t) utils.map (light.getPower (j), LIGHT_MIN_POWER, LIGHT_MAX_POWER, SEEKBAR_MIN, SEEKBAR_MAX));
 					break;
 
-				case TYPE_LMO:
+				case LMO:
 					sprintf (information + strlen (information), "%d", light.getMod());
 					break;
 
-				case TYPE_SPE:
+				case SPE:
 					sprintf (information + strlen (information), "%d%d", j, (uint16_t) utils.map (light.getSpeed (j), LIGHT_MIN_SPEED[j], LIGHT_MAX_SPEED[j], SEEKBAR_MIN, SEEKBAR_MAX));
 					break;
 
-				case TYPE_SMO:
+				case SMO:
 					sprintf (information + strlen (information), "%d", sound.getMod());
 					break;
 
-				case TYPE_VOL:
+				case VOL:
 					sprintf (information + strlen (information), "%d", sound.getVolume());
 					break;
 
-				case TYPE_SON:
+				case SON:
 					sprintf (information + strlen (information), "%d", sound.isOn());
 					break;
 
-				case TYPE_DTM:
+				case DTM:
 					sprintf (information + strlen (information), "%d", alarms.getDawnTime());
+					break;
+
+				default:
+					break;
 			}
 			sprintf (information + strlen (information), "z"); // Suffix
 

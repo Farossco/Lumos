@@ -11,7 +11,7 @@ class Json
 {
 public:
 	Json();
-	void send (char * status, char * message, WiFiClient * client);
+	void send (const char * status, const char * message, Stream * client, bool printHeader = true);
 };
 
 extern Json json;

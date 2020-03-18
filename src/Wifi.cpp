@@ -36,7 +36,7 @@ void Wifi::init ()
 	// Start the server
 	server.begin();
 
-	if (Log.isEnabledFor (LEVEL_TRACE, 1))
+	if (Log.isEnabledFor (LEVEL_TRACE))
 		WiFi.localIP().toString().toCharArray (buf, bufSize);
 
 	Log.trace ("Server started" dendl);
@@ -148,66 +148,107 @@ void Wifi::getTime ()
 
 void Wifi::receiveAndDecode ()
 {
-	client = server.available();
+	WiFiClient client = server.available();
 
-	if (millis() - restartTimeout > 300000) // Reconnecting to Wi-Fi every 5 min to avoid getting strangely stuck
-	{
-		Log.trace ("Disconnecting from Wi-FI..." dendl);
-		client.stop();
-		WiFi.disconnect();
+	/*
+	 *  if (millis() - restartTimeout > 300000) // Reconnecting to Wi-Fi every 5 min to avoid getting strangely stuck
+	 *  {
+	 *      Log.trace ("Disconnecting from Wi-FI..." dendl);
+	 *      client.stop();
+	 *      WiFi.disconnect();
+	 *
+	 *      init();
+	 *  }
+	 */
 
-		init();
-	}
+	if (!client.connected()) return;  // If nobody connected, we stop here
 
-	if (!client) return;  // If nobody connected, we stop here
+	String str;
 
-	const int bufSize = 500;
-	char bufArray[bufSize];
-	char * buf              = bufArray;
-	const int ipAddressSize = 20;
-	char ipAddress[ipAddressSize];
+	Log.trace ("Received request from %s" dendl, client.remoteIP().toString().c_str());
 
-	uint8_t length;
-
-	client.remoteIP().toString().toCharArray (ipAddress, ipAddressSize);
-
-	Log.trace ("Received request from %s" dendl, ipAddress);
+	Log.verbose ("Waiting for client data");
 
 	clientTimeout = millis();
 	while (!client.available()) // Wait until the client sends some data
 	{
-		if (Log.isEnabledFor (LEVEL_VERBOSE, 1))
-			delay (100);
+		if (Log.isEnabledFor (LEVEL_VERBOSE))
+			delay (10);
 		else
 			delay (1);
 
-		Log.verbose ("Waiting for client data..." endl);
+		Log.verbosenp (".");
 
 		if (millis() - clientTimeout > 2000)
 		{
+			Log.verbosenp (dendl);
 			Log.warning ("Client data timed out" endl);
 			client.stop();
 			return;
 		}
 	}
 
-	Log.verbosenp (endl);
+	Log.verbosenp (dendl);
 
-	length      = client.readBytesUntil ('\r', buf, bufSize);
-	buf[length] = '\0';
-	if (strstr (buf, "GET /favicon.ico") == buf)
+	str = client.readStringUntil ('\r');
+	client.flush();
+
+	if (!str.startsWith ("GET"))
 	{
-		Log.verbose ("Favicon request, ignoring..." dendl);
+		Log.warning ("Not a GET request, ignoring" dendl);
+		utils.printHeader (client);
+		client.print ("Use GET instead");
+		delay (1);
 		return;
 	}
-	Log.trace ("Request: %s" dendl, buf);
 
-	// Remove unwanted characteres ("GET /")
-	utils.reduceCharArray (&buf, 5);
+	if (str.startsWith ("GET /favicon.ico"))
+	{
+		Log.verbose ("Favicon request, ignoring..." dendl);
+		utils.printHeader (client);
+		client.print ("No favicon");
+		delay (1);
+		return;
+	}
+	
+	Log.trace ("Request: |%s|" dendl, str.c_str());
 
-	*strstr (buf, " ") = '\0'; // Terminating the array at the first space
+	str = str.substring (5, str.indexOf (' ', 5)); // Trimming the string from the end of "GET /" to where we meet the first space
 
-	request.decode (buf, SOURCE_ESP8266_WEBSERVER);
+	Req requestData = request.decode (str);
+
+	if (requestData.type == requestInfos)
+	{
+		Log.trace ("Sending to arduino: Nothing" dendl);
+		json.send ((char *) "OK", (char *) "", &client);
+
+		delay (1);
+
+		return;
+	}
+	if (requestData.error != none)
+	{
+		Log.trace ("Sending to arduino: Nothing" dendl);
+		json.send ((char *) "ERROR", (char *) utils.errorTypeName (requestData.error, true), &client);
+
+		delay (1);
+
+		return;
+	}
+
+	Log.trace ("Sending to arduino: ");
+
+	Serial.print (utils.messageTypeName (requestData.type, true));
+	if (requestData.type == RGB || requestData.type == POW || requestData.type == SPEED || requestData.type == SCO)
+		Serial.print (requestData.complement, DEC);
+	Serial.print (requestData.information, requestData.type == RGB ? HEX : DEC);
+	Serial.print ('z'); // End character
+
+	Log.tracenp (dendl);
+
+	json.send ((char *) "OK", (char *) "", &client);
+
+	delay (1);
 } // Wifi::receiveAndDecode
 
 Wifi wifi = Wifi();

@@ -3,3 +3,12 @@
 - colorize light music mod
 - EEPROM for Sound variables
 - Initialyse EEPROM for Alarm (Values for when EEPROM is new)
+- Optimize "utils.reduceCharArray"
+- json.send : change : pointer -> reference
+- json.send for Serial
+- Complement constant -> new enum
+- Concurrent clients possibility
+- Ability to print Strings on Logger
+- Improve Logger to use iostream ?
+- Make requests not case sensitive
+- Respond to POST and web interface for web browser

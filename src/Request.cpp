@@ -18,86 +18,83 @@
 # include "Wifi.h"
 #endif
 
-void Request::decode (char * request, uint8_t source)
+Req Request::decode (String str)
 {
-	int16_t requestLength = strlen (request);
-	uint8_t type;
-	uint8_t complement;
-	int32_t information;
-	int8_t error = ERR_NOE;
+	int16_t strLength = str.length();
+	Req requestData;
 
-	if (requestLength <= 0)
-		return;
-
-	complement  = 0;
-	information = 0;
-
-	if (strstr (request, "INFO") == request)
-		type = TYPE_RIF;
-	else if (strstr (request, "TIME") == request)
-		type = TYPE_RTM;
+	if (str.length() <= 0)
+	{
+		requestData.error = badString;
+		return requestData;
+	}
+	if (str.startsWith ("INFO") )
+		requestData.type = requestInfos;
+	else if (str.startsWith ("TIME"))
+		requestData.type = requestTime;
 	else
 	{
-		type  = TYPE_UNK;
-		error = ERR_UKR;
-
-		for (uint8_t i = TYPE_MIN; i <= TYPE_MAX; i++)
-			if (strstr (request, utils.infoTypeName (i, true)) == request)
+		// Test correspondance for every type
+		for (ReqMes i = MIN; i <= MAX; i++)
+			if (str.startsWith (utils.messageTypeName (i, true))) // If there is a match, we store it
 			{
-				type  = i;
-				error = ERR_NOE;
+				requestData.type  = i;
+				requestData.error = none;
 				break;
 			}
 
 		// [DEBUG] Printing full word, world length and information type
-		Log.verbose ("Word: %s" endl, request);
-		Log.verbose ("Length: %d" endl, requestLength);
-		Log.verbose ("Type: %s (%d)" endl, utils.infoTypeName (type, false), type);
+		Log.verbose ("Word: %s" endl, str.c_str());
+		Log.verbose ("Length: %d" endl, strLength);
+		Log.verbose ("Type: %s (%d)" endl, utils.messageTypeName (requestData.type, false), requestData.type);
 
-		utils.reduceCharArray (&request, 3); // Remove 3 first char of the array (The prefix)
+		str = str.substring (3); // Remove 3 first caracteres of the array (The prefix)
 
-		if (utils.infoTypeComplementType (type) != COMPLEMENT_TYPE_NONE)
+		// If the data type needs a complement
+		if (utils.messageTypeComplementType (requestData.type) != COMPLEMENT_TYPE_NONE)
 		{
-			complement = request[0] - '0';
-			utils.reduceCharArray (&request, 1); // Remove first char of the array (mod specifier)
+			requestData.complement = str.charAt (0) - '0'; // Store the complement
+			str                    = str.substring (1);    // Remove first char of the array (the complement)
 
-			if (utils.infoTypeComplementType (type) == COMPLEMENT_TYPE_LMO)
+			if (utils.messageTypeComplementType (requestData.type) == COMPLEMENT_TYPE_LMO)
 			{
-				Log.verbose ("Complement: %s (%d)" endl, utils.lightModName (complement, CAPS_FIRST), complement);
-				if (complement < LIGHT_MOD_MIN || complement > LIGHT_MOD_MAX)
-					error = ERR_UKC;
+				Log.verbose ("Complement: %s (%d)" endl, utils.lightModName (requestData.complement, CAPS_FIRST), requestData.complement);
+				if (requestData.complement < LIGHT_MOD_MIN || requestData.complement > LIGHT_MOD_MAX)
+					requestData.error = unknownComplement;
 			}
-			else if (utils.infoTypeComplementType (type) == COMPLEMENT_TYPE_SCP)
+			else if (utils.messageTypeComplementType (requestData.type) == COMPLEMENT_TYPE_SCP)
 			{
-				Log.verbose ("Command type: %s (%d)" endl, utils.soundCommandName (complement, CAPS_FIRST), complement);
-				if (complement < SOUND_COMMAND_MIN || complement > SOUND_COMMAND_MAX)
-					error = ERR_UKC;
+				Log.verbose ("Command type: %s (%d)" endl, utils.soundCommandName (requestData.complement, CAPS_FIRST), requestData.complement);
+				if (requestData.complement < SOUND_COMMAND_MIN || requestData.complement > SOUND_COMMAND_MAX)
+					requestData.error = unknownComplement;
 			}
 		}
 
-		Log.verbose ("%s: %s" endl, utils.infoTypeName (type, false), request);
+		Log.verbose ("%s: %s" endl, utils.messageTypeName (requestData.type, false), str.c_str());
 
-		information = strtol (request, NULL, type == TYPE_RGB ? 16 : 10);
+		requestData.information = strtol (str.c_str(), NULL, requestData.type == RGB ? 16 : 10);
 
-		if (type == TYPE_RGB)
-			Log.verbose ("%s (decoded): %x" endl, utils.infoTypeName (type, false), information);
+		if (requestData.type == RGB)
+			Log.verbose ("%s (decoded): %x" endl, utils.messageTypeName (requestData.type, false), requestData.information);
 		else
-			Log.verbose ("%s (decoded): %l" endl, utils.infoTypeName (type, false), information);
+			Log.verbose ("%s (decoded): %l" endl, utils.messageTypeName (requestData.type, false), requestData.information);
+
+		process (requestData);
 	}
 
-	process (type, complement, information, error, source);
+	return requestData;
 } // Request::decode
 
-void Request::process (uint8_t type, uint8_t complement, int32_t information, int8_t error, uint8_t source)
+void Request::process (Req requestData)
 {
-	if (error == ERR_NOE)
-		switch (type)
+	if (requestData.error == none)
+		switch (requestData.type)
 		{
-			case TYPE_TIM:
-				if (information <= 0)
-					error = ERR_OOB;
+			case TIM:
+				if (requestData.information <= 0)
+					requestData.error = outOfBound;
 				else
-					setTime (information);
+					setTime (requestData.information);
 
 				char buf[20];
 
@@ -106,26 +103,26 @@ void Request::process (uint8_t type, uint8_t complement, int32_t information, in
 				Log.trace ("Time (Current value) (readable): %s" endl, utils.clock (buf));
 				break;
 
-			case TYPE_RGB:
-				if (information < 0 || information > 0xFFFFFF)
-					error = ERR_OOB;
+			case RGB:
+				if ((uint32_t) requestData.information < LIGHT_MIN_RGB || (uint32_t) requestData.information > LIGHT_MAX_RGB)
+					requestData.error = outOfBound;
 				else
-					light.setRgb (information, complement);
+					light.setRgb (requestData.information, requestData.complement);
 
 				// Debug
-				Log.trace ("RGB   (Current value): %x" endl, light.getRgb (complement));
-				Log.verbose ("Red   (Current value): %d" endl, light.getRed (complement));
-				Log.verbose ("Green (Current value): %d" endl, light.getGreen (complement));
-				Log.verbose ("Blue  (Current value): %d" dendl, light.getBlue (complement));
+				Log.trace ("RGB   (Current value): %x" endl, light.getRgb (requestData.complement));
+				Log.verbose ("Red   (Current value): %d" endl, light.getRed (requestData.complement));
+				Log.verbose ("Green (Current value): %d" endl, light.getGreen (requestData.complement));
+				Log.verbose ("Blue  (Current value): %d" dendl, light.getBlue (requestData.complement));
 
 				break;
 
-			case TYPE_LON:
-				if (information != 0 && information != 1)
-					error = ERR_OOB;
+			case LON:
+				if (requestData.information != 0 && requestData.information != 1)
+					requestData.error = outOfBound;
 				else
 				{
-					if (information)
+					if (requestData.information == 1)
 						light.switchOn();
 					else
 						light.switchOff();
@@ -135,79 +132,79 @@ void Request::process (uint8_t type, uint8_t complement, int32_t information, in
 
 				break;
 
-			case TYPE_POW:
-				if (information < SEEKBAR_MIN || information > SEEKBAR_MAX)
-					error = ERR_OOB;
+			case POW:
+				if (requestData.information < SEEKBAR_MIN || requestData.information > SEEKBAR_MAX)
+					requestData.error = outOfBound;
 				else
-					light.setPower (utils.map (information, SEEKBAR_MIN, SEEKBAR_MAX, LIGHT_MIN_POWER, LIGHT_MAX_POWER), complement);
+					light.setPower (utils.map (requestData.information, SEEKBAR_MIN, SEEKBAR_MAX, LIGHT_MIN_POWER, LIGHT_MAX_POWER), requestData.complement);
 
-				Log.trace ("Power of %s (Current value): %d" dendl, utils.lightModName (complement, CAPS_NONE), light.getPower (complement));
+				Log.trace ("Power of %s (Current value): %d" dendl, utils.lightModName (requestData.complement, CAPS_NONE), light.getPower (requestData.complement));
 
 				break;
 
-			case TYPE_LMO:
-				if (information < LIGHT_MOD_MIN || information > LIGHT_MOD_MAX)
-					error = ERR_OOB;
+			case LMO:
+				if (requestData.information < LIGHT_MOD_MIN || requestData.information > LIGHT_MOD_MAX)
+					requestData.error = outOfBound;
 				else
 				{
-					light.setMod (information);
+					light.setMod (requestData.information);
 					light.switchOn();
 				}
 
-				Log.verbose ("Light mod (Text): %s (%d)" endl, utils.lightModName (information, CAPS_FIRST), information);
+				Log.verbose ("Light mod (Text): %s (%d)" endl, utils.lightModName (requestData.information, CAPS_FIRST), requestData.information);
 				Log.trace ("Light mod (Current value): %s (%d)" dendl, utils.lightModName (light.getMod(), CAPS_FIRST), light.getMod());
 
 				break;
 
-			case TYPE_SPE:
-				if (LIGHT_MIN_SPEED[complement] == 0 && LIGHT_MAX_SPEED[complement] == 0)
+			case SPEED:
+				if (LIGHT_MIN_SPEED[requestData.complement] == 0 && LIGHT_MAX_SPEED[requestData.complement] == 0)
 				{
-					if (information < 0)
-						error = ERR_OOB;
+					if (requestData.information < 0)
+						requestData.error = outOfBound;
 				}
 				else
 				{
-					if (information < SEEKBAR_MIN || information > SEEKBAR_MAX)
-						error = ERR_OOB;
+					if (requestData.information < SEEKBAR_MIN || requestData.information > SEEKBAR_MAX)
+						requestData.error = outOfBound;
 				}
 
-				if (error == ERR_NOE)
-					light.setSpeed (utils.map (information, SEEKBAR_MIN, SEEKBAR_MAX, LIGHT_MIN_SPEED[complement], LIGHT_MAX_SPEED[complement]), complement);
+				if (requestData.error == none)
+					light.setSpeed (utils.map (requestData.information, SEEKBAR_MIN, SEEKBAR_MAX, LIGHT_MIN_SPEED[requestData.complement], LIGHT_MAX_SPEED[requestData.complement]), requestData.complement);
 
 				// Debug
-				Log.verbose ("Min Speed: %d" endl, LIGHT_MIN_SPEED[complement]);
-				Log.verbose ("Max Speed: %d" endl, LIGHT_MAX_SPEED[complement]);
-				Log.trace ("Speed of %s (Current value): %d" dendl, utils.lightModName (complement, CAPS_NONE), light.getSpeed (complement));
+				Log.verbose ("Min Speed: %d" endl, LIGHT_MIN_SPEED[requestData.complement]);
+				Log.verbose ("Max Speed: %d" endl, LIGHT_MAX_SPEED[requestData.complement]);
+				Log.trace ("Speed of %s (Current value): %d" dendl, utils.lightModName (requestData.complement, CAPS_NONE), light.getSpeed (requestData.complement));
 
 				break;
 
-			case TYPE_SMO:
-				if (information < SOUND_MOD_MIN || information > SOUND_MOD_MAX)
-					error = ERR_OOB;
+			case SMO:
+				if (requestData.information < SOUND_MOD_MIN || requestData.information > SOUND_MOD_MAX)
+					requestData.error = outOfBound;
 				else
-					sound.setMod (information);
+					sound.setMod (requestData.information);
 
-				Log.verbose ("Sound mod (Text): %s (%d)" endl, utils.soundModName (information, CAPS_FIRST), information);
+				Log.verbose ("Sound mod (Text): %s (%d)" endl, utils.soundModName (requestData.information, CAPS_FIRST), requestData.information);
 				Log.trace ("Sound mod (Current value): %s (%d)" dendl, utils.soundModName (sound.getMod(), CAPS_FIRST), sound.getMod());
 
 				break;
 
-			case TYPE_VOL:
-				if (information < SOUND_VOLUME_MIN || information > SOUND_VOLUME_MAX)
-					error = ERR_OOB;
+			case VOL:
+				if (requestData.information < SOUND_VOLUME_MIN || requestData.information > SOUND_VOLUME_MAX)
+					requestData.error = outOfBound;
 				else
-					sound.setVolume (information);
+					sound.setVolume (requestData.information);
 
 				Log.trace ("Volume (Current value): %d" dendl, sound.getVolume());
 
 				break;
 
-			case TYPE_SON:
-				if (information != 0 && information != 1)
-					error = ERR_OOB;
+			case SON:
+				if (requestData.information != 0 && requestData.information != 1)
+					requestData.error = outOfBound;
 				else
 				{
-					if (information)
+					if (requestData.information)
 						sound.switchOn();
 					else
 						sound.switchOff();
@@ -216,86 +213,34 @@ void Request::process (uint8_t type, uint8_t complement, int32_t information, in
 				Log.trace ("On/Off (Current value): %T" dendl, sound.isOn());
 				break;
 
-			case TYPE_DTM:
-				if (information < 0 || information > 1439)
-					error = ERR_OOB;
+			case DTM:
+				if (requestData.information < 0 || requestData.information > 1439)
+					requestData.error = outOfBound;
 				else
 				{
-					alarms.setDawnTime (information);
+					alarms.setDawnTime (requestData.information);
 				}
 
 				Log.trace ("Dawn time (Current value): %d:%d (%d)" dendl, alarms.getDawnTime() / 60, alarms.getDawnTime() % 60, alarms.getDawnTime());
 				break;
 
-			case TYPE_SCO:
-				Log.verbose ("Command data: (%d)" dendl, information);
+			case SCO:
+				Log.verbose ("Command data: (%d)" dendl, requestData.information);
 
 				#if defined(LUMOS_ARDUINO_MEGA)
-				sound.command (complement, information);
+				sound.command (requestData.complement, requestData.information);
 				#endif
 
 				break;
+
+			default:
+				break;
 		}
 
-	if (error != ERR_NOE)
+	if (requestData.error != none)
 	{
 		Log.verbosenp (endl);
-		Log.warning ("Variable has not been changed (%s)" dendl, utils.errorTypeName (error, false));
-	}
-
-	switch (source)
-	{
-		#if defined(LUMOS_ARDUINO_MEGA)
-
-		case SOURCE_ARDUINO_SERIAL:
-			if (type == TYPE_RTM)
-			{
-				Log.trace ("I don't know anything about time... Let me ask the ESP" dendl);
-				serial.askForTime();
-			}
-			else if (type == TYPE_RIF)
-			{
-				variableChange.sendInfo(); // We send the variables values to the ESP8266
-			}
-
-		#endif // if defined(LUMOS_ARDUINO_MEGA)
-
-		#if defined(LUMOS_ESP8266)
-
-		case SOURCE_ESP8266_SERIAL:
-			if (type == TYPE_RTM)
-				serial.sendTime();  // We send the time to the Arduino
-			else if (type == TYPE_RIF)
-				Log.trace ("Info request needs to be sent by web client");
-			break;
-
-		case SOURCE_ESP8266_WEBSERVER:
-			if (type == TYPE_RIF)
-			{
-				Log.trace ("Sending to arduino: Nothing" dendl);
-				json.send ((char *) "OK", (char *) "", &wifi.client);
-				return;
-			}
-			if (error != ERR_NOE)
-			{
-				Log.trace ("Sending to arduino: Nothing" dendl);
-				json.send ((char *) "ERROR", (char *) utils.errorTypeName (error, true), &wifi.client);
-				return;
-			}
-
-			Log.trace ("Sending to arduino: ");
-
-			Serial.print (utils.infoTypeName (type, true));
-			if (type == TYPE_RGB || type == TYPE_POW || type == TYPE_SPE || type == TYPE_SCO)
-				Serial.print (complement, DEC);
-			Serial.print (information, type == TYPE_RGB ? HEX : DEC);
-			Serial.print ('z'); // End character
-
-			Log.tracenp (dendl);
-
-			json.send ((char *) "OK", (char *) "", &wifi.client);
-
-		#endif // if defined(LUMOS_ESP8266)
+		Log.warning ("Variable has not been changed (%s)" dendl, utils.errorTypeName (requestData.error, false));
 	}
 } // Request::process
 

@@ -24,8 +24,8 @@ public:
 	void init ();
 	void getTime ();
 	void receiveAndDecode ();
+	void sendHeader (Client & client);
 
-	WiFiClient client;
 	time_t clientTimeout, restartTimeout;
 
 private:

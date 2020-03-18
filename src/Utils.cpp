@@ -82,62 +82,62 @@ const char * Utils::soundCommandName (uint8_t command, uint8_t caps)
 	}
 }
 
-const char * Utils::infoTypeName (uint8_t infoType, boolean shortened)
+const char * Utils::messageTypeName (ReqMes messageType, boolean shortened)
 {
-	switch (infoType)
+	switch (messageType)
 	{
-		case TYPE_TIM:
+		case TIM:
 			return shortened ? "TIM" : "Time";
 
-		case TYPE_RGB:
+		case RGB:
 			return "RGB";
 
-		case TYPE_LON:
+		case LON:
 			return shortened ? "LON" : "Light On/Off";
 
-		case TYPE_POW:
+		case POW:
 			return shortened ? "POW" : "Light power";
 
-		case TYPE_LMO:
+		case LMO:
 			return shortened ? "LMO" : "Light mod";
 
-		case TYPE_SPE:
+		case SPEED:
 			return shortened ? "SPE" : "Light mod speed";
 
-		case TYPE_SMO:
+		case SMO:
 			return shortened ? "SMO" : "Sound mod";
 
-		case TYPE_VOL:
+		case VOL:
 			return shortened ? "VOL" : "Sound volume";
 
-		case TYPE_SON:
+		case SON:
 			return shortened ? "SON" : "Sound On/Off";
 
-		case TYPE_DTM:
+		case DTM:
 			return shortened ? "DTM" : "Dawn time";
 
-		case TYPE_SCO:
+		case SCO:
 			return shortened ? "SCO" : "Sound command";
 
 		default:
 			return shortened ? "UNK" : "Unknown";
 	}
-} // Utils::infoTypeName
+} // Utils::messageTypeName
 
-const char * Utils::errorTypeName (uint8_t infoType, boolean shortened)
+const char * Utils::errorTypeName (ReqErr errorType, boolean shortened)
 {
-	switch (infoType)
+	switch (errorType)
 	{
-		case ERR_NOE:
+		case none:
 			return "No error";
 
-		case ERR_OOB:
+		case outOfBound:
 			return shortened ? "Out of bounds" : "Error: Value is out of bounds";
 
-		case ERR_UKC:
-			return shortened ? "Unknowm command" : "Error: Unknowm command";
+		case unknownComplement:
+			return shortened ? "Unknowm complement" : "Error: Unknowm complement";
 
-		case ERR_UKR:
+		case unknowmType:
 			return shortened ? "Unknown request type" : "Error: Unknown request type";
 
 		default:
@@ -145,16 +145,16 @@ const char * Utils::errorTypeName (uint8_t infoType, boolean shortened)
 	}
 }
 
-const uint8_t Utils::infoTypeComplementBounds (uint8_t infoType, uint8_t minMax)
+const uint8_t Utils::messageTypeComplementBounds (ReqMes infoType, uint8_t minMax)
 {
 	switch (infoType)
 	{
-		case TYPE_RGB:
-		case TYPE_POW:
-		case TYPE_SPE:
+		case RGB:
+		case POW:
+		case SPEED:
 			return minMax == COMPLEMENT_MIN ? LIGHT_MOD_MIN : LIGHT_MOD_MAX;
 
-		case TYPE_SCO:
+		case SCO:
 			return minMax == COMPLEMENT_MIN ? SOUND_COMMAND_MIN : SOUND_COMMAND_MAX;
 
 		default:
@@ -162,16 +162,16 @@ const uint8_t Utils::infoTypeComplementBounds (uint8_t infoType, uint8_t minMax)
 	}
 }
 
-const uint8_t Utils::infoTypeComplementType (uint8_t infoType)
+const uint8_t Utils::messageTypeComplementType (ReqMes infoType)
 {
 	switch (infoType)
 	{
-		case TYPE_RGB:
-		case TYPE_POW:
-		case TYPE_SPE:
+		case RGB:
+		case POW:
+		case SPEED:
 			return COMPLEMENT_TYPE_LMO;
 
-		case TYPE_SCO:
+		case SCO:
 			return COMPLEMENT_TYPE_SCP;
 
 		default:
@@ -202,11 +202,13 @@ uint32_t Utils::map (float input, float inMin, float inMax, float outMin, float 
 	}
 }
 
-char * Utils::reduceCharArray (char ** array, uint16_t length)
+void Utils::printHeader (Stream & stream)
 {
-	*array += length;
-
-	return *array;
+	stream.println ("HTTP/1.1 200 OK");
+	stream.println ("Content-Type: application/json");
+	stream.println ("Device: ESP8266");
+	stream.println (""); // Do not forget this one
 }
+
 
 Utils utils = Utils();

@@ -49,7 +49,7 @@ void Bluetooth::action ()
 
 		Log.verbose ("Received data from bluetooth: %s" dendl, data);
 
-		request.decode (data, SOURCE_ARDUINO_BLUETOOTH);
+		request.decode (data);
 	}
 }
 

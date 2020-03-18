@@ -8,13 +8,14 @@
 # include "Request.h"
 # include "Utils.h"
 # include "TimeLib.h"
+# include "Json.h"
 
 void ESPSerial::init (long serialBaudRate)
 {
 	Serial.begin (serialBaudRate); // Initialize debug communication
 }
 
-// Receive datas from ESP8266 for Wi-Wi control
+// Receive data from ESP8266 for Wi-Wi control
 void ESPSerial::receiveAndDecode ()
 {
 	if (!Serial.available())
@@ -33,7 +34,13 @@ void ESPSerial::receiveAndDecode ()
 
 	buf[length] = '\0';
 
-	request.decode (buf, SOURCE_ESP8266_SERIAL);
+	Req requesttt = request.decode (buf);
+
+	if (requesttt.type == requestTime)
+		serial.sendTime();  // We send the time to the Arduino
+	else if (requesttt.type == requestInfos)
+		if (Log.isEnabledFor (LEVEL_INFO))
+			json.send ("OK", "", &Serial, false);
 }
 
 void ESPSerial::sendTime ()

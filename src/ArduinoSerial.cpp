@@ -62,7 +62,7 @@ void ArduinoSerial::askForTime ()
 	Serial1.print ("TIMEPLEASEz"); // z is the end character
 }
 
-// Receive datas from ESP8266 for Wi-Wi control
+// Receive data from ESP8266 for Wi-Wi control
 void ArduinoSerial::receiveAndDecode ()
 {
 	if (!Serial.available() && !Serial1.available())
@@ -80,7 +80,17 @@ void ArduinoSerial::receiveAndDecode ()
 
 	buf[length] = '\0';
 
-	request.decode (buf, SOURCE_ARDUINO_SERIAL);
+	Req requesttt = request.decode (buf);
+
+	if (requesttt.type == requestTime)
+	{
+		Log.trace ("I don't know anything about time... Let me ask the ESP" dendl);
+		serial.askForTime();
+	}
+	else if (requesttt.type == requestInfos)
+	{
+		variableChange.sendInfo(); // We send the variables values to the ESP8266
+	}
 }
 
 ArduinoSerial serial = ArduinoSerial();

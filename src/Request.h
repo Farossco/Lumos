@@ -3,42 +3,64 @@
 
 #include <Arduino.h>
 
-// Serial reception types
-const uint8_t TYPE_RTM      = -2; // Request : Time
-const uint8_t TYPE_RIF      = -1; // Request : Info
-const uint8_t TYPE_MIN      = 0;  // - Provide type minimum value -
-const uint8_t TYPE_UNK      = 0;  // Unknown type
-const uint8_t TYPE_TIM      = 1;  // Provide : Time
-const uint8_t TYPE_SEND_MIN = 2;  // - Send informations from this...
-const uint8_t TYPE_RGB      = 2;  // Provide : Light RGB
-const uint8_t TYPE_LON      = 3;  // Provide : Light On/off
-const uint8_t TYPE_POW      = 4;  // Provide : Light mod Power
-const uint8_t TYPE_LMO      = 5;  // Provide : Light mod
-const uint8_t TYPE_SPE      = 6;  // Provide : Light mod Speed
-const uint8_t TYPE_SMO      = 7;  // Provide : Sound mod
-const uint8_t TYPE_VOL      = 8;  // Provide : Sound volume
-const uint8_t TYPE_SON      = 9;  // Provide : Sound on/off
-const uint8_t TYPE_DTM      = 10; // Provide : Dawn time
-const uint8_t TYPE_SEND_MAX = 10; // ...to this -
-const uint8_t TYPE_SCO      = 11; // Provide : Sound free choice mod commands
-const uint8_t TYPE_MAX      = 11; // - Provide type maximum value -
+#define REQ_PREFIX_LENGTH 3 // The length of the request prefix
 
-const uint8_t SOURCE_ARDUINO_SERIAL    = 0;
-const uint8_t SOURCE_ARDUINO_BLUETOOTH = 1;
-const uint8_t SOURCE_ESP8266_SERIAL    = 2;
-const uint8_t SOURCE_ESP8266_WEBSERVER = 3;
+// Serial reception errors types
+enum ReqErr
+{
+	none              = 0, // No error
+	outOfBound        = 1, // Out of bound
+	unknownComplement = 2, // Unknown complement
+	unknowmType       = 3, // Unknown request
+	badString         = 4  // Malformed string
+};
 
-// Serial reception errors
-const uint8_t ERR_NOE = 0; // No error
-const uint8_t ERR_OOB = 1; // Out of bound
-const uint8_t ERR_UKC = 2; // Unknown complement
-const uint8_t ERR_UKR = 3; // Unknown request
+// Serial reception message types
+enum ReqMes : int
+{
+	MIN          = 0,  // - Provide type minimum value -
+	SEND_MIN     = 2,  // - First value to send to Serial -
+	SEND_MAX     = 10, // - Last value to send to Serial -
+	MAX          = 11, // - Provide type maximum value -
+
+	requestTime  = -2, // Request : Time
+	requestInfos = -1, // Request : Info
+
+	unknown      = 0, // Unknown type
+
+	TIM          = 1,  // Provide : Time
+	RGB          = 2,  // Provide : Light RGB
+	LON          = 3,  // Provide : Light On/off
+	POW          = 4,  // Provide : Light mod Power
+	LMO          = 5,  // Provide : Light mod
+	SPEED        = 6,  // Provide : Light mod Speed
+	SMO          = 7,  // Provide : Sound mod
+	VOL          = 8,  // Provide : Sound volume
+	SON          = 9,  // Provide : Sound on/off
+	DTM          = 10, // Provide : Dawn time
+	SCO          = 11  // Provide : Sound free choice mod commands
+};
+
+inline ReqMes& operator ++ (ReqMes& j, int) // <--- note -- must be a reference
+{
+	j = static_cast<ReqMes>((static_cast<int>(j) + 1) % MAX);
+
+	return j;
+}
+
+typedef struct REQ
+{
+	ReqMes  type        = unknown;
+	uint8_t complement  = 0;
+	int32_t information = 0;
+	ReqErr  error       = unknowmType;
+} Req;
 
 class Request
 {
 public:
-	void decode (char * request, uint8_t source);
-	void process (uint8_t type, uint8_t complement, int32_t information, int8_t error, uint8_t source);
+	Req decode (String str);
+	void process (Req request);
 };
 
 extern Request request;
