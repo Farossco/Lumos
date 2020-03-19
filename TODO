@@ -12,3 +12,4 @@
 - Improve Logger to use iostream ?
 - Make requests not case sensitive
 - Respond to POST and web interface for web browser
+- Try to avoid any loop and blocking possibility in the code (Serial reception, WiFi request, ...)

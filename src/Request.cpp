@@ -20,7 +20,6 @@
 
 Req Request::decode (String str)
 {
-	int16_t strLength = str.length();
 	Req requestData;
 
 	if (str.length() <= 0)
@@ -45,7 +44,7 @@ Req Request::decode (String str)
 
 		// [DEBUG] Printing full word, world length and information type
 		Log.verbose ("Word: %s" endl, str.c_str());
-		Log.verbose ("Length: %d" endl, strLength);
+		Log.verbose ("Length: %d" endl, str.length());
 		Log.verbose ("Type: %s (%d)" endl, utils.messageTypeName (requestData.type, false), requestData.type);
 
 		str = str.substring (3); // Remove 3 first caracteres of the array (The prefix)

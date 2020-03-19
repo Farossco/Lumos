@@ -68,19 +68,13 @@ void ArduinoSerial::receiveAndDecode ()
 	if (!Serial.available() && !Serial1.available())
 		return;
 
-	size_t bufSize = 14;
-	char buf[bufSize];
-
-	uint8_t length;
-
+	String str;
 	if (Serial.available())
-		length = Serial.readBytesUntil ('z', buf, bufSize);
+		str = Serial.readStringUntil ('z');
 	else if (Serial1.available())
-		length = Serial1.readBytesUntil ('z', buf, bufSize);
+		str = Serial1.readStringUntil ('z');
 
-	buf[length] = '\0';
-
-	Req requesttt = request.decode (buf);
+	Req requesttt = request.decode (str);
 
 	if (requesttt.type == requestTime)
 	{

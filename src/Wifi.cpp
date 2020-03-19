@@ -229,9 +229,8 @@ void Wifi::receiveAndDecode ()
 
 	String data = utils.messageTypeName (requestData.type, true);
 	if (utils.messageTypeComplementType (requestData.type) != COMPLEMENT_TYPE_NONE) data += requestData.complement;
-	data += requestData.information;
-	data += 'z';
 	data += utils.ltos (requestData.information, requestData.type == RGB ? HEX : DEC);
+	data += 'z';
 
 	Log.trace ("Sending to arduino: %s" dendl, data.c_str());
 	Serial1.print (data);
