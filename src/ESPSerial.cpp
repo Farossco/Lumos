@@ -10,56 +10,44 @@
 # include "TimeLib.h"
 # include "Json.h"
 
-void ESPSerial::init (long serialBaudRate)
+void ESPSerial::init (long serialBaudRate, long serial1BaudRate)
 {
-	Serial.begin (serialBaudRate); // Initialize debug communication
+	Serial.begin (serialBaudRate);  // Initialize debug communication
+	Serial1.begin (serial1BaudRate); // Initialize arduino communication
 }
 
-// Receive data from ESP8266 for Wi-Wi control
+// Receive data from Arduino
 void ESPSerial::receiveAndDecode ()
 {
 	if (!Serial.available())
 		return;
 
-	const int bufSize = 14;
-	char buf[bufSize];
-	uint8_t length;
+	String str = Serial.readStringUntil ('z');
 
-	if (Serial.available())
-		length = Serial.readBytesUntil ('z', buf, bufSize);
-	else if (Serial1.available())
-		length = Serial1.readBytesUntil ('z', buf, bufSize);
-	else
-		length = 0;
+	Req requestData = request.decode (str);
 
-	buf[length] = '\0';
-
-	Req requesttt = request.decode (buf);
-
-	if (requesttt.type == requestTime)
+	if (requestData.type == requestTime)
 		serial.sendTime();  // We send the time to the Arduino
-	else if (requesttt.type == requestInfos)
+	else if (requestData.type == requestInfos)
 		if (Log.isEnabledFor (LEVEL_INFO))
 			json.send ("OK", "", &Serial, false);
-}
+} // ESPSerial::receiveAndDecode
 
 void ESPSerial::sendTime ()
 {
 	char buf[30];
 
-	// wifi.getTime();
-
 	Log.trace ("Time is: %s" dendl, utils.clock (buf));
 
 	if (timeStatus() != timeNotSet)
 	{
-		Log.trace ("Sending time to arduino: ");
+		String str = "TIM";
+		str += now();
+		str += 'z';
 
-		Serial.print ("TIM");
-		Serial.print (now());
-		Serial.print ('z');
+		Log.trace ("Sending time to arduino: %s" dendl, str.c_str());
 
-		Log.tracenp (dendl);
+		Serial1.print (str.c_str());
 	}
 	else
 	{

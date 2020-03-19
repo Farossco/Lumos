@@ -41,6 +41,7 @@ public:
 	char * clock (char * buf); // a 20-char buf is necessary
 	uint32_t map (float input, float inMin, float inMax, float outMin, float outMax);
 	void printHeader (Stream & stream);
+	String ltos (uint32_t value, int base = DEC);
 };
 
 extern Utils utils;

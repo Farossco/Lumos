@@ -210,5 +210,27 @@ void Utils::printHeader (Stream & stream)
 	stream.println (""); // Do not forget this one
 }
 
+// Inspired from Print::printNumber
+String Utils::ltos (uint32_t value, int base)
+{
+	char buf[8 * sizeof(uint32_t) + 1]; // Assumes 8-bit chars plus zero byte.
+	char * str = &buf[sizeof(buf) - 1];
+
+	*str = '\0';
+
+	if (base < 2)
+		base = 10;
+
+	do
+	{
+		unsigned long m = value;
+		value /= base;
+		char c = m - base * value;
+		*--str = c < 10 ? c + '0' : c + 'A' - 10;
+	}
+	while(value);
+
+	return (String) str;
+}
 
 Utils utils = Utils();

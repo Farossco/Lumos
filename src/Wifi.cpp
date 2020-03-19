@@ -8,6 +8,7 @@
 # include <TimeLib.h>
 # include "Request.h"
 # include "Json.h"
+# include "Utils.h"
 
 Wifi::Wifi() : server (80)
 { }
@@ -91,7 +92,7 @@ void Wifi::getTime ()
 	}
 
 	Log.verbose ("Server answer:" endl);
-	Log.verbose ("<======================================== Start ========================================>" dendl);
+	Log.verbose ("<======================================== Start ========================================>" endl);
 
 	// Read all the lines of the reply from server and print them to Serial
 	while (client.available())
@@ -150,17 +151,6 @@ void Wifi::receiveAndDecode ()
 {
 	WiFiClient client = server.available();
 
-	/*
-	 *  if (millis() - restartTimeout > 300000) // Reconnecting to Wi-Fi every 5 min to avoid getting strangely stuck
-	 *  {
-	 *      Log.trace ("Disconnecting from Wi-FI..." dendl);
-	 *      client.stop();
-	 *      WiFi.disconnect();
-	 *
-	 *      init();
-	 *  }
-	 */
-
 	if (!client.connected()) return;  // If nobody connected, we stop here
 
 	String str;
@@ -179,11 +169,12 @@ void Wifi::receiveAndDecode ()
 
 		Log.verbosenp (".");
 
-		if (millis() - clientTimeout > 2000)
+		if (millis() - clientTimeout > 1000)
 		{
 			Log.verbosenp (dendl);
-			Log.warning ("Client data timed out" endl);
+			Log.warning ("Client data timed out" dendl);
 			client.stop();
+
 			return;
 		}
 	}
@@ -210,7 +201,7 @@ void Wifi::receiveAndDecode ()
 		delay (1);
 		return;
 	}
-	
+
 	Log.trace ("Request: |%s|" dendl, str.c_str());
 
 	str = str.substring (5, str.indexOf (' ', 5)); // Trimming the string from the end of "GET /" to where we meet the first space
@@ -236,15 +227,14 @@ void Wifi::receiveAndDecode ()
 		return;
 	}
 
-	Log.trace ("Sending to arduino: ");
+	String data = utils.messageTypeName (requestData.type, true);
+	if (utils.messageTypeComplementType (requestData.type) != COMPLEMENT_TYPE_NONE) data += requestData.complement;
+	data += requestData.information;
+	data += 'z';
+	data += utils.ltos (requestData.information, requestData.type == RGB ? HEX : DEC);
 
-	Serial.print (utils.messageTypeName (requestData.type, true));
-	if (requestData.type == RGB || requestData.type == POW || requestData.type == SPEED || requestData.type == SCO)
-		Serial.print (requestData.complement, DEC);
-	Serial.print (requestData.information, requestData.type == RGB ? HEX : DEC);
-	Serial.print ('z'); // End character
-
-	Log.tracenp (dendl);
+	Log.trace ("Sending to arduino: %s" dendl, data.c_str());
+	Serial1.print (data);
 
 	json.send ((char *) "OK", (char *) "", &client);
 

@@ -1,7 +1,7 @@
-#include <Arduino.h>
 #include <stdlib.h>
 #include <inttypes.h>
 #include <stdarg.h>
+#include <Arduino.h>
 #include <Time.h>
 #include "Logger.h"
 
@@ -22,8 +22,6 @@ void Logger::init (Print * output1, uint8_t output1Level)
 	multiOutput = false;
 }
 
-#if defined(LUMOS_ARDUINO_MEGA)
-
 void Logger::init (Print * output1, uint8_t output1Level, Print * output2, uint8_t output2Level)
 {
 	init (output1, output1Level);
@@ -33,8 +31,6 @@ void Logger::init (Print * output1, uint8_t output1Level, Print * output2, uint8
 
 	multiOutput = true;
 }
-
-#endif // if defined(LUMOS_ARDUINO_MEGA)
 
 bool Logger::isEnabledFor (int level, int output)
 {

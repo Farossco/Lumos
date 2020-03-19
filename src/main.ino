@@ -11,14 +11,16 @@
 #include "Wifi.h"
 #include "Infrared.h"
 
-const boolean WAIT_FOR_TIME = true;   // If we have to wait for time sync (if true, program will not start until time is synced)
-const long ESP_BAUD_RATE    = 115200;   // ESP8266 communication baud rate
-const long DEBUG_BAUD_RATE  = 250000; // Debug baud rate
+const boolean WAIT_FOR_TIME = true; // If the Arduino has to wait for time sync (if true, program will not start until time is synced)
+
+const long ARDUINO_DEBUG_BAUD_RATE = 250000; // Arduino debug baud rate
+const long COMM_BAUD_RATE          = 115200; // ESP8266 communication baud rate
+const long ESP_DEBUG_BAUD_RATE     = 115200; // ESP8266 debug baud rate
 
 #if defined(LUMOS_ARDUINO_MEGA) // Arduino code
 void setup ()
 {
-	serial.init (DEBUG_BAUD_RATE, ESP_BAUD_RATE);
+	serial.init (ARDUINO_DEBUG_BAUD_RATE, COMM_BAUD_RATE);
 
 	Log.init (&Serial, LEVEL_VERBOSE);
 
@@ -68,7 +70,7 @@ void loop ()
 #if defined(LUMOS_ESP8266) // ESP8266 Code
 void setup ()
 {
-	serial.init (ESP_BAUD_RATE);
+	serial.init (ESP_DEBUG_BAUD_RATE, COMM_BAUD_RATE);
 
 	Log.init (&Serial, LEVEL_VERBOSE);
 

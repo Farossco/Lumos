@@ -43,7 +43,7 @@ enum ReqMes : int
 
 inline ReqMes& operator ++ (ReqMes& j, int) // <--- note -- must be a reference
 {
-	j = static_cast<ReqMes>((static_cast<int>(j) + 1) % MAX);
+	j = static_cast<ReqMes>((static_cast<int>(j) + 1));
 
 	return j;
 }
