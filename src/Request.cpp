@@ -109,10 +109,11 @@ void Request::process (Req requestData)
 					light.setRgb (requestData.information, requestData.complement);
 
 				// Debug
-				Log.trace ("RGB   (Current value): %x" endl, light.getRgb (requestData.complement));
-				Log.verbose ("Red   (Current value): %d" endl, light.getRed (requestData.complement));
-				Log.verbose ("Green (Current value): %d" endl, light.getGreen (requestData.complement));
-				Log.verbose ("Blue  (Current value): %d" dendl, light.getBlue (requestData.complement));
+				Log.trace   ("RGB of %s (Current value): %d" endl, utils.lightModName (requestData.complement, CAPS_NONE), light.getRgb (requestData.complement));
+				Log.verbose ("Red       (Current value): %d" endl, light.getRed (requestData.complement));
+				Log.verbose ("Green     (Current value): %d" endl, light.getGreen (requestData.complement));
+				Log.verbose ("Blue      (Current value): %d" endl, light.getBlue (requestData.complement));
+				Log.trace (endl);
 
 				break;
 
@@ -145,10 +146,7 @@ void Request::process (Req requestData)
 				if (requestData.information < LIGHT_MOD_MIN || requestData.information > LIGHT_MOD_MAX)
 					requestData.error = outOfBound;
 				else
-				{
 					light.setMod (requestData.information);
-					light.switchOn();
-				}
 
 				Log.verbose ("Light mod (Text): %s (%d)" endl, utils.lightModName (requestData.information, CAPS_FIRST), requestData.information);
 				Log.trace ("Light mod (Current value): %s (%d)" dendl, utils.lightModName (light.getMod(), CAPS_FIRST), light.getMod());

@@ -36,55 +36,25 @@ public:
 	void init (Print * output1, uint8_t output1Level, Print * output2, uint8_t output2Level);
 	bool isEnabledFor (int level, int output = 1);
 
-	template <class T, typename ... Args> void error (T msg, Args ... args)
-	{
-		printLevel (true, LEVEL_ERROR, msg, args ...);
-	}
+	template <class T, typename ... Args> void error (T msg, Args ... args){ printLevel (true, LEVEL_ERROR, msg, args ...); }
 
-	template <class T, typename ... Args> void errornp (T msg, Args ... args)
-	{
-		printLevel (false, LEVEL_ERROR, msg, args ...);
-	}
+	template <class T, typename ... Args> void errornp (T msg, Args ... args){ printLevel (false, LEVEL_ERROR, msg, args ...); }
 
-	template <class T, typename ... Args> void warning (T msg, Args ... args)
-	{
-		printLevel (true, LEVEL_WARNING, msg, args ...);
-	}
+	template <class T, typename ... Args> void warning (T msg, Args ... args){ printLevel (true, LEVEL_WARNING, msg, args ...); }
 
-	template <class T, typename ... Args> void warningnp (T msg, Args ... args)
-	{
-		printLevel (false, LEVEL_WARNING, msg, args ...);
-	}
+	template <class T, typename ... Args> void warningnp (T msg, Args ... args){ printLevel (false, LEVEL_WARNING, msg, args ...); }
 
-	template <class T, typename ... Args> void info (T msg, Args ... args)
-	{
-		printLevel (true, LEVEL_INFO, msg, args ...);
-	}
+	template <class T, typename ... Args> void info (T msg, Args ... args){ printLevel (true, LEVEL_INFO, msg, args ...); }
 
-	template <class T, typename ... Args> void infonp (T msg, Args ... args)
-	{
-		printLevel (false, LEVEL_INFO, msg, args ...);
-	}
+	template <class T, typename ... Args> void infonp (T msg, Args ... args){ printLevel (false, LEVEL_INFO, msg, args ...); }
 
-	template <class T, typename ... Args> void trace (T msg, Args ... args)
-	{
-		printLevel (true, LEVEL_TRACE, msg, args ...);
-	}
+	template <class T, typename ... Args> void trace (T msg, Args ... args){ printLevel (true, LEVEL_TRACE, msg, args ...); }
 
-	template <class T, typename ... Args> void tracenp (T msg, Args ... args)
-	{
-		printLevel (false, LEVEL_TRACE, msg, args ...);
-	}
+	template <class T, typename ... Args> void tracenp (T msg, Args ... args){ printLevel (false, LEVEL_TRACE, msg, args ...); }
 
-	template <class T, typename ... Args> void verbose (T msg, Args ... args)
-	{
-		printLevel (true, LEVEL_VERBOSE, msg, args ...);
-	}
+	template <class T, typename ... Args> void verbose (T msg, Args ... args){ printLevel (true, LEVEL_VERBOSE, msg, args ...); }
 
-	template <class T, typename ... Args> void verbosenp (T msg, Args ... args)
-	{
-		printLevel (false, LEVEL_VERBOSE, msg, args ...);
-	}
+	template <class T, typename ... Args> void verbosenp (T msg, Args ... args){ printLevel (false, LEVEL_VERBOSE, msg, args ...); }
 
 private:
 	void print (Print * output, const char * format, va_list args);

@@ -12,7 +12,7 @@
 
 void ESPSerial::init (long serialBaudRate, long serial1BaudRate)
 {
-	Serial.begin (serialBaudRate);  // Initialize debug communication
+	Serial.begin (serialBaudRate);   // Initialize debug communication
 	Serial1.begin (serial1BaudRate); // Initialize arduino communication
 }
 
