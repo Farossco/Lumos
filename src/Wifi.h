@@ -6,6 +6,7 @@
 #if defined(LUMOS_ESP8266)
 
 # include <ESP8266WiFi.h>
+# include "ClientList.h"
 
 # define TIME_FORMAT "json"         // Format for receive the time
 # define TIME_KEY    "0D2WZ3KAP6GV" // TimeZoneDB API key
@@ -15,6 +16,7 @@
 // Time
 const int TIME_REQUEST_TIMEOUT = 15000; // Request timeout
 const int TIME_HTTP_PORT       = 80;    // HTPP port
+const int CLIENT_TIMEOUT       = 5000;  // Client timeout in ms
 # define TIME_HOST "api.timezonedb.com" // HTPP host
 
 class Wifi
@@ -30,6 +32,7 @@ public:
 
 private:
 	WiFiServer server;
+	ClientList list;
 };
 
 extern Wifi wifi;

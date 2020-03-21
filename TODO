@@ -5,7 +5,6 @@
 - json.send : change : pointer -> reference
 - json.send for Serial
 - Complement constant -> new enum
-- Concurrent clients possibility
 - Ability to print Strings on Logger
 - Improve Logger to use iostream ?
 - Make requests not case sensitive

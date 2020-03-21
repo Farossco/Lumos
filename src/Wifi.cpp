@@ -10,38 +10,35 @@
 # include "Json.h"
 # include "Utils.h"
 
-Wifi::Wifi() : server (80)
+Wifi::Wifi() : server (80), list()
 { }
 
 void Wifi::init ()
 {
-	const int bufSize = 20;
-	char buf[bufSize];
-
 	WiFi.mode (WIFI_STA);
 
-	// Connect to WiFi network
-	Log.trace ("Connecting to %s", SSID0);
+	Log.trace ("Connecting to " SSID0);
 
 	WiFi.begin (SSID0, PASS0);
 
+	time_t a = millis();
 	while (WiFi.status() != WL_CONNECTED)
 	{
-		delay (500);
-		Log.tracenp (".");
+		if (millis() - a >= 500)
+		{
+			Log.tracenp (".");
+			a = millis();
+		}
+		delay (1);
 	}
 	Log.tracenp (endl);
 
 	Log.trace ("WiFi connected" dendl);
 
-	// Start the server
 	server.begin();
 
-	if (Log.isEnabledFor (LEVEL_TRACE))
-		WiFi.localIP().toString().toCharArray (buf, bufSize);
-
 	Log.trace ("Server started" dendl);
-	Log.trace ("Local IP: %s" dendl, buf);
+	Log.trace ("Local IP: %s" dendl, WiFi.localIP().toString().c_str());
 
 	restartTimeout = millis();
 }
@@ -54,11 +51,8 @@ void Wifi::getTime ()
 	DynamicJsonDocument doc (capacity);
 
 	WiFiClient client;
-	const int lineSize = 200;
-	char line[lineSize];
-	char * pLine     = line; // we create a pointer that we can increment
+	String line, status;
 	const char url[] = "/v2.1/get-time-zone?format=" TIME_FORMAT "&key=" TIME_KEY "&by=" TIME_BY "&zone=" TIME_ZONE "&fields=" TIME_FIELDS;
-	const char * status;
 	unsigned long timeout, timestamp;
 
 	Log.trace ("Connecting to %s" dendl, TIME_HOST);
@@ -95,52 +89,46 @@ void Wifi::getTime ()
 	Log.verbose ("<======================================== Start ========================================>" endl);
 
 	// Read all the lines of the reply from server and print them to Serial
-	while (client.available())
+	while (client.available() && line.indexOf ("{\"status\"") == -1)
 	{
-		size_t length = client.readBytesUntil ('\r', pLine, lineSize);
-		pLine[length] = '\0';
-
-		Log.verbose ("%s" endl, pLine[0] == '\n' || pLine[0] == '\r' ? pLine + 1 : pLine); // [DEBUG] We print the line we're currently reading
-		if (strstr (pLine, "{\"status\"") == pLine + 1)
-			break;
+		line = client.readStringUntil ('\r');
+		Log.verbosenp ("%s" endl, line.charAt (0) == '\n' ? line.c_str() + 1 : line.c_str()); // [DEBUG] We print the line we're currently reading
 	}
 	Log.verbose ("<========================================= End =========================================>" dendl);
 
-	if (strstr (pLine, "{\"status\"") == pLine + 1)
+	if (line.indexOf ("{\"status\"") == 1) // The first charactere is a nl
 	{
 		Log.trace ("Success !" dendl);
 
-		pLine++; // The first charactere is a nl, so we don't want it
+		line = line.substring (1); // The first charactere is a nl, so we don't want it
 	}
 	else
 	{
-		Log.error ("Failed ! (%d)" dendl, strstr (pLine, "{\"status\"") - pLine);
+		Log.error ("Failed ! (%d)" dendl, line.indexOf ("{\"status\""));
 	}
 
 	Log.trace ("Closing connection" dendl);
 
-	// At this point, the json of the answer is in the pline variable,
-	// that's actually the one we want
+	// At this point, the json of the answer is in the string,
+	// that's actually the line we want
 
-	Log.verbose ("Json: \"%s\"" dendl, pLine);
+	Log.verbose ("Json: \"%s\"" dendl, line.c_str());
 
 	// Deserialize the JSON document
-	deserializeJson (doc, pLine);
+	deserializeJson (doc, line.c_str(), line.length());
 
-	status    = doc["status"];
+	status    = ((const char *) doc["status"]);
 	timestamp = doc["timestamp"];
 
-	Log.trace ("Status: %s" dendl, status);
+	Log.trace ("Status : |%s| " dendl, status.c_str());
 
-	if (status[0] != 'O' || status[1] != 'K')
+	if (status.indexOf ("OK") != 0)
 	{
-		Log.error ("Wrong status, leaving." dendl);
+		Log.error ("Wrong status, leaving. (%s)" dendl, status.c_str());
 		return;
 	}
 
 	Log.trace ("Timestamp: %l" dendl, timestamp);
-
-	Log.trace ("Setting Time to: %l" dendl, timestamp);
 
 	setTime (timestamp);
 
@@ -149,95 +137,99 @@ void Wifi::getTime ()
 
 void Wifi::receiveAndDecode ()
 {
-	WiFiClient client = server.available();
+	clientListItem &item = list.getItem (server);
+	WiFiClient &client   = item.client;
 
-	if (!client.connected()) return;  // If nobody connected, we stop here
-
-	String str;
-
-	Log.trace ("Received request from %s" dendl, client.remoteIP().toString().c_str());
-
-	Log.verbose ("Waiting for client data");
-
-	clientTimeout = millis();
-	while (!client.available()) // Wait until the client sends some data
+	if (!client.connected())
 	{
-		if (Log.isEnabledFor (LEVEL_VERBOSE))
-			delay (10);
-		else
-			delay (1);
-
-		Log.verbosenp (".");
-
-		if (millis() - clientTimeout > 1000)
-		{
-			Log.verbosenp (dendl);
-			Log.warning ("Client data timed out" dendl);
-			client.stop();
-
-			return;
-		}
-	}
-
-	Log.verbosenp (dendl);
-
-	str = client.readStringUntil ('\r');
-	client.flush();
-
-	if (!str.startsWith ("GET"))
-	{
-		Log.warning ("Not a GET request, ignoring" dendl);
-		utils.printHeader (client);
-		client.print ("Use GET instead");
-		delay (1);
+		list.removeItem (item);
 		return;
 	}
 
-	if (str.startsWith ("GET /favicon.ico"))
+	switch (item.state)
 	{
-		Log.verbose ("Favicon request, ignoring..." dendl);
-		utils.printHeader (client);
-		client.print ("No favicon");
-		delay (1);
-		return;
+		case connected:
+			Log.trace ("Received request from %s" dendl, client.remoteIP().toString().c_str());
+
+			item.timeout = millis();
+			item.count   = millis();
+			item.state   = awaitingData;
+
+			break;
+
+		case awaitingData:
+			if (client.available())
+			{
+				item.state = processData;
+				break;
+			}
+
+			if (millis() - clientTimeout > CLIENT_TIMEOUT)
+			{
+				Log.warning ("Client data timed out" dendl);
+
+				list.removeItem (item);
+				Log.trace ("Removing item - n = %d" dendl, list.getLength());
+			}
+			break;
+
+		case processData:
+			String str;
+
+			str = client.readStringUntil ('\r');
+			client.flush();
+
+			Log.trace ("Request: |%s|" dendl, str.c_str());
+
+			if (!str.startsWith ("GET"))
+			{
+				Log.warning ("Not a GET request, ignoring" dendl);
+				utils.printHeader (client);
+				client.print ("Use GET instead");
+			}
+			else if (str.startsWith ("GET /favicon.ico"))
+			{
+				Log.trace ("Favicon request, ignoring..." dendl);
+				utils.printHeader (client);
+				client.print ("No favicon");
+			}
+			else
+			{
+				str = str.substring (5, str.indexOf (' ', 5)); // Trimming the string from the end of "GET /" to where we meet the first space
+
+				Req requestData = request.decode (str);
+
+				if (requestData.type == requestInfos)
+				{
+					Log.trace ("Sending to arduino: Nothing" dendl);
+					json.send ((char *) "OK", (char *) "", &client);
+				}
+				else if (requestData.error != none)
+				{
+					Log.trace ("Sending to arduino: Nothing" dendl);
+					json.send ((char *) "ERROR", (char *) utils.errorTypeName (requestData.error, true), &client);
+				}
+				else
+				{
+					String data = utils.messageTypeName (requestData.type, true);
+					if (utils.messageTypeComplementType (requestData.type) != COMPLEMENT_TYPE_NONE) data += requestData.complement;
+					data += utils.ltos (requestData.information, requestData.type == RGB ? HEX : DEC);
+					data += 'z';
+
+					Log.trace ("Sending to arduino: %s" dendl, data.c_str());
+					Serial1.print (data);
+
+					json.send ((char *) "OK", (char *) "", &client);
+				}
+			}
+
+			list.removeItem (item);
+			Log.trace ("Removing item - n = %d" dendl, list.getLength());
+
+			break;
 	}
-
-	Log.trace ("Request: |%s|" dendl, str.c_str());
-
-	str = str.substring (5, str.indexOf (' ', 5)); // Trimming the string from the end of "GET /" to where we meet the first space
-
-	Req requestData = request.decode (str);
-
-	if (requestData.type == requestInfos)
-	{
-		Log.trace ("Sending to arduino: Nothing" dendl);
-		json.send ((char *) "OK", (char *) "", &client);
-
-		delay (1);
-
-		return;
-	}
-	if (requestData.error != none)
-	{
-		Log.trace ("Sending to arduino: Nothing" dendl);
-		json.send ((char *) "ERROR", (char *) utils.errorTypeName (requestData.error, true), &client);
-
-		delay (1);
-
-		return;
-	}
-
-	String data = utils.messageTypeName (requestData.type, true);
-	if (utils.messageTypeComplementType (requestData.type) != COMPLEMENT_TYPE_NONE) data += requestData.complement;
-	data += utils.ltos (requestData.information, requestData.type == RGB ? HEX : DEC);
-	data += 'z';
-
-	Log.trace ("Sending to arduino: %s" dendl, data.c_str());
-	Serial1.print (data);
-
-	json.send ((char *) "OK", (char *) "", &client);
-
-	delay (1);
+	
+	delay(10);
 } // Wifi::receiveAndDecode
 
 Wifi wifi = Wifi();
