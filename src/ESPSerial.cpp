@@ -10,26 +10,27 @@
 # include "TimeLib.h"
 # include "Json.h"
 
-void ESPSerial::init (long serialBaudRate, long serial1BaudRate)
+void ESPSerial::init (long debugSerialrate, long comSerialRate)
 {
-	Serial.begin (serialBaudRate);   // Initialize debug communication
-	Serial1.begin (serial1BaudRate); // Initialize arduino communication
+	debugSerial.begin (debugSerialrate); // Initialize debug communication
+	comSerialRx.begin (comSerialRate);   // Initialize arduino Rx communication
+	comSerialTx.begin (comSerialRate);   // Initialize arduino Tx communication
 }
 
 // Receive data from Arduino
 void ESPSerial::receiveAndDecode ()
 {
-	if (!Serial.available())
+	if (!comSerialRx.available())
 		return;
 
-	String str = Serial.readStringUntil ('z');
+	String str = comSerialRx.readStringUntil ('z');
 
 	RequestData requestData = request.decode (str);
 
 	if (requestData.type == requestTime)
 		serial.sendTime();  // We send the time to the Arduino
 	else if (requestData.type == requestInfos)
-		Log.verbose(json.get("OK", "").c_str());
+		Log.verbose (json.get ("OK", "").c_str());
 } // ESPSerial::receiveAndDecode
 
 void ESPSerial::sendTime ()
@@ -44,12 +45,17 @@ void ESPSerial::sendTime ()
 
 		Log.trace ("Sending time to arduino: %s" dendl, str.c_str());
 
-		Serial1.print (str.c_str());
+		comSerialTx.print (str.c_str());
 	}
 	else
 	{
 		Log.warning ("Time not set, not sending time to arduino..." dendl);
 	}
+}
+
+void ESPSerial::getInfos ()
+{
+	comSerialTx.print ("INFOz");
 }
 
 ESPSerial serial = ESPSerial();

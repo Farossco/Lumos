@@ -11,9 +11,14 @@
 class ESPSerial
 {
 public:
-	void init (long serialBaudRate, long serial1BaudRate);
+	void init (long comSerialRate, long debugSerialrate);
 	void receiveAndDecode ();
 	void sendTime ();
+	void getInfos ();
+
+	HardwareSerial &comSerialRx = Serial;
+	HardwareSerial &comSerialTx = Serial1;
+	HardwareSerial &debugSerial = Serial;
 };
 
 extern ESPSerial serial;

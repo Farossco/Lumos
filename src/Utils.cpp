@@ -283,6 +283,8 @@ String Utils::ltos (uint32_t value, int base)
 
 MessageType Utils::getMessageTypeFromName (String message)
 {
+	message.toUpperCase();
+	
 	// Test correspondance for every type
 	for (MessageType i = MIN; i <= MAX; i++)
 		if (message == utils.messageTypeName (i)) // If there is a match, we return it

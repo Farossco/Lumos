@@ -87,9 +87,9 @@ void SdCard::init ()
 	tempDisabled = false;
 } // SdCard::init
 
-File * SdCard::getFile ()
+File & SdCard::getFile ()
 {
-	return &logFile;
+	return logFile;
 }
 
 boolean SdCard::fileIsOpened ()

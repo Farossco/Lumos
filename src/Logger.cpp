@@ -14,20 +14,20 @@ Logger::Logger()
 	output2      = NULL;
 }
 
-void Logger::init (Print * output1, uint8_t output1Level)
+void Logger::init (Print & output1, uint8_t output1Level)
 {
 	this->output1Level = constrain (output1Level, LEVEL_SILENT, LEVEL_VERBOSE);
-	this->output1      = output1;
+	this->output1      = &output1;
 
 	multiOutput = false;
 }
 
-void Logger::init (Print * output1, uint8_t output1Level, Print * output2, uint8_t output2Level)
+void Logger::init (Print & output1, uint8_t output1Level, Print & output2, uint8_t output2Level)
 {
 	init (output1, output1Level);
 
 	this->output2Level = constrain (output2Level, LEVEL_SILENT, LEVEL_VERBOSE);
-	this->output2      = output2;
+	this->output2      = &output2;
 
 	multiOutput = true;
 }

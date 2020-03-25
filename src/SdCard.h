@@ -21,7 +21,7 @@ class SdCard
 public:
 	SdCard();
 	void init ();
-	File * getFile ();
+	File & getFile ();
 	boolean isEnabled ();
 	boolean fileIsOpened ();
 	boolean fileIsClosed ();

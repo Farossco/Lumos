@@ -31,8 +31,8 @@ private:
 public:
 	Logger();
 
-	void init (Print * output1, uint8_t output1Level);
-	void init (Print * output1, uint8_t output1Level, Print * output2, uint8_t output2Level);
+	void init (Print & output1, uint8_t output1Level);
+	void init (Print & output1, uint8_t output1Level, Print & output2, uint8_t output2Level);
 	bool isEnabledFor (int level, int output = 1);
 
 	template <class T, typename ... Args> void error (T msg, Args ... args){ printLevel (true, LEVEL_ERROR, msg, args ...); }

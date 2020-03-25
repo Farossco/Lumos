@@ -22,7 +22,7 @@ void setup ()
 {
 	serial.init (ARDUINO_DEBUG_BAUD_RATE, COMM_BAUD_RATE);
 
-	Log.init (&Serial, LEVEL_VERBOSE);
+	Log.init (serial.debugSerial, LEVEL_VERBOSE);
 
 	light.init();
 
@@ -31,7 +31,7 @@ void setup ()
 
 	// sd.init();
 
-	Log.init (&Serial, LEVEL_VERBOSE, sd.getFile(), LEVEL_VERBOSE);
+	// Log.init (serial.debugSerial, LEVEL_VERBOSE, sd.getFile(), LEVEL_VERBOSE);
 
 	infrared.init();
 
@@ -72,13 +72,15 @@ void setup ()
 {
 	serial.init (ESP_DEBUG_BAUD_RATE, COMM_BAUD_RATE);
 
-	Log.init (&Serial, LEVEL_VERBOSE);
+	Log.init (serial.debugSerial, LEVEL_INFO);
 
 	wifi.init();
 
 	wifi.getTime();
 
 	serial.sendTime();
+
+	serial.getInfos();
 }
 
 void loop ()

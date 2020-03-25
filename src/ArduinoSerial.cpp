@@ -9,28 +9,13 @@
 
 void ArduinoSerial::init (uint32_t serialBaudRate)
 {
-	Serial.begin (serialBaudRate); // Initialize debug communication
+	debugSerial.begin (serialBaudRate); // Initialize debug communication
 }
 
 void ArduinoSerial::init (uint32_t serialBaudRate, uint32_t serial1BaudRate)
 {
-	Serial.begin (serialBaudRate);   // Initialize debug communication
-	Serial1.begin (serial1BaudRate); // Initialize ESP8266 communication
-}
-
-void ArduinoSerial::init (uint32_t serialBaudRate, uint32_t serial1BaudRate, uint32_t serial2BaudRate)
-{
-	Serial.begin (serialBaudRate);   // Initialize debug communication
-	Serial1.begin (serial1BaudRate); // Initialize ESP8266 communication
-	Serial2.begin (serial2BaudRate); // Initialize DFPlayer communication
-}
-
-void ArduinoSerial::init (uint32_t serialBaudRate, uint32_t serial1BaudRate, uint32_t serial2BaudRate, uint32_t serial3BaudRate)
-{
-	Serial.begin (serialBaudRate);   // Initialize debug communication
-	Serial1.begin (serial1BaudRate); // Initialize ESP8266 communication
-	Serial2.begin (serial2BaudRate); // Initialize DFPlayer communication
-	Serial3.begin (serial3BaudRate); // Initialize DFPlayer communication
+	debugSerial.begin (serialBaudRate); // Initialize debug communication
+	comSerial.begin (serial1BaudRate);  // Initialize ESP8266 communication
 }
 
 void ArduinoSerial::waitForTime ()
@@ -59,20 +44,20 @@ void ArduinoSerial::waitForTime ()
 void ArduinoSerial::askForTime ()
 {
 	Log.verbose ("Kindly asking ESP for time" dendl);
-	Serial1.print ("TIMEPLEASEz"); // z is the end character
+	comSerial.print ("TIMEPLEASEz"); // z is the end character
 }
 
 // Receive data from ESP8266 for Wi-Wi control
 void ArduinoSerial::receiveAndDecode ()
 {
-	if (!Serial.available() && !Serial1.available())
+	if (!debugSerial.available() && !comSerial.available())
 		return;
 
 	String str;
-	if (Serial.available())
-		str = Serial.readStringUntil ('z');
-	else if (Serial1.available())
-		str = Serial1.readStringUntil ('z');
+	if (debugSerial.available())
+		str = debugSerial.readStringUntil ('z');
+	else if (comSerial.available())
+		str = comSerial.readStringUntil ('z');
 
 	RequestData requestData = request.decode (str);
 

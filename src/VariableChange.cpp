@@ -10,6 +10,7 @@
 #include "Request.h"
 #include "Utils.h"
 #include "Alarms.h"
+#include "ArduinoSerial.h"
 
 VariableChange::VariableChange()
 { }
@@ -162,7 +163,7 @@ void VariableChange::sendInfo ()
 			sprintf (information + strlen (information), "z"); // Suffix
 
 			Log.verbosenp ("%s", information);
-			Serial1.print (information);
+			serial.comSerial.print (information);
 		}
 	}
 

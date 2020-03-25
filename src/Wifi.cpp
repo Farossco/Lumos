@@ -9,6 +9,7 @@
 # include "Wifi.h"
 # include "Request.h"
 # include "Json.h"
+# include "ESPSerial.h"
 
 void _handleRoot (){ wifi.handleRoot(); }
 
@@ -193,7 +194,7 @@ void Wifi::handleCommand ()
 			data += 'z';
 
 			Log.trace ("Sending to arduino: %s" dendl, data.c_str());
-			Serial1.print (data);
+			serial.comSerialTx.print (data);
 		}
 
 		message = json.getPretty ("OK", "");
@@ -227,7 +228,6 @@ void Wifi::handleWebRequests ()
 		message += " NAME:" + server.argName (i) + "\n VALUE:" + server.arg (i) + "\n";
 	}
 	server.send (404, "text/plain", message);
-	Serial.println (message);
 }
 
 bool Wifi::loadFromSpiffs (String path)
