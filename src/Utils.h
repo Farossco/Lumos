@@ -34,14 +34,15 @@ public:
 	const char * lightModName (uint8_t mod, uint8_t caps);
 	const char * soundModName (uint8_t mod, uint8_t caps);
 	const char * soundCommandName (uint8_t mod, uint8_t caps);
-	const char * messageTypeName (ReqMes messageType, boolean shortened);
-	const char * errorTypeName (ReqErr errorType, boolean shortened);
-	const uint8_t messageTypeComplementBounds (ReqMes messageType, uint8_t minMax);
-	const uint8_t messageTypeComplementType (ReqMes messageType);
-	char * clock (char * buf); // a 20-char buf is necessary
+	const char * messageTypeName (MessageType MessageType);
+	const char * messageTypeDisplayName (MessageType MessageType);
+	const char * errorTypeName (ErrorType ErrorType);
+	const uint8_t messageTypeComplementBounds (MessageType MessageType, uint8_t minMax);
+	const uint8_t messageTypeComplementType (MessageType MessageType);
+	String clock ();
 	uint32_t map (float input, float inMin, float inMax, float outMin, float outMax);
-	void printHeader (Stream & stream);
 	String ltos (uint32_t value, int base = DEC);
+	MessageType getMessageTypeFromName (String message);
 };
 
 extern Utils utils;

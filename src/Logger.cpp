@@ -194,21 +194,15 @@ const char * Logger::debugLevelSpace (uint8_t debugLevel)
 {
 	switch (debugLevel)
 	{
-		case LEVEL_ERROR:
-			return "  ";
-
-		case LEVEL_WARNING:
-			return "";
-
 		case LEVEL_INFO:
 			return "   ";
 
+		case LEVEL_ERROR:
 		case LEVEL_TRACE:
 			return "  ";
 
+		case LEVEL_WARNING:
 		case LEVEL_VERBOSE:
-			return "";
-
 		default:
 			return "";
 	}

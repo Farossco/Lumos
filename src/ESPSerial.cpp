@@ -24,20 +24,17 @@ void ESPSerial::receiveAndDecode ()
 
 	String str = Serial.readStringUntil ('z');
 
-	Req requestData = request.decode (str);
+	RequestData requestData = request.decode (str);
 
 	if (requestData.type == requestTime)
 		serial.sendTime();  // We send the time to the Arduino
 	else if (requestData.type == requestInfos)
-		if (Log.isEnabledFor (LEVEL_INFO))
-			json.send ("OK", "", &Serial, false);
+		Log.verbose(json.get("OK", "").c_str());
 } // ESPSerial::receiveAndDecode
 
 void ESPSerial::sendTime ()
 {
-	char buf[30];
-
-	Log.trace ("Time is: %s" dendl, utils.clock (buf));
+	Log.trace ("Time is: %s" endl, utils.clock().c_str());
 
 	if (timeStatus() != timeNotSet)
 	{

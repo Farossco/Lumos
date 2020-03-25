@@ -11,7 +11,8 @@ class Json
 {
 public:
 	Json();
-	void send (const char * status, const char * message, Stream * client, bool printHeader = true);
+	String getPretty (const char * status, const char * message);
+	String get (const char * status, const char * message, bool pretty = false);
 };
 
 extern Json json;

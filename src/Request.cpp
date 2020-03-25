@@ -7,45 +7,25 @@
 #include "Alarms.h"
 #include "Sound.h"
 
-#if defined(LUMOS_ARDUINO_MEGA)
-# include "ArduinoSerial.h"
-# include "VariableChange.h"
-#endif
-
-#if defined(LUMOS_ESP8266)
-# include "ESPSerial.h"
-# include "Json.h"
-# include "Wifi.h"
-#endif
-
-Req Request::decode (String str)
+RequestData Request::decode (String str)
 {
-	Req requestData;
+	RequestData requestData;
 
 	if (str.length() <= 0)
-	{
 		requestData.error = badString;
-		return requestData;
-	}
-	if (str.startsWith ("INFO") )
+	else if (str.startsWith ("INFO") )
 		requestData.type = requestInfos;
 	else if (str.startsWith ("TIME"))
 		requestData.type = requestTime;
 	else
 	{
-		// Test correspondance for every type
-		for (ReqMes i = MIN; i <= MAX; i++)
-			if (str.startsWith (utils.messageTypeName (i, true))) // If there is a match, we store it
-			{
-				requestData.type  = i;
-				requestData.error = none;
-				break;
-			}
+		if ((requestData.type = utils.getMessageTypeFromName (str.substring (0, 3))) != unknown)
+			requestData.error = noError;
 
 		// [DEBUG] Printing full word, world length and information type
-		Log.verbose ("Word: %s" endl, str.c_str());
+		Log.trace ("Word: %s" endl, str.c_str());
 		Log.verbose ("Length: %d" endl, str.length());
-		Log.verbose ("Type: %s (%d)" endl, utils.messageTypeName (requestData.type, false), requestData.type);
+		Log.verbose ("Type: %s (%d)" endl, utils.messageTypeDisplayName (requestData.type), requestData.type);
 
 		str = str.substring (3); // Remove 3 first caracteres of the array (The prefix)
 
@@ -69,14 +49,14 @@ Req Request::decode (String str)
 			}
 		}
 
-		Log.verbose ("%s: %s" endl, utils.messageTypeName (requestData.type, false), str.c_str());
+		Log.verbose ("%s: %s" endl, utils.messageTypeDisplayName (requestData.type), str.c_str());
 
 		requestData.information = strtol (str.c_str(), NULL, requestData.type == RGB ? 16 : 10);
 
 		if (requestData.type == RGB)
-			Log.verbose ("%s (decoded): %x" endl, utils.messageTypeName (requestData.type, false), requestData.information);
+			Log.verbose ("%s (decoded): %x" endl, utils.messageTypeDisplayName (requestData.type), requestData.information);
 		else
-			Log.verbose ("%s (decoded): %l" endl, utils.messageTypeName (requestData.type, false), requestData.information);
+			Log.verbose ("%s (decoded): %l" endl, utils.messageTypeDisplayName (requestData.type), requestData.information);
 
 		process (requestData);
 	}
@@ -84,22 +64,45 @@ Req Request::decode (String str)
 	return requestData;
 } // Request::decode
 
-void Request::process (Req requestData)
+RequestData Request::decode (String prefix, String complement, String information)
 {
-	if (requestData.error == none)
+	RequestData requestData;
+
+	if (prefix.length() <= 0)
+		requestData.error = badString;
+	else
+	{
+		if ((requestData.type = utils.getMessageTypeFromName (prefix)) != unknown)
+			requestData.error = noError;
+
+		if (prefix == "INFO")
+			requestData.type = requestInfos;
+		else
+		{
+			requestData.complement  = complement.toInt();
+			requestData.information = strtol (information.c_str(), NULL, requestData.type == RGB ? 16 : 10);
+
+			process (requestData);
+		}
+	}
+
+	return requestData;
+}
+
+void Request::process (RequestData requestData)
+{
+	if (requestData.error == noError)
 		switch (requestData.type)
 		{
-			case TIM:
+			case provideTime:
 				if (requestData.information <= 0)
 					requestData.error = outOfBound;
 				else
 					setTime (requestData.information);
 
-				char buf[20];
-
 				// Debug
 				Log.verbose ("Time (Current value): %l" endl, now());
-				Log.trace ("Time (Current value) (readable): %s" endl, utils.clock (buf));
+				Log.trace ("Time (Current value) (readable): %s" endl, utils.clock().c_str());
 				break;
 
 			case RGB:
@@ -113,7 +116,7 @@ void Request::process (Req requestData)
 				Log.verbose ("Red       (Current value): %d" endl, light.getRed (requestData.complement));
 				Log.verbose ("Green     (Current value): %d" endl, light.getGreen (requestData.complement));
 				Log.verbose ("Blue      (Current value): %d" endl, light.getBlue (requestData.complement));
-				Log.trace (endl);
+				Log.tracenp (endl);
 
 				break;
 
@@ -165,7 +168,7 @@ void Request::process (Req requestData)
 						requestData.error = outOfBound;
 				}
 
-				if (requestData.error == none)
+				if (requestData.error == noError)
 					light.setSpeed (utils.map (requestData.information, SEEKBAR_MIN, SEEKBAR_MAX, LIGHT_MIN_SPEED[requestData.complement], LIGHT_MAX_SPEED[requestData.complement]), requestData.complement);
 
 				// Debug
@@ -221,7 +224,7 @@ void Request::process (Req requestData)
 				Log.trace ("Dawn time (Current value): %d:%d (%d)" dendl, alarms.getDawnTime() / 60, alarms.getDawnTime() % 60, alarms.getDawnTime());
 				break;
 
-			case SCO:
+			case soundCommand:
 				Log.verbose ("Command data: (%d)" dendl, requestData.information);
 
 				#if defined(LUMOS_ARDUINO_MEGA)
@@ -234,11 +237,8 @@ void Request::process (Req requestData)
 				break;
 		}
 
-	if (requestData.error != none)
-	{
-		Log.verbosenp (endl);
-		Log.warning ("Variable has not been changed (%s)" dendl, utils.errorTypeName (requestData.error, false));
-	}
+	if (requestData.error != noError)
+		Log.warning ("Variable has not been changed (%s)" dendl, utils.errorTypeName (requestData.error));
 } // Request::process
 
 Request request = Request();

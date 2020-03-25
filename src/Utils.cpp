@@ -82,70 +82,124 @@ const char * Utils::soundCommandName (uint8_t command, uint8_t caps)
 	}
 }
 
-const char * Utils::messageTypeName (ReqMes messageType, boolean shortened)
+const char * Utils::messageTypeName (MessageType MessageType)
 {
-	switch (messageType)
+	switch (MessageType)
 	{
-		case TIM:
-			return shortened ? "TIM" : "Time";
+		case requestTime:
+			return "TIME";
+
+		case requestInfos:
+			return "INFO";
+
+		case provideTime:
+			return "TIM";
+
+		case soundCommand:
+			return "SCO";
 
 		case RGB:
 			return "RGB";
 
 		case LON:
-			return shortened ? "LON" : "Light On/Off";
+			return "LON";
 
 		case POW:
-			return shortened ? "POW" : "Light power";
+			return "POW";
 
 		case LMO:
-			return shortened ? "LMO" : "Light mod";
+			return "LMO";
 
 		case SPEED:
-			return shortened ? "SPE" : "Light mod speed";
+			return "SPE";
 
 		case SMO:
-			return shortened ? "SMO" : "Sound mod";
+			return "SMO";
 
 		case VOL:
-			return shortened ? "VOL" : "Sound volume";
+			return "VOL";
 
 		case SON:
-			return shortened ? "SON" : "Sound On/Off";
+			return "SON";
 
 		case DTM:
-			return shortened ? "DTM" : "Dawn time";
-
-		case SCO:
-			return shortened ? "SCO" : "Sound command";
+			return "DTM";
 
 		default:
-			return shortened ? "UNK" : "Unknown";
+			return "UNK";
 	}
 } // Utils::messageTypeName
 
-const char * Utils::errorTypeName (ReqErr errorType, boolean shortened)
+const char * Utils::messageTypeDisplayName (MessageType MessageType)
 {
-	switch (errorType)
+	switch (MessageType)
 	{
-		case none:
+		case requestTime:
+			return "Time request";
+
+		case requestInfos:
+			return "Info request";
+
+		case provideTime:
+			return "Time";
+
+		case soundCommand:
+			return "Sound command";
+
+		case RGB:
+			return "RGB";
+
+		case LON:
+			return "Light On/Off";
+
+		case POW:
+			return "Light power";
+
+		case LMO:
+			return "Light mod";
+
+		case SPEED:
+			return "Light mod speed";
+
+		case SMO:
+			return "Sound mod";
+
+		case VOL:
+			return "Sound volume";
+
+		case SON:
+			return "Sound On/Off";
+
+		case DTM:
+			return "Dawn time";
+
+		default:
+			return "Unknown";
+	}
+} // Utils::messageTypeName
+
+const char * Utils::errorTypeName (ErrorType ErrorType)
+{
+	switch (ErrorType)
+	{
+		case noError:
 			return "No error";
 
 		case outOfBound:
-			return shortened ? "Out of bounds" : "Error: Value is out of bounds";
+			return "Out of bounds";
 
 		case unknownComplement:
-			return shortened ? "Unknowm complement" : "Error: Unknowm complement";
+			return "Unknowm complement";
 
 		case unknowmType:
-			return shortened ? "Unknown request type" : "Error: Unknown request type";
+			return "Unknown request type ";
 
 		default:
-			return "Unknown error";
+			return "Unknown error ";
 	}
 }
 
-const uint8_t Utils::messageTypeComplementBounds (ReqMes infoType, uint8_t minMax)
+const uint8_t Utils::messageTypeComplementBounds (MessageType infoType, uint8_t minMax)
 {
 	switch (infoType)
 	{
@@ -154,7 +208,7 @@ const uint8_t Utils::messageTypeComplementBounds (ReqMes infoType, uint8_t minMa
 		case SPEED:
 			return minMax == COMPLEMENT_MIN ? LIGHT_MOD_MIN : LIGHT_MOD_MAX;
 
-		case SCO:
+		case soundCommand:
 			return minMax == COMPLEMENT_MIN ? SOUND_COMMAND_MIN : SOUND_COMMAND_MAX;
 
 		default:
@@ -162,7 +216,7 @@ const uint8_t Utils::messageTypeComplementBounds (ReqMes infoType, uint8_t minMa
 	}
 }
 
-const uint8_t Utils::messageTypeComplementType (ReqMes infoType)
+const uint8_t Utils::messageTypeComplementType (MessageType infoType)
 {
 	switch (infoType)
 	{
@@ -171,7 +225,7 @@ const uint8_t Utils::messageTypeComplementType (ReqMes infoType)
 		case SPEED:
 			return COMPLEMENT_TYPE_LMO;
 
-		case SCO:
+		case soundCommand:
 			return COMPLEMENT_TYPE_SCP;
 
 		default:
@@ -180,8 +234,10 @@ const uint8_t Utils::messageTypeComplementType (ReqMes infoType)
 }
 
 // Requires a 23-char buffer
-char * Utils::clock (char * buf)
+String Utils::clock ()
 {
+	char buf[25];
+
 	sprintf (buf, "%.2d/%.2d/%.4d %.2d:%.2d:%.2d::%.3ld", day(), month(), year(), hour(), minute(), second(), (millis() % 1000));
 
 	return buf;
@@ -200,14 +256,6 @@ uint32_t Utils::map (float input, float inMin, float inMax, float outMin, float 
 
 		return outMin + round (slope * (input - inMin));
 	}
-}
-
-void Utils::printHeader (Stream & stream)
-{
-	stream.println ("HTTP/1.1 200 OK");
-	stream.println ("Content-Type: application/json");
-	stream.println ("Device: ESP8266");
-	stream.println (""); // Do not forget this one
 }
 
 // Inspired from Print::printNumber
@@ -231,6 +279,16 @@ String Utils::ltos (uint32_t value, int base)
 	while(value);
 
 	return (String) str;
+}
+
+MessageType Utils::getMessageTypeFromName (String message)
+{
+	// Test correspondance for every type
+	for (MessageType i = MIN; i <= MAX; i++)
+		if (message == utils.messageTypeName (i)) // If there is a match, we return it
+			return i;
+
+	return unknown;
 }
 
 Utils utils = Utils();

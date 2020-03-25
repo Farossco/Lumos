@@ -1,17 +1,16 @@
 #ifndef ESP_WIFI_H
 #define ESP_WIFI_H
 
-#include <Arduino.h>
+// #include <Arduino.h>
 
 #if defined(LUMOS_ESP8266)
 
-# include <ESP8266WiFi.h>
-# include "ClientList.h"
+# include <ESP8266WebServer.h>
 
-# define TIME_FORMAT "json"         // Format for receive the time
-# define TIME_KEY    "0D2WZ3KAP6GV" // TimeZoneDB API key
-# define TIME_BY     "zone"         // localization method
-# define TIME_FIELDS "timestamp"    // Needed fields in the answer
+# define TIME_FORMAT "json"           // Format for receive the time
+# define TIME_KEY    ESP_TIME_API_KEY // TimeZoneDB API key
+# define TIME_BY     "zone"           // localization method
+# define TIME_FIELDS "timestamp"      // Needed fields in the answer
 
 // Time
 const int TIME_REQUEST_TIMEOUT = 15000; // Request timeout
@@ -23,16 +22,19 @@ class Wifi
 {
 public:
 	Wifi();
+	Wifi(Wifi && copy);
+
 	void init ();
 	void getTime ();
 	void receiveAndDecode ();
-	void sendHeader (Client & client);
 
-	time_t clientTimeout, restartTimeout;
+	void handleRoot ();
+	void handleCommand ();
+	void handleWebRequests ();
 
 private:
-	WiFiServer server;
-	ClientList list;
+	ESP8266WebServer server;
+	bool loadFromSpiffs (String path);
 };
 
 extern Wifi wifi;

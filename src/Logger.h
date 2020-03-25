@@ -27,7 +27,6 @@ private:
 	uint8_t output1Level, output2Level;
 	bool multiOutput;
 	Print * output1, * output2;
-	char buf[35];
 
 public:
 	Logger();
@@ -63,7 +62,7 @@ private:
 	void printPrefix (Print * output, uint8_t level)
 	{
 		output->print (F ("["));
-		output->print (utils.clock (buf));
+		output->print (utils.clock ());
 		output->print (F ("] ["));
 
 		#if defined(LUMOS_ARDUINO_MEGA)

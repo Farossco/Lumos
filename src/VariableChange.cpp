@@ -110,13 +110,13 @@ void VariableChange::sendInfo ()
 	Log.trace ("Sending variables infos to the ESP8266" dendl);
 	Log.verbose (""); // Printing prefix once before entering the loop
 
-	for (ReqMes i = SEND_MIN; i <= SEND_MAX; i++)
+	for (MessageType i = SEND_MIN; i <= SEND_MAX; i++)
 	{
 		for (uint8_t j = utils.messageTypeComplementBounds (i, COMPLEMENT_MIN); j <= utils.messageTypeComplementBounds (i, COMPLEMENT_MAX); j++)
 		{
 			char information[15] = "\n";
 
-			sprintf (information, "%s", utils.messageTypeName (static_cast<ReqMes>(i), true)); // Prefix
+			sprintf (information, "%s", utils.messageTypeName (i)); // Prefix
 
 			switch (i) // info
 			{
@@ -136,7 +136,7 @@ void VariableChange::sendInfo ()
 					sprintf (information + strlen (information), "%d", light.getMod());
 					break;
 
-				case SPE:
+				case SPEED:
 					sprintf (information + strlen (information), "%d%d", j, (uint16_t) utils.map (light.getSpeed (j), LIGHT_MIN_SPEED[j], LIGHT_MAX_SPEED[j], SEEKBAR_MIN, SEEKBAR_MAX));
 					break;
 

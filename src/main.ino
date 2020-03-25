@@ -14,7 +14,7 @@
 const boolean WAIT_FOR_TIME = true; // If the Arduino has to wait for time sync (if true, program will not start until time is synced)
 
 const long ARDUINO_DEBUG_BAUD_RATE = 250000; // Arduino debug baud rate
-const long COMM_BAUD_RATE          = 115200; // ESP8266 communication baud rate
+const long COMM_BAUD_RATE          = 115200; // ESP8266/Arduino communication baud rate
 const long ESP_DEBUG_BAUD_RATE     = 115200; // ESP8266 debug baud rate
 
 #if defined(LUMOS_ARDUINO_MEGA) // Arduino code

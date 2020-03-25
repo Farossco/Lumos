@@ -2,15 +2,24 @@
 
 #if defined(LUMOS_ESP8266)
 
-# include "Wifi.h"
 # include <ArduinoJson.h>
-# include "Logger.h"
 # include <TimeLib.h>
+# include "Utils.h"
+# include "Logger.h"
+# include "Wifi.h"
 # include "Request.h"
 # include "Json.h"
-# include "Utils.h"
 
-Wifi::Wifi() : server (80), list()
+void _handleRoot (){ wifi.handleRoot(); }
+
+void _handleCommand (){ wifi.handleCommand(); }
+
+void _handleWebRequests (){ wifi.handleWebRequests(); }
+
+Wifi::Wifi() : server (80)
+{ }
+
+Wifi::Wifi (Wifi && copy)
 { }
 
 void Wifi::init ()
@@ -35,13 +44,16 @@ void Wifi::init ()
 
 	Log.trace ("WiFi connected" dendl);
 
+	SPIFFS.begin();
+
+	server.on ("/", _handleRoot);
+	server.on ("/command", _handleCommand);
+	server.onNotFound (_handleWebRequests);
 	server.begin();
 
-	Log.trace ("Server started" dendl);
+	Log.trace ("Server started" endl);
 	Log.trace ("Local IP: %s" dendl, WiFi.localIP().toString().c_str());
-
-	restartTimeout = millis();
-}
+} // Wifi::init
 
 void Wifi::getTime ()
 {
@@ -55,7 +67,7 @@ void Wifi::getTime ()
 	const char url[] = "/v2.1/get-time-zone?format=" TIME_FORMAT "&key=" TIME_KEY "&by=" TIME_BY "&zone=" TIME_ZONE "&fields=" TIME_FIELDS;
 	unsigned long timeout, timestamp;
 
-	Log.trace ("Connecting to %s" dendl, TIME_HOST);
+	Log.trace ("Connecting to %s" endl, TIME_HOST);
 
 	// Use WiFiClient class to create TCP connections
 	if (!client.connect (TIME_HOST, TIME_HTTP_PORT))
@@ -98,21 +110,21 @@ void Wifi::getTime ()
 
 	if (line.indexOf ("{\"status\"") == 1) // The first charactere is a nl
 	{
-		Log.trace ("Success !" dendl);
+		Log.trace ("Success !" endl);
 
 		line = line.substring (1); // The first charactere is a nl, so we don't want it
 	}
 	else
 	{
-		Log.error ("Failed ! (%d)" dendl, line.indexOf ("{\"status\""));
+		Log.error ("Failed ! (%d)" endl, line.indexOf ("{\"status\""));
 	}
 
-	Log.trace ("Closing connection" dendl);
+	Log.trace ("Closing connection" endl);
 
 	// At this point, the json of the answer is in the string,
 	// that's actually the line we want
 
-	Log.verbose ("Json: \"%s\"" dendl, line.c_str());
+	Log.verbose ("Json: \"%s\"" endl, line.c_str());
 
 	// Deserialize the JSON document
 	deserializeJson (doc, line.c_str(), line.length());
@@ -120,15 +132,15 @@ void Wifi::getTime ()
 	status    = ((const char *) doc["status"]);
 	timestamp = doc["timestamp"];
 
-	Log.trace ("Status : |%s| " dendl, status.c_str());
+	Log.trace ("Status : |%s| " endl, status.c_str());
 
 	if (status.indexOf ("OK") != 0)
 	{
-		Log.error ("Wrong status, leaving. (%s)" dendl, status.c_str());
+		Log.error ("Wrong status, leaving. (%s)" endl, status.c_str());
 		return;
 	}
 
-	Log.trace ("Timestamp: %l" dendl, timestamp);
+	Log.trace ("Timestamp: %l" endl, timestamp);
 
 	setTime (timestamp);
 
@@ -137,100 +149,126 @@ void Wifi::getTime ()
 
 void Wifi::receiveAndDecode ()
 {
-	clientListItem &item = list.getItem (server);
-	WiFiClient &client   = item.client;
+	server.handleClient();
+}
 
-	if (!client.connected())
+void Wifi::handleRoot ()
+{
+	Log.trace ("Received request from %s" endl, server.client().localIP().toString().c_str());
+
+	Log.trace ("Request: |/|");
+
+	server.sendHeader ("Location", "/index.html", true);
+	server.send (302, "text/html", "");
+}
+
+void Wifi::handleCommand ()
+{
+	RequestData requestData;
+	String message;
+
+	Log.trace ("Received request from %s" endl, server.client().localIP().toString().c_str());
+
+	Log.trace ("Request: |%s|", server.uri().c_str());
+	for (int i = 0; i < server.args(); i++)
+		Log.tracenp (" |%s=%s|", server.argName (i).c_str(), server.arg (i).c_str());
+	Log.tracenp (dendl);
+
+	requestData = request.decode (server.arg ("type"), server.arg ("comp"), server.arg ("value"));
+
+	if (requestData.error != noError)
 	{
-		list.removeItem (item);
+		Log.trace ("Sending to arduino: Nothing" dendl);
+		message = json.getPretty ("ERROR", utils.errorTypeName (requestData.error));
+	}
+	else
+	{
+		if (requestData.type == requestInfos)
+			Log.trace ("Sending to arduino: Nothing" dendl);
+		else
+		{
+			String data = utils.messageTypeName (requestData.type);
+			if (utils.messageTypeComplementType (requestData.type) != COMPLEMENT_TYPE_NONE) data += requestData.complement;
+			data += utils.ltos (requestData.information, requestData.type == RGB ? HEX : DEC);
+			data += 'z';
+
+			Log.trace ("Sending to arduino: %s" dendl, data.c_str());
+			Serial1.print (data);
+		}
+
+		message = json.getPretty ("OK", "");
+	}
+
+	server.send (200, "application/json", message);
+} // Wifi::handleCommand
+
+void Wifi::handleWebRequests ()
+{
+	Log.trace ("Received request from %s" endl, server.client().localIP().toString().c_str());
+
+	Log.trace ("Request: |%s|", server.uri().c_str());
+	for (int i = 0; i < server.args(); i++)
+		Log.tracenp (" |%s=%s|", server.argName (i).c_str(), server.arg (i).c_str());
+	Log.tracenp (dendl);
+
+	if (loadFromSpiffs (server.uri()))
 		return;
-	}
 
-	switch (item.state)
+	String message = "File Not Detected\n\n";
+	message += "URI: ";
+	message += server.uri();
+	message += "\nMethod: ";
+	message += (server.method() == HTTP_GET) ? "GET" : "POST";
+	message += "\nArguments: ";
+	message += server.args();
+	message += "\n";
+	for (uint8_t i = 0; i < server.args(); i++)
 	{
-		case connected:
-			Log.trace ("Received request from %s" dendl, client.remoteIP().toString().c_str());
-
-			item.timeout = millis();
-			item.count   = millis();
-			item.state   = awaitingData;
-
-			break;
-
-		case awaitingData:
-			if (client.available())
-			{
-				item.state = processData;
-				break;
-			}
-
-			if (millis() - clientTimeout > CLIENT_TIMEOUT)
-			{
-				Log.warning ("Client data timed out" dendl);
-
-				list.removeItem (item);
-				Log.trace ("Removing item - n = %d" dendl, list.getLength());
-			}
-			break;
-
-		case processData:
-			String str;
-
-			str = client.readStringUntil ('\r');
-			client.flush();
-
-			Log.trace ("Request: |%s|" dendl, str.c_str());
-
-			if (!str.startsWith ("GET"))
-			{
-				Log.warning ("Not a GET request, ignoring" dendl);
-				utils.printHeader (client);
-				client.print ("Use GET instead");
-			}
-			else if (str.startsWith ("GET /favicon.ico"))
-			{
-				Log.trace ("Favicon request, ignoring..." dendl);
-				utils.printHeader (client);
-				client.print ("No favicon");
-			}
-			else
-			{
-				str = str.substring (5, str.indexOf (' ', 5)); // Trimming the string from the end of "GET /" to where we meet the first space
-
-				Req requestData = request.decode (str);
-
-				if (requestData.type == requestInfos)
-				{
-					Log.trace ("Sending to arduino: Nothing" dendl);
-					json.send ((char *) "OK", (char *) "", &client);
-				}
-				else if (requestData.error != none)
-				{
-					Log.trace ("Sending to arduino: Nothing" dendl);
-					json.send ((char *) "ERROR", (char *) utils.errorTypeName (requestData.error, true), &client);
-				}
-				else
-				{
-					String data = utils.messageTypeName (requestData.type, true);
-					if (utils.messageTypeComplementType (requestData.type) != COMPLEMENT_TYPE_NONE) data += requestData.complement;
-					data += utils.ltos (requestData.information, requestData.type == RGB ? HEX : DEC);
-					data += 'z';
-
-					Log.trace ("Sending to arduino: %s" dendl, data.c_str());
-					Serial1.print (data);
-
-					json.send ((char *) "OK", (char *) "", &client);
-				}
-			}
-
-			list.removeItem (item);
-			Log.trace ("Removing item - n = %d" dendl, list.getLength());
-
-			break;
+		message += " NAME:" + server.argName (i) + "\n VALUE:" + server.arg (i) + "\n";
 	}
-	
-	delay(10);
-} // Wifi::receiveAndDecode
+	server.send (404, "text/plain", message);
+	Serial.println (message);
+}
+
+bool Wifi::loadFromSpiffs (String path)
+{
+	String dataType = "text/plain";
+	bool fileFound  = false;
+
+	if (path.endsWith ("/")) path += "index.html";
+
+	if (server.hasArg ("download")) dataType = "application/octet-stream";
+
+	if (path.endsWith (".src")) path = path.substring (0, path.lastIndexOf ("."));
+	else if (path.endsWith (".html")) dataType = "text/html";
+	else if (path.endsWith (".htm")) dataType = "text/html";
+	else if (path.endsWith (".css")) dataType = "text/css";
+	else if (path.endsWith (".js")) dataType = "application/javascript";
+	else if (path.endsWith (".png")) dataType = "image/png";
+	else if (path.endsWith (".gif")) dataType = "image/gif";
+	else if (path.endsWith (".jpg")) dataType = "image/jpeg";
+	else if (path.endsWith (".ico")) dataType = "image/x-icon";
+	else if (path.endsWith (".xml")) dataType = "text/xml";
+	else if (path.endsWith (".pdf")) dataType = "application/pdf";
+	else if (path.endsWith (".zip")) dataType = "application/zip";
+
+	File dataFile = SPIFFS.open (path.c_str(), "r");
+
+	if (dataFile.isFile())
+	{
+		Log.verbose ("File exists" endl);
+
+		server.streamFile (dataFile, dataType);
+
+		Log.verbose ("File sent" dendl);
+
+		fileFound = true;
+	}
+
+
+	dataFile.close();
+	return fileFound;
+} // Wifi::loadFromSpiffs
 
 Wifi wifi = Wifi();
 

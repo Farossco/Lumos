@@ -12,7 +12,12 @@
 Json::Json()
 { }
 
-void Json::send (const char * status, const char * message, Stream * stream, bool printHeader)
+String Json::getPretty (const char * status, const char * message)
+{
+	return get (status, message, true);
+}
+
+String Json::get (const char * status, const char * message, bool pretty)
 {
 	const size_t capacity =
 	  JSON_OBJECT_SIZE (4)                 // root (status/message/light/sound)
@@ -23,6 +28,7 @@ void Json::send (const char * status, const char * message, Stream * stream, boo
 	  + 10;                                // Security margin
 
 	DynamicJsonDocument root (capacity);
+	String jsonString;
 
 	root["Status"]  = status;
 	root["Message"] = message;
@@ -50,15 +56,12 @@ void Json::send (const char * status, const char * message, Stream * stream, boo
 	rootSound["Volume"] = sound.getVolume();
 	rootSound["Mod"]    = sound.getMod();
 
-	Log.trace ("Sending to client: ");
-	if (Log.isEnabledFor (LEVEL_TRACE))
-		serializeJson (root, Serial);
+	if (pretty)
+		serializeJsonPretty (root, jsonString);
+	else
+		serializeJson (root, jsonString);
 
-	// Return the response to the client
-	utils.printHeader (*stream);
-	serializeJson (root, *stream);
-
-	Log.tracenp (dendl);
+	return jsonString;
 } // send
 
 Json json = Json();

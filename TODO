@@ -2,11 +2,11 @@
 - !! Initialize ALL variables !!
 - colorize light music mod
 - Completely rework EEPROM (Memory.h and Memory.cpp)
-- json.send : change : pointer -> reference
-- json.send for Serial
 - Complement constant -> new enum
 - Ability to print Strings on Logger
 - Improve Logger to use iostream ?
 - Make requests not case sensitive
-- Respond to POST and web interface for web browser
-- Try to avoid any loop and blocking possibility in the code (Serial reception, WiFi request, ...)
+- Try to avoid any loop and blocking possibility in the code (Serial reception, WiFi request, ...) (Almost done)
+- Transform class Request into a real object inheriting from string (This way we can just do "request.getPrefix"... )
+- Add color to the Logger output
+- Create HardwareSerial constants to store which Serial is used for comm and debug (Ex : HardwareSerial &Sdebug = Serial1)

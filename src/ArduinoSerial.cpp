@@ -74,14 +74,14 @@ void ArduinoSerial::receiveAndDecode ()
 	else if (Serial1.available())
 		str = Serial1.readStringUntil ('z');
 
-	Req requesttt = request.decode (str);
+	RequestData requestData = request.decode (str);
 
-	if (requesttt.type == requestTime)
+	if (requestData.type == requestTime)
 	{
 		Log.trace ("I don't know anything about time... Let me ask the ESP" dendl);
 		serial.askForTime();
 	}
-	else if (requesttt.type == requestInfos)
+	else if (requestData.type == requestInfos)
 	{
 		variableChange.sendInfo(); // We send the variables values to the ESP8266
 	}

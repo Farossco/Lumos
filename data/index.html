@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+	<script src="sendData.js"></script>
+
+	<div id="demo">
+		<h1>The ESP8266 NodeMCU Update web page without refresh</h1>
+		<button type="button" onclick="sendData('LON', 1, 0, 0)">LED ON</button>
+		<button type="button" onclick="sendData('LON', 0, 0, 0)">LED OFF</button><BR>
+	</div>
+
+	<div>
+		<br>
+		LED State is : <span id="LEDState">NA</span>
+		<br>
+		<br>
+		JSON response : <br><span id="BrutJson"></span>
+	</div>
+
+</body>
+
+</html>
