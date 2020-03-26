@@ -395,53 +395,44 @@ void Light::smooth ()
 		{
 			case 0:
 				counter++;
-				lightAll (counter, 0x00, 0x00);
-				if (counter == 0xFF)
-				{
-					state   = 1;
-					counter = 0;
-				}
-
-			case 1:
-				counter++;
 				lightAll (0xFF, counter, 0);
 				if (counter == 0xFF)
+					state = 1;
+				break;
+
+			case 1:
+				counter--;
+				lightAll (counter, 0xFF, 0);
+				if (counter == 0x00)
 					state = 2;
 				break;
 
 			case 2:
-				counter--;
-				lightAll (counter, 0xFF, 0);
-				if (counter == 0x00)
+				counter++;
+				lightAll (0x00, 0xFF, counter);
+				if (counter == 0xFF)
 					state = 3;
 				break;
 
 			case 3:
-				counter++;
-				lightAll (0x00, 0xFF, counter);
-				if (counter == 0xFF)
+				counter--;
+				lightAll (0x00, counter, 0xFF);
+				if (counter == 0x00)
 					state = 4;
 				break;
 
 			case 4:
-				counter--;
-				lightAll (0x00, counter, 0xFF);
-				if (counter == 0x00)
+				counter++;
+				lightAll (counter, 0x00, 0xFF);
+				if (counter == 0xFF)
 					state = 5;
 				break;
 
 			case 5:
-				counter++;
-				lightAll (counter, 0x00, 0xFF);
-				if (counter == 0xFF)
-					state = 6;
-				break;
-
-			case 6:
 				counter--;
 				lightAll (0xFF, 0x00, counter);
 				if (counter == 0x00)
-					state = 1;
+					state = 0;
 				break;
 
 			default:

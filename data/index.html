@@ -1,23 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Lumos Web page</title>
+	<meta name="description" content="Control web page for Lumos">
+	<meta name="author" content="Farossco">
+
+	<!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+	<!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<link rel="stylesheet" href="css/normalize.css">
+	<link rel="stylesheet" href="css/skeleton.css">
+
+	<!-- JS Scripts
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<script src="js/sendData.js"></script>
+
+	<!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<link rel="icon" type="image/png" href="images/favicon.ico">
+
+</head>
 
 <body>
-	<script src="sendData.js"></script>
 
-	<div id="demo">
-		<h1>The ESP8266 NodeMCU Update web page without refresh</h1>
-		<button type="button" onclick="sendData('LON', 1, 0, 0)">LED ON</button>
-		<button type="button" onclick="sendData('LON', 0, 0, 0)">LED OFF</button><BR>
+	<!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<div class="container">
+		<div class="row">
+			<div style="margin-top: 50px; text-align: center">
+				<h1>Lumos</h1>
+			</div>
+		</div>
+
+		<div class="row">
+			<div style="text-align: center">
+				<button class="button" id="buttonOnOff" />
+			</div>
+		</div>
 	</div>
 
-	<div>
-		<br>
-		LED State is : <span id="LEDState">NA</span>
-		<br>
-		<br>
-		JSON response : <br><span id="BrutJson"></span>
-	</div>
-
+	<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 </body>
 
 </html>
