@@ -178,7 +178,7 @@ void Light::init ()
 
 void Light::reset ()
 {
-	for (int i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
+	for (int i = LIGHT_MOD_MIN; i < LIGHT_MOD_N; i++)
 	{
 		red[i]   = DEFAULT_RED[i];   // Initialize colors to their default value
 		green[i] = DEFAULT_GREEN[i]; // Initialize colors to their default value
@@ -215,7 +215,7 @@ void Light::action ()
 	}
 
 	if (mod != lastMod)
-		Log.info ("Leaving %s mod" dendl, utils.lightModName (lastMod, CAPS_FIRST));
+		Log.info ("Leaving %s mod" dendl, utils.getLightModName (lastMod, CAPS_FIRST).c_str());
 
 	// Calling mods functions
 	switch (mod)

@@ -30,7 +30,7 @@ void ESPSerial::receiveAndDecode ()
 	if (requestData.type == requestTime)
 		serial.sendTime();  // We send the time to the Arduino
 	else if (requestData.type == requestInfos)
-		Log.verbose (json.get ("OK", "").c_str());
+		Log.verbose (json.getData ("OK", "").c_str());
 } // ESPSerial::receiveAndDecode
 
 void ESPSerial::sendTime ()

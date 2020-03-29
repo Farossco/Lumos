@@ -62,7 +62,7 @@ void Memory::writeForLight ()
 	address++;
 
 	// All RGB values
-	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
+	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_MOD_N; i++)
 	{
 		for (unsigned int j = 0; j < sizeof(uint32_t); j++)
 			if (EEPROM.read (address + j) != (uint8_t) (light.getRgb (i) >> (j * 8)))
@@ -75,7 +75,7 @@ void Memory::writeForLight ()
 	}
 
 	// All Light values
-	for (uint8_t j = LIGHT_MOD_MIN; j < LIGHT_N_MOD; j++)
+	for (uint8_t j = LIGHT_MOD_MIN; j < LIGHT_MOD_N; j++)
 	{
 		if (EEPROM.read (address) != light.getPower (j))
 		{
@@ -87,7 +87,7 @@ void Memory::writeForLight ()
 	}
 
 	// All speed values
-	for (uint8_t j = LIGHT_MOD_MIN; j < LIGHT_N_MOD; j++)
+	for (uint8_t j = LIGHT_MOD_MIN; j < LIGHT_MOD_N; j++)
 	{
 		for (unsigned int i = 0; i < sizeof(uint16_t); i++)
 			if (EEPROM.read (address + i) != (uint8_t) (light.getSpeed (j) >> (i * 8)))
@@ -118,7 +118,7 @@ bool Memory::readForLight ()
 
 	address++;
 
-	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
+	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_MOD_N; i++)
 	{
 		uint32_t rgb;
 
@@ -131,14 +131,14 @@ bool Memory::readForLight ()
 		address += sizeof(uint32_t);
 	}
 
-	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
+	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_MOD_N; i++)
 	{
 		light.setPower (EEPROM.read (address), i);
 
 		address += sizeof(uint8_t);
 	}
 
-	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
+	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_MOD_N; i++)
 	{
 		uint16_t speed;
 

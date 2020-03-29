@@ -17,6 +17,8 @@ void _handleCommand (){ wifi.handleCommand(); }
 
 void _handleWebRequests (){ wifi.handleWebRequests(); }
 
+void _handleGetRes (){ wifi.handleGetRes(); }
+
 Wifi::Wifi() : server (80)
 { }
 
@@ -49,6 +51,7 @@ void Wifi::init ()
 
 	server.on ("/", _handleRoot);
 	server.on ("/command", _handleCommand);
+	server.on ("/getRes", _handleGetRes);
 	server.onNotFound (_handleWebRequests);
 	server.begin();
 
@@ -180,7 +183,7 @@ void Wifi::handleCommand ()
 	if (requestData.error != noError)
 	{
 		Log.trace ("Sending to arduino: Nothing" dendl);
-		message = json.getPretty ("ERROR", utils.errorTypeName (requestData.error));
+		message = json.getDataPretty ("ERROR", utils.getErrorName (requestData.error));
 	}
 	else
 	{
@@ -188,7 +191,7 @@ void Wifi::handleCommand ()
 			Log.trace ("Sending to arduino: Nothing" dendl);
 		else
 		{
-			String data = utils.messageTypeName (requestData.type);
+			String data = utils.getMessageTypeName (requestData.type);
 			if (utils.messageTypeComplementType (requestData.type) != COMPLEMENT_TYPE_NONE) data += requestData.complement;
 			data += utils.ltos (requestData.information, requestData.type == RGB ? HEX : DEC);
 			data += 'z';
@@ -197,11 +200,28 @@ void Wifi::handleCommand ()
 			serial.comSerialTx.print (data);
 		}
 
-		message = json.getPretty ("OK", "");
+		message = json.getDataPretty ("OK", "");
 	}
 
 	server.send (200, "application/json", message);
 } // Wifi::handleCommand
+
+void Wifi::handleGetRes ()
+{
+	RequestData requestData;
+	String message;
+
+	Log.trace ("Received request from %s" endl, server.client().localIP().toString().c_str());
+
+	Log.trace ("Request: |%s|", server.uri().c_str());
+	for (int i = 0; i < server.args(); i++)
+		Log.tracenp (" |%s=%s|", server.argName (i).c_str(), server.arg (i).c_str());
+	Log.tracenp (dendl);
+
+	message = json.getResourcesPretty();
+
+	server.send (200, "application/json", message);
+} // Wifi::handleGetStrings
 
 void Wifi::handleWebRequests ()
 {

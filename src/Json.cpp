@@ -12,18 +12,18 @@
 Json::Json()
 { }
 
-String Json::getPretty (const char * status, const char * message)
+String Json::getDataPretty (const char * status, const char * message)
 {
-	return get (status, message, true);
+	return getData (status, message, true);
 }
 
-String Json::get (const char * status, const char * message, bool pretty)
+String Json::getData (const char * status, const char * message, bool pretty)
 {
 	const size_t capacity =
 	  JSON_OBJECT_SIZE (4)                 // root (status/message/light/sound)
 	  + strlen (status) + strlen (message) // status + message (Strings)
 	  + JSON_OBJECT_SIZE (5)               // light (on/mod/rgb/power/speed)
-	  + 3 * JSON_ARRAY_SIZE (LIGHT_N_MOD)  // light:rgb[] + light:power[] + light:speed[]
+	  + 3 * JSON_ARRAY_SIZE (LIGHT_MOD_N)  // light:rgb[] + light:power[] + light:speed[]
 	  + JSON_OBJECT_SIZE (3)               // sound (on/volume/mod)
 	  + 10;                                // Security margin
 
@@ -55,6 +55,40 @@ String Json::get (const char * status, const char * message, bool pretty)
 	rootSound["On"]     = sound.isOn();
 	rootSound["Volume"] = sound.getVolume();
 	rootSound["Mod"]    = sound.getMod();
+
+	if (pretty)
+		serializeJsonPretty (root, jsonString);
+	else
+		serializeJson (root, jsonString);
+
+	return jsonString;
+} // send
+
+String Json::getResourcesPretty ()
+{
+	return getResources (true);
+}
+
+String Json::getResources (bool pretty)
+{
+	const size_t capacity =
+	  JSON_OBJECT_SIZE (3)                 // root (status/message/light/sound)
+	  + strlen ("OK") + strlen ("")        // status + message (Strings)
+	  + JSON_OBJECT_SIZE (5)               // light (on/mod/rgb/power/speed)
+	  + 15 * JSON_ARRAY_SIZE (LIGHT_MOD_N) //
+	  + 10;                                // Security margin
+
+	DynamicJsonDocument root (capacity);
+	String jsonString;
+
+	root["Status"]  = "OK";
+	root["Message"] = "";
+
+	// *** Light *** //
+	JsonObject rootLight   = root.createNestedObject ("Light");
+	JsonArray rootLightRgb = rootLight.createNestedArray ("ModeNames");
+	for (int i = LIGHT_MOD_MIN; i <= LIGHT_MOD_MAX; i++)
+		rootLightRgb.add (utils.getLightModName (i, CAPS_FIRST));
 
 	if (pretty)
 		serializeJsonPretty (root, jsonString);

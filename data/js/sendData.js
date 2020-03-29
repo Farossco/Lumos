@@ -1,4 +1,8 @@
-function sendData(type, value, comp) {
+var modeNames;
+
+var data;
+
+function sendData(type = 'INFO', value = 0, comp = 0) {
 	var xhttp = new XMLHttpRequest();
 
 	xhttp.open("GET", "command?type=" + type + "&value=" + value + "&comp=" + comp, true);
@@ -6,33 +10,45 @@ function sendData(type, value, comp) {
 
 	xhttp.onreadystatechange = function () {
 		if (this.readyState == 4 && this.status == 200) {
-			//const nl = /\n/gi;
-			//const space = / /gi;
-			var data = JSON.parse(this.responseText);
 
-			if (data.Light["On"]) {
-				document.getElementById("buttonOnOff").innerHTML = "ON";
+			data = JSON.parse(this.responseText);
+
+			if (data.Light["On"])
 				document.getElementById("buttonOnOff").classList.add("button-primary");
-
-			}
-			else {
-				document.getElementById("buttonOnOff").innerHTML = "OFF";
+			else
 				document.getElementById("buttonOnOff").classList.remove("button-primary");
-			}
-			document.getElementById("buttonOnOff").setAttribute("onClick", "sendData('LON', " + (data.Light["On"] ? 0 : 1) + ", 0)");
 
-			//document.getElementById("LEDState").innerHTML = data.Light["On"] == true ? "On" : "Off";
-			//document.getElementById("BrutJson").innerHTML = JSON.stringify(data, null, '     ').replace(nl, "<br>").replace(space, "&nbsp;");
+			document.getElementById("buttonOnOff").setAttribute(`onClick`, `sendData('LON', ${(data.Light["On"] ? 0 : 1)})`);
+
+			document.getElementById("lightModes").innerHTML = `${modeNames.map(mapModenames).join(" ")}`;
 		}
 	};
 }
 
-function test() {
-	document.getElementById("buttonOnOff").innerHTML = "ON";
-	document.getElementById("buttonOnOff").classList.toggle("button-primary");
+function getStrings() {
+	var xhttp = new XMLHttpRequest();
+
+	xhttp.open("GET", "getStrings");
+	xhttp.send();
+
+	xhttp.onreadystatechange = function () {
+		if (this.readyState == 4 && this.status == 200) {
+
+			data = JSON.parse(this.responseText);
+
+			modeNames = data.Light.ModeNames;
+		}
+	};
 }
 
-sendData('INFO', 0, 0);
+function mapModenames(name, index) {
 
-// Call a function repetatively with 2 Second interval
-setInterval(function () { sendData('INFO', 0, 0); }, 1000);
+	return `
+		<div class="row">
+			<button class="button column ${index == data.Light.Mod ? " button-primary" : ""}" id = "buttonOnOff" onclick = "sendData('LMO', ${index})" > ${name}</button >
+		</div>
+	`;
+}
+
+getStrings();
+setInterval(sendData, 500);

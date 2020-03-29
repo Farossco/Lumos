@@ -16,7 +16,7 @@ const uint8_t PIN_MUSIC_IN = 0;
 
 const boolean LIGHT_START_ANIMATION_ENABLE = true;
 
-// Mods
+// Modes
 const uint8_t LIGHT_MOD_MIN        = 0; // -Minimum mod value-
 const uint8_t LIGHT_MOD_CONTINUOUS = 0; // Continuous lightning mod
 const uint8_t LIGHT_MOD_FLASH      = 1; // Flash mod
@@ -29,15 +29,15 @@ const uint8_t LIGHT_MOD_START_ANIM = 7; // Start animation mod
 const uint8_t LIGHT_MOD_MUSIC      = 8; // Music mod
 const uint8_t LIGHT_MOD_MAX        = 8; // -Maximum mod value-
 
-const uint8_t LIGHT_N_MOD = LIGHT_MOD_MAX - LIGHT_MOD_MIN + 1; // --Number of different mods--
+const uint8_t LIGHT_MOD_N = LIGHT_MOD_MAX - LIGHT_MOD_MIN + 1; // --Number of different mods--
 
 //                                              CONT  FLAS  STRO  FADE  SMOO  DAWN  SUNS  STAN  MUSI
-const uint8_t DEFAULT_RED[LIGHT_N_MOD]      = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00 }; // Default red color on program startup
-const uint8_t DEFAULT_GREEN[LIGHT_N_MOD]    = { 0xFF, 0x00, 0xFF, 0xFF, 0xFF, 0x7F, 0x7F, 0x00, 0x00 }; // Default green color on program startup
-const uint8_t DEFAULT_BLUE[LIGHT_N_MOD]     = { 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00 }; // Default blue color on program startup
-const uint16_t DEFAULT_SPEED[LIGHT_N_MOD]   = { 0, 10, 10, 300, 500, 0, 0, 1000, 0000 };                // Default speed on program startup
-const uint16_t LIGHT_MIN_SPEED[LIGHT_N_MOD] = { 0, 1, 1, 50, 10, 0, 0, 1, 000 };                        // Minimum speed or power value for each mod
-const uint16_t LIGHT_MAX_SPEED[LIGHT_N_MOD] = { 0, 25, 25, 600, 1000, 0, 0, 10000, 000 };               // Maximum speed or power value for each mod
+const uint8_t DEFAULT_RED[LIGHT_MOD_N]      = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00 }; // Default red color on program startup
+const uint8_t DEFAULT_GREEN[LIGHT_MOD_N]    = { 0xFF, 0x00, 0xFF, 0xFF, 0xFF, 0x7F, 0x7F, 0x00, 0x00 }; // Default green color on program startup
+const uint8_t DEFAULT_BLUE[LIGHT_MOD_N]     = { 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00 }; // Default blue color on program startup
+const uint16_t DEFAULT_SPEED[LIGHT_MOD_N]   = { 0, 10, 10, 300, 500, 0, 0, 1000, 0000 };                // Default speed on program startup
+const uint16_t LIGHT_MIN_SPEED[LIGHT_MOD_N] = { 0, 1, 1, 50, 10, 0, 0, 1, 000 };                        // Minimum speed or power value for each mod
+const uint16_t LIGHT_MAX_SPEED[LIGHT_MOD_N] = { 0, 25, 25, 600, 1000, 0, 0, 10000, 000 };               // Maximum speed or power value for each mod
 const uint8_t LIGHT_MIN_POWER               = 5;                                                        // Minimum power value
 const uint8_t LIGHT_MAX_POWER               = 25;                                                       // Maximum power value
 const uint8_t LIGHT_MIN_COLOR               = 5;                                                        // Maximum color value
@@ -45,7 +45,7 @@ const uint8_t LIGHT_MAX_COLOR               = 255;                              
 const uint32_t LIGHT_MIN_RGB                = 0x00000000;                                               // Maximum RGB value
 const uint32_t LIGHT_MAX_RGB                = 0x00FFFFFF;                                               // Maximum RGB value
 
-const uint8_t DEFAULT_POWER[LIGHT_N_MOD] = { LIGHT_MAX_POWER, LIGHT_MAX_POWER, LIGHT_MAX_POWER, LIGHT_MAX_POWER, LIGHT_MAX_POWER, LIGHT_MAX_POWER, LIGHT_MAX_POWER, LIGHT_MAX_POWER }; // Default power on program startup
+const uint8_t DEFAULT_POWER[LIGHT_MOD_N] = { LIGHT_MAX_POWER, LIGHT_MAX_POWER, LIGHT_MAX_POWER, LIGHT_MAX_POWER, LIGHT_MAX_POWER, LIGHT_MAX_POWER, LIGHT_MAX_POWER, LIGHT_MAX_POWER }; // Default power on program startup
 
 class Light
 {
@@ -115,11 +115,11 @@ private:
 	uint32_t delayCount, delayCount2; // Delay counters
 	uint8_t lastMod;                  // Mod in previous loop - Allows mod initializations
 	bool on;                          // If the leds are ON or OFF (True: ON / False: OFF)
-	uint8_t power[LIGHT_N_MOD];       // Current lightning power for each mod (from MINPOWER to MAXPOWER)
-	uint16_t speed[LIGHT_N_MOD];      // Current mod speed for each mod
-	uint8_t red[LIGHT_N_MOD];         // Current red value for each mod including lightning power (From 0 to 255)
-	uint8_t green[LIGHT_N_MOD];       // Current green value for each mod including lightning power (From 0 to 255)
-	uint8_t blue[LIGHT_N_MOD];        // Current blue value for each mod including lightning power (From 0 to 255)
+	uint8_t power[LIGHT_MOD_N];       // Current lightning power for each mod (from MINPOWER to MAXPOWER)
+	uint16_t speed[LIGHT_MOD_N];      // Current mod speed for each mod
+	uint8_t red[LIGHT_MOD_N];         // Current red value for each mod including lightning power (From 0 to 255)
+	uint8_t green[LIGHT_MOD_N];       // Current green value for each mod including lightning power (From 0 to 255)
+	uint8_t blue[LIGHT_MOD_N];        // Current blue value for each mod including lightning power (From 0 to 255)
 	uint8_t mod;                      // Current lighting mod (MOD_***)
 
 	// Start animation variables

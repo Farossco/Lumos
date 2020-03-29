@@ -28,21 +28,26 @@ const uint8_t COMPLEMENT_TYPE_SCP  = 2; // Sound command parameter
 const uint8_t SEEKBAR_MIN = 0;   // Minimum app seek bars value
 const uint8_t SEEKBAR_MAX = 100; // Maximum app seek bars value
 
+extern const char nameUnknown[];
+extern const char * lightModeName[];
+extern const char * soundModeName[];
+extern const char * soundCommandName[];
+
 class Utils
 {
 public:
-	const char * lightModName (uint8_t mod, uint8_t caps);
-	const char * soundModName (uint8_t mod, uint8_t caps);
-	const char * soundCommandName (uint8_t mod, uint8_t caps);
-	const char * messageTypeName (MessageType MessageType);
-	const char * messageTypeDisplayName (MessageType MessageType);
-	const char * errorTypeName (ErrorType ErrorType);
-	const uint8_t messageTypeComplementBounds (MessageType MessageType, uint8_t minMax);
-	const uint8_t messageTypeComplementType (MessageType MessageType);
+	String getLightModName (uint8_t mod, uint8_t caps);
+	String getSoundModeName (uint8_t mod, uint8_t caps);
+	String getSoundCommandName (uint8_t mod, uint8_t caps);
+	const char * getMessageTypeName (RequestMessageType RequestMessageType);
+	const char * getMessageTypeDisplayName (RequestMessageType RequestMessageType);
+	const char * getErrorName (RequestErrorType RequestErrorType);
+	const uint8_t messageTypeComplementBounds (RequestMessageType RequestMessageType, uint8_t minMax);
+	const uint8_t messageTypeComplementType (RequestMessageType RequestMessageType);
 	String clock ();
 	uint32_t map (float input, float inMin, float inMax, float outMin, float outMax);
 	String ltos (uint32_t value, int base = DEC);
-	MessageType getMessageTypeFromName (String message);
+	RequestMessageType getMessageTypeFromName (String message);
 };
 
 extern Utils utils;

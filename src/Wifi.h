@@ -31,6 +31,7 @@ public:
 	void handleRoot ();
 	void handleCommand ();
 	void handleWebRequests ();
+	void handleGetRes ();
 
 private:
 	ESP8266WebServer server;

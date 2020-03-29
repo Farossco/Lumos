@@ -84,7 +84,7 @@ void Infrared::read ()
 				light.subtractPower (IR_CHANGE_STEP);
 
 				// [DEBUG] Prints current color and RED, GREEN, BLUE values
-				Log.trace ("Power (%s mod): %d" endl, utils.lightModName (light.getMod(), CAPS_ALL), light.getPower());
+				Log.trace ("Power (%s mod): %d" endl, utils.getLightModName (light.getMod(), CAPS_ALL), light.getPower());
 				Log.trace ("RED: %d / GREEN : %d / BLUE: %d" dendl, light.getRed(), light.getGreen(), light.getBlue());
 
 				lastIRCode = IRCode;
@@ -97,7 +97,7 @@ void Infrared::read ()
 				light.addPower (IR_CHANGE_STEP);
 
 				// [DEBUG] Prints current color and RED, GREEN, BLUE values
-				Log.trace ("Power (%s mod): %d" endl, utils.lightModName (light.getMod(), CAPS_ALL), light.getPower());
+				Log.trace ("Power (%s mod): %d" endl, utils.getLightModName (light.getMod(), CAPS_ALL), light.getPower());
 				Log.trace ("RED: %d / GREEN : %d / BLUE: %d" dendl, light.getRed(), light.getGreen(), light.getBlue());
 
 				lastIRCode = IRCode;

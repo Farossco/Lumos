@@ -22,9 +22,9 @@ void VariableChange::init ()
 	changeRgb      = light.getRgb (LIGHT_MOD_CONTINUOUS);
 	changeLightMod = light.getMod();
 	changeSoundMod = sound.getMod();
-	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
+	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_MOD_N; i++)
 		changePower[i] = light.getPower (i);
-	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
+	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_MOD_N; i++)
 		changeSpeed[i] = light.getSpeed (i);
 	changeDawnTime = alarms.getDawnTime();
 }
@@ -51,11 +51,11 @@ void VariableChange::check ()
 		flagWriteEeprom = true;
 	}
 
-	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_N_MOD; i++)
+	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_MOD_N; i++)
 	{
 		if (changePower[i] != light.getPower (i))
 		{
-			Log.verbose ("\"Power\" of %s mod changed from %d to %d" dendl, utils.lightModName (i, CAPS_NONE), changePower[i], light.getPower (i));
+			Log.verbose ("\"Power\" of %s mod changed from %d to %d" dendl, utils.getLightModName (i, CAPS_NONE), changePower[i], light.getPower (i));
 
 			changePower[i]  = light.getPower (i);
 			flagSendInfo    = true;
@@ -64,7 +64,7 @@ void VariableChange::check ()
 
 		if (changeSpeed[i] != light.getSpeed (i))
 		{
-			Log.verbose ("\"Speed\" of %s mod changed from %d to %d" dendl, utils.lightModName (i, CAPS_NONE), changeSpeed[i], light.getSpeed (i));
+			Log.verbose ("\"Speed\" of %s mod changed from %d to %d" dendl, utils.getLightModName (i, CAPS_NONE), changeSpeed[i], light.getSpeed (i));
 
 			changeSpeed[i]  = light.getSpeed (i);
 			flagSendInfo    = true;
@@ -74,7 +74,7 @@ void VariableChange::check ()
 
 	if (changeLightMod != light.getMod())
 	{
-		Log.verbose ("\"Light mod\" changed from %s (%d) to %s (%d)" dendl, utils.lightModName (changeLightMod, CAPS_NONE), changeLightMod, utils.lightModName (light.getMod(), CAPS_NONE), light.getMod());
+		Log.verbose ("\"Light mod\" changed from %s (%d) to %s (%d)" dendl, utils.getLightModName (changeLightMod, CAPS_NONE), changeLightMod, utils.getLightModName (light.getMod(), CAPS_NONE), light.getMod());
 
 		changeLightMod  = light.getMod();
 		flagSendInfo    = true;
@@ -83,7 +83,7 @@ void VariableChange::check ()
 
 	if (changeSoundMod != sound.getMod())
 	{
-		Log.verbose ("\"Sound mod\" changed from %s (%d) to %s (%d)" dendl, utils.soundModName (changeSoundMod, CAPS_NONE), changeSoundMod, utils.soundModName (sound.getMod(), CAPS_NONE), sound.getMod());
+		Log.verbose ("\"Sound mod\" changed from %s (%d) to %s (%d)" dendl, utils.getSoundModeName (changeSoundMod, CAPS_NONE), changeSoundMod, utils.getSoundModeName (sound.getMod(), CAPS_NONE), sound.getMod());
 
 		changeSoundMod  = sound.getMod();
 		flagSendInfo    = true;
@@ -111,13 +111,13 @@ void VariableChange::sendInfo ()
 	Log.trace ("Sending variables infos to the ESP8266" dendl);
 	Log.verbose (""); // Printing prefix once before entering the loop
 
-	for (MessageType i = SEND_MIN; i <= SEND_MAX; i++)
+	for (RequestMessageType i = SEND_MIN; i <= SEND_MAX; i++)
 	{
 		for (uint8_t j = utils.messageTypeComplementBounds (i, COMPLEMENT_MIN); j <= utils.messageTypeComplementBounds (i, COMPLEMENT_MAX); j++)
 		{
 			char information[15] = "\n";
 
-			sprintf (information, "%s", utils.messageTypeName (i)); // Prefix
+			sprintf (information, "%s", utils.getMessageTypeName (i)); // Prefix
 
 			switch (i) // info
 			{

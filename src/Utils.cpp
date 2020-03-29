@@ -4,87 +4,84 @@
 #include "Request.h"
 #include "Sound.h"
 
-const char * Utils::lightModName (uint8_t mod, uint8_t caps)
+const char nameUnknown[]        = "unknown";
+const char * lightModeName[]    = { "continuous", "flash", "strobe", "fade", "smooth", "wake up", "sunset", "start animation", "music" };
+const char * soundModeName[]    = { "free choice" };
+const char * soundCommandName[] = { "play random", "play one", "play next", "play previous", "pause", "resume", "play dawn" };
+
+
+String Utils::getLightModName (uint8_t mod, uint8_t caps)
 {
-	switch (mod)
+	String name;
+
+	if (mod < (sizeof(lightModeName) / sizeof(*lightModeName)))
+		name = lightModeName[mod];
+	else
+		name = nameUnknown;
+
+	switch (caps)
 	{
-		case LIGHT_MOD_CONTINUOUS:
-			return caps == 0 ? "continuous" : caps == 1 ? "Continuous" : "CONTINUOUS";
+		case CAPS_FIRST:
+			name.replace (name.charAt (0), name.charAt (0) - 0x20);
+			break;
 
-		case LIGHT_MOD_FLASH:
-			return caps == 0 ? "flash" : caps == 1 ? "Flash" : "FLASH";
-
-		case LIGHT_MOD_STROBE:
-			return caps == 0 ? "strobe" : caps == 1 ? "Strobe" : "STROBE";
-
-		case LIGHT_MOD_FADE:
-			return caps == 0 ? "fade" : caps == 1 ? "Fade" : "FADE";
-
-		case LIGHT_MOD_SMOOTH:
-			return caps == 0 ? "smooth" : caps == 1 ? "Smooth" : "SMOOTH";
-
-		case LIGHT_MOD_DAWN:
-			return caps == 0 ? "wake up" : caps == 1 ? "Wake up" : "WAKE UP";
-
-		case LIGHT_MOD_SUNSET:
-			return caps == 0 ? "sunset" : caps == 1 ? "Sunset" : "SUNSET";
-
-		case LIGHT_MOD_START_ANIM:
-			return caps == 0 ? "start animation" : caps == 1 ? "Start animation" : "START ANIMATION";
-
-		case LIGHT_MOD_MUSIC:
-			return caps == 0 ? "music" : caps == 1 ? "Music" : "MUSIC";
-
-		default:
-			return caps == 0 ? "unknown" : caps == 1 ? "Unknown" : "UNKNOWN";
+		case CAPS_ALL:
+			name.toUpperCase();
+			break;
 	}
-} // Utils::lightModName
 
-const char * Utils::soundModName (uint8_t mod, uint8_t caps)
-{
-	switch (mod)
-	{
-		case SOUND_MOD_FREE:
-			return caps == 0 ? "free choice" : caps == 1 ? "Free choice" : "FREE CHOICE";
-
-		default:
-			return caps == 0 ? "unknown" : caps == 1 ? "Unknown" : "UNKNOWN";
-	}
+	return name;
 }
 
-const char * Utils::soundCommandName (uint8_t command, uint8_t caps)
+String Utils::getSoundModeName (uint8_t mod, uint8_t caps)
 {
-	switch (command)
+	String name;
+
+	if (mod < (sizeof(soundModeName) / sizeof(*soundModeName)))
+		name = soundModeName[mod];
+	else
+		name = nameUnknown;
+
+	switch (caps)
 	{
-		case SOUND_COMMAND_PLAY_RANDOM:
-			return caps == 0 ? "play random" : caps == 1 ? "Play random" : "PLAY RANDOM";
+		case CAPS_FIRST:
+			name.replace (name.charAt (0), name.charAt (0) - 0x20);
+			break;
 
-		case SOUND_COMMAND_PLAY_ONE:
-			return caps == 0 ? "play one" : caps == 1 ? "Play one" : "PLAY ONE";
-
-		case SOUND_COMMAND_PLAY_NEXT:
-			return caps == 0 ? "play next" : caps == 1 ? "Play next" : "PLAY NEXT";
-
-		case SOUND_COMMAND_PLAY_PREVIOUS:
-			return caps == 0 ? "play previous" : caps == 1 ? "Play previous" : "PLAY PREVIOUS";
-
-		case SOUND_COMMAND_PAUSE:
-			return caps == 0 ? "pause" : caps == 1 ? "Pause" : "PAUSE";
-
-		case SOUND_COMMAND_RESUME:
-			return caps == 0 ? "resume" : caps == 1 ? "Resume" : "RESUME";
-
-		case SOUND_COMMAND_PLAY_DAWN:
-			return caps == 0 ? "play dawn" : caps == 1 ? "Play dawn" : "PLAY DAWN";
-
-		default:
-			return caps == 0 ? "unknown" : caps == 1 ? "Unknown" : "UNKNOWN";
+		case CAPS_ALL:
+			name.toUpperCase();
+			break;
 	}
+
+	return name;
 }
 
-const char * Utils::messageTypeName (MessageType MessageType)
+String Utils::getSoundCommandName (uint8_t command, uint8_t caps)
 {
-	switch (MessageType)
+	String name;
+
+	if (command < (sizeof(soundCommandName) / sizeof(*soundCommandName)))
+		name = soundCommandName[command];
+	else
+		name = nameUnknown;
+
+	switch (caps)
+	{
+		case CAPS_FIRST:
+			name.replace (name.charAt (0), name.charAt (0) - 0x20);
+			break;
+
+		case CAPS_ALL:
+			name.toUpperCase();
+			break;
+	}
+
+	return name;
+}
+
+const char * Utils::getMessageTypeName (RequestMessageType RequestMessageType)
+{
+	switch (RequestMessageType)
 	{
 		case requestTime:
 			return "TIME";
@@ -128,11 +125,11 @@ const char * Utils::messageTypeName (MessageType MessageType)
 		default:
 			return "UNK";
 	}
-} // Utils::messageTypeName
+} // Utils::getMessageTypeName
 
-const char * Utils::messageTypeDisplayName (MessageType MessageType)
+const char * Utils::getMessageTypeDisplayName (RequestMessageType RequestMessageType)
 {
-	switch (MessageType)
+	switch (RequestMessageType)
 	{
 		case requestTime:
 			return "Time request";
@@ -176,11 +173,11 @@ const char * Utils::messageTypeDisplayName (MessageType MessageType)
 		default:
 			return "Unknown";
 	}
-} // Utils::messageTypeName
+} // Utils::getMessageTypeName
 
-const char * Utils::errorTypeName (ErrorType ErrorType)
+const char * Utils::getErrorName (RequestErrorType RequestErrorType)
 {
-	switch (ErrorType)
+	switch (RequestErrorType)
 	{
 		case noError:
 			return "No error";
@@ -199,7 +196,7 @@ const char * Utils::errorTypeName (ErrorType ErrorType)
 	}
 }
 
-const uint8_t Utils::messageTypeComplementBounds (MessageType infoType, uint8_t minMax)
+const uint8_t Utils::messageTypeComplementBounds (RequestMessageType infoType, uint8_t minMax)
 {
 	switch (infoType)
 	{
@@ -216,7 +213,7 @@ const uint8_t Utils::messageTypeComplementBounds (MessageType infoType, uint8_t 
 	}
 }
 
-const uint8_t Utils::messageTypeComplementType (MessageType infoType)
+const uint8_t Utils::messageTypeComplementType (RequestMessageType infoType)
 {
 	switch (infoType)
 	{
@@ -281,13 +278,13 @@ String Utils::ltos (uint32_t value, int base)
 	return (String) str;
 }
 
-MessageType Utils::getMessageTypeFromName (String message)
+RequestMessageType Utils::getMessageTypeFromName (String message)
 {
 	message.toUpperCase();
-	
+
 	// Test correspondance for every type
-	for (MessageType i = MIN; i <= MAX; i++)
-		if (message == utils.messageTypeName (i)) // If there is a match, we return it
+	for (RequestMessageType i = MIN; i <= MAX; i++)
+		if (message == utils.getMessageTypeName (i)) // If there is a match, we return it
 			return i;
 
 	return unknown;

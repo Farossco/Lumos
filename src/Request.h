@@ -6,7 +6,7 @@
 #define REQ_PREFIX_LENGTH 3 // The length of the request prefix
 
 // Serial reception errors types
-enum ErrorType
+enum RequestErrorType
 {
 	noError           = 0, // No error
 	outOfBound        = 1, // Out of bound
@@ -16,7 +16,7 @@ enum ErrorType
 };
 
 // Serial reception message types
-enum MessageType : int
+enum RequestMessageType : int
 {
 	MIN          = -4, // - Provide type minimum value -
 	SEND_MIN     = 1,  // - First value to send to Serial -
@@ -41,19 +41,19 @@ enum MessageType : int
 	DTM          = 9  // Provide : Dawn time
 };
 
-inline MessageType & operator ++ (MessageType& j, int) // <--- note -- must be a reference
+inline RequestMessageType & operator ++ (RequestMessageType& j, int) // <--- note -- must be a reference
 {
-	j = static_cast<MessageType>((static_cast<int>(j) + 1));
+	j = static_cast<RequestMessageType>((static_cast<int>(j) + 1));
 
 	return j;
 }
 
 typedef struct RequestData
 {
-	MessageType type        = unknown;
+	RequestMessageType type        = unknown;
 	uint8_t     complement  = 0;
 	int32_t     information = 0;
-	ErrorType   error       = unknowmType;
+	RequestErrorType   error       = unknowmType;
 } RequestData;
 
 class Request

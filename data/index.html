@@ -13,12 +13,14 @@
 
 	<!-- FONT
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-	<link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+	<link href="//fonts.googleapis.com/css?family=Raleway:300,400,600" rel="stylesheet" type="text/css">
 
 	<!-- CSS
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 	<link rel="stylesheet" href="css/normalize.css">
+	<link rel="stylesheet" href="css/w3.css">
 	<link rel="stylesheet" href="css/skeleton.css">
+	<link rel="stylesheet" href="css/custom.css">
 
 	<!-- JS Scripts
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -35,15 +37,32 @@
 	<!-- Primary Page Layout
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 	<div class="container">
-		<div class="row">
-			<div style="margin-top: 50px; text-align: center">
-				<h1>Lumos</h1>
-			</div>
+		<div class="row" style="margin-top: 50px; text-align: center">
+			<button class="button column" id="buttonOnOff" style="vertical-align: middle; height: fit-content;">
+				<h3 style="margin-bottom: 2rem; margin-top: 2rem">Lumos</h3>
+			</button>
 		</div>
 
+		<br />
+
 		<div class="row">
-			<div style="text-align: center">
-				<button class="button" id="buttonOnOff" />
+			<div class="one-third column" style="text-align: center">
+				<div class="row">
+					<h2>Light modes</h2>
+				</div>
+				<div class="row" id="lightModes"></div>
+			</div>
+			<div class="one-third column" style="text-align: center">
+				<div class="row">
+					<h2>Soon</h2>
+				</div>
+				<div class="row" id="soon1"></div>
+			</div>
+			<div class="one-third column" style="text-align: center">
+				<div class="row">
+					<h2>Soon</h2>
+				</div>
+				<div class="row" id="soon2"></div>
 			</div>
 		</div>
 	</div>

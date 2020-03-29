@@ -11,8 +11,10 @@ class Json
 {
 public:
 	Json();
-	String getPretty (const char * status, const char * message);
-	String get (const char * status, const char * message, bool pretty = false);
+	String getDataPretty (const char * status, const char * message);
+	String getData (const char * status, const char * message, bool pretty = false);
+	String getResourcesPretty ();
+	String getResources (bool pretty = false);
 };
 
 extern Json json;
