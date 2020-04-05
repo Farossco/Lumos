@@ -18,7 +18,7 @@ Bluetooth::Bluetooth() : module (&Serial2)
 
 void Bluetooth::init ()
 {
-	Log.info ("Initializing Bluetooth module... ");
+	inf << "Initializing Bluetooth module... ";
 
 	module.reset();
 
@@ -30,7 +30,7 @@ void Bluetooth::init ()
 
 	module.removePaired (0xFF);
 
-	Log.infonp ("Done" dendl);
+	inf << "Done" << dendl;
 
 	connectionState = 0;
 }
@@ -47,7 +47,7 @@ void Bluetooth::action ()
 
 		module.transparentRead (data);
 
-		Log.verbose ("Received data from bluetooth: %s" dendl, data);
+		verb << "Received data from bluetooth: " << data << dendl;
 
 		request.decode (data);
 	}
@@ -65,11 +65,11 @@ void Bluetooth::makeConnection ()
 	{
 		case 0:
 			connectionState = 1;
-			Log.trace ("Configure auto-connect as master... ");
+			trace << "Configure auto-connect as master... ";
 			module.configureAutoConnect (true, 0x3481F42F22A7, (char *) "123456");
-			Log.tracenp ("Done." dendl);
+			trace << "Done." << dendl;
 
-			Log.trace ("Waiting for connection..." dendl);
+			trace << "Waiting for connection..." << dendl;
 			counter = millis();
 			break;
 
@@ -77,14 +77,14 @@ void Bluetooth::makeConnection ()
 			if (module.getStatus() == BM70_STATUS_CONNECTED)
 			{
 				connectionState = 2;
-				Log.trace ("Connected!" dendl);
-				Log.trace ("Waiting for pairing..." dendl);
+				trace << "Connected!" << dendl;
+				trace << "Waiting for pairing..." << dendl;
 				counter = millis();
 			}
 			else if (millis() - counter >= 60000)
 			{
 				connectionState = 0;
-				Log.trace ("No connection after 1 min, resetting" dendl);
+				trace << "No connection after 1 min, resetting" << dendl;
 				module.reset();
 			}
 			break;
@@ -93,23 +93,23 @@ void Bluetooth::makeConnection ()
 			if (module.isPaired())
 			{
 				connectionState = 3;
-				Log.trace ("Pairing succeeded." dendl);
+				trace << "Pairing succeeded." << dendl;
 			}
 			else if (millis() - counter >= 10000)
 			{
 				connectionState = 0;
-				Log.warning ("Pairing timed out, restarting" dendl);
+				warn << "Pairing timed out, restarting" << dendl;
 				module.reset();
 			}
 			break;
 
 		case 3:
 			connectionState = 4;
-			Log.trace ("Enabling remote transparent... ");
+			trace << "Enabling remote transparent... ";
 			module.enableTransparent();
-			Log.tracenp ("Done." dendl);
+			trace << "Done." << dendl;
 
-			Log.trace ("Waiting for local transparent to be enabled..." dendl);
+			trace << "Waiting for local transparent to be enabled..." << dendl;
 			counter = millis();
 			break;
 
@@ -118,12 +118,12 @@ void Bluetooth::makeConnection ()
 			{
 				connectionState = 5;
 				lightConnected();
-				Log.trace ("Transparent is enabled, connection completed!" dendl);
+				trace << "Transparent is enabled, connection completed!" << dendl;
 			}
 			else if (millis() - counter >= 5000)
 			{
 				connectionState = 0;
-				Log.warning ("Enabling local transparent timed out, restarting" dendl);
+				warn << "Enabling local transparent timed out, restarting" << dendl;
 				module.reset();
 			}
 			break;

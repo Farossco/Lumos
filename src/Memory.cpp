@@ -16,20 +16,20 @@ void Memory::dump (uint16_t start, uint16_t limit)
 	if (limit > EEPROM.length())
 		limit = EEPROM.length();
 
-	Log.trace ("EEPROM dump from %X to %X" dendl, start, limit);
+	trace << "EEPROM dump from " << hex << start << " to " << limit << dendl;
 
 	for (uint16_t index = start; index <= limit; index++)
 	{
 		value = EEPROM.read (index);
 
-		Log.trace ("0x%s%x: ", index <= 0xF ? "000" : index <= 0xFF ? "00" : index <= 0xFFF ? "0" : "", index);
+		trace << setfill ('0') << setw (4) << hex << index << " : ";
 
-		Log.tracenp ("0b%s%b", value <= 0x1 ? "0000000" : value <= 0x3 ? "000000" : value <= 0x7 ? "00000" : value <= 0xF ? "0000" : value <= 0x1F ? "000" : value <= 0x3F ? "00" : value <= 0x7F ? "0" : "" endl, value);
+		trace << setfill ('0') << setw (4) << bin << value;
 
-		Log.trace (" (0x%s%x)", value <= 0xF ? "000" : value <= 0xFF ? "00" : value <= 0xFFF ? "0" : "", value);
+		trace << setfill ('0') << setw (4) << hex << " (" << value << ")" << endl;
 	}
 
-	Log.trace (endl);
+	trace << endl;
 }
 
 void Memory::writeForAll ()
@@ -51,7 +51,7 @@ void Memory::writeForLight ()
 	address = EEPROM_LIGHT_START;
 	n       = 0;
 
-	Log.trace ("Writing EEPROM for light variables... ");
+	trace << "Writing EEPROM for light variables... ";
 
 	if (EEPROM.read (address) != (byte) EEPROM_TEST_BYTE)
 	{
@@ -99,7 +99,7 @@ void Memory::writeForLight ()
 		address += sizeof(uint16_t);
 	}
 
-	Log.tracenp ("Done ! (%d byte%s written)" dendl, n, n > 1 ? "s" : "");
+	trace << "Done ! (" << n << " byte" << ((n > 1) ? "s" : "") << " written)" << dendl;
 } // Memory::writeForLight
 
 bool Memory::readForLight ()
@@ -108,11 +108,11 @@ bool Memory::readForLight ()
 
 	address = EEPROM_LIGHT_START;
 
-	Log.trace ("Reading EEPROM for light variables... ");
+	trace << "Reading EEPROM for light variables... ";
 
 	if (EEPROM.read (address) != EEPROM_TEST_BYTE)
 	{
-		Log.tracenp (dendl);
+		trace << dendl;
 		return true; // Returns true to say that variables needs to be initialized
 	}
 
@@ -151,7 +151,7 @@ bool Memory::readForLight ()
 		address += sizeof(uint16_t);
 	}
 
-	Log.tracenp ("Done ! (%d byte%s read)" dendl, address - EEPROM_LIGHT_START, address > 1 ? "s" : "");
+	trace << "Done ! (" << address - EEPROM_LIGHT_START << " byte" << ((address > 1) ? "s" : "") << " read)" << dendl;
 
 	return false;
 } // Memory::readForLight
@@ -163,7 +163,7 @@ void Memory::writeForSound ()
 	address = EEPROM_SOUND_START;
 	n       = 0;
 
-	Log.trace ("Writing EEPROM for sound variables... ");
+	trace << "Writing EEPROM for sound variables... ";
 
 	if (EEPROM.read (address) != EEPROM_TEST_BYTE)
 	{
@@ -173,7 +173,7 @@ void Memory::writeForSound ()
 
 	address++;
 
-	Log.tracenp ("Done ! (%d byte%s written)" dendl, n, n > 1 ? "s" : "");
+	trace << "Done ! (" << n << " byte" << ((n > 1) ? "s" : "") << " written)" << dendl;
 }
 
 bool Memory::readForSound ()
@@ -182,17 +182,17 @@ bool Memory::readForSound ()
 
 	address = EEPROM_SOUND_START;
 
-	Log.trace ("Reading EEPROM for sound variables... ");
+	trace << "Reading EEPROM for sound variables... ";
 
 	if (EEPROM.read (address) != EEPROM_TEST_BYTE)
 	{
-		Log.tracenp (dendl);
+		trace << dendl;
 		return true; // Returns true to say that variables needs to be initialized
 	}
 
 	address++;
 
-	Log.tracenp ("Done ! (%d byte%s read)" dendl, address - EEPROM_SOUND_START, address > 1 ? "s" : "");
+	trace << "Done ! (" << address - EEPROM_SOUND_START << " byte" << ((address > 1) ? "s" : "") << " read)" << dendl;
 
 	return false;
 }
@@ -204,7 +204,7 @@ void Memory::writeForAlarms ()
 	address = EEPROM_ALARM_START;
 	n       = 0;
 
-	Log.trace ("Writing EEPROM for alarm variables... ");
+	trace << "Writing EEPROM for alarm variables... ";
 
 	if (EEPROM.read (address) != EEPROM_TEST_BYTE)
 	{
@@ -223,7 +223,8 @@ void Memory::writeForAlarms ()
 
 	address += sizeof(uint16_t);
 
-	Log.tracenp ("Done ! (%d byte%s written)" dendl, n, n > 1 ? "s" : "");
+
+	trace << "Done ! (" << n << " byte" << ((n > 1) ? "s" : "") << " written)" << dendl;
 }
 
 bool Memory::readForAlarms ()
@@ -232,11 +233,11 @@ bool Memory::readForAlarms ()
 
 	address = EEPROM_ALARM_START;
 
-	Log.trace ("Reading EEPROM for alarm variables... ");
+	trace << "Reading EEPROM for alarm variables... ";
 
 	if (EEPROM.read (address) != EEPROM_TEST_BYTE)
 	{
-		Log.tracenp (dendl);
+		trace << endl;
 		return true; // Returns true to say that variables needs to be initialized
 	}
 
@@ -252,7 +253,7 @@ bool Memory::readForAlarms ()
 
 	address += sizeof(uint16_t);
 
-	Log.tracenp ("Done ! (%d byte%s read)" dendl, address - EEPROM_ALARM_START, address > 1 ? "s" : "");
+	trace << "Done ! (" << address - EEPROM_ALARM_START << " byte" << ((address > 1) ? "s" : "") << " read)" << dendl;
 
 	return false;
 }

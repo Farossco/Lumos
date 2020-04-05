@@ -23,9 +23,9 @@ RequestData Request::decode (String str)
 			requestData.error = noError;
 
 		// [DEBUG] Printing full word, world length and information type
-		Log.trace ("Word: %s" endl, str.c_str());
-		Log.verbose ("Length: %d" endl, str.length());
-		Log.verbose ("Type: %s (%d)" endl, utils.getMessageTypeDisplayName (requestData.type), requestData.type);
+		trace << "Word: " << str << endl;
+		verb << "Length: " << str.length() << endl;
+		verb << "Type: " << utils.getMessageTypeDisplayName (requestData.type) << " (" << requestData.type << ")" << endl;
 
 		str = str.substring (3); // Remove 3 first caracteres of the array (The prefix)
 
@@ -37,26 +37,24 @@ RequestData Request::decode (String str)
 
 			if (utils.messageTypeComplementType (requestData.type) == COMPLEMENT_TYPE_LMO)
 			{
-				Log.verbose ("Complement: %s (%d)" endl, utils.getLightModName (requestData.complement, CAPS_FIRST).c_str(), requestData.complement);
+				verb << "Complement: " << utils.getLightModName (requestData.complement, CAPS_FIRST) << " (" << requestData.complement << ")" << endl;
 				if (requestData.complement < LIGHT_MOD_MIN || requestData.complement > LIGHT_MOD_MAX)
 					requestData.error = unknownComplement;
 			}
 			else if (utils.messageTypeComplementType (requestData.type) == COMPLEMENT_TYPE_SCP)
 			{
-				Log.verbose ("Command type: %s (%d)" endl, utils.getSoundCommandName (requestData.complement, CAPS_FIRST).c_str(), requestData.complement);
+				verb << "Command type: " << utils.getSoundCommandName (requestData.complement, CAPS_FIRST) << " (" << requestData.complement << ")" << endl;
 				if (requestData.complement < SOUND_COMMAND_MIN || requestData.complement > SOUND_COMMAND_MAX)
 					requestData.error = unknownComplement;
 			}
 		}
 
-		Log.verbose ("%s: %s" endl, utils.getMessageTypeDisplayName (requestData.type), str.c_str());
+
+		verb << utils.getMessageTypeDisplayName (requestData.type) << ": " << str << endl;
 
 		requestData.information = strtol (str.c_str(), NULL, requestData.type == RGB ? 16 : 10);
 
-		if (requestData.type == RGB)
-			Log.verbose ("%s (decoded): %x" endl, utils.getMessageTypeDisplayName (requestData.type), requestData.information);
-		else
-			Log.verbose ("%s (decoded): %l" endl, utils.getMessageTypeDisplayName (requestData.type), requestData.information);
+		verb << utils.getMessageTypeDisplayName (requestData.type) << " (decoded): " << ((requestData.type == RGB) ? hex : dec) << showbase << uppercase << requestData.information << endl;
 
 		process (requestData);
 	}
@@ -101,8 +99,8 @@ void Request::process (RequestData requestData)
 					setTime (requestData.information);
 
 				// Debug
-				Log.verbose ("Time (Current value): %l" endl, now());
-				Log.trace ("Time (Current value) (readable): %s" endl, utils.clock().c_str());
+				verb << "Time (Current value): " << now() << endl;
+				trace << "Time (Current value) (readable): " << utils.clock() << endl;
 				break;
 
 			case RGB:
@@ -112,11 +110,11 @@ void Request::process (RequestData requestData)
 					light.setRgb (requestData.information, requestData.complement);
 
 				// Debug
-				Log.trace   ("RGB of %s (Current value): %d" endl, utils.getLightModName (requestData.complement, CAPS_NONE).c_str(), light.getRgb (requestData.complement));
-				Log.verbose ("Red       (Current value): %d" endl, light.getRed (requestData.complement));
-				Log.verbose ("Green     (Current value): %d" endl, light.getGreen (requestData.complement));
-				Log.verbose ("Blue      (Current value): %d" endl, light.getBlue (requestData.complement));
-				Log.tracenp (endl);
+				trace << "RGB of " << utils.getLightModName (requestData.complement, CAPS_NONE) << " (Current value): " << hex << light.getRgb (requestData.complement) << endl;
+				verb << "Red       (Current value): " << light.getRed (requestData.complement) << endl;
+				verb << "Green     (Current value): " << light.getGreen (requestData.complement) << endl;
+				verb << "Blue      (Current value): " << light.getBlue (requestData.complement) << endl;
+				trace << np << endl;
 
 				break;
 
@@ -131,7 +129,7 @@ void Request::process (RequestData requestData)
 						light.switchOff();
 				}
 
-				Log.trace ("On/Off (Current value): %T" dendl, light.isOn());
+				trace << "On/Off (Current value): " << boolalpha << light.isOn() << dendl;
 
 				break;
 
@@ -141,7 +139,7 @@ void Request::process (RequestData requestData)
 				else
 					light.setPower (utils.map (requestData.information, SEEKBAR_MIN, SEEKBAR_MAX, LIGHT_MIN_POWER, LIGHT_MAX_POWER), requestData.complement);
 
-				Log.trace ("Power of %s (Current value): %d" dendl, utils.getLightModName (requestData.complement, CAPS_NONE).c_str(), light.getPower (requestData.complement));
+				trace << "Power of " << utils.getLightModName (requestData.complement, CAPS_NONE) << " (Current value): " << light.getPower (requestData.complement) << dendl;
 
 				break;
 
@@ -151,8 +149,8 @@ void Request::process (RequestData requestData)
 				else
 					light.setMod (requestData.information);
 
-				Log.verbose ("Light mod (Text): %s (%d)" endl, utils.getLightModName (requestData.information, CAPS_FIRST).c_str(), requestData.information);
-				Log.trace ("Light mod (Current value): %s (%d)" dendl, utils.getLightModName (light.getMod(), CAPS_FIRST).c_str(), light.getMod());
+				verb << "Light mod (Text): " << utils.getLightModName (requestData.information, CAPS_FIRST) << " (" << requestData.information << ")" << endl;
+				trace << "Light mod (Current value): " << utils.getLightModName (light.getMod(), CAPS_FIRST) << " (" << light.getMod() << ")" << dendl;
 
 				break;
 
@@ -172,9 +170,9 @@ void Request::process (RequestData requestData)
 					light.setSpeed (utils.map (requestData.information, SEEKBAR_MIN, SEEKBAR_MAX, LIGHT_MIN_SPEED[requestData.complement], LIGHT_MAX_SPEED[requestData.complement]), requestData.complement);
 
 				// Debug
-				Log.verbose ("Min Speed: %d" endl, LIGHT_MIN_SPEED[requestData.complement]);
-				Log.verbose ("Max Speed: %d" endl, LIGHT_MAX_SPEED[requestData.complement]);
-				Log.trace ("Speed of %s (Current value): %d" dendl, utils.getLightModName (requestData.complement, CAPS_NONE).c_str(), light.getSpeed (requestData.complement));
+				verb << "Min Speed: " << LIGHT_MIN_SPEED[requestData.complement] << endl;
+				verb << "Max Speed: " << LIGHT_MAX_SPEED[requestData.complement] << endl;
+				trace << "Speed of " << utils.getLightModName (requestData.complement, CAPS_NONE) << " (Current value): " << light.getSpeed (requestData.complement) << dendl;
 
 				break;
 
@@ -184,8 +182,8 @@ void Request::process (RequestData requestData)
 				else
 					sound.setMod (requestData.information);
 
-				Log.verbose ("Sound mod (Text): %s (%d)" endl, utils.getSoundModeName (requestData.information, CAPS_FIRST).c_str(), requestData.information);
-				Log.trace ("Sound mod (Current value): %s (%d)" dendl, utils.getSoundModeName (sound.getMod(), CAPS_FIRST).c_str(), sound.getMod());
+				verb << "Sound mod (Text): " << utils.getSoundModeName (requestData.information, CAPS_FIRST) << " (" << requestData.information << ")" << endl;
+				trace << "Sound mod (Current value): " << utils.getSoundModeName (sound.getMod(), CAPS_FIRST) << " (" << sound.getMod() << ")" << dendl;
 
 				break;
 
@@ -195,7 +193,7 @@ void Request::process (RequestData requestData)
 				else
 					sound.setVolume (requestData.information);
 
-				Log.trace ("Volume (Current value): %d" dendl, sound.getVolume());
+				trace << "Volume (Current value): " << sound.getVolume() << dendl;
 
 				break;
 
@@ -210,7 +208,7 @@ void Request::process (RequestData requestData)
 						sound.switchOff();
 				}
 
-				Log.trace ("On/Off (Current value): %T" dendl, sound.isOn());
+				trace << "On/Off (Current value): " << boolalpha << sound.isOn() << dendl;
 				break;
 
 			case DTM:
@@ -221,11 +219,11 @@ void Request::process (RequestData requestData)
 					alarms.setDawnTime (requestData.information);
 				}
 
-				Log.trace ("Dawn time (Current value): %d:%d (%d)" dendl, alarms.getDawnTime() / 60, alarms.getDawnTime() % 60, alarms.getDawnTime());
+				trace << "Dawn time (Current value): " << alarms.getDawnTime() / 60 << ":" << alarms.getDawnTime() % 60 << " (" << alarms.getDawnTime() << ")" << dendl;
 				break;
 
 			case soundCommand:
-				Log.verbose ("Command data: (%d)" dendl, requestData.information);
+				verb << "Command data: (" << requestData.information << ")" << dendl;
 
 				#if defined(LUMOS_ARDUINO_MEGA)
 				sound.command (requestData.complement, requestData.information);
@@ -238,7 +236,7 @@ void Request::process (RequestData requestData)
 		}
 
 	if (requestData.error != noError)
-		Log.warning ("Variable has not been changed (%s)" dendl, utils.getErrorName (requestData.error));
+		warn << "Variable has not been changed (" << utils.getErrorName (requestData.error) << ")" << dendl;
 } // Request::process
 
 Request request = Request();

@@ -1,35 +1,38 @@
-#include <stdlib.h>
-#include <inttypes.h>
-#include <stdarg.h>
-#include <Arduino.h>
-#include <Time.h>
 #include "Logger.h"
 
-Logger::Logger()
+Print * Logger::output1         = NULL;
+Print * Logger::output2         = NULL;
+uint8_t Logger::output1Level    = LEVEL_SILENT;
+uint8_t Logger::output2Level    = LEVEL_SILENT;
+bool Logger::output1Initialized = false;
+bool Logger::output2Initialized = false;
+
+Logger::Logger (uint8_t level) : level (level)
 {
-	output1Level = LEVEL_SILENT;
-	output2Level = LEVEL_SILENT;
-	multiOutput  = false;
-	output1      = NULL;
-	output2      = NULL;
+	prefixPrint = true;
 }
 
-void Logger::init (Print & output1, uint8_t output1Level)
+void Logger::init (Print & initOutput1, uint8_t initOutput1Level, Print & initOutput2, uint8_t initOutput2Level)
 {
-	this->output1Level = constrain (output1Level, LEVEL_SILENT, LEVEL_VERBOSE);
-	this->output1      = &output1;
+	output1Level       = constrain (initOutput1Level, LEVEL_SILENT, LEVEL_VERBOSE);
+	output1            = &initOutput1;
+	output1Initialized = true;
 
-	multiOutput = false;
+	if (&initOutput2 != NULL && initOutput2Level != LEVEL_SILENT)
+	{
+		output2Level       = constrain (initOutput2Level, LEVEL_SILENT, LEVEL_VERBOSE);
+		output2            = &initOutput2;
+		output2Initialized = true;
+	}
+
+	setflags();
+
+	inf << "Log initialized." << dendl;
 }
 
-void Logger::init (Print & output1, uint8_t output1Level, Print & output2, uint8_t output2Level)
+void Logger::setPrefixPrint (bool prefixprint)
 {
-	init (output1, output1Level);
-
-	this->output2Level = constrain (output2Level, LEVEL_SILENT, LEVEL_VERBOSE);
-	this->output2      = &output2;
-
-	multiOutput = true;
+	this->prefixPrint = prefixprint;
 }
 
 bool Logger::isEnabledFor (int level, int output)
@@ -37,134 +40,75 @@ bool Logger::isEnabledFor (int level, int output)
 	return output == 1 ? (output1Level >= level) : output == 2 ? (output2Level >= level) : 0;
 }
 
-void Logger::print (Print * output, const __FlashStringHelper * format, va_list args)
+void Logger::putch (char c)
 {
-	PGM_P p = reinterpret_cast<PGM_P>(format);
-	char c  = pgm_read_byte (p++);
-
-	for (; c != 0; c = pgm_read_byte (p++))
+	if (output1Initialized && output1Level >= level)
 	{
-		if (c == '%')
-		{
-			c = pgm_read_byte (p++);
-			printFormat (output, c, &args);
-		}
-		else
-		{
-			output->print (c);
-		}
+		printPrefix (output1);
+		output1->write (c);
+	}
+	if (output2Initialized && output2Level >= level)
+	{
+		printPrefix (output2);
+		output2->write (c);
 	}
 }
 
-void Logger::print (Print * output, const char * format, va_list args)
+void Logger::putstr (const char * str)
 {
-	for (; *format != 0; ++format)
+	if (output1Initialized && output1Level >= level)
 	{
-		if (*format == '%')
-		{
-			++format;
-			printFormat (output, *format, &args);
-		}
-		else
-		{
-			output->print (*format);
-		}
+		printPrefix (output1);
+		output1->write (str);
+	}
+	if (output2Initialized && output2Level >= level)
+	{
+		printPrefix (output2);
+		output2->write (str);
 	}
 }
 
-void Logger::printFormat (Print * output, const char format, va_list * args)
+bool Logger::seekoff (off_type off, seekdir way)
 {
-	if (format == '\0') return;
+	(void) off;
+	(void) way;
+	return false;
+}
 
-	if (format == '%')
-	{
-		output->print (format);
-		return;
-	}
+bool Logger::seekpos (pos_type pos)
+{
+	(void) pos;
+	return false;
+}
 
-	if (format == 's')
-	{
-		register char * s = (char *) va_arg (*args, int);
-		output->print (s);
-		return;
-	}
+bool Logger::Logger::sync ()
+{
+	return true;
+}
 
-	if (format == 'd' || format == 'i')
-	{
-		output->print (va_arg (*args, int), DEC);
-		return;
-	}
+Logger::pos_type Logger::tellpos ()
+{
+	return 0;
+}
 
-	if (format == 'D' || format == 'F')
+void Logger::printPrefix (Print * output)
+{
+	if (prefixPrint)
 	{
-		output->print (va_arg (*args, double));
-		return;
-	}
+		output->print (F ("["));
+		output->print (utils.clock());
+		output->print (F ("] ["));
 
-	if (format == 'x')
-	{
-		output->print (va_arg (*args, long), HEX);
-		return;
-	}
+		output->print (output1Initialized + output2Initialized);
+		output->print (F ("] ["));
 
-	if (format == 'X')
-	{
-		output->print ("0x");
-		output->print (va_arg (*args, long), HEX);
-		return;
-	}
+		output->print (debugLevelName (level));
+		output->print (debugLevelSpace (level));
+		output->print (F ("] "));
 
-	if (format == 'b')
-	{
-		output->print (va_arg (*args, int), BIN);
-		return;
+		prefixPrint = false;
 	}
-
-	if (format == 'B')
-	{
-		output->print ("0b");
-		output->print (va_arg (*args, int), BIN);
-		return;
-	}
-
-	if (format == 'l')
-	{
-		output->print (va_arg (*args, long), DEC);
-		return;
-	}
-
-	if (format == 'c')
-	{
-		output->print ((char) va_arg (*args, int));
-		return;
-	}
-
-	if (format == 't')
-	{
-		if (va_arg (*args, int) == 1)
-		{
-			output->print ("T");
-		}
-		else
-		{
-			output->print ("F");
-		}
-		return;
-	}
-
-	if (format == 'T')
-	{
-		if (va_arg (*args, int) == 1)
-		{
-			output->print (F ("True"));
-		}
-		else
-		{
-			output->print (F ("False"));
-		}
-		return;
-	}
-} // Logging::printFormat
+}
 
 const char * Logger::debugLevelName (uint8_t debugLevel)
 {
@@ -208,4 +152,9 @@ const char * Logger::debugLevelSpace (uint8_t debugLevel)
 	}
 }
 
-Logger Log = Logger();
+Logger err   (LEVEL_ERROR);
+Logger warn  (LEVEL_WARNING);
+Logger inf   (LEVEL_INFO);
+Logger trace (LEVEL_TRACE);
+Logger verb  (LEVEL_VERBOSE);
+Logger logger;

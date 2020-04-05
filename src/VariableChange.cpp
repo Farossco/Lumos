@@ -12,7 +12,7 @@
 #include "Alarms.h"
 #include "ArduinoSerial.h"
 
-VariableChange::VariableChange()
+VariableChange::VariableChange() : initialized (false)
 { }
 
 void VariableChange::init ()
@@ -27,16 +27,21 @@ void VariableChange::init ()
 	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_MOD_N; i++)
 		changeSpeed[i] = light.getSpeed (i);
 	changeDawnTime = alarms.getDawnTime();
+
+	initialized = true;
 }
 
 void VariableChange::check ()
 {
+	if (!initialized)
+		return;
+
 	boolean flagSendInfo    = false;
 	boolean flagWriteEeprom = false;
 
 	if (changeOn != light.isOn())
 	{
-		Log.verbose ("\"On\" changed from %T to %T" dendl, changeOn, light.isOn());
+		verb << "\"On\" changed from " << boolalpha << changeOn << " to " << light.isOn() << dendl;
 
 		changeOn     = light.isOn();
 		flagSendInfo = true;
@@ -44,7 +49,7 @@ void VariableChange::check ()
 
 	if (changeRgb != light.getRgb (LIGHT_MOD_CONTINUOUS))
 	{
-		Log.verbose ("\"RGB\" of default mod changed from %X to %X" dendl, changeRgb, light.getRgb (LIGHT_MOD_CONTINUOUS));
+		verb << "\"RGB\" of default mod changed from " << changeRgb << " to " << light.getRgb (LIGHT_MOD_CONTINUOUS) << dendl;
 
 		changeRgb       = light.getRgb (LIGHT_MOD_CONTINUOUS);
 		flagSendInfo    = true;
@@ -55,7 +60,7 @@ void VariableChange::check ()
 	{
 		if (changePower[i] != light.getPower (i))
 		{
-			Log.verbose ("\"Power\" of %s mod changed from %d to %d" dendl, utils.getLightModName (i, CAPS_NONE), changePower[i], light.getPower (i));
+			verb << "\"Power\" of " << utils.getLightModName (i, CAPS_NONE) << " mod changed from " << changePower[i] << " to " << light.getPower (i) << dendl;
 
 			changePower[i]  = light.getPower (i);
 			flagSendInfo    = true;
@@ -64,7 +69,7 @@ void VariableChange::check ()
 
 		if (changeSpeed[i] != light.getSpeed (i))
 		{
-			Log.verbose ("\"Speed\" of %s mod changed from %d to %d" dendl, utils.getLightModName (i, CAPS_NONE), changeSpeed[i], light.getSpeed (i));
+			verb << "\"Speed\" of " << utils.getLightModName (i, CAPS_NONE) << " mod changed from " << changeSpeed[i] << " to " << light.getSpeed (i) << dendl;
 
 			changeSpeed[i]  = light.getSpeed (i);
 			flagSendInfo    = true;
@@ -74,7 +79,7 @@ void VariableChange::check ()
 
 	if (changeLightMod != light.getMod())
 	{
-		Log.verbose ("\"Light mod\" changed from %s (%d) to %s (%d)" dendl, utils.getLightModName (changeLightMod, CAPS_NONE), changeLightMod, utils.getLightModName (light.getMod(), CAPS_NONE), light.getMod());
+		verb << "\"Light mod\" changed from " << utils.getLightModName (changeLightMod, CAPS_NONE) << " (" << changeLightMod << ") to " << utils.getLightModName (light.getMod(), CAPS_NONE) << " (" << light.getMod() << ")" << dendl;
 
 		changeLightMod  = light.getMod();
 		flagSendInfo    = true;
@@ -83,7 +88,7 @@ void VariableChange::check ()
 
 	if (changeSoundMod != sound.getMod())
 	{
-		Log.verbose ("\"Sound mod\" changed from %s (%d) to %s (%d)" dendl, utils.getSoundModeName (changeSoundMod, CAPS_NONE), changeSoundMod, utils.getSoundModeName (sound.getMod(), CAPS_NONE), sound.getMod());
+		verb << "\"Sound mod\" changed from " << utils.getSoundModeName (changeSoundMod, CAPS_NONE) << " (" << changeSoundMod << ") to " << utils.getSoundModeName (sound.getMod(), CAPS_NONE) << " (" << sound.getMod() << ")" << dendl;
 
 		changeSoundMod  = sound.getMod();
 		flagSendInfo    = true;
@@ -92,7 +97,7 @@ void VariableChange::check ()
 
 	if (changeDawnTime != alarms.getDawnTime())
 	{
-		Log.verbose ("\"Dawn time\" changed from %d:%d (%d) to %d:%d (%d)" dendl, changeDawnTime / 60, changeDawnTime % 60, changeDawnTime, alarms.getDawnTime() / 60, alarms.getDawnTime() % 60, alarms.getDawnTime());
+		verb << "\"Dawn time\" changed from " << changeDawnTime / 60 << ":" << changeDawnTime % 60 << " (" << changeDawnTime << ") to " << alarms.getDawnTime() / 60 << ":" << alarms.getDawnTime() % 60 << " (" << alarms.getDawnTime() << ")" << dendl;
 
 		changeDawnTime  = alarms.getDawnTime();
 		flagSendInfo    = true;
@@ -108,14 +113,13 @@ void VariableChange::check ()
 
 void VariableChange::sendInfo ()
 {
-	Log.trace ("Sending variables infos to the ESP8266" dendl);
-	Log.verbose (""); // Printing prefix once before entering the loop
+	trace << "Sending variables infos to the ESP8266" << dendl;
 
 	for (RequestMessageType i = SEND_MIN; i <= SEND_MAX; i++)
 	{
 		for (uint8_t j = utils.messageTypeComplementBounds (i, COMPLEMENT_MIN); j <= utils.messageTypeComplementBounds (i, COMPLEMENT_MAX); j++)
 		{
-			char information[15] = "\n";
+			char information[15] = "\n"; // TODO : Change to a String
 
 			sprintf (information, "%s", utils.getMessageTypeName (i)); // Prefix
 
@@ -162,12 +166,12 @@ void VariableChange::sendInfo ()
 			}
 			sprintf (information + strlen (information), "z"); // Suffix
 
-			Log.verbosenp ("%s", information);
+			verb << information;
 			serial.comSerial.print (information);
 		}
 	}
 
-	Log.verbosenp (dendl);
+	verb << dendl;
 } // VariableChange::sendInfo
 
 VariableChange variableChange = VariableChange();

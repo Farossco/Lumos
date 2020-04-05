@@ -22,28 +22,26 @@ void setup ()
 {
 	serial.init (ARDUINO_DEBUG_BAUD_RATE, COMM_BAUD_RATE);
 
-	Log.init (serial.debugSerial, LEVEL_VERBOSE);
-
-	light.init();
+	logger.init (serial.debugSerial, LEVEL_VERBOSE);
 
 	if (WAIT_FOR_TIME)
 		serial.waitForTime();
 
-	// sd.init();
+	sd.init();
 
-	// Log.init (serial.debugSerial, LEVEL_VERBOSE, sd.getFile(), LEVEL_VERBOSE);
+	//logger.init (serial.debugSerial, LEVEL_VERBOSE, sd.getFile(), LEVEL_VERBOSE);
+
+	light.init();
 
 	infrared.init();
 
 	sound.init (Serial3);
 
-	variableChange.init();
-
 	alarms.init();
 
-	variableChange.sendInfo();
+	variableChange.init();
 
-	// bluetooth.init();
+	variableChange.sendInfo();
 }
 
 void loop ()
@@ -72,7 +70,7 @@ void setup ()
 {
 	serial.init (ESP_DEBUG_BAUD_RATE, COMM_BAUD_RATE);
 
-	Log.init (serial.debugSerial, LEVEL_INFO);
+	logger.init (serial.debugSerial, LEVEL_VERBOSE);
 
 	wifi.init();
 

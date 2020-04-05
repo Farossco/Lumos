@@ -51,8 +51,8 @@ inline RequestMessageType & operator ++ (RequestMessageType& j, int) // <--- not
 typedef struct RequestData
 {
 	RequestMessageType type        = unknown;
-	uint8_t     complement  = 0;
-	int32_t     information = 0;
+	uint8_t            complement  = 0;
+	int32_t            information = 0;
 	RequestErrorType   error       = unknowmType;
 } RequestData;
 

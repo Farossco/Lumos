@@ -30,12 +30,13 @@ void ESPSerial::receiveAndDecode ()
 	if (requestData.type == requestTime)
 		serial.sendTime();  // We send the time to the Arduino
 	else if (requestData.type == requestInfos)
-		Log.verbose (json.getData ("OK", "").c_str());
+
+		verb << json.getData ("OK", "");
 } // ESPSerial::receiveAndDecode
 
 void ESPSerial::sendTime ()
 {
-	Log.trace ("Time is: %s" endl, utils.clock().c_str());
+	trace << "Time is: " << utils.clock() << endl;
 
 	if (timeStatus() != timeNotSet)
 	{
@@ -43,13 +44,15 @@ void ESPSerial::sendTime ()
 		str += now();
 		str += 'z';
 
-		Log.trace ("Sending time to arduino: %s" dendl, str.c_str());
+		trace << "Sending time to arduino: " << str << endl;
 
 		comSerialTx.print (str.c_str());
+
+		trace << np << endl;
 	}
 	else
 	{
-		Log.warning ("Time not set, not sending time to arduino..." dendl);
+		warn << "Time not set, not sending time to arduino..." << dendl;
 	}
 }
 

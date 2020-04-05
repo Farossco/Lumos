@@ -29,7 +29,7 @@ void Wifi::init ()
 {
 	WiFi.mode (WIFI_STA);
 
-	Log.trace ("Connecting to " SSID0);
+	trace << "Connecting to " SSID0;
 
 	WiFi.begin (SSID0, PASS0);
 
@@ -38,14 +38,14 @@ void Wifi::init ()
 	{
 		if (millis() - a >= 500)
 		{
-			Log.tracenp (".");
+			trace << ".";
 			a = millis();
 		}
 		delay (1);
 	}
-	Log.tracenp (endl);
+	trace << endl;
 
-	Log.trace ("WiFi connected" dendl);
+	trace << "WiFi connected" << dendl;
 
 	SPIFFS.begin();
 
@@ -55,8 +55,8 @@ void Wifi::init ()
 	server.onNotFound (_handleWebRequests);
 	server.begin();
 
-	Log.trace ("Server started" endl);
-	Log.trace ("Local IP: %s" dendl, WiFi.localIP().toString().c_str());
+	trace << "Server started" << endl;
+	trace << "Local IP: " << WiFi.localIP().toString() << endl;
 } // Wifi::init
 
 void Wifi::getTime ()
@@ -71,19 +71,19 @@ void Wifi::getTime ()
 	const char url[] = "/v2.1/get-time-zone?format=" TIME_FORMAT "&key=" TIME_KEY "&by=" TIME_BY "&zone=" TIME_ZONE "&fields=" TIME_FIELDS;
 	unsigned long timeout, timestamp;
 
-	Log.trace ("Connecting to %s" endl, TIME_HOST);
+	trace << "Connecting to " TIME_HOST << endl;
 
 	// Use WiFiClient class to create TCP connections
 	if (!client.connect (TIME_HOST, TIME_HTTP_PORT))
 	{
-		Log.error ("Connection failed" dendl);
+		err << "Connection failed" << dendl;
 		return;
 	}
 
 	// We now create an url for the request
 
 	// [DEBUG] Printing the url
-	Log.trace ("Requesting URL: %s" dendl, url);
+	trace << "Requesting URL: " << url << endl;
 
 	// Sending web request
 	client.print (String ("GET ") + url + " HTTP/1.1\r\n" + "Host: " + TIME_HOST + "\r\n" + "Connection: close\r\n\r\n");
@@ -95,60 +95,60 @@ void Wifi::getTime ()
 		// If nothing comes out after the timeout, we abort
 		if (millis() - timeout > TIME_REQUEST_TIMEOUT)
 		{
-			Log.error ("Client Timeout !" dendl);
+			err << "Client Timeout !" << dendl;
 			client.stop();
 			return;
 		}
 	}
 
-	Log.verbose ("Server answer:" endl);
-	Log.verbose ("<======================================== Start ========================================>" endl);
+	verb << "Server answer:" << endl;
+	verb << "<================================ Start ================================>" << endl;
 
 	// Read all the lines of the reply from server and print them to Serial
 	while (client.available() && line.indexOf ("{\"status\"") == -1)
 	{
 		line = client.readStringUntil ('\r');
-		Log.verbosenp ("%s" endl, line.charAt (0) == '\n' ? line.c_str() + 1 : line.c_str()); // [DEBUG] We print the line we're currently reading
+		verb << (line.charAt (0) == '\n' ? line.c_str() + 1 : line.c_str()) << endl; // [DEBUG] We print the line we're currently reading
 	}
-	Log.verbose ("<========================================= End =========================================>" dendl);
+	verb << "<================================ End ==================================>" << endl;
 
 	if (line.indexOf ("{\"status\"") == 1) // The first charactere is a nl
 	{
-		Log.trace ("Success !" endl);
+		trace << "Success !" << endl;
 
 		line = line.substring (1); // The first charactere is a nl, so we don't want it
 	}
 	else
 	{
-		Log.error ("Failed ! (%d)" endl, line.indexOf ("{\"status\""));
+		err << "Failed ! (" << line.indexOf ("{\"status\"") << ")" << endl;
 	}
 
-	Log.trace ("Closing connection" endl);
+	trace << "Closing connection" << endl;
 
 	// At this point, the json of the answer is in the string,
 	// that's actually the line we want
 
-	Log.verbose ("Json: \"%s\"" endl, line.c_str());
+	verb << "Json: \"" << line << "\"" << endl;
 
 	// Deserialize the JSON document
-	deserializeJson (doc, line.c_str(), line.length());
+	deserializeJson (doc, line);
 
 	status    = ((const char *) doc["status"]);
 	timestamp = doc["timestamp"];
 
-	Log.trace ("Status : |%s| " endl, status.c_str());
+	trace << "Status : |" << status << "| " << endl;
 
 	if (status.indexOf ("OK") != 0)
 	{
-		Log.error ("Wrong status, leaving. (%s)" endl, status.c_str());
+		err << "Wrong status, leaving. (" << status << ")" << endl;
 		return;
 	}
 
-	Log.trace ("Timestamp: %l" endl, timestamp);
+	trace << "Timestamp: " << timestamp << endl;
 
 	setTime (timestamp);
 
-	Log.trace ("Time set!" dendl);
+	trace << "Time set!" << dendl;
 } // Wifi::getTime
 
 void Wifi::receiveAndDecode ()
@@ -158,9 +158,9 @@ void Wifi::receiveAndDecode ()
 
 void Wifi::handleRoot ()
 {
-	Log.trace ("Received request from %s" endl, server.client().localIP().toString().c_str());
+	trace << "Received request from " << server.client().localIP().toString() << endl;
 
-	Log.trace ("Request: |/|");
+	trace << "Request: |/|";
 
 	server.sendHeader ("Location", "/index.html", true);
 	server.send (302, "text/html", "");
@@ -171,24 +171,24 @@ void Wifi::handleCommand ()
 	RequestData requestData;
 	String message;
 
-	Log.trace ("Received request from %s" endl, server.client().localIP().toString().c_str());
+	trace << "Received request from " << server.client().localIP().toString() << endl;
 
-	Log.trace ("Request: |%s|", server.uri().c_str());
+	trace << "Request: |" << server.uri() << "|";
 	for (int i = 0; i < server.args(); i++)
-		Log.tracenp (" |%s=%s|", server.argName (i).c_str(), server.arg (i).c_str());
-	Log.tracenp (dendl);
+		trace << " |" << server.argName (i) << "=" << server.arg (i) << "|";
+	trace << endl;
 
 	requestData = request.decode (server.arg ("type"), server.arg ("comp"), server.arg ("value"));
 
 	if (requestData.error != noError)
 	{
-		Log.trace ("Sending to arduino: Nothing" dendl);
+		trace << "Sending to arduino: Nothing" << dendl;
 		message = json.getDataPretty ("ERROR", utils.getErrorName (requestData.error));
 	}
 	else
 	{
 		if (requestData.type == requestInfos)
-			Log.trace ("Sending to arduino: Nothing" dendl);
+			trace << "Sending to arduino: Nothing" << dendl;
 		else
 		{
 			String data = utils.getMessageTypeName (requestData.type);
@@ -196,7 +196,7 @@ void Wifi::handleCommand ()
 			data += utils.ltos (requestData.information, requestData.type == RGB ? HEX : DEC);
 			data += 'z';
 
-			Log.trace ("Sending to arduino: %s" dendl, data.c_str());
+			trace << "Sending to arduino: " << data << endl;
 			serial.comSerialTx.print (data);
 		}
 
@@ -211,12 +211,12 @@ void Wifi::handleGetRes ()
 	RequestData requestData;
 	String message;
 
-	Log.trace ("Received request from %s" endl, server.client().localIP().toString().c_str());
+	trace << "Received request from " << server.client().localIP().toString() << endl;
 
-	Log.trace ("Request: |%s|", server.uri().c_str());
+	trace << "Request: |" << server.uri() << "|";
 	for (int i = 0; i < server.args(); i++)
-		Log.tracenp (" |%s=%s|", server.argName (i).c_str(), server.arg (i).c_str());
-	Log.tracenp (dendl);
+		trace << " |" << server.argName (i) << "=" << server.arg (i) << "|";
+	trace << dendl;
 
 	message = json.getResourcesPretty();
 
@@ -225,12 +225,12 @@ void Wifi::handleGetRes ()
 
 void Wifi::handleWebRequests ()
 {
-	Log.trace ("Received request from %s" endl, server.client().localIP().toString().c_str());
+	trace << "Received request from " << server.client().localIP().toString() << endl;
 
-	Log.trace ("Request: |%s|", server.uri().c_str());
+	trace << "Request: |" << server.uri() << "|";
 	for (int i = 0; i < server.args(); i++)
-		Log.tracenp (" |%s=%s|", server.argName (i).c_str(), server.arg (i).c_str());
-	Log.tracenp (dendl);
+		trace << " |" << server.argName (i) << "=" << server.arg (i) << "|";
+	trace << dendl;
 
 	if (loadFromSpiffs (server.uri()))
 		return;
@@ -276,11 +276,11 @@ bool Wifi::loadFromSpiffs (String path)
 
 	if (dataFile.isFile())
 	{
-		Log.verbose ("File exists" endl);
+		verb << "File exists" << endl;
 
 		server.streamFile (dataFile, dataType);
 
-		Log.verbose ("File sent" dendl);
+		verb << "File sent" << dendl;
 
 		fileFound = true;
 	}

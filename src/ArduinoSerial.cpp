@@ -16,13 +16,13 @@ void ArduinoSerial::init (uint32_t serialBaudRate, uint32_t serial1BaudRate)
 {
 	debugSerial.begin (serialBaudRate); // Initialize debug communication
 	comSerial.begin (serial1BaudRate);  // Initialize ESP8266 communication
+
+	debugSerial.println ("\n\n");
 }
 
 void ArduinoSerial::waitForTime ()
 {
-	askForTime();
-
-	time_t lastMillis = millis();
+	time_t lastMillis = millis() - 5000;
 
 	while (timeStatus() == timeNotSet) // Doesn't start if time isn't set
 	{
@@ -30,20 +30,17 @@ void ArduinoSerial::waitForTime ()
 
 		if (millis() - lastMillis >= 5000)
 		{
-			if (timeStatus() == timeNotSet)
-				Log.verbose ("Time is not set" endl);
-
 			askForTime();
 			lastMillis = millis();
 		}
 	}
-	Log.trace ("Time Received" dendl);
+	trace << "Time Received" << dendl;
 }
 
 // Asking for time to the ESP8266 (via internet)
 void ArduinoSerial::askForTime ()
 {
-	Log.verbose ("Kindly asking ESP for time" dendl);
+	trace << "Kindly asking ESP for time" << dendl;
 	comSerial.print ("TIMEPLEASEz"); // z is the end character
 }
 
@@ -63,7 +60,7 @@ void ArduinoSerial::receiveAndDecode ()
 
 	if (requestData.type == requestTime)
 	{
-		Log.trace ("I don't know anything about time... Let me ask the ESP" dendl);
+		trace << "I don't know anything about time... Let me ask the ESP" << dendl;
 		serial.askForTime();
 	}
 	else if (requestData.type == requestInfos)

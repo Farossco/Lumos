@@ -23,10 +23,14 @@ void Alarms::init ()
 {
 	dawnTriggered = false;
 
-	if (memory.readForAlarms())
+	if (memory.readForAlarms()) // Returns True if EEPROM is not correctly initialized (This may be the first launch)
 	{
+		inf << "This is first launch, alarm variables will be initialized to their default values" << endl;
+
 		dawnTime = DEFAULT_DAWN_TIME;
 	}
+
+	inf << "Alarms initialized." << dendl;
 }
 
 void Alarms::action ()
@@ -60,7 +64,7 @@ void Alarms::dawnStart ()
 	sound.setVolume (15);
 	sound.command (SOUND_COMMAND_PLAY_DAWN, 0);
 
-	Log.info ("Entering dawn mod from Alarms" dendl);
+	inf << "Entering dawn mod from Alarms" << dendl;
 }
 
 #endif // if defined(LUMOS_ARDUINO_MEGA)

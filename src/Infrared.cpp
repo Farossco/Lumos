@@ -12,17 +12,17 @@ Infrared::Infrared() : irrecv (0)
 
 void Infrared::init (int pin)
 {
+	inf << "Initializing infrared... ";
+
 	pinMode (pin, INPUT);
 
 	irrecv = IRrecv (pin);
 
-	Log.info ("Initializing infrared... ");
-
 	irrecv.enableIRIn(); // Initialize IR communication
 
-	Log.infonp ("Done." dendl);
-
 	enabled = true;
+
+	inf << "Done." << dendl;
 }
 
 // Read the in-comming IR signal if present
@@ -38,17 +38,14 @@ void Infrared::read ()
 		IRCode = results.value;
 
 		// [DEBUG] Print the incomming IR value
-		Log.trace ("Incomming IR: %X", IRCode);
-
+		trace << "Incomming IR: 0x" << utils.ltos (IRCode, HEX);
 		// REPEAT (When button is pressed continiously, sent value is 0xFFFFFFFF, so we change it with the latest code that we recieved
 		if (IRCode == 0xFFFFFFFF)
 		{
-			Log.tracenp (" (%X)", lastIRCode);
-
+			trace << " (0x" << utils.ltos (lastIRCode, HEX) << ")";
 			IRCode = lastIRCode;
 		}
-
-		Log.tracenp (dendl);
+		trace << dendl;
 
 		// ON
 		if (IRCode == 0xFFB04F || IRCode == 0xF0C41643)
@@ -56,7 +53,7 @@ void Infrared::read ()
 			light.switchOn();
 			lastIRCode = 0; // We don't save value in lastIRCode because we don't care if we keep on button pressed
 
-			Log.trace ("Switch ON" dendl);
+			trace << "Switch ON" << dendl;
 		}
 
 		// If the system is off, ignore incomming infrared (Except ON of course, it is just above)
@@ -74,7 +71,7 @@ void Infrared::read ()
 			case 0xE721C0DB:
 				light.switchOff();
 				lastIRCode = 0;
-				Log.trace ("Switch OFF" dendl);
+				trace << "Switch OFF" << dendl;
 				break;
 				break;
 
@@ -84,8 +81,8 @@ void Infrared::read ()
 				light.subtractPower (IR_CHANGE_STEP);
 
 				// [DEBUG] Prints current color and RED, GREEN, BLUE values
-				Log.trace ("Power (%s mod): %d" endl, utils.getLightModName (light.getMod(), CAPS_ALL), light.getPower());
-				Log.trace ("RED: %d / GREEN : %d / BLUE: %d" dendl, light.getRed(), light.getGreen(), light.getBlue());
+				trace << "Power (" << utils.getLightModName (light.getMod(), CAPS_ALL) << " mod): " << light.getPower() << endl;
+				trace << "RED: " << light.getRed() << " / GREEN : " << light.getGreen() << " / BLUE: " << light.getBlue() << dendl;
 
 				lastIRCode = IRCode;
 
@@ -97,8 +94,8 @@ void Infrared::read ()
 				light.addPower (IR_CHANGE_STEP);
 
 				// [DEBUG] Prints current color and RED, GREEN, BLUE values
-				Log.trace ("Power (%s mod): %d" endl, utils.getLightModName (light.getMod(), CAPS_ALL), light.getPower());
-				Log.trace ("RED: %d / GREEN : %d / BLUE: %d" dendl, light.getRed(), light.getGreen(), light.getBlue());
+				trace << "Power (" << utils.getLightModName (light.getMod(), CAPS_ALL) << " mod): " << light.getPower() << endl;
+				trace << "RED: " << light.getRed() << " / GREEN : " << light.getGreen() << " / BLUE: " << light.getBlue() << dendl;
 
 				lastIRCode = IRCode;
 

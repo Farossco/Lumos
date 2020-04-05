@@ -1,7 +1,8 @@
-#ifndef LOGGING_H
-#define LOGGING_H
+#ifndef LOGGER_H
+#define LOGGER_H
 
 #include <Arduino.h>
+#include "ostream.h"
 #include "Utils.h"
 
 #if defined(LUMOS_ARDUINO_MEGA)
@@ -15,102 +16,80 @@
 #define LEVEL_TRACE   4
 #define LEVEL_VERBOSE 5
 
-#define endl          "\n"
-#define dendl         "\n\n" // double endl
-
-const boolean SERIAL_LOG_ENABLED = true; // Serial logging
-const boolean SD_LOG_ENABLED     = true; // SD logging
-
-class Logger
+class Logger : public ostream
 {
-private:
-	uint8_t output1Level, output2Level;
-	bool multiOutput;
-	Print * output1, * output2;
-
 public:
-	Logger();
+	Logger(uint8_t level = LEVEL_SILENT);
 
-	void init (Print & output1, uint8_t output1Level);
-	void init (Print & output1, uint8_t output1Level, Print & output2, uint8_t output2Level);
+	void init (Print & initOutput1, uint8_t initOutput1Level, Print & initOutput2 = * ((Print *) NULL), uint8_t initOutput2Level = LEVEL_SILENT);
+	void setPrefixPrint (bool prefixPrint);
 	bool isEnabledFor (int level, int output = 1);
-
-	template <class T, typename ... Args> void error (T msg, Args ... args){ printLevel (true, LEVEL_ERROR, msg, args ...); }
-
-	template <class T, typename ... Args> void errornp (T msg, Args ... args){ printLevel (false, LEVEL_ERROR, msg, args ...); }
-
-	template <class T, typename ... Args> void warning (T msg, Args ... args){ printLevel (true, LEVEL_WARNING, msg, args ...); }
-
-	template <class T, typename ... Args> void warningnp (T msg, Args ... args){ printLevel (false, LEVEL_WARNING, msg, args ...); }
-
-	template <class T, typename ... Args> void info (T msg, Args ... args){ printLevel (true, LEVEL_INFO, msg, args ...); }
-
-	template <class T, typename ... Args> void infonp (T msg, Args ... args){ printLevel (false, LEVEL_INFO, msg, args ...); }
-
-	template <class T, typename ... Args> void trace (T msg, Args ... args){ printLevel (true, LEVEL_TRACE, msg, args ...); }
-
-	template <class T, typename ... Args> void tracenp (T msg, Args ... args){ printLevel (false, LEVEL_TRACE, msg, args ...); }
-
-	template <class T, typename ... Args> void verbose (T msg, Args ... args){ printLevel (true, LEVEL_VERBOSE, msg, args ...); }
-
-	template <class T, typename ... Args> void verbosenp (T msg, Args ... args){ printLevel (false, LEVEL_VERBOSE, msg, args ...); }
+	void setflags ()
+	{
+		flags (dec | right | skipws | showbase | uppercase | boolalpha);
+	}
 
 private:
-	void print (Print * output, const char * format, va_list args);
-	void print (Print * output, const __FlashStringHelper * format, va_list args);
-	void printFormat (Print * output, const char format, va_list * args);
-	void printPrefix (Print * output, uint8_t level)
-	{
-		output->print (F ("["));
-		output->print (utils.clock ());
-		output->print (F ("] ["));
-
-		#if defined(LUMOS_ARDUINO_MEGA)
-
-		if (sd.isEnabled())
-			output->print (F ("CARD] ["));
-		else
-			output->print (F ("NOCA] ["));
-
-		#endif
-
-		output->print (debugLevelName (level));
-		output->print (debugLevelSpace (level));
-		output->print (F ("] "));
-	}
-
-	template <class T> void printLevel (boolean showPrefix, uint8_t level, T msg, ...)
-	{
-		#if defined(LUMOS_ARDUINO_MEGA)
-
-		if (multiOutput && output2Level >= level && sd.isEnabled())
-		{
-			sd.openFile();
-
-			if (showPrefix)
-				printPrefix (output2, level);
-
-			va_list args;
-			va_start (args, msg);
-			print (output2, msg, args);
-		}
-
-		#endif // if defined(LUMOS_ARDUINO_MEGA)
-
-		if (output1Level >= level)
-		{
-			if (showPrefix)
-				printPrefix (output1, level);
-
-			va_list args;
-			va_start (args, msg);
-			print (output1, msg, args);
-		}
-	}
+	void putch (char c);
+	void putstr (const char * str);
+	bool seekoff (off_type off, seekdir way);
+	bool seekpos (pos_type pos);
+	bool sync ();
+	pos_type tellpos ();
 
 	const char * debugLevelName (uint8_t debugLevel);
 	const char * debugLevelSpace (uint8_t debugLevel);
+	void printPrefix (Print * output);
+
+	const uint8_t level;
+	bool prefixPrint;
+
+	static Print * output1, * output2;
+	static uint8_t output1Level, output2Level;
+	static bool output1Initialized, output2Initialized;
 };
 
-extern Logger Log;
-#endif // ifndef LOGGING_H
+/*
+ * End of line
+ */
+inline ostream& endl (ostream& logger)
+{
+	logger.put ('\n');
+	((Logger&) logger).setPrefixPrint (true);
+	((Logger&) logger).setflags();
+
+	return logger;
+}
+
+/*
+ * Double end of line
+ */
+inline ostream& dendl (ostream& logger)
+{
+	logger.put ('\n');
+	logger.put ('\n');
+	((Logger&) logger).setPrefixPrint (true);
+	((Logger&) logger).setflags();
+
+	return logger;
+}
+
+/*
+ * Do not display prefix for the current line
+ * Must be put in second position
+ */
+inline ostream& np (ostream& logger)
+{
+	((Logger&) logger).setPrefixPrint (false);
+
+	return logger;
+}
+
+extern Logger err;   // Error level logging
+extern Logger warn;  // Warning level logging
+extern Logger inf;   // Info level logging
+extern Logger trace; // Trace level logging
+extern Logger verb;  // Verbose level logging
+extern Logger logger;
+
+#endif // ifndef LOGGER_H

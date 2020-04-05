@@ -22,6 +22,7 @@ private:
 	uint8_t changeLightMod;
 	uint8_t changeSoundMod;
 	uint16_t changeDawnTime;
+	bool initialized;
 };
 
 extern VariableChange variableChange;

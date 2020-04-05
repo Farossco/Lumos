@@ -158,7 +158,7 @@ void Light::init ()
 
 	if (memory.readForLight()) // Returns True if EEPROM is not correctly initialized (This may be the first launch)
 	{
-		Log.info ("This is first launch, light variables will be initialized to their default values" dendl);
+		inf << "This is first launch, light variables will be initialized to their default values" << endl;
 
 		reset();
 	}
@@ -169,11 +169,14 @@ void Light::init ()
 	lastMod = LIGHT_MOD_CONTINUOUS; // Initialiazing last mod as well
 
 	if (LIGHT_START_ANIMATION_ENABLE)
+	{
 		mod = LIGHT_MOD_START_ANIM;
+		switchOn();
+	}
 	else
 		mod = LIGHT_MOD_CONTINUOUS;
 
-	switchOn();
+	inf << "Light initialized." << dendl;
 }
 
 void Light::reset ()
@@ -215,7 +218,7 @@ void Light::action ()
 	}
 
 	if (mod != lastMod)
-		Log.info ("Leaving %s mod" dendl, utils.getLightModName (lastMod, CAPS_FIRST).c_str());
+		inf << "Leaving " << utils.getLightModName (lastMod, CAPS_FIRST) << " mod" << dendl;
 
 	// Calling mods functions
 	switch (mod)
@@ -284,7 +287,7 @@ void Light::initContinuous ()
 {
 	lastMod = LIGHT_MOD_CONTINUOUS; // Setting lastMod so we don't call init again
 
-	Log.info ("Entering Default mod" dendl);
+	inf << "Entering Default mod" << dendl;
 }
 
 void Light::continuous ()
@@ -299,7 +302,7 @@ void Light::initFlash ()
 	delayCount = -1;              // Reseting milliseconds counter
 	lastMod    = LIGHT_MOD_FLASH; // Setting lastMod so we don't call init again
 
-	Log.info ("Entering Flash mod" dendl);
+	inf << "Entering Flash mod" << dendl;
 }
 
 // Flash mod
@@ -324,7 +327,7 @@ void Light::initStrobe ()
 	delayCount = -1;               // Reseting milliseconds counter
 	lastMod    = LIGHT_MOD_STROBE; // Setting lastMod so we don't call init again
 
-	Log.info ("Entering Strobe mod" dendl);
+	inf << "Entering Strobe mod" << dendl;
 }
 
 // Strobe mod
@@ -351,7 +354,7 @@ void Light::initFade ()
 	counter    = 0;
 	lastMod    = LIGHT_MOD_FADE; // Setting lastMod so we don't call init again
 
-	Log.info ("Entering Fade mod" dendl);
+	inf << "Entering Fade mod" << dendl;
 }
 
 // Fade Mod
@@ -383,7 +386,7 @@ void Light::initSmooth ()
 	counter    = 0;
 	lastMod    = LIGHT_MOD_SMOOTH; // Setting lastMod so we don't call init again
 
-	Log.info ("Entering Smooth mod" dendl);
+	inf << "Entering Smooth mod" << dendl;
 }
 
 // Smooth Mod
@@ -453,7 +456,7 @@ void Light::initDawn ()
 
 	lightAll (0x000000);
 
-	Log.info ("Entering Dawn mod for %d min." dendl, speed[LIGHT_MOD_DAWN]);
+	inf << "Entering Dawn mod for " << speed[LIGHT_MOD_DAWN] << " min." << dendl;
 }
 
 // Dawn Mod
@@ -503,7 +506,7 @@ void Light::initSunset ()
 
 	lightAll (getRgb (LIGHT_MOD_SUNSET));
 
-	Log.info ("Entering Sunset mod for %d min." dendl, speed[LIGHT_MOD_SUNSET]);
+	inf << "Entering Sunset mod for " << speed[LIGHT_MOD_SUNSET] << " min." << dendl;
 }
 
 // Sunset Mod
@@ -514,7 +517,7 @@ void Light::sunset ()
 		if ((millis() - delayCount) >= ((uint64_t) speed[LIGHT_MOD_SUNSET]) * 60000UL)
 		{
 			state = 1;
-			Log.trace ("Starting to shut down. Completely off in 1 minute" dendl);
+			trace << "Starting to shut down. Completely off in 1 minute" << dendl;
 		}
 	}
 	else if (state == 1)
@@ -566,7 +569,7 @@ void Light::initStartAnimation ()
 
 	lightAll (0x000000);
 
-	Log.info ("Begin start animation" dendl);
+	inf << "Begin start animation" << dendl;
 }
 
 // Start animation mod
@@ -654,7 +657,7 @@ void Light::startAnimation ()
 	{
 		mod = LIGHT_MOD_CONTINUOUS;
 		switchOff();
-		Log.trace ("End of start animation" dendl);
+		trace << "End of start animation" << dendl;
 	}
 } // Light::startAnimation
 
@@ -667,7 +670,7 @@ void Light::initMusic ()
 
 	counter = 0;
 
-	Log.info ("Entering Music mod" dendl);
+	inf << "Entering Music mod" << dendl;
 }
 
 // Music Mod

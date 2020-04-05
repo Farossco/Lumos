@@ -189,10 +189,10 @@ const char * Utils::getErrorName (RequestErrorType RequestErrorType)
 			return "Unknowm complement";
 
 		case unknowmType:
-			return "Unknown request type ";
+			return "Unknown request type";
 
 		default:
-			return "Unknown error ";
+			return "Unknown error";
 	}
 }
 

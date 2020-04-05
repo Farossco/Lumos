@@ -24,10 +24,6 @@ SdCard::SdCard()
 
 void SdCard::init ()
 {
-	// Si le log SD est désactivé, on arrête là
-	if (!SD_LOG_ENABLED)
-		return;
-
 	enabled = false;
 
 	tempDisabled = true;
@@ -40,46 +36,43 @@ void SdCard::init ()
 	if (!cardIsDetected())
 	{
 		cardPresent = false;
-		Log.warning ("SD card undetected, no SD logging..." dendl);
+		warn << "SD card undetected, no SD logging..." << dendl;
 		lightNoCard();
 	}
 	else
 	{
 		cardPresent = true;
-		Log.info ("SD card detected, initializing... ");
+		inf << "SD card detected, initializing... ";
 
 		// Ouverture d'une connexion à la carte SD
 		if (!SD.begin (PIN_SD_CS)) // En cas d'échec de la connexion
 		{
 			cardOpened = false;
-			Log.infonp ("Failed!" dendl);
-			Log.error ("SD Initialisation failed! No SD logging..." dendl);
+			inf << "Failed!" << dendl;
+			err << "SD Initialisation failed! No SD logging..." << dendl;
 			lightError();
 		}
 		else
 		{
 			cardOpened = true;
 
-			Log.infonp ("Done." dendl);
+			inf << "Done." << dendl;
 
 			// Création du fichier log
 			logFileAvailable = createLogFile();
 
 			if (!logFileAvailable) // Si la création du fichier a échouée
-			{
-				enabled = false;
 				lightError();
-			}
 			else
 			{
 				enabled = true;
 				lightConnected();
 
 				// Printing it error level so it is printed for any debug level
-				// It's not a problem since it's not gonna print the prefix
-				Log.errornp ("------------------------------------------------------------------------------------------------------------" endl);
-				Log.errornp ("----------------------------------------------- SD log Start -----------------------------------------------" endl);
-				Log.errornp ("------------------------------------------------------------------------------------------------------------" dendl);
+				// It's not a problem since it's not going to print the prefix
+				err << np << "------------------------------------------------------------------------------------------------------------" << endl;
+				err << np << "----------------------------------------------- SD log Start -----------------------------------------------" << endl;
+				err << np << "------------------------------------------------------------------------------------------------------------" << dendl;
 			}
 		}
 	}
@@ -154,7 +147,7 @@ void SdCard::openFile ()
 		else
 		{
 			fileOpened = true;
-			Log.verbose ("File opened" dendl);
+			verb << "File opened" << dendl;
 		}
 	}
 
@@ -171,7 +164,7 @@ void SdCard::closeFile ()
 	if (fileIsOpened())
 	{
 		tempDisabled = true;
-		Log.verbose ("File closed" dendl);
+		verb << "File closed" << dendl;
 		logFile.close();
 		fileOpened   = false;
 		tempDisabled = false;
@@ -190,7 +183,7 @@ boolean SdCard::openCard ()
 	// Ouverture d'une connexion à la carte SD
 	if (SD.begin (PIN_SD_CS))
 	{
-		Log.verbose ("Card opened" dendl);
+		verb << "Card opened" << dendl;
 		lightConnected();
 
 		cardOpened = true;
@@ -199,7 +192,7 @@ boolean SdCard::openCard ()
 	else // En cas d'échec de la connexion
 	{
 		cardOpened = false;
-		Log.error ("SD Initialisation failed! No SD logging..." dendl);
+		err << "SD Initialisation failed! No SD logging..." << dendl;
 		lightError();
 
 		enabled = false;
@@ -212,9 +205,6 @@ boolean SdCard::openCard ()
 
 void SdCard::cardTests ()
 {
-	if (!SD_LOG_ENABLED)
-		return;
-
 	tempDisabled = true;
 
 	if (millis() - cardLastChecked >= CHECK_INTERVAL * 1000)
@@ -231,11 +221,11 @@ void SdCard::cardTests ()
 
 				lightNoCard();
 
-				Log.info ("SD Card removed, closing card... ");
+				inf << "SD Card removed, closing card... ";
 
 				SD.end(); // Fermeture de la connexion à la carte SD
 
-				Log.infonp ("Done." dendl);
+				inf << "Done." << dendl;
 			}
 		}
 		else // If card was absent
@@ -261,7 +251,7 @@ void SdCard::cardTests ()
 		{
 			closeFile(); // In case it's not closed (Even though it should be)
 
-			Log.verbose ("Card closed" dendl);
+			verb << "Card closed" << dendl;
 
 			lightIdle();
 
@@ -286,20 +276,20 @@ boolean SdCard::createLogFile ()
 
 	const char * loadingCreating = SD.exists (sdFileName) ? "Loading" : "Creating";
 
-	Log.verbose ("%s log file... ", loadingCreating);
+	verb << loadingCreating << " log file... ";
 
 	logFile = SD.open (sdFileName, FILE_WRITE);
 
 	if (strlen (logFile.name()) < 1)
 	{
-		Log.verbosenp ("Failed!" dendl);
-		Log.error ("%s log file failed! No logging..." dendl, loadingCreating);
+		verb << "Failed!" << dendl;
+		err << loadingCreating << " log file failed! No logging..." << dendl;
 
 		fileOpened = false;
 	}
 	else
 	{
-		Log.verbosenp ("Done. (%s)" dendl, logFile.name());
+		verb << "Done. (" << logFile.name() << ")" << dendl;
 		logFile.close();
 		fileOpened = true;
 	}
@@ -317,7 +307,7 @@ void SdCard::getLogFileName (char * buf)
 
 void SdCard::lightError ()
 {
-	analogWrite (PIN_SD_LED_RED, SD_INDICATOR_POWER);
+	analogWrite (PIN_SD_LED_RED, SD_LED_POWER);
 	analogWrite (PIN_SD_LED_GREEN, LOW);
 	analogWrite (PIN_SD_LED_BLUE, LOW);
 }
@@ -325,22 +315,22 @@ void SdCard::lightError ()
 void SdCard::lightConnected ()
 {
 	analogWrite (PIN_SD_LED_RED, LOW);
-	analogWrite (PIN_SD_LED_GREEN, SD_INDICATOR_POWER);
+	analogWrite (PIN_SD_LED_GREEN, SD_LED_POWER);
 	analogWrite (PIN_SD_LED_BLUE, LOW);
 }
 
 void SdCard::lightIdle ()
 {
-	analogWrite (PIN_SD_LED_RED, SD_INDICATOR_POWER / 2);
-	analogWrite (PIN_SD_LED_GREEN, SD_INDICATOR_POWER / 2);
+	analogWrite (PIN_SD_LED_RED, SD_LED_POWER / 2);
+	analogWrite (PIN_SD_LED_GREEN, SD_LED_POWER / 2);
 	analogWrite (PIN_SD_LED_BLUE, LOW);
 }
 
 void SdCard::lightNoCard ()
 {
-	analogWrite (PIN_SD_LED_RED, SD_INDICATOR_POWER / 2);
+	analogWrite (PIN_SD_LED_RED, SD_LED_POWER / 2);
 	analogWrite (PIN_SD_LED_GREEN, LOW);
-	analogWrite (PIN_SD_LED_BLUE, SD_INDICATOR_POWER / 2);
+	analogWrite (PIN_SD_LED_BLUE, SD_LED_POWER / 2);
 }
 
 void SdCard::lightOff ()
