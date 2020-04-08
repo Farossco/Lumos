@@ -28,7 +28,7 @@ function sendData(type = 'INFO', value = 0, comp = 0) {
 function getStrings() {
 	var xhttp = new XMLHttpRequest();
 
-	xhttp.open("GET", "getStrings");
+	xhttp.open("GET", "getRes");
 	xhttp.send();
 
 	xhttp.onreadystatechange = function () {

@@ -237,7 +237,7 @@ public:
 	 * \param[in] arg pointing to flash string
 	 * \return the stream
 	 */
-	ostream &operator << (const String arg)
+	ostream &operator << (const String & arg)
 	{
 		putStr ((const char *) arg.c_str());
 		return *this;

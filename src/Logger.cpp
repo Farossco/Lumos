@@ -40,6 +40,20 @@ bool Logger::isEnabledFor (int level, int output)
 	return output == 1 ? (output1Level >= level) : output == 2 ? (output2Level >= level) : 0;
 }
 
+void Logger::setflags ()
+{
+	flags (dec | right | skipws | showbase | uppercase | boolalpha);
+}
+
+/** Output string
+ * \param[in] arg string to output
+ * \return the stream
+ */
+Logger &operator << (ostream & s, Logger& (*pf)(Logger & logger))
+{
+	return pf ((Logger&) s);
+}
+
 void Logger::putch (char c)
 {
 	if (output1Initialized && output1Level >= level)

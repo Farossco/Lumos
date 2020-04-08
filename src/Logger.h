@@ -24,10 +24,9 @@ public:
 	void init (Print & initOutput1, uint8_t initOutput1Level, Print & initOutput2 = * ((Print *) NULL), uint8_t initOutput2Level = LEVEL_SILENT);
 	void setPrefixPrint (bool prefixPrint);
 	bool isEnabledFor (int level, int output = 1);
-	void setflags ()
-	{
-		flags (dec | right | skipws | showbase | uppercase | boolalpha);
-	}
+	void setflags ();
+
+	friend Logger &operator << (ostream & s, Logger& (*pf)(Logger & logger));
 
 private:
 	void putch (char c);
@@ -52,11 +51,11 @@ private:
 /*
  * End of line
  */
-inline ostream& endl (ostream& logger)
+inline Logger& endl (Logger& logger)
 {
 	logger.put ('\n');
-	((Logger&) logger).setPrefixPrint (true);
-	((Logger&) logger).setflags();
+	logger.setPrefixPrint (true);
+	logger.setflags();
 
 	return logger;
 }
@@ -64,12 +63,12 @@ inline ostream& endl (ostream& logger)
 /*
  * Double end of line
  */
-inline ostream& dendl (ostream& logger)
+inline Logger& dendl (Logger& logger)
 {
 	logger.put ('\n');
 	logger.put ('\n');
-	((Logger&) logger).setPrefixPrint (true);
-	((Logger&) logger).setflags();
+	logger.setPrefixPrint (true);
+	logger.setflags();
 
 	return logger;
 }
@@ -78,9 +77,9 @@ inline ostream& dendl (ostream& logger)
  * Do not display prefix for the current line
  * Must be put in second position
  */
-inline ostream& np (ostream& logger)
+inline Logger& np (Logger& logger)
 {
-	((Logger&) logger).setPrefixPrint (false);
+	logger.setPrefixPrint (false);
 
 	return logger;
 }
