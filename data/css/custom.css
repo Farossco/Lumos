@@ -1,51 +1,75 @@
-.button.color {
-	margin-left: 4%;
+.panel {
+	text-align: center;
 }
 
-.button.color:first-child {
+button {
+	margin-left: 4%;
+}
+button:first-child {
 	margin-left: 0;
 }
 
-.button.lumos {
-	border-radius: 20px;
-	height: 100px;
+button {
+	padding: 0 0 0 0;
+	float: left;
+
+	border-radius: 30px;
+	height: 50px;
+	line-height: 50px;
+	margin-bottom: 2rem;
+}
+
+button.lumos {
 	margin-top: 5rem;
 	margin-bottom: 4rem;
-	text-align: center;
-	text-align: center
-}
 
-.button.lightMode {
-	padding: 0 0 5rem 0;
-	margin-bottom: 2rem;
-	border-radius: 20px;
-	height: 50px;
-}
-
-.button.color {
-	padding: 0 0 5rem 0;
-	margin-bottom: 2rem;
-	border-radius: 20px;
-	width: 13.3333333333%;
-	height: 50px;
-	border-radius: 30px;
-	cursor: pointer;
-}
-
-.button.color:hover,
-.button.color:focus {
-	box-shadow: 2px 2px 10px grey;
-}
-
-.button.color.selected {
-	box-shadow: 5px 5px 10px grey;
-}
-
-.button.color.selected:hover,
-.button.color.selected:focus {
-	box-shadow: 7px 7px 12px grey;
-}
-
-.button.color.full {
 	width: 100%;
+	height: 100px;
+	line-height: 100px;
+	font-size: 5rem;
+}
+
+button.lightMode {
+	width: 100%;
+	font-size: 1.3rem;
+}
+
+button.color:hover,
+button.color:focus {
+	box-shadow: 1px 1px 5px grey;
+}
+
+button.color.selected {
+	box-shadow: 5px 5px 8px grey;
+}
+
+button.color.one {
+	width: 100%;
+}
+button.color.two {
+	width: 48%;
+}
+button.color.three {
+	width: 30.6666666667%;
+}
+button.color.four {
+	width: 22%;
+}
+button.color.five {
+	width: 16.8%;
+}
+button.color.six {
+	width: 13.3333333333%;
+}
+button.color.seven {
+	width: 10.8571428571%;
+}
+button.color.eight {
+	width: 9%;
+}
+button.color.nine {
+	width: 7.55555555556%;
+}
+button.color.ten {
+	width: 6.4%;
 }

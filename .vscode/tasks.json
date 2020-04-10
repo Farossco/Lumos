@@ -1,0 +1,129 @@
+{
+	// See https://go.microsoft.com/fwlink/?LinkId=733558 
+	// for the documentation about the tasks.json format
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Arduino Monitor",
+			"type": "PlatformIO",
+			"task": "Monitor (Arduino)",
+			"problemMatcher": [
+				"$platformio"
+			],
+			"presentation": {
+				"group": "monitor"
+			}
+		},
+		{
+			"label": "ESP8266 Monitor",
+			"type": "PlatformIO",
+			"task": "Monitor (ESP8266)",
+			"problemMatcher": [
+				"$platformio"
+			],
+			"presentation": {
+				"group": "monitor"
+			}
+		},
+		{
+			"label": "Split Monitors",
+			"dependsOn": [
+				"Arduino Monitor",
+				"ESP8266 Monitor"
+			],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "dedicated",
+				"showReuseMessage": true,
+				"clear": false
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Arduino Upload",
+			"type": "PlatformIO",
+			"task": "Upload (Arduino)",
+			"problemMatcher": [
+				"$platformio"
+			],
+			"presentation": {
+				"group": "upload"
+			}
+		},
+		{
+			"label": "ESP8266 Upload",
+			"type": "PlatformIO",
+			"task": "Upload (ESP8266)",
+			"problemMatcher": [
+				"$platformio"
+			],
+			"presentation": {
+				"group": "upload"
+			}
+		},
+		{
+			"label": "ESP8266 Upload SPIFFS",
+			"type": "PlatformIO",
+			"task": "Upload File System image (ESP8266)",
+			"problemMatcher": [
+				"$platformio"
+			],
+			"presentation": {
+				"group": "upload"
+			}
+		},
+		{
+			"label": "ESP8266 Upload all",
+			"dependsOn": [
+				"ESP8266 Upload"
+			],
+			"type": "PlatformIO",
+			"task": "Upload File System image (ESP8266)",
+			"problemMatcher": [
+				"$platformio"
+			],
+			"presentation": {
+				"group": "upload"
+			}
+		},
+		{
+			"label": "Split Upload",
+			"dependsOn": [
+				"ESP8266 Upload",
+				"Arduino Upload"
+			],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "dedicated",
+				"showReuseMessage": true,
+				"clear": false
+			},
+			"problemMatcher": [
+				"$platformio"
+			]
+		}
+		,
+		{
+			"label": "Split Upload all",
+			"dependsOn": [
+				"ESP8266 Upload all",
+				"Arduino Upload"
+			],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "dedicated",
+				"showReuseMessage": true,
+				"clear": false
+			},
+			"problemMatcher": [
+				"$platformio"
+			]
+		}
+	]
+}
