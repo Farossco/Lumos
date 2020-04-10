@@ -27,23 +27,30 @@ Wifi::Wifi (Wifi && copy)
 
 void Wifi::init ()
 {
+	pinMode (LED_BUILTIN, OUTPUT);
+
 	WiFi.mode (WIFI_STA);
 
 	trace << "Connecting to " SSID0;
 
 	WiFi.begin (SSID0, PASS0);
 
-	time_t a = millis();
+	time_t a   = millis();
+	bool state = LOW;
 	while (WiFi.status() != WL_CONNECTED)
 	{
-		if (millis() - a >= 500)
+		if (millis() - a >= 200)
 		{
 			trace << ".";
+			digitalWrite (LED_BUILTIN, state = !state);
+
 			a = millis();
 		}
 		delay (1);
 	}
 	trace << endl;
+
+	digitalWrite (LED_BUILTIN, HIGH); // Writing HIGH to switch off the LED
 
 	trace << "WiFi connected" << dendl;
 

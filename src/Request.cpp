@@ -37,7 +37,7 @@ RequestData Request::decode (String str)
 
 			if (utils.messageTypeComplementType (requestData.type) == COMPLEMENT_TYPE_LMO)
 			{
-				verb << "Complement: " << utils.getLightModName (requestData.complement, CAPS_FIRST) << " (" << requestData.complement << ")" << endl;
+				verb << "Complement: " << utils.getLightModeName (requestData.complement, CAPS_FIRST) << " (" << requestData.complement << ")" << endl;
 				if (requestData.complement < LIGHT_MOD_MIN || requestData.complement > LIGHT_MOD_MAX)
 					requestData.error = unknownComplement;
 			}
@@ -110,7 +110,7 @@ void Request::process (RequestData requestData)
 					light.setRgb (requestData.information, requestData.complement);
 
 				// Debug
-				trace << "RGB of " << utils.getLightModName (requestData.complement, CAPS_NONE) << " (Current value): " << hex << light.getRgb (requestData.complement) << endl;
+				trace << "RGB of " << utils.getLightModeName (requestData.complement, CAPS_NONE) << " (Current value): " << hex << light.getRgb (requestData.complement) << endl;
 				verb << "Red       (Current value): " << light.getRed (requestData.complement) << endl;
 				verb << "Green     (Current value): " << light.getGreen (requestData.complement) << endl;
 				verb << "Blue      (Current value): " << light.getBlue (requestData.complement) << endl;
@@ -137,9 +137,9 @@ void Request::process (RequestData requestData)
 				if (requestData.information < SEEKBAR_MIN || requestData.information > SEEKBAR_MAX)
 					requestData.error = outOfBound;
 				else
-					light.setPower (utils.map (requestData.information, SEEKBAR_MIN, SEEKBAR_MAX, LIGHT_MIN_POWER, LIGHT_MAX_POWER), requestData.complement);
+					light.setPowerPercent (requestData.information, requestData.complement);
 
-				trace << "Power of " << utils.getLightModName (requestData.complement, CAPS_NONE) << " (Current value): " << light.getPower (requestData.complement) << dendl;
+				trace << "Power of " << utils.getLightModeName (requestData.complement, CAPS_NONE) << " (Current value): " << light.getPowerRaw (requestData.complement) << " (" << light.getPowerPercent() << "%)" << dendl;
 
 				break;
 
@@ -147,10 +147,10 @@ void Request::process (RequestData requestData)
 				if (requestData.information < LIGHT_MOD_MIN || requestData.information > LIGHT_MOD_MAX)
 					requestData.error = outOfBound;
 				else
-					light.setMod (requestData.information);
+					light.setMode (requestData.information);
 
-				verb << "Light mod (Text): " << utils.getLightModName (requestData.information, CAPS_FIRST) << " (" << requestData.information << ")" << endl;
-				trace << "Light mod (Current value): " << utils.getLightModName (light.getMod(), CAPS_FIRST) << " (" << light.getMod() << ")" << dendl;
+				verb << "Light mode (Text): " << utils.getLightModeName (requestData.information, CAPS_FIRST) << " (" << requestData.information << ")" << endl;
+				trace << "Light mode (Current value): " << utils.getLightModeName (light.getMode(), CAPS_FIRST) << " (" << light.getMode() << ")" << dendl;
 
 				break;
 
@@ -172,7 +172,7 @@ void Request::process (RequestData requestData)
 				// Debug
 				verb << "Min Speed: " << LIGHT_MIN_SPEED[requestData.complement] << endl;
 				verb << "Max Speed: " << LIGHT_MAX_SPEED[requestData.complement] << endl;
-				trace << "Speed of " << utils.getLightModName (requestData.complement, CAPS_NONE) << " (Current value): " << light.getSpeed (requestData.complement) << dendl;
+				trace << "Speed of " << utils.getLightModeName (requestData.complement, CAPS_NONE) << " (Current value): " << light.getSpeed (requestData.complement) << dendl;
 
 				break;
 
@@ -180,10 +180,10 @@ void Request::process (RequestData requestData)
 				if (requestData.information < SOUND_MOD_MIN || requestData.information > SOUND_MOD_MAX)
 					requestData.error = outOfBound;
 				else
-					sound.setMod (requestData.information);
+					sound.setMode (requestData.information);
 
-				verb << "Sound mod (Text): " << utils.getSoundModeName (requestData.information, CAPS_FIRST) << " (" << requestData.information << ")" << endl;
-				trace << "Sound mod (Current value): " << utils.getSoundModeName (sound.getMod(), CAPS_FIRST) << " (" << sound.getMod() << ")" << dendl;
+				verb << "Sound mode (Text): " << utils.getSoundModeName (requestData.information, CAPS_FIRST) << " (" << requestData.information << ")" << endl;
+				trace << "Sound mode (Current value): " << utils.getSoundModeName (sound.getMode(), CAPS_FIRST) << " (" << sound.getMode() << ")" << dendl;
 
 				break;
 

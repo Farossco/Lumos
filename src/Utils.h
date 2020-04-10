@@ -17,7 +17,7 @@ const uint8_t CAPS_FIRST = 1; // First letter in upper case
 const uint8_t CAPS_ALL   = 2; // All letters in upper case
 
 const uint8_t COMPLEMENT_TYPE_NONE = 0; // No complement
-const uint8_t COMPLEMENT_TYPE_LMO  = 1; // Light mod
+const uint8_t COMPLEMENT_TYPE_LMO  = 1; // Light mode
 const uint8_t COMPLEMENT_TYPE_SCP  = 2; // Sound command parameter
 
 // ************************************************************* //
@@ -36,9 +36,9 @@ extern const char * soundCommandName[];
 class Utils
 {
 public:
-	String getLightModName (uint8_t mod, uint8_t caps);
-	String getSoundModeName (uint8_t mod, uint8_t caps);
-	String getSoundCommandName (uint8_t mod, uint8_t caps);
+	String getLightModeName (uint8_t mode, uint8_t caps);
+	String getSoundModeName (uint8_t mode, uint8_t caps);
+	String getSoundCommandName (uint8_t mode, uint8_t caps);
 	const char * getMessageTypeName (RequestMessageType RequestMessageType);
 	const char * getMessageTypeDisplayName (RequestMessageType RequestMessageType);
 	const char * getErrorName (RequestErrorType RequestErrorType);

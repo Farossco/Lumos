@@ -59,12 +59,12 @@ uint16_t Alarms::currentTime ()
 
 void Alarms::dawnStart ()
 {
-	light.setMod (LIGHT_MOD_DAWN);
+	light.setMode (LIGHT_MOD_DAWN);
 	light.switchOn();
 	sound.setVolume (15);
 	sound.command (SOUND_COMMAND_PLAY_DAWN, 0);
 
-	inf << "Entering dawn mod from Alarms" << dendl;
+	inf << "Entering dawn mode from Alarms" << dendl;
 }
 
 #endif // if defined(LUMOS_ARDUINO_MEGA)

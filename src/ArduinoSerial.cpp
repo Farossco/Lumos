@@ -24,6 +24,8 @@ void ArduinoSerial::waitForTime ()
 {
 	time_t lastMillis = millis() - 5000;
 
+	inf << "Waiting to receive time..." << dendl;
+
 	while (timeStatus() == timeNotSet) // Doesn't start if time isn't set
 	{
 		receiveAndDecode();
@@ -47,14 +49,12 @@ void ArduinoSerial::askForTime ()
 // Receive data from ESP8266 for Wi-Wi control
 void ArduinoSerial::receiveAndDecode ()
 {
-	if (!debugSerial.available() && !comSerial.available())
+	Stream * serialInput;
+
+	if (!(serialInput = &debugSerial)->available() && !(serialInput = &comSerial)->available())
 		return;
 
-	String str;
-	if (debugSerial.available())
-		str = debugSerial.readStringUntil ('z');
-	else if (comSerial.available())
-		str = comSerial.readStringUntil ('z');
+	String str = serialInput->readStringUntil ('z');
 
 	RequestData requestData = request.decode (str);
 

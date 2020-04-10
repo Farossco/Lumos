@@ -77,9 +77,9 @@ void Memory::writeForLight ()
 	// All Light values
 	for (uint8_t j = LIGHT_MOD_MIN; j < LIGHT_MOD_N; j++)
 	{
-		if (EEPROM.read (address) != light.getPower (j))
+		if (EEPROM.read (address) != light.getPowerPercent (j))
 		{
-			EEPROM.write (address, light.getPower (j));
+			EEPROM.write (address, light.getPowerPercent (j));
 			n++;
 		}
 
@@ -133,7 +133,7 @@ bool Memory::readForLight ()
 
 	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_MOD_N; i++)
 	{
-		light.setPower (EEPROM.read (address), i);
+		light.setPowerPercent (EEPROM.read (address), i);
 
 		address += sizeof(uint8_t);
 	}

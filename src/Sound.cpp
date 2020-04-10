@@ -24,9 +24,9 @@ void Sound::setVolume (uint8_t newVolume)
 	#endif
 }
 
-void Sound::setMod (uint8_t newMod)
+void Sound::setMode (uint8_t newMode)
 {
-	mod = newMod;
+	mode = newMode;
 }
 
 void Sound::switchOn ()
@@ -44,9 +44,9 @@ uint8_t Sound::getVolume ()
 	return volume;
 }
 
-uint8_t Sound::getMod ()
+uint8_t Sound::getMode ()
 {
-	return mod;
+	return mode;
 }
 
 bool Sound::isOn ()
@@ -92,28 +92,28 @@ void Sound::action ()
 	// If lightning is off, shut all lights
 	if (isOff())
 	{
-		lastMod = -1;
+		lastMode = -1;
 		return;
 	}
 
-	switch (lastMod)
+	switch (lastMode)
 	{
 		case SOUND_MOD_FREE:
-			if (mod != SOUND_MOD_FREE)
+			if (mode != SOUND_MOD_FREE)
 			{
-				inf << "Leaving Free choice mod" << dendl;
+				inf << "Leaving Free choice mode" << dendl;
 			}
 			break;
 	}
 
-	// Calling mods functions
-	switch (mod)
+	// Calling modes functions
+	switch (mode)
 	{
 		case SOUND_MOD_FREE:
-			if (lastMod != SOUND_MOD_FREE) // If this is first call of the function, we call init function (lastMod will be set in init function)
+			if (lastMode != SOUND_MOD_FREE) // If this is first call of the function, we call init function (lastMode will be set in init function)
 			{
-				lastMod = SOUND_MOD_FREE;
-				inf << "Entering Free choice mod" << dendl;
+				lastMode = SOUND_MOD_FREE;
+				inf << "Entering Free choice mode" << dendl;
 			}
 
 			break;
@@ -122,7 +122,7 @@ void Sound::action ()
 
 void Sound::command (uint8_t command, int32_t information)
 {
-	if (mod != SOUND_MOD_FREE)
+	if (mode != SOUND_MOD_FREE)
 		return;
 
 	switch (command)

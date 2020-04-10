@@ -33,7 +33,7 @@
  * \brief \ref ostream class
  */
 #include "Arduino.h"
-#include "ios.h"
+#include <ios>
 // ==============================================================================
 
 /**
@@ -149,7 +149,7 @@ public:
 	 */
 	ostream &operator << (float arg)
 	{
-		putDouble (arg);
+		putNum ((int32_t) arg);
 		return *this;
 	}
 

@@ -10,12 +10,12 @@ const char * soundModeName[]    = { "free choice" };
 const char * soundCommandName[] = { "play random", "play one", "play next", "play previous", "pause", "resume", "play dawn" };
 
 
-String Utils::getLightModName (uint8_t mod, uint8_t caps)
+String Utils::getLightModeName (uint8_t mode, uint8_t caps)
 {
 	String name;
 
-	if (mod < (sizeof(lightModeName) / sizeof(*lightModeName)))
-		name = lightModeName[mod];
+	if (mode < (sizeof(lightModeName) / sizeof(*lightModeName)))
+		name = lightModeName[mode];
 	else
 		name = nameUnknown;
 
@@ -33,12 +33,12 @@ String Utils::getLightModName (uint8_t mod, uint8_t caps)
 	return name;
 }
 
-String Utils::getSoundModeName (uint8_t mod, uint8_t caps)
+String Utils::getSoundModeName (uint8_t mode, uint8_t caps)
 {
 	String name;
 
-	if (mod < (sizeof(soundModeName) / sizeof(*soundModeName)))
-		name = soundModeName[mod];
+	if (mode < (sizeof(soundModeName) / sizeof(*soundModeName)))
+		name = soundModeName[mode];
 	else
 		name = nameUnknown;
 
@@ -153,13 +153,13 @@ const char * Utils::getMessageTypeDisplayName (RequestMessageType RequestMessage
 			return "Light power";
 
 		case LMO:
-			return "Light mod";
+			return "Light mode";
 
 		case SPEED:
-			return "Light mod speed";
+			return "Light mode speed";
 
 		case SMO:
-			return "Sound mod";
+			return "Sound mode";
 
 		case VOL:
 			return "Sound volume";

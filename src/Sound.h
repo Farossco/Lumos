@@ -15,9 +15,9 @@ const uint8_t SOUND_VOLUME_MIN     = 0;    // Minimum DFPlayer volume
 const uint8_t SOUND_VOLUME_MAX     = 30;   // Maximum DFPlayer volume
 
 // Mods
-const uint8_t SOUND_MOD_MIN  = 0; // -Minimum mod value-
-const uint8_t SOUND_MOD_FREE = 0; // Free choice mod
-const uint8_t SOUND_MOD_MAX  = 0; // -Maximum mod value-
+const uint8_t SOUND_MOD_MIN  = 0; // -Minimum mode value-
+const uint8_t SOUND_MOD_FREE = 0; // Free choice mode
+const uint8_t SOUND_MOD_MAX  = 0; // -Maximum mode value-
 
 const uint8_t SOUND_COMMAND_MIN           = 0;
 const uint8_t SOUND_COMMAND_PLAY_RANDOM   = 0;
@@ -39,19 +39,19 @@ public:
 	void command (uint8_t command, int32_t information);
 
 	void setVolume (uint8_t newVolume);
-	void setMod (uint8_t newMod);
+	void setMode (uint8_t newMode);
 	void switchOn ();
 	void switchOff ();
 
 	uint8_t getVolume ();
-	uint8_t getMod ();
+	uint8_t getMode ();
 	bool isOn ();
 	bool isOff ();
 
 private:
 	uint8_t volume;
-	uint8_t mod;
-	uint8_t lastMod;
+	uint8_t mode;
+	uint8_t lastMode;
 	bool on;
 
 	#if defined(LUMOS_ARDUINO_MEGA)

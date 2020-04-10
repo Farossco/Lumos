@@ -17,61 +17,69 @@ Light::Light()
 
 #endif
 
-void Light::setRed (uint8_t newRed, uint8_t affectedMod)
+void Light::setRed (uint8_t newRed, uint8_t affectedMode)
 {
-	if (affectedMod == CURRENT_MOD)
-		affectedMod = mod;
+	if (affectedMode == CURRENT_MODE)
+		affectedMode = mode;
 
-	red[affectedMod] = constrain (newRed, LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
+	red[affectedMode] = constrain (newRed, LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
 }
 
-void Light::setGreen (uint8_t newGreen, uint8_t affectedMod)
+void Light::setGreen (uint8_t newGreen, uint8_t affectedMode)
 {
-	if (affectedMod == CURRENT_MOD)
-		affectedMod = mod;
+	if (affectedMode == CURRENT_MODE)
+		affectedMode = mode;
 
-	green[affectedMod] = constrain (newGreen, LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
+	green[affectedMode] = constrain (newGreen, LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
 }
 
-void Light::setBlue (uint8_t newBlue, uint8_t affectedMod)
+void Light::setBlue (uint8_t newBlue, uint8_t affectedMode)
 {
-	if (affectedMod == CURRENT_MOD)
-		affectedMod = mod;
+	if (affectedMode == CURRENT_MODE)
+		affectedMode = mode;
 
-	blue[affectedMod] = constrain (newBlue, LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
+	blue[affectedMode] = constrain (newBlue, LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
 }
 
-void Light::setRgb (uint32_t newRgb, uint8_t affectedMod)
+void Light::setRgb (uint32_t newRgb, uint8_t affectedMode)
 {
-	if (affectedMod == CURRENT_MOD)
-		affectedMod = mod;
+	if (affectedMode == CURRENT_MODE)
+		affectedMode = mode;
 
 	newRgb = constrain (newRgb, LIGHT_MIN_RGB, LIGHT_MAX_RGB);
 
-	red[affectedMod]   = constrain ((uint8_t) (newRgb >> 16), LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
-	green[affectedMod] = constrain ((uint8_t) (newRgb >> 8), LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
-	blue[affectedMod]  = constrain ((uint8_t) newRgb, LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
+	red[affectedMode]   = constrain ((uint8_t) (newRgb >> 16), LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
+	green[affectedMode] = constrain ((uint8_t) (newRgb >> 8), LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
+	blue[affectedMode]  = constrain ((uint8_t) newRgb, LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
 }
 
-void Light::setPower (uint8_t newPower, uint8_t affectedMod)
+void Light::setPowerRaw (uint8_t newPower, uint8_t affectedMode)
 {
-	if (affectedMod == CURRENT_MOD)
-		affectedMod = mod;
+	if (affectedMode == CURRENT_MODE)
+		affectedMode = mode;
 
-	power[affectedMod] = constrain (newPower, LIGHT_MIN_POWER, LIGHT_MAX_POWER);
+	power[affectedMode] = constrain (newPower, LIGHT_MIN_POWER, LIGHT_MAX_POWER);
 }
 
-void Light::setSpeed (uint16_t newSpeed, uint8_t affectedMod)
+void Light::setPowerPercent (uint8_t newPower, uint8_t affectedMode)
 {
-	if (affectedMod == CURRENT_MOD)
-		affectedMod = mod;
+	if (affectedMode == CURRENT_MODE)
+		affectedMode = mode;
 
-	speed[affectedMod] = constrain (newSpeed, LIGHT_MIN_SPEED[affectedMod], LIGHT_MAX_SPEED[affectedMod] == 0 ? 65535 : LIGHT_MAX_SPEED[affectedMod]);
+	power[affectedMode] = utils.map (constrain (newPower, SEEKBAR_MIN, SEEKBAR_MAX), SEEKBAR_MIN, SEEKBAR_MAX, LIGHT_MIN_POWER, LIGHT_MAX_POWER);
 }
 
-void Light::setMod (uint8_t newMod)
+void Light::setSpeed (uint16_t newSpeed, uint8_t affectedMode)
 {
-	mod = constrain (newMod, LIGHT_MOD_MIN, LIGHT_MOD_MAX);
+	if (affectedMode == CURRENT_MODE)
+		affectedMode = mode;
+
+	speed[affectedMode] = constrain (newSpeed, LIGHT_MIN_SPEED[affectedMode], LIGHT_MAX_SPEED[affectedMode] == 0 ? 65535 : LIGHT_MAX_SPEED[affectedMode]);
+}
+
+void Light::setMode (uint8_t newMode)
+{
+	mode = constrain (newMode, LIGHT_MOD_MIN, LIGHT_MOD_MAX);
 }
 
 void Light::switchOn ()
@@ -84,20 +92,20 @@ void Light::switchOff ()
 	on = false;
 }
 
-uint8_t Light::addPower (uint8_t powerAdd, uint8_t affectedMod)
+uint8_t Light::addPower (uint8_t powerAdd, uint8_t affectedMode)
 {
-	if (affectedMod == CURRENT_MOD)
-		affectedMod = mod;
+	if (affectedMode == CURRENT_MODE)
+		affectedMode = mode;
 
-	return power[affectedMod] = constrain (power[affectedMod] + powerAdd, LIGHT_MIN_POWER, LIGHT_MAX_POWER);
+	return power[affectedMode] = constrain (power[affectedMode] + powerAdd, LIGHT_MIN_POWER, LIGHT_MAX_POWER);
 }
 
-uint8_t Light::subtractPower (uint8_t powerAdd, uint8_t affectedMod)
+uint8_t Light::subtractPower (uint8_t powerAdd, uint8_t affectedMode)
 {
-	if (affectedMod == CURRENT_MOD)
-		affectedMod = mod;
+	if (affectedMode == CURRENT_MODE)
+		affectedMode = mode;
 
-	return power[affectedMod] = constrain (power[affectedMod] - powerAdd, LIGHT_MIN_POWER, LIGHT_MAX_POWER);
+	return power[affectedMode] = constrain (power[affectedMode] - powerAdd, LIGHT_MIN_POWER, LIGHT_MAX_POWER);
 }
 
 uint16_t Light::getDawnDuration ()
@@ -105,39 +113,44 @@ uint16_t Light::getDawnDuration ()
 	return speed[LIGHT_MOD_DAWN];
 }
 
-uint8_t Light::getRed (uint8_t affectedMod)
+uint8_t Light::getRed (uint8_t affectedMode)
 {
-	return red[affectedMod == CURRENT_MOD ? mod : affectedMod];
+	return red[affectedMode == CURRENT_MODE ? mode : affectedMode];
 }
 
-uint8_t Light::getGreen (uint8_t affectedMod)
+uint8_t Light::getGreen (uint8_t affectedMode)
 {
-	return green[affectedMod == CURRENT_MOD ? mod : affectedMod];
+	return green[affectedMode == CURRENT_MODE ? mode : affectedMode];
 }
 
-uint8_t Light::getBlue (uint8_t affectedMod)
+uint8_t Light::getBlue (uint8_t affectedMode)
 {
-	return blue[affectedMod == CURRENT_MOD ? mod : affectedMod];
+	return blue[affectedMode == CURRENT_MODE ? mode : affectedMode];
 }
 
-uint32_t Light::getRgb (uint8_t affectedMod)
+uint32_t Light::getRgb (uint8_t affectedMode)
 {
-	return (((uint32_t) red[affectedMod == CURRENT_MOD ? mod : affectedMod]) << 16) + (((uint32_t) green[affectedMod == CURRENT_MOD ? mod : affectedMod]) << 8) + blue[affectedMod == CURRENT_MOD ? mod : affectedMod];
+	return (((uint32_t) red[affectedMode == CURRENT_MODE ? mode : affectedMode]) << 16) + (((uint32_t) green[affectedMode == CURRENT_MODE ? mode : affectedMode]) << 8) + blue[affectedMode == CURRENT_MODE ? mode : affectedMode];
 }
 
-uint8_t Light::getPower (uint8_t affectedMod)
+uint8_t Light::getPowerRaw (uint8_t affectedMode)
 {
-	return power[affectedMod == CURRENT_MOD ? mod : affectedMod];
+	return power[affectedMode == CURRENT_MODE ? mode : affectedMode];
 }
 
-uint16_t Light::getSpeed (uint8_t affectedMod)
+uint8_t Light::getPowerPercent (uint8_t affectedMode)
 {
-	return speed[affectedMod == CURRENT_MOD ? mod : affectedMod];
+	return utils.map (power[affectedMode == CURRENT_MODE ? mode : affectedMode], LIGHT_MIN_POWER, LIGHT_MAX_POWER, SEEKBAR_MIN, SEEKBAR_MAX);
 }
 
-uint8_t Light::getMod ()
+uint16_t Light::getSpeed (uint8_t affectedMode)
 {
-	return mod;
+	return speed[affectedMode == CURRENT_MODE ? mode : affectedMode];
+}
+
+uint8_t Light::getMode ()
+{
+	return mode;
 }
 
 bool Light::isOn ()
@@ -166,15 +179,15 @@ void Light::init ()
 	light.lightAll (0x000000);
 	strip.show();
 
-	lastMod = LIGHT_MOD_CONTINUOUS; // Initialiazing last mod as well
+	lastMode = LIGHT_MOD_CONTINUOUS; // Initialiazing last mode as well
 
 	if (LIGHT_START_ANIMATION_ENABLE)
 	{
-		mod = LIGHT_MOD_START_ANIM;
+		mode = LIGHT_MOD_START_ANIM;
 		switchOn();
 	}
 	else
-		mod = LIGHT_MOD_CONTINUOUS;
+		mode = LIGHT_MOD_CONTINUOUS;
 
 	inf << "Light initialized." << dendl;
 }
@@ -205,7 +218,7 @@ void Light::lightAll (uint32_t rgb)
 		strip.setPixelColor (i, rgb);
 }
 
-// Perform mod action
+// Perform mode action
 void Light::action ()
 {
 	// If lightning is off, shut all lights
@@ -213,81 +226,81 @@ void Light::action ()
 	{
 		lightAll (0);
 		strip.show();
-		lastMod = -1;
+		lastMode = -1;
 		return;
 	}
 
-	if (mod != lastMod)
-		inf << "Leaving " << utils.getLightModName (lastMod, CAPS_FIRST) << " mod" << dendl;
+	if (mode != lastMode)
+		inf << "Leaving " << utils.getLightModeName (lastMode, CAPS_FIRST) << " mode" << dendl;
 
-	// Calling mods functions
-	switch (mod)
+	// Calling modes functions
+	switch (mode)
 	{
 		case LIGHT_MOD_CONTINUOUS:
-			if (lastMod != LIGHT_MOD_CONTINUOUS) // If this is first call of the function, we call init function (lastMod will be set in init function)
+			if (lastMode != LIGHT_MOD_CONTINUOUS) // If this is first call of the function, we call init function (lastMode will be set in init function)
 				initContinuous();
 			continuous();
 			break;
 
 		case LIGHT_MOD_FLASH:
-			if (lastMod != LIGHT_MOD_FLASH)
+			if (lastMode != LIGHT_MOD_FLASH)
 				initFlash();
 			flash();
 			break;
 
 		case LIGHT_MOD_STROBE:
-			if (lastMod != LIGHT_MOD_STROBE)
+			if (lastMode != LIGHT_MOD_STROBE)
 				initStrobe();
 			strobe();
 			break;
 
 		case LIGHT_MOD_FADE:
-			if (lastMod != LIGHT_MOD_FADE)
+			if (lastMode != LIGHT_MOD_FADE)
 				initFade();
 			fade();
 			break;
 
 		case LIGHT_MOD_SMOOTH:
-			if (lastMod != LIGHT_MOD_SMOOTH)
+			if (lastMode != LIGHT_MOD_SMOOTH)
 				initSmooth();
 			smooth();
 			break;
 
 		case LIGHT_MOD_DAWN:
-			if (lastMod != LIGHT_MOD_DAWN)
+			if (lastMode != LIGHT_MOD_DAWN)
 				initDawn();
 			dawn();
 			break;
 
 		case LIGHT_MOD_SUNSET:
-			if (lastMod != LIGHT_MOD_SUNSET)
+			if (lastMode != LIGHT_MOD_SUNSET)
 				initSunset();
 			sunset();
 			break;
 
 		case LIGHT_MOD_START_ANIM:
-			if (lastMod != LIGHT_MOD_START_ANIM)
+			if (lastMode != LIGHT_MOD_START_ANIM)
 				initStartAnimation();
 			startAnimation();
 			break;
 
 		case LIGHT_MOD_MUSIC:
-			if (lastMod != LIGHT_MOD_MUSIC)
+			if (lastMode != LIGHT_MOD_MUSIC)
 				initMusic();
 			music();
 			break;
 	}
 
-	strip.setBrightness (power[mod]);
+	strip.setBrightness (power[mode]);
 	strip.show();
 } // action
 
-// Flash mod initialization
+// Flash mode initialization
 void Light::initContinuous ()
 {
-	lastMod = LIGHT_MOD_CONTINUOUS; // Setting lastMod so we don't call init again
+	lastMode = LIGHT_MOD_CONTINUOUS; // Setting lastMode so we don't call init again
 
-	inf << "Entering Default mod" << dendl;
+	inf << "Entering Default mode" << dendl;
 }
 
 void Light::continuous ()
@@ -295,17 +308,17 @@ void Light::continuous ()
 	lightAll (red[LIGHT_MOD_CONTINUOUS], green[LIGHT_MOD_CONTINUOUS], blue[LIGHT_MOD_CONTINUOUS]);
 }
 
-// Flash mod initialization
+// Flash mode initialization
 void Light::initFlash ()
 {
 	state      = 0;               // Set initial state to 0
 	delayCount = -1;              // Reseting milliseconds counter
-	lastMod    = LIGHT_MOD_FLASH; // Setting lastMod so we don't call init again
+	lastMode   = LIGHT_MOD_FLASH; // Setting lastMode so we don't call init again
 
-	inf << "Entering Flash mod" << dendl;
+	inf << "Entering Flash mode" << dendl;
 }
 
-// Flash mod
+// Flash mode
 void Light::flash ()
 {
 	if (millis() - delayCount >= (uint32_t) (1000 / speed[LIGHT_MOD_FLASH]))
@@ -320,17 +333,17 @@ void Light::flash ()
 	}
 }
 
-// Strobe mod initialization
+// Strobe mode initialization
 void Light::initStrobe ()
 {
 	state      = 0;                // Set initial state to 0
 	delayCount = -1;               // Reseting milliseconds counter
-	lastMod    = LIGHT_MOD_STROBE; // Setting lastMod so we don't call init again
+	lastMode   = LIGHT_MOD_STROBE; // Setting lastMode so we don't call init again
 
-	inf << "Entering Strobe mod" << dendl;
+	inf << "Entering Strobe mode" << dendl;
 }
 
-// Strobe mod
+// Strobe mode
 void Light::strobe ()
 {
 	if (millis() - delayCount >= (uint32_t) (1000 / speed[LIGHT_MOD_STROBE]))
@@ -346,18 +359,18 @@ void Light::strobe ()
 	}
 }
 
-// Fade Mod initialization
+// Fade Mode initialization
 void Light::initFade ()
 {
 	state      = 0;  // Setting state to Decreasing state
 	delayCount = -1; // Reseting milliseconds counter
 	counter    = 0;
-	lastMod    = LIGHT_MOD_FADE; // Setting lastMod so we don't call init again
+	lastMode   = LIGHT_MOD_FADE; // Setting lastMode so we don't call init again
 
-	inf << "Entering Fade mod" << dendl;
+	inf << "Entering Fade mode" << dendl;
 }
 
-// Fade Mod
+// Fade Mode
 void Light::fade ()
 {
 	if (millis() - delayCount >= (uint32_t) (1000 / speed[LIGHT_MOD_FADE]))
@@ -378,18 +391,18 @@ void Light::fade ()
 	}
 }
 
-// Smooth Mod Initialization
+// Smooth Mode Initialization
 void Light::initSmooth ()
 {
 	state      = 0;  // Init state to 0
 	delayCount = -1; // Reseting milliseconds counter
 	counter    = 0;
-	lastMod    = LIGHT_MOD_SMOOTH; // Setting lastMod so we don't call init again
+	lastMode   = LIGHT_MOD_SMOOTH; // Setting lastMode so we don't call init again
 
-	inf << "Entering Smooth mod" << dendl;
+	inf << "Entering Smooth mode" << dendl;
 }
 
-// Smooth Mod
+// Smooth Mode
 void Light::smooth ()
 {
 	if (millis() - delayCount >= (uint32_t) (1000 / speed[LIGHT_MOD_SMOOTH]))
@@ -446,20 +459,20 @@ void Light::smooth ()
 	}
 } // Light::smooth
 
-// Dawn Mod initialization
+// Dawn Mode initialization
 void Light::initDawn ()
 {
 	delayCount = -1;             // Reseting milliseconds counter
-	lastMod    = LIGHT_MOD_DAWN; // Setting lastMod so we don't call init again
+	lastMode   = LIGHT_MOD_DAWN; // Setting lastMode so we don't call init again
 	counter    = 0;
 	counter2   = 1;
 
 	lightAll (0x000000);
 
-	inf << "Entering Dawn mod for " << speed[LIGHT_MOD_DAWN] << " min." << dendl;
+	inf << "Entering Dawn mode for " << speed[LIGHT_MOD_DAWN] << " min." << dendl;
 }
 
-// Dawn Mod
+// Dawn Mode
 void Light::dawn ()
 {
 	const uint32_t step = (((uint64_t) speed[LIGHT_MOD_DAWN] ) * 60000.) / ( (((uint64_t) STRIP_LENGTH) / 2.) * ((uint64_t) LIGHT_MAX_POWER));
@@ -475,11 +488,11 @@ void Light::dawn ()
 
 			if (counter2 >= LIGHT_MAX_POWER)
 			{
-				red [LIGHT_MOD_CONTINUOUS]  = red [LIGHT_MOD_DAWN];  // Transfer RGB final value to default mod
-				green[LIGHT_MOD_CONTINUOUS] = green[LIGHT_MOD_DAWN]; // Transfer RGB final value to default mod
-				blue[LIGHT_MOD_CONTINUOUS]  = blue[LIGHT_MOD_DAWN];  // Transfer RGB final value to default mod
+				red [LIGHT_MOD_CONTINUOUS]  = red [LIGHT_MOD_DAWN];  // Transfer RGB final value to default mode
+				green[LIGHT_MOD_CONTINUOUS] = green[LIGHT_MOD_DAWN]; // Transfer RGB final value to default mode
+				blue[LIGHT_MOD_CONTINUOUS]  = blue[LIGHT_MOD_DAWN];  // Transfer RGB final value to default mode
 				power[LIGHT_MOD_CONTINUOUS] = power[LIGHT_MOD_DAWN]; // Same for power
-				mod                         = LIGHT_MOD_CONTINUOUS;  // Leaving the mod
+				mode                        = LIGHT_MOD_CONTINUOUS;  // Leaving the mode
 			}
 			else
 			{
@@ -495,21 +508,21 @@ void Light::dawn ()
 	}
 } // Light::dawn
 
-// Sunset Mod initialization
+// Sunset Mode initialization
 void Light::initSunset ()
 {
 	delayCount = millis();         // Reseting milliseconds counter
-	lastMod    = LIGHT_MOD_SUNSET; // Setting lastMod so we don't call init again
+	lastMode   = LIGHT_MOD_SUNSET; // Setting lastMode so we don't call init again
 	counter    = 0;
 	counter2   = LIGHT_MAX_POWER;
 	state      = 0;
 
 	lightAll (getRgb (LIGHT_MOD_SUNSET));
 
-	inf << "Entering Sunset mod for " << speed[LIGHT_MOD_SUNSET] << " min." << dendl;
+	inf << "Entering Sunset mode for " << speed[LIGHT_MOD_SUNSET] << " min." << dendl;
 }
 
-// Sunset Mod
+// Sunset Mode
 void Light::sunset ()
 {
 	if (state == 0)
@@ -535,7 +548,7 @@ void Light::sunset ()
 
 				if (counter2 <= LIGHT_MIN_POWER)
 				{
-					mod = LIGHT_MOD_CONTINUOUS; // Leaving the mod
+					mode = LIGHT_MOD_CONTINUOUS; // Leaving the mode
 					switchOff();
 				}
 				else
@@ -553,7 +566,7 @@ void Light::sunset ()
 	}
 } // Light::sunset
 
-// Start animation mod initialization
+// Start animation mode initialization
 void Light::initStartAnimation ()
 {
 	state = 0;
@@ -565,14 +578,14 @@ void Light::initStartAnimation ()
 	counter = 0;
 
 	delayCount = -1;
-	lastMod    = LIGHT_MOD_START_ANIM; // Setting lastMod so we don't call init again
+	lastMode   = LIGHT_MOD_START_ANIM; // Setting lastMode so we don't call init again
 
 	lightAll (0x000000);
 
 	inf << "Begin start animation" << dendl;
 }
 
-// Start animation mod
+// Start animation mode
 void Light::startAnimation ()
 {
 	if (millis() - delayCount >= ((speed[LIGHT_MOD_START_ANIM] / (STRIP_LENGTH)) + 0.5))
@@ -655,25 +668,25 @@ void Light::startAnimation ()
 
 	if (counter >= STRIP_LENGTH)
 	{
-		mod = LIGHT_MOD_CONTINUOUS;
+		mode = LIGHT_MOD_CONTINUOUS;
 		switchOff();
 		trace << "End of start animation" << dendl;
 	}
 } // Light::startAnimation
 
-// Music Mod initialization
+// Music Mode initialization
 void Light::initMusic ()
 {
-	lastMod = LIGHT_MOD_MUSIC; // Setting lastMod so we don't call init again
+	lastMode = LIGHT_MOD_MUSIC; // Setting lastMode so we don't call init again
 
 	delayCount = -1;
 
 	counter = 0;
 
-	inf << "Entering Music mod" << dendl;
+	inf << "Entering Music mode" << dendl;
 }
 
-// Music Mod
+// Music Mode
 void Light::music ()
 {
 	int32_t level = utils.map (abs (510 - analogRead (PIN_MUSIC_IN)), 0, 25, 0, STRIP_LENGTH);

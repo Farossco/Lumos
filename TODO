@@ -1,6 +1,6 @@
 - Change modes speed to cycle time
 - !! Initialize ALL variables !!
-- colorize light music mod
+- colorize light music mode
 - Completely rework EEPROM (Memory.h and Memory.cpp)
 - Complement constant -> new enum
 - Try to avoid any loop and blocking possibility in the code (Serial reception, WiFi request, ...) (Almost done)
@@ -8,3 +8,4 @@
 - Add color to the Logger output
 - Review sunset mode
 - Redo SdCard.cpp
+- Make Logger into a seperate Library

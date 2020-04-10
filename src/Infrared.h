@@ -31,9 +31,8 @@ const unsigned long color[N_COLOR][3] =
 	{ 0x0068FF, 0xFF6897, 0xC101E57B }, // B2
 	{ 0x8068FF, 0xFF20DF, 0x51E43D1B }, // B3
 	{ 0xDB89FF, 0xFF708F, 0x44C407DB }, // B4
-	{ 0xFF7B92, 0xFFF00F, 0x35A9425F } // B5
+	{ 0xFF7B92, 0xFFF00F, 0x35A9425F }  // B5
 };
-
 
 class Infrared
 {

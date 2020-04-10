@@ -20,10 +20,10 @@ void VariableChange::init ()
 	// Initializing to default values
 	changeOn       = light.isOn();
 	changeRgb      = light.getRgb (LIGHT_MOD_CONTINUOUS);
-	changeLightMod = light.getMod();
-	changeSoundMod = sound.getMod();
+	changeLightMod = light.getMode();
+	changeSoundMod = sound.getMode();
 	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_MOD_N; i++)
-		changePower[i] = light.getPower (i);
+		changePower[i] = light.getPowerRaw (i);
 	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_MOD_N; i++)
 		changeSpeed[i] = light.getSpeed (i);
 	changeDawnTime = alarms.getDawnTime();
@@ -49,7 +49,7 @@ void VariableChange::check ()
 
 	if (changeRgb != light.getRgb (LIGHT_MOD_CONTINUOUS))
 	{
-		verb << "\"RGB\" of default mod changed from " << changeRgb << " to " << light.getRgb (LIGHT_MOD_CONTINUOUS) << dendl;
+		verb << "\"RGB\" of default mode changed from " << changeRgb << " to " << light.getRgb (LIGHT_MOD_CONTINUOUS) << dendl;
 
 		changeRgb       = light.getRgb (LIGHT_MOD_CONTINUOUS);
 		flagSendInfo    = true;
@@ -58,18 +58,18 @@ void VariableChange::check ()
 
 	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_MOD_N; i++)
 	{
-		if (changePower[i] != light.getPower (i))
+		if (changePower[i] != light.getPowerRaw (i))
 		{
-			verb << "\"Power\" of " << utils.getLightModName (i, CAPS_NONE) << " mod changed from " << changePower[i] << " to " << light.getPower (i) << dendl;
+			verb << "\"Power\" of " << utils.getLightModeName (i, CAPS_NONE) << " mode changed from " << changePower[i] << " (" << utils.map (changePower[i], LIGHT_MIN_POWER, LIGHT_MAX_POWER, SEEKBAR_MIN, SEEKBAR_MAX) << "%) to " << light.getPowerRaw (i) << " (" << light.getPowerPercent() << "%)" << dendl;
 
-			changePower[i]  = light.getPower (i);
+			changePower[i]  = light.getPowerRaw (i);
 			flagSendInfo    = true;
 			flagWriteEeprom = true;
 		}
 
 		if (changeSpeed[i] != light.getSpeed (i))
 		{
-			verb << "\"Speed\" of " << utils.getLightModName (i, CAPS_NONE) << " mod changed from " << changeSpeed[i] << " to " << light.getSpeed (i) << dendl;
+			verb << "\"Speed\" of " << utils.getLightModeName (i, CAPS_NONE) << " mode changed from " << changeSpeed[i] << " to " << light.getSpeed (i) << dendl;
 
 			changeSpeed[i]  = light.getSpeed (i);
 			flagSendInfo    = true;
@@ -77,20 +77,20 @@ void VariableChange::check ()
 		}
 	}
 
-	if (changeLightMod != light.getMod())
+	if (changeLightMod != light.getMode())
 	{
-		verb << "\"Light mod\" changed from " << utils.getLightModName (changeLightMod, CAPS_NONE) << " (" << changeLightMod << ") to " << utils.getLightModName (light.getMod(), CAPS_NONE) << " (" << light.getMod() << ")" << dendl;
+		verb << "\"Light mode\" changed from " << utils.getLightModeName (changeLightMod, CAPS_NONE) << " (" << changeLightMod << ") to " << utils.getLightModeName (light.getMode(), CAPS_NONE) << " (" << light.getMode() << ")" << dendl;
 
-		changeLightMod  = light.getMod();
+		changeLightMod  = light.getMode();
 		flagSendInfo    = true;
 		flagWriteEeprom = true;
 	}
 
-	if (changeSoundMod != sound.getMod())
+	if (changeSoundMod != sound.getMode())
 	{
-		verb << "\"Sound mod\" changed from " << utils.getSoundModeName (changeSoundMod, CAPS_NONE) << " (" << changeSoundMod << ") to " << utils.getSoundModeName (sound.getMod(), CAPS_NONE) << " (" << sound.getMod() << ")" << dendl;
+		verb << "\"Sound mode\" changed from " << utils.getSoundModeName (changeSoundMod, CAPS_NONE) << " (" << changeSoundMod << ") to " << utils.getSoundModeName (sound.getMode(), CAPS_NONE) << " (" << sound.getMode() << ")" << dendl;
 
-		changeSoundMod  = sound.getMod();
+		changeSoundMod  = sound.getMode();
 		flagSendInfo    = true;
 		flagWriteEeprom = true;
 	}
@@ -134,11 +134,11 @@ void VariableChange::sendInfo ()
 					break;
 
 				case POW:
-					sprintf (information + strlen (information), "%d%d", j, (uint8_t) utils.map (light.getPower (j), LIGHT_MIN_POWER, LIGHT_MAX_POWER, SEEKBAR_MIN, SEEKBAR_MAX));
+					sprintf (information + strlen (information), "%d%d", j, light.getPowerPercent (j));
 					break;
 
 				case LMO:
-					sprintf (information + strlen (information), "%d", light.getMod());
+					sprintf (information + strlen (information), "%d", light.getMode());
 					break;
 
 				case SPEED:
@@ -146,7 +146,7 @@ void VariableChange::sendInfo ()
 					break;
 
 				case SMO:
-					sprintf (information + strlen (information), "%d", sound.getMod());
+					sprintf (information + strlen (information), "%d", sound.getMode());
 					break;
 
 				case VOL:

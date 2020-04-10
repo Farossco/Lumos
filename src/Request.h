@@ -32,10 +32,10 @@ enum RequestMessageType : int
 
 	RGB          = 1, // Provide : Light RGB
 	LON          = 2, // Provide : Light On/off
-	POW          = 3, // Provide : Light mod Power
-	LMO          = 4, // Provide : Light mod
-	SPEED        = 5, // Provide : Light mod Speed
-	SMO          = 6, // Provide : Sound mod
+	POW          = 3, // Provide : Light mode Power
+	LMO          = 4, // Provide : Light mode
+	SPEED        = 5, // Provide : Light mode Speed
+	SMO          = 6, // Provide : Sound mode
 	VOL          = 7, // Provide : Sound volume
 	SON          = 8, // Provide : Sound on/off
 	DTM          = 9  // Provide : Dawn time

@@ -2,7 +2,7 @@
 #define LOGGER_H
 
 #include <Arduino.h>
-#include "ostream.h"
+#include <ostream>
 #include "Utils.h"
 
 #if defined(LUMOS_ARDUINO_MEGA)

@@ -26,7 +26,7 @@
  */
 
 #include <string.h>
-#include "ostream.h"
+#include <ostream>
 
 #ifndef PSTR
 # define PSTR(x) x
