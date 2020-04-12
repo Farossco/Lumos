@@ -230,7 +230,6 @@ const uint8_t Utils::messageTypeComplementType (RequestMessageType infoType)
 	}
 }
 
-// Requires a 23-char buffer
 String Utils::clock ()
 {
 	char buf[25];

@@ -8,4 +8,3 @@
 - Add color to the Logger output
 - Review sunset mode
 - Redo SdCard.cpp
-- Make Logger into a seperate Library

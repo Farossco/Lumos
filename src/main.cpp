@@ -20,14 +20,13 @@ void setup ()
 {
 	serial.init (ARDUINO_DEBUG_BAUD_RATE, COMM_BAUD_RATE);
 
-	logger.init (serial.debugSerial, DEBUG_LEVEL);
+	logger.add (serial.debugSerial, DEBUG_LEVEL);
 
-	if (WAIT_FOR_TIME)
-		serial.waitForTime();
+	if (WAIT_FOR_TIME) serial.waitForTime();
 
 	sd.init();
 
-	// logger.init (serial.debugSerial, LEVEL_VERBOSE, sd.getFile(), LEVEL_VERBOSE);
+	// logger.add (sd.getFile(), LOG_LEVEL_VERBOSE);
 
 	light.init();
 
@@ -68,7 +67,7 @@ void setup ()
 {
 	serial.init (ESP_DEBUG_BAUD_RATE, COMM_BAUD_RATE);
 
-	logger.init (serial.debugSerial, DEBUG_LEVEL);
+	logger.add (serial.debugSerial, DEBUG_LEVEL);
 
 	wifi.init();
 
