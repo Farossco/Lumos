@@ -5,8 +5,11 @@
 
 #if defined(LUMOS_ARDUINO_MEGA)
 
-Light::Light() : strip (STRIP_LENGTH, PIN_DATA, PIN_CLOCK, DOTSTAR_BGR)
-{ }
+Light::Light() : strip (STRIP_LENGTH, DOTSTAR_BGR)
+{
+	pinMode (PIN_STRIP_CS, OUTPUT);
+	digitalWrite (PIN_STRIP_CS, LOW);
+}
 
 #endif
 
@@ -177,7 +180,9 @@ void Light::init ()
 	}
 
 	light.lightAll (0x000000);
+	digitalWrite (PIN_STRIP_CS, HIGH);
 	strip.show();
+	digitalWrite (PIN_STRIP_CS, LOW);
 
 	lastMode = LIGHT_MOD_CONTINUOUS; // Initialiazing last mode as well
 
@@ -225,7 +230,9 @@ void Light::action ()
 	if (isOff())
 	{
 		lightAll (0);
+		digitalWrite (PIN_STRIP_CS, HIGH);
 		strip.show();
+		digitalWrite (PIN_STRIP_CS, LOW);
 		lastMode = -1;
 		return;
 	}
@@ -292,7 +299,9 @@ void Light::action ()
 	}
 
 	strip.setBrightness (power[mode]);
+	digitalWrite (PIN_STRIP_CS, HIGH);
 	strip.show();
+	digitalWrite (PIN_STRIP_CS, LOW);
 } // action
 
 // Flash mode initialization

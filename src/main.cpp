@@ -26,8 +26,6 @@ void setup ()
 
 	sd.init();
 
-	// logger.add (sd.getFile(), LOG_LEVEL_VERBOSE);
-
 	light.init();
 
 	infrared.init();
@@ -47,7 +45,7 @@ void loop ()
 
 	serial.receiveAndDecode();
 
-	// sd.cardTests();
+	sd.action();
 
 	infrared.read();
 

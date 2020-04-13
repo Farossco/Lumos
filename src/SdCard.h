@@ -5,51 +5,39 @@
 
 # include <SD.h>
 
-const float FILE_CLOSE_TIME = 1.0;
-const float CARD_CLOSE_TIME = 10.0;
-const float CHECK_INTERVAL  = 0.0;
+const float FILE_FLUSH_TIME = 5;
 
-const uint8_t PIN_SD_CS          = 49; // Chip Select
-const uint8_t PIN_SD_CD          = 53; // Card Detect
-const uint8_t PIN_SD_LED_RED     = 44; // RGB Red pin
-const uint8_t PIN_SD_LED_GREEN   = 45; // RGB Green pin
-const uint8_t PIN_SD_LED_BLUE    = 46; // RGB Blue pin
-const uint8_t SD_LED_POWER = 255;
+const uint8_t PIN_SD_CS        = 10; // Chip Select
+const uint8_t PIN_SD_CD        = 9;  // Card Detect
+const uint8_t PIN_SD_LED_RED   = 3;  // RGB Red pin
+const uint8_t PIN_SD_LED_GREEN = 4;  // RGB Green pin
+const uint8_t PIN_SD_LED_BLUE  = 5;  // RGB Blue pin
+const uint8_t SD_LED_POWER     = 255;
 
 class SdCard
 {
 public:
 	SdCard();
 	void init ();
-	File & getFile ();
-	boolean isEnabled ();
-	boolean fileIsOpened ();
-	boolean fileIsClosed ();
-	boolean cardIsOpened ();
-	boolean cardIsClosed ();
-	boolean cardIsDetected ();
-	boolean cardIsUndetected ();
-	boolean cardIsPresent ();
-	boolean cardIsAbsent ();
-	void openFile ();
-	boolean openCard ();
-	void closeFile ();
-	void cardTests ();
+	void action ();
+
+private:
+	File file;
+	boolean cardPresent;
+	uint32_t flushTimer;
+	bool enabled;
+
+	void openCard();
+	bool detectCard ();
 	void lightError ();
 	void lightConnected ();
 	void lightIdle ();
 	void lightNoCard ();
 	void lightOff ();
+	void autoDetect ();
+	void autoFlush ();
 
-private:
-	File logFile;
-	boolean logFileAvailable, fileOpened, cardOpened, cardPresent;
-	char sdFileName[13];
-	uint32_t fileLastOpened, cardLastChecked;
-	boolean enabled, tempDisabled;
-
-	boolean createLogFile ();
-	void getLogFileName (char * buf);
+	bool createLogFile ();
 };
 
 extern SdCard sd;

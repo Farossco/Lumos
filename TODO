@@ -7,4 +7,3 @@
 - Transform class Request into a real object inheriting from string (This way we can just do "request.getPrefix"... )
 - Add color to the Logger output
 - Review sunset mode
-- Redo SdCard.cpp

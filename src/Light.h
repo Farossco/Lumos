@@ -12,9 +12,10 @@
 #define FULL_LINE    0x000000
 
 const uint8_t STRIP_LENGTH = 72;
-const uint8_t PIN_DATA     = 50;
+const uint8_t PIN_DATA     = 51;
 const uint8_t PIN_CLOCK    = 52;
 const uint8_t PIN_MUSIC_IN = 0;
+const uint8_t PIN_STRIP_CS = 11;
 
 const boolean LIGHT_START_ANIMATION_ENABLE = true;
 
