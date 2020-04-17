@@ -36,7 +36,7 @@ void Json::generateData (String & string, const char * status, const char * mess
 	  JSON_OBJECT_SIZE (4)                 // root (status/message/light/sound)
 	  + strlen (status) + strlen (message) // status + message (Strings)
 	  + JSON_OBJECT_SIZE (5)               // light (on/mode/rgb/power/speed)
-	  + 3 * JSON_ARRAY_SIZE (LIGHT_MOD_N)  // light:rgb[] + light:power[] + light:speed[]
+	  + 3 * JSON_ARRAY_SIZE (LIGHT_MODE_N) // light:rgb[] + light:power[] + light:speed[]
 	  + JSON_OBJECT_SIZE (3)               // sound (on/volume/mode)
 	  + 10;                                // Security margin
 
@@ -52,17 +52,17 @@ void Json::generateData (String & string, const char * status, const char * mess
 
 	// -- Rgb -- //
 	JsonArray rootLightRgb = rootLight.createNestedArray ("Rgb");
-	for (int i = LIGHT_MOD_MIN; i <= LIGHT_MOD_MAX; i++)
+	for (int i = LIGHT_MODE_MIN; i <= LIGHT_MODE_MAX; i++)
 		rootLightRgb.add ((unsigned long) light.getRgb (i));
 
 	// -- Power -- //
 	JsonArray rootLightPower = rootLight.createNestedArray ("Power");
-	for (int i = LIGHT_MOD_MIN; i <= LIGHT_MOD_MAX; i++)
+	for (int i = LIGHT_MODE_MIN; i <= LIGHT_MODE_MAX; i++)
 		rootLightPower.add (light.getPowerPercent (i));
 
 	// -- Speed -- //
 	JsonArray rootLightSpeed = rootLight.createNestedArray ("Speed");
-	for (int i = LIGHT_MOD_MIN; i <= LIGHT_MOD_MAX; i++)
+	for (int i = LIGHT_MODE_MIN; i <= LIGHT_MODE_MAX; i++)
 		rootLightSpeed.add ((unsigned int) light.getSpeedPercent (i));
 
 	// ****** Sound ****** //
@@ -103,8 +103,8 @@ void Json::generateResources (String & string, bool pretty)
 	const size_t capacity = 0
 	  + JSON_OBJECT_SIZE (3)                         // root (Status/Message/Light)
 	  + JSON_OBJECT_SIZE (2)                         // light (ModeNames/Colors)
-	  + JSON_ARRAY_SIZE (LIGHT_MOD_N)                // modeNames array
-	  + LIGHT_MOD_N * 15                             // modeNames Strings
+	  + JSON_ARRAY_SIZE (LIGHT_MODE_N)               // modeNames array
+	  + LIGHT_MODE_N * 15                            // modeNames Strings
 	  + (JSON_ARRAY_SIZE (colorNRows))               // color array
 	  + colorNRows * JSON_ARRAY_SIZE (colorNColumns) // color[i] array
 	;
@@ -118,7 +118,7 @@ void Json::generateResources (String & string, bool pretty)
 
 	// -- ModeNames -- //
 	JsonArray rootLightModeNames = rootLight.createNestedArray ("ModeNames");
-	for (int i = LIGHT_MOD_MIN; i <= LIGHT_MOD_MAX; i++)
+	for (int i = LIGHT_MODE_MIN; i <= LIGHT_MODE_MAX; i++)
 		rootLightModeNames.add (lightModeName[i]);
 
 	// -- Colors -- //

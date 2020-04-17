@@ -38,7 +38,7 @@ RequestData Request::decode (String str)
 			if (utils.messageTypeComplementType (requestData.type) == COMPLEMENT_TYPE_LMO)
 			{
 				verb << "Complement: " << utils.getLightModeName (requestData.complement, CAPS_FIRST) << " (" << requestData.complement << ")" << endl;
-				if (requestData.complement < LIGHT_MOD_MIN || requestData.complement > LIGHT_MOD_MAX)
+				if (requestData.complement < LIGHT_MODE_MIN || requestData.complement > LIGHT_MODE_MAX)
 					requestData.error = unknownComplement;
 			}
 			else if (utils.messageTypeComplementType (requestData.type) == COMPLEMENT_TYPE_SCP)
@@ -144,7 +144,7 @@ void Request::process (RequestData requestData)
 				break;
 
 			case LMO:
-				if (requestData.information < LIGHT_MOD_MIN || requestData.information > LIGHT_MOD_MAX)
+				if (requestData.information < LIGHT_MODE_MIN || requestData.information > LIGHT_MODE_MAX)
 					requestData.error = outOfBound;
 				else
 					light.setMode (requestData.information);

@@ -47,15 +47,15 @@ void Memory::writeLight ()
 	trace << "Writing EEPROM for light variables... ";
 
 	// All RGB values
-	for (uint8_t i = LIGHT_MOD_MIN; i <= LIGHT_MOD_MAX; i++)
+	for (uint8_t i = LIGHT_MODE_MIN; i <= LIGHT_MODE_MAX; i++)
 		put (light.getRgb (i));
 
 	// All Light values
-	for (uint8_t i = LIGHT_MOD_MIN; i <= LIGHT_MOD_MAX; i++)
+	for (uint8_t i = LIGHT_MODE_MIN; i <= LIGHT_MODE_MAX; i++)
 		put (light.getPowerRaw (i));
 
 	// All speed values
-	for (uint8_t i = LIGHT_MOD_MIN; i <= LIGHT_MOD_MAX; i++)
+	for (uint8_t i = LIGHT_MODE_MIN; i <= LIGHT_MODE_MAX; i++)
 		put (light.getSpeedRaw (i));
 
 	trace << "Done ! (" << _n << " byte" << ((_n > 1) ? "s" : "") << " written)" << dendl;
@@ -68,13 +68,13 @@ bool Memory::readLight ()
 
 	trace << "Reading EEPROM for light variables... ";
 
-	for (uint8_t i = LIGHT_MOD_MIN; i <= LIGHT_MOD_MAX; i++)
+	for (uint8_t i = LIGHT_MODE_MIN; i <= LIGHT_MODE_MAX; i++)
 		light.setRgb (get<uint32_t>(), i);
 
-	for (uint8_t i = LIGHT_MOD_MIN; i <= LIGHT_MOD_MAX; i++)
+	for (uint8_t i = LIGHT_MODE_MIN; i <= LIGHT_MODE_MAX; i++)
 		light.setPowerRaw (get<uint8_t>(), i);
 
-	for (uint8_t i = LIGHT_MOD_MIN; i <= LIGHT_MOD_MAX; i++)
+	for (uint8_t i = LIGHT_MODE_MIN; i <= LIGHT_MODE_MAX; i++)
 		light.setSpeedRaw (get<uint16_t>(), i);
 
 	trace << "Done ! (" << _address - EEPROM_LIGHT_START << " byte" << ((_address > 1) ? "s" : "") << " read)" << dendl;

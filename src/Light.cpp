@@ -96,7 +96,7 @@ void Light::setSpeedPercent (uint16_t newSpeed, uint8_t affectedMode)
 
 void Light::setMode (uint8_t newMode)
 {
-	mode = constrain (newMode, LIGHT_MOD_MIN, LIGHT_MOD_MAX);
+	mode = constrain (newMode, LIGHT_MODE_MIN, LIGHT_MODE_MAX);
 }
 
 void Light::switchOn ()
@@ -127,7 +127,7 @@ uint8_t Light::subtractPower (uint8_t powerAdd, uint8_t affectedMode)
 
 uint16_t Light::getDawnDuration ()
 {
-	return speed[LIGHT_MOD_DAWN];
+	return speed[LIGHT_MODE_DAWN];
 }
 
 uint8_t Light::getRed (uint8_t affectedMode)
@@ -209,22 +209,22 @@ void Light::init ()
 	strip.show();
 	digitalWrite (PIN_STRIP_CS, LOW);
 
-	lastMode = LIGHT_MOD_CONTINUOUS; // Initialiazing last mode as well
+	lastMode = LIGHT_MODE_CONTINUOUS; // Initialiazing last mode as well
 
 	if (LIGHT_START_ANIMATION_ENABLE)
 	{
-		mode = LIGHT_MOD_START_ANIM;
+		mode = LIGHT_MODE_START_ANIM;
 		switchOn();
 	}
 	else
-		mode = LIGHT_MOD_CONTINUOUS;
+		mode = LIGHT_MODE_CONTINUOUS;
 
 	inf << "Light initialized." << dendl;
 }
 
 void Light::reset ()
 {
-	for (int i = LIGHT_MOD_MIN; i < LIGHT_MOD_N; i++)
+	for (int i = LIGHT_MODE_MIN; i < LIGHT_MODE_N; i++)
 	{
 		red[i]   = (uint8_t) LIGHT_DEFAULT_RGB;         // Initialize colors to their default value
 		green[i] = (uint8_t) (LIGHT_DEFAULT_RGB >> 8);  // Initialize colors to their default value
@@ -268,56 +268,56 @@ void Light::action ()
 	// Calling modes functions
 	switch (mode)
 	{
-		case LIGHT_MOD_CONTINUOUS:
-			if (lastMode != LIGHT_MOD_CONTINUOUS) // If this is first call of the function, we call init function (lastMode will be set in init function)
+		case LIGHT_MODE_CONTINUOUS:
+			if (lastMode != LIGHT_MODE_CONTINUOUS) // If this is first call of the function, we call init function (lastMode will be set in init function)
 				initContinuous();
 			continuous();
 			break;
 
-		case LIGHT_MOD_FLASH:
-			if (lastMode != LIGHT_MOD_FLASH)
+		case LIGHT_MODE_FLASH:
+			if (lastMode != LIGHT_MODE_FLASH)
 				initFlash();
 			flash();
 			break;
 
-		case LIGHT_MOD_STROBE:
-			if (lastMode != LIGHT_MOD_STROBE)
+		case LIGHT_MODE_STROBE:
+			if (lastMode != LIGHT_MODE_STROBE)
 				initStrobe();
 			strobe();
 			break;
 
-		case LIGHT_MOD_FADE:
-			if (lastMode != LIGHT_MOD_FADE)
+		case LIGHT_MODE_FADE:
+			if (lastMode != LIGHT_MODE_FADE)
 				initFade();
 			fade();
 			break;
 
-		case LIGHT_MOD_SMOOTH:
-			if (lastMode != LIGHT_MOD_SMOOTH)
+		case LIGHT_MODE_SMOOTH:
+			if (lastMode != LIGHT_MODE_SMOOTH)
 				initSmooth();
 			smooth();
 			break;
 
-		case LIGHT_MOD_DAWN:
-			if (lastMode != LIGHT_MOD_DAWN)
+		case LIGHT_MODE_DAWN:
+			if (lastMode != LIGHT_MODE_DAWN)
 				initDawn();
 			dawn();
 			break;
 
-		case LIGHT_MOD_SUNSET:
-			if (lastMode != LIGHT_MOD_SUNSET)
+		case LIGHT_MODE_SUNSET:
+			if (lastMode != LIGHT_MODE_SUNSET)
 				initSunset();
 			sunset();
 			break;
 
-		case LIGHT_MOD_START_ANIM:
-			if (lastMode != LIGHT_MOD_START_ANIM)
+		case LIGHT_MODE_START_ANIM:
+			if (lastMode != LIGHT_MODE_START_ANIM)
 				initStartAnimation();
 			startAnimation();
 			break;
 
-		case LIGHT_MOD_MUSIC:
-			if (lastMode != LIGHT_MOD_MUSIC)
+		case LIGHT_MODE_MUSIC:
+			if (lastMode != LIGHT_MODE_MUSIC)
 				initMusic();
 			music();
 			break;
@@ -332,22 +332,22 @@ void Light::action ()
 // Flash mode initialization
 void Light::initContinuous ()
 {
-	lastMode = LIGHT_MOD_CONTINUOUS; // Setting lastMode so we don't call init again
+	lastMode = LIGHT_MODE_CONTINUOUS; // Setting lastMode so we don't call init again
 
 	inf << "Entering Default mode" << dendl;
 }
 
 void Light::continuous ()
 {
-	lightAll (red[LIGHT_MOD_CONTINUOUS], green[LIGHT_MOD_CONTINUOUS], blue[LIGHT_MOD_CONTINUOUS]);
+	lightAll (red[LIGHT_MODE_CONTINUOUS], green[LIGHT_MODE_CONTINUOUS], blue[LIGHT_MODE_CONTINUOUS]);
 }
 
 // Flash mode initialization
 void Light::initFlash ()
 {
-	state      = 0;               // Set initial state to 0
-	delayCount = -1;              // Reseting milliseconds counter
-	lastMode   = LIGHT_MOD_FLASH; // Setting lastMode so we don't call init again
+	state      = 0;                // Set initial state to 0
+	delayCount = -1;               // Reseting milliseconds counter
+	lastMode   = LIGHT_MODE_FLASH; // Setting lastMode so we don't call init again
 
 	inf << "Entering Flash mode" << dendl;
 }
@@ -355,7 +355,7 @@ void Light::initFlash ()
 // Flash mode
 void Light::flash ()
 {
-	if (millis() - delayCount >= (uint32_t) (1000 / speed[LIGHT_MOD_FLASH]))
+	if (millis() - delayCount >= (uint32_t) (1000 / speed[LIGHT_MODE_FLASH]))
 	{
 		if (state >= 2)
 			state = 0;
@@ -370,9 +370,9 @@ void Light::flash ()
 // Strobe mode initialization
 void Light::initStrobe ()
 {
-	state      = 0;                // Set initial state to 0
-	delayCount = -1;               // Reseting milliseconds counter
-	lastMode   = LIGHT_MOD_STROBE; // Setting lastMode so we don't call init again
+	state      = 0;                 // Set initial state to 0
+	delayCount = -1;                // Reseting milliseconds counter
+	lastMode   = LIGHT_MODE_STROBE; // Setting lastMode so we don't call init again
 
 	inf << "Entering Strobe mode" << dendl;
 }
@@ -380,12 +380,12 @@ void Light::initStrobe ()
 // Strobe mode
 void Light::strobe ()
 {
-	if (millis() - delayCount >= (uint32_t) (1000 / speed[LIGHT_MOD_STROBE]))
+	if (millis() - delayCount >= (uint32_t) (1000 / speed[LIGHT_MODE_STROBE]))
 	{
 		state = !state; // Inverting state
 
 		if (state)
-			lightAll (red[LIGHT_MOD_STROBE], green[LIGHT_MOD_STROBE], blue[LIGHT_MOD_STROBE]);
+			lightAll (red[LIGHT_MODE_STROBE], green[LIGHT_MODE_STROBE], blue[LIGHT_MODE_STROBE]);
 		else
 			lightAll (0x000000);
 
@@ -399,7 +399,7 @@ void Light::initFade ()
 	state      = 0;  // Setting state to Decreasing state
 	delayCount = -1; // Reseting milliseconds counter
 	counter    = 0;
-	lastMode   = LIGHT_MOD_FADE; // Setting lastMode so we don't call init again
+	lastMode   = LIGHT_MODE_FADE; // Setting lastMode so we don't call init again
 
 	inf << "Entering Fade mode" << dendl;
 }
@@ -407,7 +407,7 @@ void Light::initFade ()
 // Fade Mode
 void Light::fade ()
 {
-	if (millis() - delayCount >= (uint32_t) (1000 / speed[LIGHT_MOD_FADE]))
+	if (millis() - delayCount >= (uint32_t) (1000 / speed[LIGHT_MODE_FADE]))
 	{
 		if (state)
 			counter++;  // Increasing all colors
@@ -419,7 +419,7 @@ void Light::fade ()
 		else if (counter <= LIGHT_MIN_POWER) // If color reach black, we start to increase
 			state = 1;                       // Increasing state
 
-		lightAll (red[LIGHT_MOD_FADE] * (counter / (float) LIGHT_MAX_POWER), green[LIGHT_MOD_FADE] * (counter / (float) LIGHT_MAX_POWER), blue[LIGHT_MOD_FADE] * (counter / (float) LIGHT_MAX_POWER));
+		lightAll (red[LIGHT_MODE_FADE] * (counter / (float) LIGHT_MAX_POWER), green[LIGHT_MODE_FADE] * (counter / (float) LIGHT_MAX_POWER), blue[LIGHT_MODE_FADE] * (counter / (float) LIGHT_MAX_POWER));
 
 		delayCount = millis();
 	}
@@ -431,7 +431,7 @@ void Light::initSmooth ()
 	state      = 0;  // Init state to 0
 	delayCount = -1; // Reseting milliseconds counter
 	counter    = 0;
-	lastMode   = LIGHT_MOD_SMOOTH; // Setting lastMode so we don't call init again
+	lastMode   = LIGHT_MODE_SMOOTH; // Setting lastMode so we don't call init again
 
 	inf << "Entering Smooth mode" << dendl;
 }
@@ -439,7 +439,7 @@ void Light::initSmooth ()
 // Smooth Mode
 void Light::smooth ()
 {
-	if (millis() - delayCount >= (uint32_t) (1000 / speed[LIGHT_MOD_SMOOTH]))
+	if (millis() - delayCount >= (uint32_t) (1000 / speed[LIGHT_MODE_SMOOTH]))
 	{
 		switch (state)
 		{
@@ -496,25 +496,25 @@ void Light::smooth ()
 // Dawn Mode initialization
 void Light::initDawn ()
 {
-	delayCount = -1;             // Reseting milliseconds counter
-	lastMode   = LIGHT_MOD_DAWN; // Setting lastMode so we don't call init again
+	delayCount = -1;              // Reseting milliseconds counter
+	lastMode   = LIGHT_MODE_DAWN; // Setting lastMode so we don't call init again
 	counter    = 0;
 	counter2   = 1;
 
 	lightAll (0x000000);
 
-	inf << "Entering Dawn mode for " << speed[LIGHT_MOD_DAWN] << " min." << dendl;
+	inf << "Entering Dawn mode for " << speed[LIGHT_MODE_DAWN] << " min." << dendl;
 }
 
 // Dawn Mode
 void Light::dawn ()
 {
-	const uint32_t step = (((uint64_t) speed[LIGHT_MOD_DAWN] ) * 60000.) / ( (((uint64_t) STRIP_LENGTH) / 2.) * ((uint64_t) LIGHT_MAX_POWER));
+	const uint32_t step = (((uint64_t) speed[LIGHT_MODE_DAWN] ) * 60000.) / ( (((uint64_t) STRIP_LENGTH) / 2.) * ((uint64_t) LIGHT_MAX_POWER));
 
 	if (millis() - delayCount >= step)
 	{
-		strip.setPixelColor ((STRIP_LENGTH / 2 + counter), getRed (LIGHT_MOD_DAWN) * (counter2 / (float)  LIGHT_MAX_POWER), getGreen (LIGHT_MOD_DAWN) * (counter2 / (float) LIGHT_MAX_POWER), getBlue (LIGHT_MOD_DAWN) * (counter2 / (float) LIGHT_MAX_POWER));
-		strip.setPixelColor ((STRIP_LENGTH / 2 - counter), getRed (LIGHT_MOD_DAWN) * (counter2 / (float)  LIGHT_MAX_POWER), getGreen (LIGHT_MOD_DAWN) * (counter2 / (float) LIGHT_MAX_POWER), getBlue (LIGHT_MOD_DAWN) * (counter2 / (float) LIGHT_MAX_POWER));
+		strip.setPixelColor ((STRIP_LENGTH / 2 + counter), getRed (LIGHT_MODE_DAWN) * (counter2 / (float)  LIGHT_MAX_POWER), getGreen (LIGHT_MODE_DAWN) * (counter2 / (float) LIGHT_MAX_POWER), getBlue (LIGHT_MODE_DAWN) * (counter2 / (float) LIGHT_MAX_POWER));
+		strip.setPixelColor ((STRIP_LENGTH / 2 - counter), getRed (LIGHT_MODE_DAWN) * (counter2 / (float)  LIGHT_MAX_POWER), getGreen (LIGHT_MODE_DAWN) * (counter2 / (float) LIGHT_MAX_POWER), getBlue (LIGHT_MODE_DAWN) * (counter2 / (float) LIGHT_MAX_POWER));
 
 		if (counter >= (STRIP_LENGTH / 2.))
 		{
@@ -522,11 +522,11 @@ void Light::dawn ()
 
 			if (counter2 >= LIGHT_MAX_POWER)
 			{
-				red [LIGHT_MOD_CONTINUOUS]  = red [LIGHT_MOD_DAWN];  // Transfer RGB final value to default mode
-				green[LIGHT_MOD_CONTINUOUS] = green[LIGHT_MOD_DAWN]; // Transfer RGB final value to default mode
-				blue[LIGHT_MOD_CONTINUOUS]  = blue[LIGHT_MOD_DAWN];  // Transfer RGB final value to default mode
-				power[LIGHT_MOD_CONTINUOUS] = power[LIGHT_MOD_DAWN]; // Same for power
-				mode                        = LIGHT_MOD_CONTINUOUS;  // Leaving the mode
+				red [LIGHT_MODE_CONTINUOUS]  = red [LIGHT_MODE_DAWN];  // Transfer RGB final value to default mode
+				green[LIGHT_MODE_CONTINUOUS] = green[LIGHT_MODE_DAWN]; // Transfer RGB final value to default mode
+				blue[LIGHT_MODE_CONTINUOUS]  = blue[LIGHT_MODE_DAWN];  // Transfer RGB final value to default mode
+				power[LIGHT_MODE_CONTINUOUS] = power[LIGHT_MODE_DAWN]; // Same for power
+				mode                         = LIGHT_MODE_CONTINUOUS;  // Leaving the mode
 			}
 			else
 			{
@@ -545,15 +545,15 @@ void Light::dawn ()
 // Sunset Mode initialization
 void Light::initSunset ()
 {
-	delayCount = millis();         // Reseting milliseconds counter
-	lastMode   = LIGHT_MOD_SUNSET; // Setting lastMode so we don't call init again
+	delayCount = millis();          // Reseting milliseconds counter
+	lastMode   = LIGHT_MODE_SUNSET; // Setting lastMode so we don't call init again
 	counter    = 0;
 	counter2   = LIGHT_MAX_POWER;
 	state      = 0;
 
-	lightAll (getRgb (LIGHT_MOD_SUNSET));
+	lightAll (getRgb (LIGHT_MODE_SUNSET));
 
-	inf << "Entering Sunset mode for " << speed[LIGHT_MOD_SUNSET] << " min." << dendl;
+	inf << "Entering Sunset mode for " << speed[LIGHT_MODE_SUNSET] << " min." << dendl;
 }
 
 // Sunset Mode
@@ -561,7 +561,7 @@ void Light::sunset ()
 {
 	if (state == 0)
 	{
-		if ((millis() - delayCount) >= ((uint64_t) speed[LIGHT_MOD_SUNSET]) * 60000UL)
+		if ((millis() - delayCount) >= ((uint64_t) speed[LIGHT_MODE_SUNSET]) * 60000UL)
 		{
 			state = 1;
 			trace << "Starting to shut down. Completely off in 1 minute" << dendl;
@@ -573,8 +573,8 @@ void Light::sunset ()
 
 		if (millis() - delayCount >= step)
 		{
-			strip.setPixelColor ((STRIP_LENGTH / 2 + counter), getRed (LIGHT_MOD_SUNSET) * (counter2 / (float)  LIGHT_MAX_POWER), getGreen (LIGHT_MOD_SUNSET) * (counter2 / (float) LIGHT_MAX_POWER), getBlue (LIGHT_MOD_SUNSET) * (counter2 / (float) LIGHT_MAX_POWER));
-			strip.setPixelColor ((STRIP_LENGTH / 2 - counter), getRed (LIGHT_MOD_SUNSET) * (counter2 / (float)  LIGHT_MAX_POWER), getGreen (LIGHT_MOD_SUNSET) * (counter2 / (float) LIGHT_MAX_POWER), getBlue (LIGHT_MOD_SUNSET) * (counter2 / (float) LIGHT_MAX_POWER));
+			strip.setPixelColor ((STRIP_LENGTH / 2 + counter), getRed (LIGHT_MODE_SUNSET) * (counter2 / (float)  LIGHT_MAX_POWER), getGreen (LIGHT_MODE_SUNSET) * (counter2 / (float) LIGHT_MAX_POWER), getBlue (LIGHT_MODE_SUNSET) * (counter2 / (float) LIGHT_MAX_POWER));
+			strip.setPixelColor ((STRIP_LENGTH / 2 - counter), getRed (LIGHT_MODE_SUNSET) * (counter2 / (float)  LIGHT_MAX_POWER), getGreen (LIGHT_MODE_SUNSET) * (counter2 / (float) LIGHT_MAX_POWER), getBlue (LIGHT_MODE_SUNSET) * (counter2 / (float) LIGHT_MAX_POWER));
 
 			if (counter >= (STRIP_LENGTH / 2.))
 			{
@@ -582,7 +582,7 @@ void Light::sunset ()
 
 				if (counter2 <= LIGHT_MIN_POWER)
 				{
-					mode = LIGHT_MOD_CONTINUOUS; // Leaving the mode
+					mode = LIGHT_MODE_CONTINUOUS; // Leaving the mode
 					switchOff();
 				}
 				else
@@ -612,7 +612,7 @@ void Light::initStartAnimation ()
 	counter = 0;
 
 	delayCount = -1;
-	lastMode   = LIGHT_MOD_START_ANIM; // Setting lastMode so we don't call init again
+	lastMode   = LIGHT_MODE_START_ANIM; // Setting lastMode so we don't call init again
 
 	lightAll (0x000000);
 
@@ -622,7 +622,7 @@ void Light::initStartAnimation ()
 // Start animation mode
 void Light::startAnimation ()
 {
-	if (millis() - delayCount >= ((speed[LIGHT_MOD_START_ANIM] / (STRIP_LENGTH)) + 0.5))
+	if (millis() - delayCount >= ((speed[LIGHT_MODE_START_ANIM] / (STRIP_LENGTH)) + 0.5))
 	{
 		switch (state)
 		{
@@ -702,7 +702,7 @@ void Light::startAnimation ()
 
 	if (counter >= STRIP_LENGTH)
 	{
-		mode = LIGHT_MOD_CONTINUOUS;
+		mode = LIGHT_MODE_CONTINUOUS;
 		switchOff();
 		trace << "End of start animation" << dendl;
 	}
@@ -711,7 +711,7 @@ void Light::startAnimation ()
 // Music Mode initialization
 void Light::initMusic ()
 {
-	lastMode = LIGHT_MOD_MUSIC; // Setting lastMode so we don't call init again
+	lastMode = LIGHT_MODE_MUSIC; // Setting lastMode so we don't call init again
 
 	delayCount = -1;
 

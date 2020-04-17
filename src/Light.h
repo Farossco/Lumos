@@ -20,19 +20,19 @@ const uint8_t PIN_STRIP_CS = 11;
 const boolean LIGHT_START_ANIMATION_ENABLE = true;
 
 // Modes
-const uint8_t LIGHT_MOD_MIN        = 0; // -Minimum mode value-
-const uint8_t LIGHT_MOD_CONTINUOUS = 0; // Continuous lightning mode
-const uint8_t LIGHT_MOD_FLASH      = 1; // Flash mode
-const uint8_t LIGHT_MOD_STROBE     = 2; // Strobe mode
-const uint8_t LIGHT_MOD_FADE       = 3; // Fade mode
-const uint8_t LIGHT_MOD_SMOOTH     = 4; // Smooth mode
-const uint8_t LIGHT_MOD_DAWN       = 5; // Dawn mode
-const uint8_t LIGHT_MOD_SUNSET     = 6; // Sunset mode
-const uint8_t LIGHT_MOD_START_ANIM = 7; // Start animation mode
-const uint8_t LIGHT_MOD_MUSIC      = 8; // Music mode
-const uint8_t LIGHT_MOD_MAX        = 8; // -Maximum mode value-
+const uint8_t LIGHT_MODE_MIN        = 0; // -Minimum mode value-
+const uint8_t LIGHT_MODE_CONTINUOUS = 0; // Continuous lightning mode
+const uint8_t LIGHT_MODE_FLASH      = 1; // Flash mode
+const uint8_t LIGHT_MODE_STROBE     = 2; // Strobe mode
+const uint8_t LIGHT_MODE_FADE       = 3; // Fade mode
+const uint8_t LIGHT_MODE_SMOOTH     = 4; // Smooth mode
+const uint8_t LIGHT_MODE_DAWN       = 5; // Dawn mode
+const uint8_t LIGHT_MODE_SUNSET     = 6; // Sunset mode
+const uint8_t LIGHT_MODE_START_ANIM = 7; // Start animation mode
+const uint8_t LIGHT_MODE_MUSIC      = 8; // Music mode
+const uint8_t LIGHT_MODE_MAX        = 8; // -Maximum mode value-
 
-const uint8_t LIGHT_MOD_N = LIGHT_MOD_MAX - LIGHT_MOD_MIN + 1; // --Number of different modes--
+const uint8_t LIGHT_MODE_N = LIGHT_MODE_MAX - LIGHT_MODE_MIN + 1; // --Number of different modes--
 
 const uint8_t LIGHT_MIN_POWER     = 5;               // Minimum power value
 const uint8_t LIGHT_MAX_POWER     = 25;              // Maximum power value
@@ -44,9 +44,9 @@ const uint32_t LIGHT_MAX_RGB      = 0x00FFFFFF;      // Maximum RGB value
 const uint32_t LIGHT_DEFAULT_RGB  = LIGHT_MAX_RGB;   // Default RGB on program startup
 
 // TODO : uniformize mode speeds
-const uint16_t LIGHT_DEFAULT_SPEED[LIGHT_MOD_N] = { 0, 10, 10, 300, 500, 0, 0, 1000, 0 };   // Default speed on program startup
-const uint16_t LIGHT_MIN_SPEED[LIGHT_MOD_N]     = { 0, 1, 1, 50, 10, 0, 0, 1, 0 };          // Minimum speed or power value for each mode
-const uint16_t LIGHT_MAX_SPEED[LIGHT_MOD_N]     = { 0, 25, 25, 600, 1000, 0, 0, 10000, 0 }; // Maximum speed or power value for each mode
+const uint16_t LIGHT_DEFAULT_SPEED[LIGHT_MODE_N] = { 0, 10, 10, 300, 500, 0, 0, 1000, 0 };   // Default speed on program startup
+const uint16_t LIGHT_MIN_SPEED[LIGHT_MODE_N]     = { 0, 1, 1, 50, 10, 0, 0, 1, 0 };          // Minimum speed or power value for each mode
+const uint16_t LIGHT_MAX_SPEED[LIGHT_MODE_N]     = { 0, 25, 25, 600, 1000, 0, 0, 10000, 0 }; // Maximum speed or power value for each mode
 
 // TODO : move this elsewhere
 const uint32_t colorList[][6] =
@@ -130,11 +130,11 @@ private:
 	uint32_t delayCount, delayCount2; // Delay counters
 	uint8_t lastMode;                 // Mode in previous loop - Allows mode initializations
 	bool on;                          // If the leds are ON or OFF (True: ON / False: OFF)
-	uint8_t power[LIGHT_MOD_N];       // Current lightning power for each mode (from MINPOWER to MAXPOWER)
-	uint16_t speed[LIGHT_MOD_N];      // Current mode speed for each mode
-	uint8_t red[LIGHT_MOD_N];         // Current red value for each mode including lightning power (From 0 to 255)
-	uint8_t green[LIGHT_MOD_N];       // Current green value for each mode including lightning power (From 0 to 255)
-	uint8_t blue[LIGHT_MOD_N];        // Current blue value for each mode including lightning power (From 0 to 255)
+	uint8_t power[LIGHT_MODE_N];      // Current lightning power for each mode (from MINPOWER to MAXPOWER)
+	uint16_t speed[LIGHT_MODE_N];     // Current mode speed for each mode
+	uint8_t red[LIGHT_MODE_N];        // Current red value for each mode including lightning power (From 0 to 255)
+	uint8_t green[LIGHT_MODE_N];      // Current green value for each mode including lightning power (From 0 to 255)
+	uint8_t blue[LIGHT_MODE_N];       // Current blue value for each mode including lightning power (From 0 to 255)
 	uint8_t mode;                     // Current lighting mode (MOD_***)
 
 	// Start animation variables

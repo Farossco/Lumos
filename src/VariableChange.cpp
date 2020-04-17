@@ -23,7 +23,7 @@ void VariableChange::init ()
 	changeLightMod = light.getMode();
 	changeSoundMod = sound.getMode();
 
-	for (uint8_t i = LIGHT_MOD_MIN; i <= LIGHT_MOD_MAX; i++)
+	for (uint8_t i = LIGHT_MODE_MIN; i <= LIGHT_MODE_MAX; i++)
 	{
 		changeRgb[i]   = light.getRgb (i);
 		changePower[i] = light.getPowerRaw (i);
@@ -52,11 +52,11 @@ void VariableChange::check ()
 	}
 
 
-	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_MOD_N; i++)
+	for (uint8_t i = LIGHT_MODE_MIN; i < LIGHT_MODE_N; i++)
 	{
 		if (changeRgb[i] != light.getRgb (i))
 		{
-			verb << "\"RGB\" of " << utils.getLightModeName (i, CAPS_NONE) << " mode changed from " << changeRgb << " to " << light.getRgb (LIGHT_MOD_CONTINUOUS) << dendl;
+			verb << "\"RGB\" of " << utils.getLightModeName (i, CAPS_NONE) << " mode changed from " << changeRgb << " to " << light.getRgb (LIGHT_MODE_CONTINUOUS) << dendl;
 
 			changeRgb[i]    = light.getRgb (i);
 			flagSendInfo    = true;

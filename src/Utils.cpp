@@ -203,7 +203,7 @@ const uint8_t Utils::messageTypeComplementBounds (RequestMessageType infoType, u
 		case RGB:
 		case POW:
 		case SPEED:
-			return minMax == COMPLEMENT_MIN ? LIGHT_MOD_MIN : LIGHT_MOD_MAX;
+			return minMax == COMPLEMENT_MIN ? LIGHT_MODE_MIN : LIGHT_MODE_MAX;
 
 		case soundCommand:
 			return minMax == COMPLEMENT_MIN ? SOUND_COMMAND_MIN : SOUND_COMMAND_MAX;

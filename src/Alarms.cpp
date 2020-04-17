@@ -59,7 +59,7 @@ uint16_t Alarms::currentTime ()
 
 void Alarms::dawnStart ()
 {
-	light.setMode (LIGHT_MOD_DAWN);
+	light.setMode (LIGHT_MODE_DAWN);
 	light.switchOn();
 	sound.setVolume (15);
 	sound.command (SOUND_COMMAND_PLAY_DAWN, 0);

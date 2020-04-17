@@ -16,9 +16,9 @@ public:
 
 private:
 	bool changeOn;
-	uint8_t changePower[LIGHT_MOD_N];
-	uint16_t changeSpeed[LIGHT_MOD_N];
-	uint32_t changeRgb[LIGHT_MOD_N];
+	uint8_t changePower[LIGHT_MODE_N];
+	uint16_t changeSpeed[LIGHT_MODE_N];
+	uint32_t changeRgb[LIGHT_MODE_N];
 	uint8_t changeLightMod;
 	uint8_t changeSoundMod;
 	uint16_t changeDawnTime;
