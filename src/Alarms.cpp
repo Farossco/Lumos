@@ -23,7 +23,7 @@ void Alarms::init ()
 {
 	dawnTriggered = false;
 
-	if (memory.readForAlarms()) // Returns True if EEPROM is not correctly initialized (This may be the first launch)
+	if (memory.readAlarms()) // Returns True if EEPROM is not correctly initialized (This may be the first launch)
 	{
 		inf << "This is first launch, alarm variables will be initialized to their default values" << endl;
 

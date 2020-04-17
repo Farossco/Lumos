@@ -34,21 +34,21 @@ const uint8_t LIGHT_MOD_MAX        = 8; // -Maximum mode value-
 
 const uint8_t LIGHT_MOD_N = LIGHT_MOD_MAX - LIGHT_MOD_MIN + 1; // --Number of different modes--
 
-//                                              CONTINUOUS      FLASH       STROBE        FADE        SMOOTH        DAWN        SUNSET       START         MUSIC
-const uint8_t DEFAULT_POWER[LIGHT_MOD_N]    = { SEEKBAR_MAX, SEEKBAR_MAX, SEEKBAR_MAX, SEEKBAR_MAX, SEEKBAR_MAX, SEEKBAR_MAX, SEEKBAR_MAX, SEEKBAR_MAX, SEEKBAR_MAX }; // Default power on program startup
-const uint8_t DEFAULT_RED[LIGHT_MOD_N]      = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00 };                                                                // Default red color on program startup
-const uint8_t DEFAULT_GREEN[LIGHT_MOD_N]    = { 0xFF, 0x00, 0xFF, 0xFF, 0xFF, 0x7F, 0x7F, 0x00, 0x00 };                                                                // Default green color on program startup
-const uint8_t DEFAULT_BLUE[LIGHT_MOD_N]     = { 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00 };                                                                // Default blue color on program startup
-const uint16_t DEFAULT_SPEED[LIGHT_MOD_N]   = { 0, 10, 10, 300, 500, 0, 0, 1000, 0000 };                                                                               // Default speed on program startup
-const uint16_t LIGHT_MIN_SPEED[LIGHT_MOD_N] = { 0, 1, 1, 50, 10, 0, 0, 1, 000 };                                                                                       // Minimum speed or power value for each mode
-const uint16_t LIGHT_MAX_SPEED[LIGHT_MOD_N] = { 0, 25, 25, 600, 1000, 0, 0, 10000, 000 };                                                                              // Maximum speed or power value for each mode
-const uint8_t LIGHT_MIN_POWER               = 5;                                                                                                                       // Minimum power value
-const uint8_t LIGHT_MAX_POWER               = 25;                                                                                                                      // Maximum power value
-const uint8_t LIGHT_MIN_COLOR               = 0;                                                                                                                       // Maximum color value
-const uint8_t LIGHT_MAX_COLOR               = 255;                                                                                                                     // Maximum color value
-const uint32_t LIGHT_MIN_RGB                = 0x00000000;                                                                                                              // Maximum RGB value
-const uint32_t LIGHT_MAX_RGB                = 0x00FFFFFF;                                                                                                              // Maximum RGB value
+const uint8_t LIGHT_MIN_POWER     = 5;               // Minimum power value
+const uint8_t LIGHT_MAX_POWER     = 25;              // Maximum power value
+const uint8_t LIGHT_DEFAULT_POWER = LIGHT_MAX_POWER; // Default power on program startup
+const uint8_t LIGHT_MIN_COLOR     = 0;               // Maximum color value
+const uint8_t LIGHT_MAX_COLOR     = 0xFF;            // Maximum color value
+const uint32_t LIGHT_MIN_RGB      = 0x00000000;      // Minimum RGB value
+const uint32_t LIGHT_MAX_RGB      = 0x00FFFFFF;      // Maximum RGB value
+const uint32_t LIGHT_DEFAULT_RGB  = LIGHT_MAX_RGB;   // Default RGB on program startup
 
+// TODO : uniformize mode speeds
+const uint16_t LIGHT_DEFAULT_SPEED[LIGHT_MOD_N] = { 0, 10, 10, 300, 500, 0, 0, 1000, 0 };   // Default speed on program startup
+const uint16_t LIGHT_MIN_SPEED[LIGHT_MOD_N]     = { 0, 1, 1, 50, 10, 0, 0, 1, 0 };          // Minimum speed or power value for each mode
+const uint16_t LIGHT_MAX_SPEED[LIGHT_MOD_N]     = { 0, 25, 25, 600, 1000, 0, 0, 10000, 0 }; // Maximum speed or power value for each mode
+
+// TODO : move this elsewhere
 const uint32_t colorList[][6] =
 {
 	{ FULL_LINE, 0xFFFFFF                                         },
@@ -67,13 +67,15 @@ public:
 	void lightAll (uint8_t red, uint8_t green, uint8_t blue);
 	void lightAll (uint32_t rgb);
 
-	void setRed (uint8_t newRed, uint8_t affectedMod            = CURRENT_MODE);
-	void setGreen (uint8_t newGreen, uint8_t affectedMod        = CURRENT_MODE);
-	void setBlue (uint8_t newBlue, uint8_t affectedMod          = CURRENT_MODE);
-	void setRgb (uint32_t newRgb, uint8_t affectedMod           = CURRENT_MODE);
-	void setPowerRaw (uint8_t newPower, uint8_t affectedMod     = CURRENT_MODE);
-	void setPowerPercent (uint8_t newPower, uint8_t affectedMod = CURRENT_MODE);
-	void setSpeed (uint16_t newSpeed, uint8_t affectedMod       = CURRENT_MODE);
+	void setRed (uint8_t newRed, uint8_t affectedMod             = CURRENT_MODE);
+	void setGreen (uint8_t newGreen, uint8_t affectedMod         = CURRENT_MODE);
+	void setBlue (uint8_t newBlue, uint8_t affectedMod           = CURRENT_MODE);
+	void setRgb (uint32_t newRgb, uint8_t affectedMod            = CURRENT_MODE);
+	void setPowerRaw (uint8_t newPower, uint8_t affectedMod      = CURRENT_MODE);
+	void setPowerPercent (uint8_t newPower, uint8_t affectedMod  = CURRENT_MODE);
+	void setSpeedRaw (uint16_t newSpeed, uint8_t affectedMod     = CURRENT_MODE);
+	void setSpeedPercent (uint16_t newSpeed, uint8_t affectedMod = CURRENT_MODE);
+
 	void setMode (uint8_t newMode);
 	void switchOn ();
 	void switchOff ();
@@ -81,13 +83,14 @@ public:
 	uint8_t addPower (uint8_t newPower, uint8_t affectedMod      = CURRENT_MODE);
 	uint8_t subtractPower (uint8_t powerAdd, uint8_t affectedMod = CURRENT_MODE);
 
-	uint8_t getRed (uint8_t affectedMod          = CURRENT_MODE);
-	uint8_t getGreen (uint8_t affectedMod        = CURRENT_MODE);
-	uint8_t getBlue (uint8_t affectedMod         = CURRENT_MODE);
-	uint32_t getRgb (uint8_t affectedMod         = CURRENT_MODE);
-	uint8_t getPowerRaw (uint8_t affectedMod     = CURRENT_MODE);
-	uint8_t getPowerPercent (uint8_t affectedMod = CURRENT_MODE);
-	uint16_t getSpeed (uint8_t affectedMod       = CURRENT_MODE);
+	uint8_t getRed (uint8_t affectedMod           = CURRENT_MODE);
+	uint8_t getGreen (uint8_t affectedMod         = CURRENT_MODE);
+	uint8_t getBlue (uint8_t affectedMod          = CURRENT_MODE);
+	uint32_t getRgb (uint8_t affectedMod          = CURRENT_MODE);
+	uint8_t getPowerRaw (uint8_t affectedMod      = CURRENT_MODE);
+	uint8_t getPowerPercent (uint8_t affectedMod  = CURRENT_MODE);
+	uint16_t getSpeedRaw (uint8_t affectedMod     = CURRENT_MODE);
+	uint16_t getSpeedPercent (uint8_t affectedMod = CURRENT_MODE);
 	uint8_t getMode ();
 	bool isOn ();
 	bool isOff ();

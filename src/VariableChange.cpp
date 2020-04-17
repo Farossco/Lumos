@@ -18,14 +18,18 @@ VariableChange::VariableChange() : initialized (false)
 void VariableChange::init ()
 {
 	// Initializing to default values
-	changeOn       = light.isOn();
-	changeRgb      = light.getRgb (LIGHT_MOD_CONTINUOUS);
+	changeOn = light.isOn();
+
 	changeLightMod = light.getMode();
 	changeSoundMod = sound.getMode();
-	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_MOD_N; i++)
+
+	for (uint8_t i = LIGHT_MOD_MIN; i <= LIGHT_MOD_MAX; i++)
+	{
+		changeRgb[i]   = light.getRgb (i);
 		changePower[i] = light.getPowerRaw (i);
-	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_MOD_N; i++)
-		changeSpeed[i] = light.getSpeed (i);
+		changeSpeed[i] = light.getSpeedRaw (i);
+	}
+
 	changeDawnTime = alarms.getDawnTime();
 
 	initialized = true;
@@ -47,17 +51,18 @@ void VariableChange::check ()
 		flagSendInfo = true;
 	}
 
-	if (changeRgb != light.getRgb (LIGHT_MOD_CONTINUOUS))
-	{
-		verb << "\"RGB\" of default mode changed from " << changeRgb << " to " << light.getRgb (LIGHT_MOD_CONTINUOUS) << dendl;
-
-		changeRgb       = light.getRgb (LIGHT_MOD_CONTINUOUS);
-		flagSendInfo    = true;
-		flagWriteEeprom = true;
-	}
 
 	for (uint8_t i = LIGHT_MOD_MIN; i < LIGHT_MOD_N; i++)
 	{
+		if (changeRgb[i] != light.getRgb (i))
+		{
+			verb << "\"RGB\" of " << utils.getLightModeName (i, CAPS_NONE) << " mode changed from " << changeRgb << " to " << light.getRgb (LIGHT_MOD_CONTINUOUS) << dendl;
+
+			changeRgb[i]    = light.getRgb (i);
+			flagSendInfo    = true;
+			flagWriteEeprom = true;
+		}
+
 		if (changePower[i] != light.getPowerRaw (i))
 		{
 			verb << "\"Power\" of " << utils.getLightModeName (i, CAPS_NONE) << " mode changed from " << changePower[i] << " (" << utils.map (changePower[i], LIGHT_MIN_POWER, LIGHT_MAX_POWER, SEEKBAR_MIN, SEEKBAR_MAX) << "%) to " << light.getPowerRaw (i) << " (" << light.getPowerPercent() << "%)" << dendl;
@@ -67,11 +72,11 @@ void VariableChange::check ()
 			flagWriteEeprom = true;
 		}
 
-		if (changeSpeed[i] != light.getSpeed (i))
+		if (changeSpeed[i] != light.getSpeedRaw (i))
 		{
-			verb << "\"Speed\" of " << utils.getLightModeName (i, CAPS_NONE) << " mode changed from " << changeSpeed[i] << " to " << light.getSpeed (i) << dendl;
+			verb << "\"Speed\" of " << utils.getLightModeName (i, CAPS_NONE) << " mode changed from " << changeSpeed[i] << " to " << light.getSpeedRaw (i) << dendl;
 
-			changeSpeed[i]  = light.getSpeed (i);
+			changeSpeed[i]  = light.getSpeedRaw (i);
 			flagSendInfo    = true;
 			flagWriteEeprom = true;
 		}
@@ -81,9 +86,8 @@ void VariableChange::check ()
 	{
 		verb << "\"Light mode\" changed from " << utils.getLightModeName (changeLightMod, CAPS_NONE) << " (" << changeLightMod << ") to " << utils.getLightModeName (light.getMode(), CAPS_NONE) << " (" << light.getMode() << ")" << dendl;
 
-		changeLightMod  = light.getMode();
-		flagSendInfo    = true;
-		flagWriteEeprom = true;
+		changeLightMod = light.getMode();
+		flagSendInfo   = true;
 	}
 
 	if (changeSoundMod != sound.getMode())
@@ -108,7 +112,7 @@ void VariableChange::check ()
 		sendInfo();
 
 	if (flagWriteEeprom)
-		memory.writeForAll();
+		memory.writeAll();
 } // VariableChange::check
 
 void VariableChange::sendInfo ()
@@ -142,7 +146,7 @@ void VariableChange::sendInfo ()
 					break;
 
 				case SPEED:
-					sprintf (information + strlen (information), "%d%d", j, (uint16_t) utils.map (light.getSpeed (j), LIGHT_MIN_SPEED[j], LIGHT_MAX_SPEED[j], SEEKBAR_MIN, SEEKBAR_MAX));
+					sprintf (information + strlen (information), "%d%d", j, (uint16_t) light.getSpeedPercent (j));
 					break;
 
 				case SMO:

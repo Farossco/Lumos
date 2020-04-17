@@ -72,12 +72,26 @@ void Light::setPowerPercent (uint8_t newPower, uint8_t affectedMode)
 	power[affectedMode] = utils.map (constrain (newPower, SEEKBAR_MIN, SEEKBAR_MAX), SEEKBAR_MIN, SEEKBAR_MAX, LIGHT_MIN_POWER, LIGHT_MAX_POWER);
 }
 
-void Light::setSpeed (uint16_t newSpeed, uint8_t affectedMode)
+void Light::setSpeedRaw (uint16_t newSpeed, uint8_t affectedMode)
 {
 	if (affectedMode == CURRENT_MODE)
 		affectedMode = mode;
 
-	speed[affectedMode] = constrain (newSpeed, LIGHT_MIN_SPEED[affectedMode], LIGHT_MAX_SPEED[affectedMode] == 0 ? 65535 : LIGHT_MAX_SPEED[affectedMode]);
+	if (LIGHT_MAX_SPEED[affectedMode] == 0)
+		speed[affectedMode] = newSpeed;
+	else
+		speed[affectedMode] = constrain (newSpeed, LIGHT_MIN_SPEED[affectedMode], LIGHT_MAX_SPEED[affectedMode]);
+}
+
+void Light::setSpeedPercent (uint16_t newSpeed, uint8_t affectedMode)
+{
+	if (affectedMode == CURRENT_MODE)
+		affectedMode = mode;
+
+	if (LIGHT_MAX_SPEED[affectedMode] == 0)
+		speed[affectedMode] = newSpeed;
+	else
+		speed[affectedMode] = utils.map (constrain (newSpeed, LIGHT_MIN_SPEED[affectedMode], LIGHT_MAX_SPEED[affectedMode]), SEEKBAR_MIN, SEEKBAR_MAX, LIGHT_MIN_SPEED[affectedMode], LIGHT_MAX_SPEED[affectedMode]);
 }
 
 void Light::setMode (uint8_t newMode)
@@ -146,9 +160,20 @@ uint8_t Light::getPowerPercent (uint8_t affectedMode)
 	return utils.map (power[affectedMode == CURRENT_MODE ? mode : affectedMode], LIGHT_MIN_POWER, LIGHT_MAX_POWER, SEEKBAR_MIN, SEEKBAR_MAX);
 }
 
-uint16_t Light::getSpeed (uint8_t affectedMode)
+uint16_t Light::getSpeedRaw (uint8_t affectedMode)
 {
 	return speed[affectedMode == CURRENT_MODE ? mode : affectedMode];
+}
+
+uint16_t Light::getSpeedPercent (uint8_t affectedMode)
+{
+	if (affectedMode == CURRENT_MODE)
+		affectedMode = mode;
+
+	if (LIGHT_MAX_SPEED[affectedMode] == 0)
+		return getSpeedRaw (affectedMode);
+
+	return utils.map (speed[affectedMode], LIGHT_MIN_SPEED[affectedMode], LIGHT_MAX_SPEED[affectedMode], SEEKBAR_MIN, SEEKBAR_MAX);
 }
 
 uint8_t Light::getMode ()
@@ -172,7 +197,7 @@ void Light::init ()
 {
 	strip.begin();
 
-	if (memory.readForLight()) // Returns True if EEPROM is not correctly initialized (This may be the first launch)
+	if (memory.readLight()) // Returns True if EEPROM is not correctly initialized (This may be the first launch)
 	{
 		inf << "This is first launch, light variables will be initialized to their default values" << endl;
 
@@ -201,14 +226,14 @@ void Light::reset ()
 {
 	for (int i = LIGHT_MOD_MIN; i < LIGHT_MOD_N; i++)
 	{
-		red[i]   = DEFAULT_RED[i];   // Initialize colors to their default value
-		green[i] = DEFAULT_GREEN[i]; // Initialize colors to their default value
-		blue[i]  = DEFAULT_BLUE[i];  // Initialize colors to their default value
-		power[i] = DEFAULT_POWER[i]; // Initializing powers their default value
-		speed[i] = DEFAULT_SPEED[i]; // Initializing speeds their default value
+		red[i]   = (uint8_t) LIGHT_DEFAULT_RGB;         // Initialize colors to their default value
+		green[i] = (uint8_t) (LIGHT_DEFAULT_RGB >> 8);  // Initialize colors to their default value
+		blue[i]  = (uint8_t) (LIGHT_DEFAULT_RGB >> 16); // Initialize colors to their default value
+		power[i] = LIGHT_DEFAULT_POWER;                 // Initializing powers their default value
+		speed[i] = LIGHT_DEFAULT_SPEED[i];              // Initializing speeds their default value
 	}
 
-	memory.writeForLight();
+	memory.writeLight();
 }
 
 void Light::lightAll (uint8_t red, uint8_t green, uint8_t blue)

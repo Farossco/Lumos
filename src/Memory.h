@@ -4,6 +4,7 @@
 #if defined(LUMOS_ARDUINO_MEGA)
 
 # include <Arduino.h>
+# include <EEPROM.h>
 
 const uint16_t EEPROM_START  = 0x0000;
 const uint16_t EEPROM_OFFSET = 0x0200;
@@ -19,14 +20,57 @@ public:
 	Memory();
 	void dump (uint16_t start, uint16_t limit);
 
-	void writeForAll ();
-	bool readForAll ();
-	void writeForLight ();
-	bool readForLight ();
-	void writeForSound ();
-	bool readForSound ();
-	void writeForAlarms ();
-	bool readForAlarms ();
+	void writeAll ();
+	bool readAll ();
+	void writeLight ();
+	bool readLight ();
+	void writeSound ();
+	bool readSound ();
+	void writeAlarms ();
+	bool readAlarms ();
+
+private:
+	uint16_t _address, _n;
+
+	void startWrite (uint16_t address);
+	bool startRead (uint16_t address);
+
+	template <class T>
+	void put (T value)
+	{
+		uint8_t * pValue = (uint8_t *) &value;
+
+		for (int count = sizeof(T); count; --count)
+		{
+			if (EEPROM.read (_address) != *pValue)
+			{
+				EEPROM.write (_address, *pValue);
+				_n++;
+			}
+
+			pValue++;
+			_address++;
+		}
+	}
+
+	template <class T>
+	T get ()
+	{
+		T value = 0;
+
+		uint8_t * pValue = (uint8_t *) &value;
+
+		for (int count = sizeof(T); count; --count)
+		{
+			* pValue = EEPROM.read (_address);
+
+			pValue++;
+			_address++;
+			_n++;
+		}
+
+		return value;
+	}
 };
 
 extern Memory memory;

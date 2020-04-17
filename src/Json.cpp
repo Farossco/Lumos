@@ -63,7 +63,7 @@ void Json::generateData (String & string, const char * status, const char * mess
 	// -- Speed -- //
 	JsonArray rootLightSpeed = rootLight.createNestedArray ("Speed");
 	for (int i = LIGHT_MOD_MIN; i <= LIGHT_MOD_MAX; i++)
-		rootLightSpeed.add ((unsigned int) utils.map (light.getSpeed (i), LIGHT_MIN_SPEED[i], LIGHT_MAX_SPEED[i], SEEKBAR_MIN, SEEKBAR_MAX));
+		rootLightSpeed.add ((unsigned int) light.getSpeedPercent (i));
 
 	// ****** Sound ****** //
 	JsonObject rootSound = root.createNestedObject ("Sound");

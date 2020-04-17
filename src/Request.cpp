@@ -167,12 +167,12 @@ void Request::process (RequestData requestData)
 				}
 
 				if (requestData.error == noError)
-					light.setSpeed (utils.map (requestData.information, SEEKBAR_MIN, SEEKBAR_MAX, LIGHT_MIN_SPEED[requestData.complement], LIGHT_MAX_SPEED[requestData.complement]), requestData.complement);
+					light.setSpeedPercent (requestData.information, requestData.complement);
 
 				// Debug
 				verb << "Min Speed: " << LIGHT_MIN_SPEED[requestData.complement] << endl;
 				verb << "Max Speed: " << LIGHT_MAX_SPEED[requestData.complement] << endl;
-				trace << "Speed of " << utils.getLightModeName (requestData.complement, CAPS_NONE) << " (Current value): " << light.getSpeed (requestData.complement) << dendl;
+				trace << "Speed of " << utils.getLightModeName (requestData.complement, CAPS_NONE) << " (Current value): " << light.getSpeedRaw (requestData.complement) << " (" << light.getSpeedPercent() << "%)" << dendl;
 
 				break;
 

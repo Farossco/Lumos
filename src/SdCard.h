@@ -5,7 +5,7 @@
 
 # include <SD.h>
 
-const float FILE_FLUSH_TIME = 5;
+const float FILE_FLUSH_TIME = 5; // Send data to the card every 5s
 
 const uint8_t PIN_SD_CS        = 10; // Chip Select
 const uint8_t PIN_SD_CD        = 9;  // Card Detect
@@ -20,14 +20,14 @@ public:
 	SdCard();
 	void init ();
 	void action ();
+	File file;
 
 private:
-	File file;
 	boolean cardPresent;
 	uint32_t flushTimer;
 	bool enabled;
 
-	void openCard();
+	void openCard ();
 	bool detectCard ();
 	void lightError ();
 	void lightConnected ();
