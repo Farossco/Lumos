@@ -4,79 +4,35 @@
 #include "Request.h"
 #include "Sound.h"
 
-const char nameUnknown[]        = "unknown";
-const char * lightModeName[]    = { "continuous", "flash", "strobe", "fade", "smooth", "wake up", "sunset", "start animation", "music" };
-const char * soundModeName[]    = { "free choice" };
-const char * soundCommandName[] = { "play random", "play one", "play next", "play previous", "pause", "resume", "play dawn" };
+const char nameUnknown[]        = "Unknown";
+const char * lightModeName[]    = { "Continuous", "Flash", "Strobe", "Fade", "Smooth", "Wake up", "Sunset", "Start animation", "Music" };
+const char * soundModeName[]    = { "Free choice" };
+const char * soundCommandName[] = { "Play random", "Play one", "Play next", "Play previous", "Pause", "Resume", "Play dawn" };
 
-
-String Utils::getLightModeName (uint8_t mode, uint8_t caps)
+const char * Utils::getLightModeName (uint8_t mode)
 {
-	String name;
+	if (mode >= (sizeof(lightModeName) / sizeof(*lightModeName)))
+		return nameUnknown;
 
-	if (mode < (sizeof(lightModeName) / sizeof(*lightModeName)))
-		name = lightModeName[mode];
-	else
-		name = nameUnknown;
-
-	switch (caps)
-	{
-		case CAPS_FIRST:
-			name.replace (name.charAt (0), name.charAt (0) - 0x20);
-			break;
-
-		case CAPS_ALL:
-			name.toUpperCase();
-			break;
-	}
-
-	return name;
+	return lightModeName[mode];
 }
 
-String Utils::getSoundModeName (uint8_t mode, uint8_t caps)
+const char * Utils::getSoundModeName (uint8_t mode)
 {
-	String name;
+	if (mode >= (sizeof(soundModeName) / sizeof(*soundModeName)))
+		return nameUnknown;
 
-	if (mode < (sizeof(soundModeName) / sizeof(*soundModeName)))
-		name = soundModeName[mode];
-	else
-		name = nameUnknown;
-
-	switch (caps)
-	{
-		case CAPS_FIRST:
-			name.replace (name.charAt (0), name.charAt (0) - 0x20);
-			break;
-
-		case CAPS_ALL:
-			name.toUpperCase();
-			break;
-	}
-
-	return name;
+	return soundModeName[mode];
 }
 
-String Utils::getSoundCommandName (uint8_t command, uint8_t caps)
+const char * Utils::getSoundCommandName (uint8_t command)
 {
 	String name;
 
-	if (command < (sizeof(soundCommandName) / sizeof(*soundCommandName)))
-		name = soundCommandName[command];
-	else
-		name = nameUnknown;
+	if (command >= (sizeof(soundCommandName) / sizeof(*soundCommandName)))
+		return nameUnknown;
 
-	switch (caps)
-	{
-		case CAPS_FIRST:
-			name.replace (name.charAt (0), name.charAt (0) - 0x20);
-			break;
-
-		case CAPS_ALL:
-			name.toUpperCase();
-			break;
-	}
-
-	return name;
+	return soundCommandName[command];
 }
 
 const char * Utils::getMessageTypeName (RequestMessageType RequestMessageType)
@@ -230,13 +186,11 @@ const uint8_t Utils::messageTypeComplementType (RequestMessageType infoType)
 	}
 }
 
-String Utils::clock ()
+char * Utils::getClock ()
 {
-	char buf[25];
+	sprintf (clock, "%.2d/%.2d/%.4d %.2d:%.2d:%.2d::%.3ld", day(), month(), year(), hour(), minute(), second(), (millis() % 1000));
 
-	sprintf (buf, "%.2d/%.2d/%.4d %.2d:%.2d:%.2d::%.3ld", day(), month(), year(), hour(), minute(), second(), (millis() % 1000));
-
-	return buf;
+	return clock;
 }
 
 // Custom map function (more accurate) - Thanks to Alok Singhal from stackoverflow (https://stackoverflow.com/questions/5731863/mapping-a-numeric-range-onto-another/5732390#5732390)

@@ -45,7 +45,7 @@ const uint32_t LIGHT_DEFAULT_RGB  = LIGHT_MAX_RGB;   // Default RGB on program s
 
 // TODO : uniformize mode speeds
 const uint16_t LIGHT_DEFAULT_SPEED[LIGHT_MODE_N] = { 0, 10, 10, 300, 500, 0, 0, 1000, 0 };   // Default speed on program startup
-const uint16_t LIGHT_MIN_SPEED[LIGHT_MODE_N]     = { 0, 1, 1, 50, 10, 0, 0, 1, 0 };          // Minimum speed or power value for each mode
+const uint16_t LIGHT_MIN_SPEED[LIGHT_MODE_N]     = { 0, 1, 1, 20, 10, 0, 0, 1, 0 };          // Minimum speed or power value for each mode
 const uint16_t LIGHT_MAX_SPEED[LIGHT_MODE_N]     = { 0, 25, 25, 600, 1000, 0, 0, 10000, 0 }; // Maximum speed or power value for each mode
 
 // TODO : move this elsewhere

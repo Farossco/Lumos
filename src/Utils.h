@@ -36,18 +36,21 @@ extern const char * soundCommandName[];
 class Utils
 {
 public:
-	String getLightModeName (uint8_t mode, uint8_t caps);
-	String getSoundModeName (uint8_t mode, uint8_t caps);
-	String getSoundCommandName (uint8_t mode, uint8_t caps);
+	const char * getLightModeName (uint8_t mode);
+	const char * getSoundModeName (uint8_t mode);
+	const char * getSoundCommandName (uint8_t mode);
 	const char * getMessageTypeName (RequestMessageType RequestMessageType);
 	const char * getMessageTypeDisplayName (RequestMessageType RequestMessageType);
 	const char * getErrorName (RequestErrorType RequestErrorType);
 	const uint8_t messageTypeComplementBounds (RequestMessageType RequestMessageType, uint8_t minMax);
 	const uint8_t messageTypeComplementType (RequestMessageType RequestMessageType);
-	String clock ();
+	char * getClock ();
 	uint32_t map (float input, float inMin, float inMax, float outMin, float outMax);
 	String ltos (uint32_t value, int base = DEC);
 	RequestMessageType getMessageTypeFromName (String message);
+
+private:
+	char clock[30];
 };
 
 extern Utils utils;

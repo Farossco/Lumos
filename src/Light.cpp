@@ -91,7 +91,7 @@ void Light::setSpeedPercent (uint16_t newSpeed, uint8_t affectedMode)
 	if (LIGHT_MAX_SPEED[affectedMode] == 0)
 		speed[affectedMode] = newSpeed;
 	else
-		speed[affectedMode] = utils.map (constrain (newSpeed, LIGHT_MIN_SPEED[affectedMode], LIGHT_MAX_SPEED[affectedMode]), SEEKBAR_MIN, SEEKBAR_MAX, LIGHT_MIN_SPEED[affectedMode], LIGHT_MAX_SPEED[affectedMode]);
+		speed[affectedMode] = utils.map (constrain (newSpeed, SEEKBAR_MIN, SEEKBAR_MAX), SEEKBAR_MIN, SEEKBAR_MAX, LIGHT_MIN_SPEED[affectedMode], LIGHT_MAX_SPEED[affectedMode]);
 }
 
 void Light::setMode (uint8_t newMode)
@@ -117,12 +117,12 @@ uint8_t Light::addPower (uint8_t powerAdd, uint8_t affectedMode)
 	return power[affectedMode] = constrain (power[affectedMode] + powerAdd, LIGHT_MIN_POWER, LIGHT_MAX_POWER);
 }
 
-uint8_t Light::subtractPower (uint8_t powerAdd, uint8_t affectedMode)
+uint8_t Light::subtractPower (uint8_t powerSub, uint8_t affectedMode)
 {
 	if (affectedMode == CURRENT_MODE)
 		affectedMode = mode;
 
-	return power[affectedMode] = constrain (power[affectedMode] - powerAdd, LIGHT_MIN_POWER, LIGHT_MAX_POWER);
+	return power[affectedMode] = constrain (power[affectedMode] - powerSub, LIGHT_MIN_POWER, LIGHT_MAX_POWER);
 }
 
 uint16_t Light::getDawnDuration ()
@@ -263,7 +263,7 @@ void Light::action ()
 	}
 
 	if (mode != lastMode)
-		inf << "Leaving " << utils.getLightModeName (lastMode, CAPS_FIRST) << " mode" << dendl;
+		inf << "Leaving " << utils.getLightModeName (lastMode) << " mode" << dendl;
 
 	// Calling modes functions
 	switch (mode)

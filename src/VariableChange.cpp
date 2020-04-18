@@ -56,7 +56,7 @@ void VariableChange::check ()
 	{
 		if (changeRgb[i] != light.getRgb (i))
 		{
-			verb << "\"RGB\" of " << utils.getLightModeName (i, CAPS_NONE) << " mode changed from " << changeRgb << " to " << light.getRgb (LIGHT_MODE_CONTINUOUS) << dendl;
+			verb << "\"RGB\" of " << utils.getLightModeName (i) << " mode changed from " << changeRgb << " to " << light.getRgb (LIGHT_MODE_CONTINUOUS) << dendl;
 
 			changeRgb[i]    = light.getRgb (i);
 			flagSendInfo    = true;
@@ -65,7 +65,7 @@ void VariableChange::check ()
 
 		if (changePower[i] != light.getPowerRaw (i))
 		{
-			verb << "\"Power\" of " << utils.getLightModeName (i, CAPS_NONE) << " mode changed from " << changePower[i] << " (" << utils.map (changePower[i], LIGHT_MIN_POWER, LIGHT_MAX_POWER, SEEKBAR_MIN, SEEKBAR_MAX) << "%) to " << light.getPowerRaw (i) << " (" << light.getPowerPercent() << "%)" << dendl;
+			verb << "\"Power\" of " << utils.getLightModeName (i) << " mode changed from " << changePower[i] << " (" << utils.map (changePower[i], LIGHT_MIN_POWER, LIGHT_MAX_POWER, SEEKBAR_MIN, SEEKBAR_MAX) << "%) to " << light.getPowerRaw (i) << " (" << light.getPowerPercent() << "%)" << dendl;
 
 			changePower[i]  = light.getPowerRaw (i);
 			flagSendInfo    = true;
@@ -74,7 +74,7 @@ void VariableChange::check ()
 
 		if (changeSpeed[i] != light.getSpeedRaw (i))
 		{
-			verb << "\"Speed\" of " << utils.getLightModeName (i, CAPS_NONE) << " mode changed from " << changeSpeed[i] << " to " << light.getSpeedRaw (i) << dendl;
+			verb << "\"Speed\" of " << utils.getLightModeName (i) << " mode changed from " << changeSpeed[i] << " to " << light.getSpeedRaw (i) << dendl;
 
 			changeSpeed[i]  = light.getSpeedRaw (i);
 			flagSendInfo    = true;
@@ -84,7 +84,7 @@ void VariableChange::check ()
 
 	if (changeLightMod != light.getMode())
 	{
-		verb << "\"Light mode\" changed from " << utils.getLightModeName (changeLightMod, CAPS_NONE) << " (" << changeLightMod << ") to " << utils.getLightModeName (light.getMode(), CAPS_NONE) << " (" << light.getMode() << ")" << dendl;
+		verb << "\"Light mode\" changed from " << utils.getLightModeName (changeLightMod) << " (" << changeLightMod << ") to " << utils.getLightModeName (light.getMode()) << " (" << light.getMode() << ")" << dendl;
 
 		changeLightMod = light.getMode();
 		flagSendInfo   = true;
@@ -92,7 +92,7 @@ void VariableChange::check ()
 
 	if (changeSoundMod != sound.getMode())
 	{
-		verb << "\"Sound mode\" changed from " << utils.getSoundModeName (changeSoundMod, CAPS_NONE) << " (" << changeSoundMod << ") to " << utils.getSoundModeName (sound.getMode(), CAPS_NONE) << " (" << sound.getMode() << ")" << dendl;
+		verb << "\"Sound mode\" changed from " << utils.getSoundModeName (changeSoundMod) << " (" << changeSoundMod << ") to " << utils.getSoundModeName (sound.getMode()) << " (" << sound.getMode() << ")" << dendl;
 
 		changeSoundMod  = sound.getMode();
 		flagSendInfo    = true;

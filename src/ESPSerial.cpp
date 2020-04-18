@@ -36,7 +36,7 @@ void ESPSerial::receiveAndDecode ()
 
 void ESPSerial::sendTime ()
 {
-	trace << "Time is: " << utils.clock() << endl;
+	trace << "Time is: " << utils.getClock() << endl;
 
 	if (timeStatus() != timeNotSet)
 	{
