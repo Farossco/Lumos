@@ -27,14 +27,13 @@ Wifi::Wifi (Wifi && copy)
 
 void Wifi::init ()
 {
-
 	WiFi.mode (WIFI_STA);
 
 	trace << "Connecting to " SSID0;
 
 	WiFi.begin (SSID0, PASS0);
 
-	time_t a   = millis();
+	time_t a = millis();
 	while (WiFi.status() != WL_CONNECTED)
 	{
 		if (millis() - a >= 200)
@@ -169,7 +168,6 @@ void Wifi::handleRoot ()
 
 void Wifi::handleCommand ()
 {
-	RequestData requestData;
 	String message;
 
 	trace << "Received request from " << server.client().localIP().toString() << endl;
@@ -179,25 +177,30 @@ void Wifi::handleCommand ()
 		trace << " |" << server.argName (i) << "=" << server.arg (i) << "|";
 	trace << endl;
 
-	requestData = request.decode (server.arg ("type"), server.arg ("comp"), server.arg ("value"));
+	Request request (server.arg ("type"), server.arg ("comp"), server.arg ("value"));
 
-	if (requestData.error != noError)
+	request.process();
+
+	if (request.error != noError)
 	{
 		trace << "Sending to arduino: Nothing" << dendl;
-		message = json.getDataPretty ("ERROR", utils.getErrorName (requestData.error));
+		message = json.getDataPretty ("ERROR", utils.getErrorName (request.error));
 	}
 	else
 	{
-		if (requestData.type == requestInfos)
+		if (request.type == requestInfos)
 			trace << "Sending to arduino: Nothing" << dendl;
 		else
 		{
-			String data = utils.getMessageTypeName (requestData.type);
-			if (utils.messageTypeComplementType (requestData.type) != COMPLEMENT_TYPE_NONE) data += requestData.complement;
-			data += utils.ltos (requestData.information, requestData.type == RGB ? HEX : DEC);
-			data += 'z';
+			String data = utils.getMessageTypeName (request.type);
+
+			if (utils.messageTypeComplementType (request.type) != COMPLEMENT_TYPE_NONE)
+				data += request.complement;
+
+			data += utils.ltos (request.information, request.type == RGB ? HEX : DEC) + 'z';
 
 			trace << "Sending to arduino: " << data << endl;
+
 			serial.comSerialTx.print (data);
 		}
 
@@ -209,7 +212,6 @@ void Wifi::handleCommand ()
 
 void Wifi::handleGetRes ()
 {
-	RequestData requestData;
 	String message;
 
 	trace << "Received request from " << server.client().localIP().toString() << endl;

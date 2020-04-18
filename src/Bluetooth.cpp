@@ -49,7 +49,7 @@ void Bluetooth::action ()
 
 		verb << "Received data from bluetooth: " << data << dendl;
 
-		request.decode (data);
+		Request (data).process();
 	}
 }
 

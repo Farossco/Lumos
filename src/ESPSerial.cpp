@@ -23,14 +23,13 @@ void ESPSerial::receiveAndDecode ()
 	if (!comSerialRx.available())
 		return;
 
-	String str = comSerialRx.readStringUntil ('z');
+	Request request = comSerialRx.readStringUntil ('z');
 
-	RequestData requestData = request.decode (str);
+	request.process();
 
-	if (requestData.type == requestTime)
+	if (request.type == requestTime)
 		serial.sendTime();  // We send the time to the Arduino
-	else if (requestData.type == requestInfos)
-
+	else if (request.type == requestInfos)
 		verb << json.getData ("OK", "");
 } // ESPSerial::receiveAndDecode
 

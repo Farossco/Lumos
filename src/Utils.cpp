@@ -147,6 +147,9 @@ const char * Utils::getErrorName (RequestErrorType RequestErrorType)
 		case unknowmType:
 			return "Unknown request type";
 
+		case badString:
+			return "Bad String";
+
 		default:
 			return "Unknown error";
 	}

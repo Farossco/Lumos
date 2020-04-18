@@ -7,96 +7,93 @@
 #include "Alarms.h"
 #include "Sound.h"
 
-RequestData Request::decode (String str)
+Request::Request(String inputString)
 {
-	RequestData requestData;
-
-	if (str.length() <= 0)
-		requestData.error = badString;
-	else if (str.startsWith ("INFO") )
-		requestData.type = requestInfos;
-	else if (str.startsWith ("TIME"))
-		requestData.type = requestTime;
+	if (inputString.length() <= 0)
+		error = badString;
+	else if (inputString.startsWith ("INFO") )
+		type = requestInfos;
+	else if (inputString.startsWith ("TIME"))
+		type = requestTime;
 	else
 	{
-		if ((requestData.type = utils.getMessageTypeFromName (str.substring (0, 3))) != unknown)
-			requestData.error = noError;
+		if ((type = utils.getMessageTypeFromName (inputString.substring (0, 3))) != unknown)
+			error = noError;
 
 		// [DEBUG] Printing full word, world length and information type
-		trace << "Word: " << str << endl;
-		verb << "Length: " << str.length() << endl;
-		verb << "Type: " << utils.getMessageTypeDisplayName (requestData.type) << " (" << requestData.type << ")" << endl;
+		trace << "Word: " << inputString << endl;
+		verb << "Length: " << inputString.length() << endl;
+		verb << "Type: " << utils.getMessageTypeDisplayName (type) << " (" << type << ")" << endl;
 
-		str = str.substring (3); // Remove 3 first caracteres of the array (The prefix)
+		inputString = inputString.substring (3); // Remove 3 first caracteres of the array (The prefix)
 
 		// If the data type needs a complement
-		if (utils.messageTypeComplementType (requestData.type) != COMPLEMENT_TYPE_NONE)
+		if (utils.messageTypeComplementType (type) != COMPLEMENT_TYPE_NONE)
 		{
-			requestData.complement = str.charAt (0) - '0'; // Store the complement
-			str                    = str.substring (1);    // Remove first char of the array (the complement)
+			complement = inputString.charAt (0) - '0'; // Store the complement
+			inputString      = inputString.substring (1);    // Remove first char of the array (the complement)
 
-			if (utils.messageTypeComplementType (requestData.type) == COMPLEMENT_TYPE_LMO)
+			if (utils.messageTypeComplementType (type) == COMPLEMENT_TYPE_LMO)
 			{
-				verb << "Complement: " << utils.getLightModeName (requestData.complement) << " (" << requestData.complement << ")" << endl;
-				if (requestData.complement < LIGHT_MODE_MIN || requestData.complement > LIGHT_MODE_MAX)
-					requestData.error = unknownComplement;
+				verb << "Complement: " << utils.getLightModeName (complement) << " (" << complement << ")" << endl;
+				if (complement < LIGHT_MODE_MIN || complement > LIGHT_MODE_MAX)
+					error = unknownComplement;
 			}
-			else if (utils.messageTypeComplementType (requestData.type) == COMPLEMENT_TYPE_SCP)
+			else if (utils.messageTypeComplementType (type) == COMPLEMENT_TYPE_SCP)
 			{
-				verb << "Command type: " << utils.getSoundCommandName (requestData.complement) << " (" << requestData.complement << ")" << endl;
-				if (requestData.complement < SOUND_COMMAND_MIN || requestData.complement > SOUND_COMMAND_MAX)
-					requestData.error = unknownComplement;
+				verb << "Command type: " << utils.getSoundCommandName (complement) << " (" << complement << ")" << endl;
+				if (complement < SOUND_COMMAND_MIN || complement > SOUND_COMMAND_MAX)
+					error = unknownComplement;
 			}
 		}
 
+		verb << utils.getMessageTypeDisplayName (type) << ": " << inputString << endl;
 
-		verb << utils.getMessageTypeDisplayName (requestData.type) << ": " << str << endl;
+		information = strtol (inputString.c_str(), NULL, type == RGB ? 16 : 10);
 
-		requestData.information = strtol (str.c_str(), NULL, requestData.type == RGB ? 16 : 10);
+		verb << utils.getMessageTypeDisplayName (type) << " (decoded): " << ((type == RGB) ? hex : dec) << showbase << uppercase << information << endl;
 
-		verb << utils.getMessageTypeDisplayName (requestData.type) << " (decoded): " << ((requestData.type == RGB) ? hex : dec) << showbase << uppercase << requestData.information << endl;
-
-		process (requestData);
+		if (error != noError)
+			trace << np << endl;
 	}
-
-	return requestData;
-} // Request::decode
-
-RequestData Request::decode (String prefix, String complement, String information)
-{
-	RequestData requestData;
-
-	if (prefix.length() <= 0)
-		requestData.error = badString;
-	else
-	{
-		if ((requestData.type = utils.getMessageTypeFromName (prefix)) != unknown)
-			requestData.error = noError;
-
-		if (prefix == "INFO")
-			requestData.type = requestInfos;
-		else
-		{
-			requestData.complement  = complement.toInt();
-			requestData.information = strtol (information.c_str(), NULL, requestData.type == RGB ? 16 : 10);
-
-			process (requestData);
-		}
-	}
-
-	return requestData;
 }
 
-void Request::process (RequestData requestData)
+Request::Request(String prefixString, String complementString, String informationString)
 {
-	if (requestData.error == noError)
-		switch (requestData.type)
+	if (prefixString.length() <= 0)
+		error = badString;
+	else
+	{
+		if ((type = utils.getMessageTypeFromName (prefixString)) != unknown)
+			error = noError;
+
+		if (prefixString == "INFO")
+			type = requestInfos;
+		else
+		{
+			complement  = complementString.toInt();
+			information = strtol (informationString.c_str(), NULL, type == RGB ? 16 : 10);
+		}
+	}
+}
+
+void Request::decodeInput ()
+{ } // Request::decode
+
+void Request::decodeSeparate ()
+{ }
+
+void Request::process ()
+{
+	if (error == noError)
+	{
+		switch (type)
 		{
 			case provideTime:
-				if (requestData.information <= 0)
-					requestData.error = outOfBound;
+				if (information <= 0)
+					error = outOfBound;
 				else
-					setTime (requestData.information);
+					setTime (information);
 
 				// Debug
 				verb << "Time (Current value): " << now() << endl;
@@ -104,26 +101,26 @@ void Request::process (RequestData requestData)
 				break;
 
 			case RGB:
-				if ((uint32_t) requestData.information < LIGHT_MIN_RGB || (uint32_t) requestData.information > LIGHT_MAX_RGB)
-					requestData.error = outOfBound;
+				if ((uint32_t) information < LIGHT_MIN_RGB || (uint32_t) information > LIGHT_MAX_RGB)
+					error = outOfBound;
 				else
-					light.setRgb (requestData.information, requestData.complement);
+					light.setRgb (information, complement);
 
 				// Debug
-				trace << "RGB of " << utils.getLightModeName (requestData.complement) << " (Current value): " << hex << light.getRgb (requestData.complement) << endl;
-				verb << "Red       (Current value): " << light.getRed (requestData.complement) << endl;
-				verb << "Green     (Current value): " << light.getGreen (requestData.complement) << endl;
-				verb << "Blue      (Current value): " << light.getBlue (requestData.complement) << endl;
+				trace << "RGB of " << utils.getLightModeName (complement) << " (Current value): " << hex << light.getRgb (complement) << endl;
+				verb << "Red       (Current value): " << light.getRed (complement) << endl;
+				verb << "Green     (Current value): " << light.getGreen (complement) << endl;
+				verb << "Blue      (Current value): " << light.getBlue (complement) << endl;
 				trace << np << endl;
 
 				break;
 
 			case LON:
-				if (requestData.information != 0 && requestData.information != 1)
-					requestData.error = outOfBound;
+				if (information != 0 && information != 1)
+					error = outOfBound;
 				else
 				{
-					if (requestData.information == 1)
+					if (information == 1)
 						light.switchOn();
 					else
 						light.switchOff();
@@ -134,75 +131,75 @@ void Request::process (RequestData requestData)
 				break;
 
 			case POW:
-				if (requestData.information < SEEKBAR_MIN || requestData.information > SEEKBAR_MAX)
-					requestData.error = outOfBound;
+				if (information < SEEKBAR_MIN || information > SEEKBAR_MAX)
+					error = outOfBound;
 				else
-					light.setPowerPercent (requestData.information, requestData.complement);
+					light.setPowerPercent (information, complement);
 
-				trace << "Power of " << utils.getLightModeName (requestData.complement) << " (Current value): " << light.getPowerRaw (requestData.complement) << " (" << light.getPowerPercent() << "%)" << dendl;
+				trace << "Power of " << utils.getLightModeName (complement) << " (Current value): " << light.getPowerRaw (complement) << " (" << light.getPowerPercent() << "%)" << dendl;
 
 				break;
 
 			case LMO:
-				if (requestData.information < LIGHT_MODE_MIN || requestData.information > LIGHT_MODE_MAX)
-					requestData.error = outOfBound;
+				if (information < LIGHT_MODE_MIN || information > LIGHT_MODE_MAX)
+					error = outOfBound;
 				else
-					light.setMode (requestData.information);
+					light.setMode (information);
 
-				verb << "Light mode (Text): " << utils.getLightModeName (requestData.information) << " (" << requestData.information << ")" << endl;
+				verb << "Light mode (Text): " << utils.getLightModeName (information) << " (" << information << ")" << endl;
 				trace << "Light mode (Current value): " << utils.getLightModeName (light.getMode()) << " (" << light.getMode() << ")" << dendl;
 
 				break;
 
 			case SPEED:
-				if (LIGHT_MIN_SPEED[requestData.complement] == 0 && LIGHT_MAX_SPEED[requestData.complement] == 0)
+				if (LIGHT_MIN_SPEED[complement] == 0 && LIGHT_MAX_SPEED[complement] == 0)
 				{
-					if (requestData.information < 0)
-						requestData.error = outOfBound;
+					if (information < 0)
+						error = outOfBound;
 				}
 				else
 				{
-					if (requestData.information < SEEKBAR_MIN || requestData.information > SEEKBAR_MAX)
-						requestData.error = outOfBound;
+					if (information < SEEKBAR_MIN || information > SEEKBAR_MAX)
+						error = outOfBound;
 				}
 
-				if (requestData.error == noError)
-					light.setSpeedPercent (requestData.information, requestData.complement);
+				if (error == noError)
+					light.setSpeedPercent (information, complement);
 
 				// Debug
-				verb << "Min Speed: " << LIGHT_MIN_SPEED[requestData.complement] << endl;
-				verb << "Max Speed: " << LIGHT_MAX_SPEED[requestData.complement] << endl;
-				trace << "Speed of " << utils.getLightModeName (requestData.complement) << " (Current value): " << light.getSpeedRaw (requestData.complement) << " (" << light.getSpeedPercent() << "%)" << dendl;
+				verb << "Min Speed: " << LIGHT_MIN_SPEED[complement] << endl;
+				verb << "Max Speed: " << LIGHT_MAX_SPEED[complement] << endl;
+				trace << "Speed of " << utils.getLightModeName (complement) << " (Current value): " << light.getSpeedRaw (complement) << " (" << light.getSpeedPercent() << "%)" << dendl;
 
 				break;
 
 			case SMO:
-				if (requestData.information < SOUND_MOD_MIN || requestData.information > SOUND_MOD_MAX)
-					requestData.error = outOfBound;
+				if (information < SOUND_MOD_MIN || information > SOUND_MOD_MAX)
+					error = outOfBound;
 				else
-					sound.setMode (requestData.information);
+					sound.setMode (information);
 
-				verb << "Sound mode (Text): " << utils.getSoundModeName (requestData.information) << " (" << requestData.information << ")" << endl;
+				verb << "Sound mode (Text): " << utils.getSoundModeName (information) << " (" << information << ")" << endl;
 				trace << "Sound mode (Current value): " << utils.getSoundModeName (sound.getMode()) << " (" << sound.getMode() << ")" << dendl;
 
 				break;
 
 			case VOL:
-				if (requestData.information < SOUND_VOLUME_MIN || requestData.information > SOUND_VOLUME_MAX)
-					requestData.error = outOfBound;
+				if (information < SOUND_VOLUME_MIN || information > SOUND_VOLUME_MAX)
+					error = outOfBound;
 				else
-					sound.setVolume (requestData.information);
+					sound.setVolume (information);
 
 				trace << "Volume (Current value): " << sound.getVolume() << dendl;
 
 				break;
 
 			case SON:
-				if (requestData.information != 0 && requestData.information != 1)
-					requestData.error = outOfBound;
+				if (information != 0 && information != 1)
+					error = outOfBound;
 				else
 				{
-					if (requestData.information)
+					if (information)
 						sound.switchOn();
 					else
 						sound.switchOff();
@@ -212,21 +209,21 @@ void Request::process (RequestData requestData)
 				break;
 
 			case DTM:
-				if (requestData.information < 0 || requestData.information > 1439)
-					requestData.error = outOfBound;
+				if (information < 0 || information > 1439)
+					error = outOfBound;
 				else
 				{
-					alarms.setDawnTime (requestData.information);
+					alarms.setDawnTime (information);
 				}
 
 				trace << "Dawn time (Current value): " << alarms.getDawnTime() / 60 << ":" << alarms.getDawnTime() % 60 << " (" << alarms.getDawnTime() << ")" << dendl;
 				break;
 
 			case soundCommand:
-				verb << "Command data: (" << requestData.information << ")" << dendl;
+				verb << "Command data: (" << information << ")" << dendl;
 
 				#if defined(LUMOS_ARDUINO_MEGA)
-				sound.command (requestData.complement, requestData.information);
+				sound.command (complement, information);
 				#endif
 
 				break;
@@ -234,9 +231,9 @@ void Request::process (RequestData requestData)
 			default:
 				break;
 		}
-
-	if (requestData.error != noError)
-		warn << "Variable has not been changed (" << utils.getErrorName (requestData.error) << ")" << dendl;
+	}
+	else if (type > unknown)
+	{
+		warn << "Variable has not been changed (" << utils.getErrorName (error) << ")" << dendl;
+	}
 } // Request::process
-
-Request request = Request();

@@ -48,22 +48,21 @@ inline RequestMessageType & operator ++ (RequestMessageType& j, int) // <--- not
 	return j;
 }
 
-typedef struct RequestData
-{
-	RequestMessageType type        = unknown;
-	uint8_t            complement  = 0;
-	int32_t            information = 0;
-	RequestErrorType   error       = unknowmType;
-} RequestData;
-
 class Request
 {
 public:
-	RequestData decode (String str);
-	RequestData decode (String prefix, String complement, String information);
-	void process (RequestData request);
-};
+	Request(String inputString);
+	Request(String prefixString, String complementString, String informationString);
+	void process ();
 
-extern Request request;
+	RequestErrorType error  = unknowmType;
+	RequestMessageType type = unknown;
+	uint8_t complement      = 0;
+	int32_t information     = 0;
+
+private:
+	void decodeInput ();
+	void decodeSeparate ();
+};
 
 #endif // ifndef REQUEST_H
