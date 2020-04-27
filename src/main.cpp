@@ -1,5 +1,4 @@
 #include <Time.h>
-#include "Logger.h"
 #include "SdCard.h"
 #include "VariableChange.h"
 #include "ArduinoSerial.h"
@@ -13,14 +12,12 @@
 
 const boolean WAIT_FOR_TIME = true; // If the Arduino has to wait for time sync (if true, program will not start until time is synced)
 
-const long COMM_BAUD_RATE = 115200; // ESP8266/Arduino communication baud rate
+const uint32_t COMM_BAUD_RATE = 115200; // ESP8266/Arduino communication baud rate
 
 #if defined(LUMOS_ARDUINO_MEGA) // Arduino code
 void setup ()
 {
 	serial.init (ARDUINO_DEBUG_BAUD_RATE, COMM_BAUD_RATE);
-
-	logger.add (serial.debugSerial, DEBUG_LEVEL);
 
 	if (WAIT_FOR_TIME) serial.waitForTime();
 
@@ -64,8 +61,6 @@ void loop ()
 void setup ()
 {
 	serial.init (ESP_DEBUG_BAUD_RATE, COMM_BAUD_RATE);
-
-	logger.add (serial.debugSerial, DEBUG_LEVEL);
 
 	wifi.init();
 

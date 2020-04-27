@@ -2,7 +2,7 @@
 
 #include <Time.h>
 #include "ArduinoSerial.h"
-#include "Logger.h"
+#include "ArduinoLogger.h"
 #include "Request.h"
 #include "VariableChange.h"
 #include "Alarms.h"
@@ -18,6 +18,8 @@ void ArduinoSerial::init (uint32_t serialBaudRate, uint32_t serial1BaudRate)
 	comSerial.begin (serial1BaudRate);  // Initialize ESP8266 communication
 
 	debugSerial.println ("\n\n");
+
+	logger.add (debugSerial, DEBUG_LEVEL);
 }
 
 void ArduinoSerial::waitForTime ()
@@ -53,7 +55,7 @@ void ArduinoSerial::receiveAndDecode ()
 
 	if ((serialInput = &debugSerial)->available() || (serialInput = &comSerial)->available())
 	{
-		Request request(serialInput->readStringUntil ('z'));
+		Request request (serialInput->readStringUntil ('z'));
 
 		request.process();
 

@@ -6,7 +6,7 @@
 # include <ArduinoJson.h>
 # include "Light.h"
 # include "Sound.h"
-# include "Logger.h"
+# include "ArduinoLogger.h"
 # include "Utils.h"
 
 Json::Json()

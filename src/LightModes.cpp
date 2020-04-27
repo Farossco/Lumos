@@ -1,7 +1,7 @@
 #if defined(LUMOS_ARDUINO_MEGA)
 
 #include "Light.h"
-#include "Logger.h"
+#include "ArduinoLogger.h"
 
 void Light::modeActions ()
 {

@@ -5,7 +5,7 @@
 # include <ArduinoJson.h>
 # include <TimeLib.h>
 # include "Utils.h"
-# include "Logger.h"
+# include "ArduinoLogger.h"
 # include "Wifi.h"
 # include "Request.h"
 # include "Json.h"

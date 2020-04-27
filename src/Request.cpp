@@ -2,7 +2,7 @@
 #include <string.h>
 #include "Request.h"
 #include "Utils.h"
-#include "Logger.h"
+#include "ArduinoLogger.h"
 #include "Light.h"
 #include "Alarms.h"
 #include "Sound.h"

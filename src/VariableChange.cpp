@@ -4,7 +4,7 @@
 #include <string.h>
 #include "VariableChange.h"
 #include "Light.h"
-#include "Logger.h"
+#include "ArduinoLogger.h"
 #include "Memory.h"
 #include "Sound.h"
 #include "Request.h"

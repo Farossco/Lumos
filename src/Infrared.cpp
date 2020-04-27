@@ -1,7 +1,7 @@
 #if defined(LUMOS_ARDUINO_MEGA)
 #include "Infrared.h"
 #include "Light.h"
-#include "Logger.h"
+#include "ArduinoLogger.h"
 
 Infrared::Infrared() : irrecv (0)
 {

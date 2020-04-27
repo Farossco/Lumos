@@ -1,7 +1,7 @@
 #if defined(LUMOS_ARDUINO_MEGA)
 
 #include "Bluetooth.h"
-#include "Logger.h"
+#include "ArduinoLogger.h"
 #include "Request.h"
 #include <Arduino.h>
 #include "WString.h"

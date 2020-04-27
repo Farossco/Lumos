@@ -2,7 +2,7 @@
 
 #include "Memory.h"
 #include "Light.h"
-#include "Logger.h"
+#include "ArduinoLogger.h"
 #include "Alarms.h"
 #include "SdCard.h"
 

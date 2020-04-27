@@ -4,7 +4,7 @@
 
 # include <Time.h>
 # include "ESPSerial.h"
-# include "Logger.h"
+# include "ArduinoLogger.h"
 # include "Request.h"
 # include "Utils.h"
 # include "TimeLib.h"
@@ -15,6 +15,8 @@ void ESPSerial::init (long debugSerialrate, long comSerialRate)
 	debugSerial.begin (debugSerialrate); // Initialize debug communication
 	comSerialRx.begin (comSerialRate);   // Initialize arduino Rx communication
 	comSerialTx.begin (comSerialRate);   // Initialize arduino Tx communication
+
+	logger.add (debugSerial, DEBUG_LEVEL);
 }
 
 // Receive data from Arduino

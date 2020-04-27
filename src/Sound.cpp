@@ -1,5 +1,5 @@
 #include "Sound.h"
-#include "Logger.h"
+#include "ArduinoLogger.h"
 
 #if defined(LUMOS_ARDUINO_MEGA)
 

@@ -2,7 +2,7 @@
 
 #include <Time.h>
 #include "SdCard.h"
-#include "Logger.h"
+#include "ArduinoLogger.h"
 
 SdCard::SdCard()
 {
