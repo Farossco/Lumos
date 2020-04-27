@@ -105,28 +105,28 @@ void Infrared::read ()
 			// FLASH
 			case 0xFFB24D:
 			case 0x7EC31EF7:
-				light.setMode (LIGHT_MODE_FLASH);
+				light.setMode (LightMode::flash);
 				break;
 				break;
 
 			// STROBE
 			case 0xFF00FF:
 			case 0xFA3F159F:
-				light.setMode (LIGHT_MODE_STROBE);
+				light.setMode (LightMode::strobe);
 				break;
 				break;
 
 			// FADE
 			case 0xFF58A7:
 			case 0xDC0197DB:
-				light.setMode (LIGHT_MODE_FADE);
+				light.setMode (LightMode::fade);
 				break;
 				break;
 
 			// SMOOTH
 			case 0xFF30CF:
 			case 0x9716BE3F:
-				light.setMode (LIGHT_MODE_SMOOTH);
+				light.setMode (LightMode::smooth);
 				break;
 				break;
 
@@ -136,8 +136,8 @@ void Infrared::read ()
 				for (int i = 0; i < N_COLOR; i++)
 					if (results.value == color[i][1] || results.value == color[i][2])
 					{
-						light.setMode (LIGHT_MODE_CONTINUOUS);
-						light.setRgb (color[i][0], LIGHT_MODE_CONTINUOUS);
+						light.setMode (LightMode::continuous);
+						light.setRgb (color[i][0]);
 					}
 				break;
 		}

@@ -20,83 +20,53 @@ Light::Light()
 
 #endif
 
-void Light::setRed (uint8_t newRed, uint8_t affectedMode)
+void Light::setRed (uint8_t newRed, LightMode affectedMode)
 {
-	if (affectedMode == CURRENT_MODE)
-		affectedMode = mode;
-
-	red[affectedMode] = constrain (newRed, LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
+	red[affectedMode] = constrain (newRed, LightSetting::MIN_COLOR, LightSetting::MAX_COLOR);
 }
 
-void Light::setGreen (uint8_t newGreen, uint8_t affectedMode)
+void Light::setGreen (uint8_t newGreen, LightMode affectedMode)
 {
-	if (affectedMode == CURRENT_MODE)
-		affectedMode = mode;
-
-	green[affectedMode] = constrain (newGreen, LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
+	green[affectedMode] = constrain (newGreen, LightSetting::MIN_COLOR, LightSetting::MAX_COLOR);
 }
 
-void Light::setBlue (uint8_t newBlue, uint8_t affectedMode)
+void Light::setBlue (uint8_t newBlue, LightMode affectedMode)
 {
-	if (affectedMode == CURRENT_MODE)
-		affectedMode = mode;
-
-	blue[affectedMode] = constrain (newBlue, LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
+	blue[affectedMode] = constrain (newBlue, LightSetting::MIN_COLOR, LightSetting::MAX_COLOR);
 }
 
-void Light::setRgb (uint32_t newRgb, uint8_t affectedMode)
+void Light::setRgb (uint32_t newRgb, LightMode affectedMode)
 {
-	if (affectedMode == CURRENT_MODE)
-		affectedMode = mode;
+	newRgb = constrain (newRgb, LightSetting::MIN_RGB, LightSetting::MAX_RGB);
 
-	newRgb = constrain (newRgb, LIGHT_MIN_RGB, LIGHT_MAX_RGB);
-
-	red[affectedMode]   = constrain ((uint8_t) (newRgb >> 16), LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
-	green[affectedMode] = constrain ((uint8_t) (newRgb >> 8), LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
-	blue[affectedMode]  = constrain ((uint8_t) newRgb, LIGHT_MIN_COLOR, LIGHT_MAX_COLOR);
+	red[affectedMode]   = constrain ((uint8_t) (newRgb >> 16), LightSetting::MIN_COLOR, LightSetting::MAX_COLOR);
+	green[affectedMode] = constrain ((uint8_t) (newRgb >> 8), LightSetting::MIN_COLOR, LightSetting::MAX_COLOR);
+	blue[affectedMode]  = constrain ((uint8_t) newRgb, LightSetting::MIN_COLOR, LightSetting::MAX_COLOR);
 }
 
-void Light::setPowerRaw (uint8_t newPower, uint8_t affectedMode)
+void Light::setPowerRaw (uint8_t newPower, LightMode affectedMode)
 {
-	if (affectedMode == CURRENT_MODE)
-		affectedMode = mode;
-
-	power[affectedMode] = constrain (newPower, LIGHT_MIN_POWER, LIGHT_MAX_POWER);
+	power[affectedMode] = constrain (newPower, LightSetting::MIN_POWER, LightSetting::MAX_POWER);
 }
 
-void Light::setPowerPercent (uint8_t newPower, uint8_t affectedMode)
+void Light::setPowerPercent (uint8_t newPower, LightMode affectedMode)
 {
-	if (affectedMode == CURRENT_MODE)
-		affectedMode = mode;
-
-	power[affectedMode] = utils.map (constrain (newPower, SEEKBAR_MIN, SEEKBAR_MAX), SEEKBAR_MIN, SEEKBAR_MAX, LIGHT_MIN_POWER, LIGHT_MAX_POWER);
+	power[affectedMode] = utils.map (constrain (newPower, LightSetting::MIN_PERCENT, LightSetting::MAX_PERCENT), LightSetting::MIN_PERCENT, LightSetting::MAX_PERCENT, LightSetting::MIN_POWER, LightSetting::MAX_POWER);
 }
 
-void Light::setSpeedRaw (uint16_t newSpeed, uint8_t affectedMode)
+void Light::setSpeedRaw (uint16_t newSpeed, LightMode affectedMode)
 {
-	if (affectedMode == CURRENT_MODE)
-		affectedMode = mode;
-
-	if (LIGHT_MAX_SPEED[affectedMode] == 0)
-		speed[affectedMode] = newSpeed;
-	else
-		speed[affectedMode] = constrain (newSpeed, LIGHT_MIN_SPEED[affectedMode], LIGHT_MAX_SPEED[affectedMode]);
+	speed[affectedMode] = constrain (newSpeed, LightSetting::MIN_SPEED, LightSetting::MAX_SPEED);
 }
 
-void Light::setSpeedPercent (uint16_t newSpeed, uint8_t affectedMode)
+void Light::setSpeedPercent (uint16_t newSpeed, LightMode affectedMode)
 {
-	if (affectedMode == CURRENT_MODE)
-		affectedMode = mode;
-
-	if (LIGHT_MAX_SPEED[affectedMode] == 0)
-		speed[affectedMode] = newSpeed;
-	else
-		speed[affectedMode] = utils.map (constrain (newSpeed, SEEKBAR_MIN, SEEKBAR_MAX), SEEKBAR_MIN, SEEKBAR_MAX, LIGHT_MIN_SPEED[affectedMode], LIGHT_MAX_SPEED[affectedMode]);
+	speed[affectedMode] = utils.map (constrain (newSpeed, LightSetting::MIN_PERCENT, LightSetting::MAX_PERCENT), LightSetting::MIN_PERCENT, LightSetting::MAX_PERCENT, LightSetting::MIN_SPEED, LightSetting::MAX_SPEED);
 }
 
-void Light::setMode (uint8_t newMode)
+void Light::setMode (LightMode newMode)
 {
-	mode = constrain (newMode, LIGHT_MODE_MIN, LIGHT_MODE_MAX);
+	mode = constrain (newMode, LightMode::MIN, LightMode::MAX);
 }
 
 void Light::switchOn ()
@@ -109,73 +79,61 @@ void Light::switchOff ()
 	on = false;
 }
 
-uint8_t Light::addPower (uint8_t powerAdd, uint8_t affectedMode)
+uint8_t Light::addPower (uint8_t powerAdd, LightMode affectedMode)
 {
-	if (affectedMode == CURRENT_MODE)
-		affectedMode = mode;
-
-	setPowerPercent (constrain (getPowerPercent() + powerAdd, SEEKBAR_MIN, SEEKBAR_MAX));
+	setPowerPercent (constrain (getPowerPercent() + powerAdd, LightSetting::MIN_PERCENT, LightSetting::MAX_PERCENT));
 
 	return getPowerPercent();
 }
 
-uint8_t Light::subtractPower (uint8_t powerSub, uint8_t affectedMode)
+uint8_t Light::subtractPower (uint8_t powerSub, LightMode affectedMode)
 {
-	if (affectedMode == CURRENT_MODE)
-		affectedMode = mode;
-
-	setPowerPercent (constrain (getPowerPercent() - powerSub, SEEKBAR_MIN, SEEKBAR_MAX));
+	setPowerPercent (constrain (getPowerPercent() - powerSub, LightSetting::MIN_PERCENT, LightSetting::MAX_PERCENT));
 
 	return getPowerPercent();
 }
 
-uint8_t Light::getRed (uint8_t affectedMode)
+uint8_t Light::getRed (LightMode affectedMode)
 {
-	return red[affectedMode == CURRENT_MODE ? mode : affectedMode];
+	return red[affectedMode];
 }
 
-uint8_t Light::getGreen (uint8_t affectedMode)
+uint8_t Light::getGreen (LightMode affectedMode)
 {
-	return green[affectedMode == CURRENT_MODE ? mode : affectedMode];
+	return green[affectedMode];
 }
 
-uint8_t Light::getBlue (uint8_t affectedMode)
+uint8_t Light::getBlue (LightMode affectedMode)
 {
-	return blue[affectedMode == CURRENT_MODE ? mode : affectedMode];
+	return blue[affectedMode];
 }
 
-uint32_t Light::getRgb (uint8_t affectedMode)
+uint32_t Light::getRgb (LightMode affectedMode)
 {
-	return (((uint32_t) red[affectedMode == CURRENT_MODE ? mode : affectedMode]) << 16) + (((uint32_t) green[affectedMode == CURRENT_MODE ? mode : affectedMode]) << 8) + blue[affectedMode == CURRENT_MODE ? mode : affectedMode];
+	return (((uint32_t) red[affectedMode]) << 16) + (((uint32_t) green[affectedMode]) << 8) + blue[affectedMode];
 }
 
-uint8_t Light::getPowerRaw (uint8_t affectedMode)
+uint8_t Light::getPowerRaw (LightMode affectedMode)
 {
-	return power[affectedMode == CURRENT_MODE ? mode : affectedMode];
+	return power[affectedMode];
 }
 
-uint8_t Light::getPowerPercent (uint8_t affectedMode)
+uint8_t Light::getPowerPercent (LightMode affectedMode)
 {
-	return utils.map (power[affectedMode == CURRENT_MODE ? mode : affectedMode], LIGHT_MIN_POWER, LIGHT_MAX_POWER, SEEKBAR_MIN, SEEKBAR_MAX);
+	return utils.map (power[affectedMode], LightSetting::MIN_POWER, LightSetting::MAX_POWER, LightSetting::MIN_PERCENT, LightSetting::MAX_PERCENT);
 }
 
-uint16_t Light::getSpeedRaw (uint8_t affectedMode)
+uint8_t Light::getSpeedRaw (LightMode affectedMode)
 {
-	return speed[affectedMode == CURRENT_MODE ? mode : affectedMode];
+	return speed[affectedMode];
 }
 
-uint16_t Light::getSpeedPercent (uint8_t affectedMode)
+uint8_t Light::getSpeedPercent (LightMode affectedMode)
 {
-	if (affectedMode == CURRENT_MODE)
-		affectedMode = mode;
-
-	if (LIGHT_MAX_SPEED[affectedMode] == 0)
-		return getSpeedRaw (affectedMode);
-
-	return utils.map (speed[affectedMode], LIGHT_MIN_SPEED[affectedMode], LIGHT_MAX_SPEED[affectedMode], SEEKBAR_MIN, SEEKBAR_MAX);
+	return utils.map (speed[affectedMode], LightSetting::MIN_SPEED, LightSetting::MAX_SPEED, LightSetting::MIN_PERCENT, LightSetting::MAX_PERCENT);
 }
 
-uint8_t Light::getMode ()
+LightMode Light::getMode ()
 {
 	return mode;
 }
@@ -206,29 +164,26 @@ void Light::init ()
 	light.lightAll (0x000000);
 	show();
 
-	lastMode = LIGHT_MODE_CONTINUOUS; // Initialiazing last mode as well
+	lastMode = LightMode::continuous; // Initialiazing last mode as well
 
 	if (LIGHT_START_ANIMATION_ENABLE)
 	{
-		mode = LIGHT_MODE_START_ANIM;
+		mode = LightMode::startAnimation;
 		switchOn();
 	}
 	else
-		mode = LIGHT_MODE_CONTINUOUS;
+		mode = LightMode::continuous;
 
 	inf << "Light initialized." << dendl;
 }
 
 void Light::reset ()
 {
-	for (int i = LIGHT_MODE_MIN; i < LIGHT_MODE_N; i++)
-	{
-		red[i]   = (uint8_t) LIGHT_DEFAULT_RGB;         // Initialize colors to their default value
-		green[i] = (uint8_t) (LIGHT_DEFAULT_RGB >> 8);  // Initialize colors to their default value
-		blue[i]  = (uint8_t) (LIGHT_DEFAULT_RGB >> 16); // Initialize colors to their default value
-		power[i] = LIGHT_DEFAULT_POWER;                 // Initializing powers their default value
-		speed[i] = LIGHT_DEFAULT_SPEED[i];              // Initializing speeds their default value
-	}
+	red   = (uint8_t) LightSetting::DEF_RGB;         // Initialize colors to their default value
+	green = (uint8_t) (LightSetting::DEF_RGB >> 8);  // Initialize colors to their default value
+	blue  = (uint8_t) (LightSetting::DEF_RGB >> 16); // Initialize colors to their default value
+	power = LightSetting::DEF_POWER;                 // Initializing powers their default value
+	speed = LightSetting::DEF_SPEED;                 // Initializing speeds their default value
 
 	memory.writeLight();
 }
@@ -253,7 +208,7 @@ void Light::action ()
 	{
 		lightAll (0);
 		show();
-		lastMode = -1;
+		lastMode = LightMode::continuous;
 		return;
 	}
 

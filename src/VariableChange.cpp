@@ -18,17 +18,14 @@ VariableChange::VariableChange() : initialized (false)
 void VariableChange::init ()
 {
 	// Initializing to default values
-	changeOn = light.isOn();
-
-	changeLightMod = light.getMode();
-	changeSoundMod = sound.getMode();
-
-	for (uint8_t i = LIGHT_MODE_MIN; i <= LIGHT_MODE_MAX; i++)
-	{
-		changeRgb[i]   = light.getRgb (i);
-		changePower[i] = light.getPowerRaw (i);
-		changeSpeed[i] = light.getSpeedRaw (i);
-	}
+	changeOn        = light.on;
+	changeLightMode = light.mode;
+	changeSoundMode = sound.mode;
+	changeRed       = light.red;
+	changeGreen     = light.green;
+	changeBlue      = light.blue;
+	changePower     = light.power;
+	changeSpeed     = light.speed;
 
 	changeDawnTime = alarms.getDawnTime();
 
@@ -43,67 +40,84 @@ void VariableChange::check ()
 	boolean flagSendInfo    = false;
 	boolean flagWriteEeprom = false;
 
-	if (changeOn != light.isOn())
+	if (changeOn != light.on)
 	{
-		verb << "\"On\" changed from " << boolalpha << changeOn << " to " << light.isOn() << dendl;
+		verb << "\"On\" changed from " << boolalpha << changeOn << " to " << light.on << dendl;
 
-		changeOn     = light.isOn();
+		changeOn     = light.on;
 		flagSendInfo = true;
 	}
 
-
-	for (uint8_t i = LIGHT_MODE_MIN; i < LIGHT_MODE_N; i++)
+	for (LightMode i = LightMode::MIN; i <= LightMode::MAX; i++)
 	{
-		if (changeRgb[i] != light.getRgb (i))
+		if (changeRed[i] != light.red[i])
 		{
-			verb << "\"RGB\" of " << utils.getLightModeName (i) << " mode changed from " << changeRgb << " to " << light.getRgb (LIGHT_MODE_CONTINUOUS) << dendl;
+			verb << "\"Red\" of " << utils.getLightModeName (i) << " mode changed from " << changeRed[i] << " to " << light.red[i] << dendl;
 
-			changeRgb[i]    = light.getRgb (i);
+			changeRed[i]    = light.red[i];
 			flagSendInfo    = true;
 			flagWriteEeprom = true;
 		}
 
-		if (changePower[i] != light.getPowerRaw (i))
+		if (changeGreen[i] != light.green[i])
 		{
-			verb << "\"Power\" of " << utils.getLightModeName (i) << " mode changed from " << changePower[i] << " (" << utils.map (changePower[i], LIGHT_MIN_POWER, LIGHT_MAX_POWER, SEEKBAR_MIN, SEEKBAR_MAX) << "%) to " << light.getPowerRaw (i) << " (" << light.getPowerPercent() << "%)" << dendl;
+			verb << "\"Green\" of " << utils.getLightModeName (i) << " mode changed from " << changeGreen[i] << " to " << light.green[i] << dendl;
 
-			changePower[i]  = light.getPowerRaw (i);
+			changeGreen[i]  = light.green[i];
 			flagSendInfo    = true;
 			flagWriteEeprom = true;
 		}
 
-		if (changeSpeed[i] != light.getSpeedRaw (i))
+		if (changeBlue[i] != light.blue[i])
 		{
-			verb << "\"Speed\" of " << utils.getLightModeName (i) << " mode changed from " << changeSpeed[i] << " to " << light.getSpeedRaw (i) << dendl;
+			verb << "\"Blue\" of " << utils.getLightModeName (i) << " mode changed from " << changeBlue[i] << " to " << light.blue[i] << dendl;
 
-			changeSpeed[i]  = light.getSpeedRaw (i);
+			changeBlue[i]   = light.blue[i];
+			flagSendInfo    = true;
+			flagWriteEeprom = true;
+		}
+
+		if (changePower[i] != light.power[i])
+		{
+			verb << "\"Power\" of " << utils.getLightModeName (i) << " mode changed from " << changePower[i] << " (" << utils.map (changePower[i], LightSetting::MIN_POWER, LightSetting::MAX_POWER, LightSetting::MIN_PERCENT, LightSetting::MAX_PERCENT) << "%) to " << light.power[i] << " (" << light.getPowerPercent() << "%)" << dendl;
+
+			changePower[i]  = light.power[i];
+			flagSendInfo    = true;
+			flagWriteEeprom = true;
+		}
+
+		if (changeSpeed[i] != light.speed[i])
+		{
+			verb << "\"Speed\" of " << utils.getLightModeName (i) << " mode changed from " << changeSpeed[i] << " to " << light.speed[i] << dendl;
+
+			changeSpeed[i]  = light.speed[i];
 			flagSendInfo    = true;
 			flagWriteEeprom = true;
 		}
 	}
 
-	if (changeLightMod != light.getMode())
+	if (changeLightMode != light.mode)
 	{
-		verb << "\"Light mode\" changed from " << utils.getLightModeName (changeLightMod) << " (" << changeLightMod << ") to " << utils.getLightModeName (light.getMode()) << " (" << light.getMode() << ")" << dendl;
+		verb << "\"Light mode\" changed from " << utils.getLightModeName (changeLightMode) << " (" << changeLightMode << ") to " << utils.getLightModeName (light.mode) << " (" << light.mode << ")" << dendl;
 
-		changeLightMod = light.getMode();
-		flagSendInfo   = true;
+		changeLightMode = light.mode;
+		flagSendInfo    = true;
 	}
 
-	if (changeSoundMod != sound.getMode())
+	if (changeSoundMode != sound.mode)
 	{
-		verb << "\"Sound mode\" changed from " << utils.getSoundModeName (changeSoundMod) << " (" << changeSoundMod << ") to " << utils.getSoundModeName (sound.getMode()) << " (" << sound.getMode() << ")" << dendl;
+		verb << "\"Sound mode\" changed from " << utils.getSoundModeName (changeSoundMode) << " (" << changeSoundMode << ") to " << utils.getSoundModeName (sound.mode) << " (" << sound.mode << ")" << dendl;
 
-		changeSoundMod  = sound.getMode();
+		changeSoundMode = sound.mode;
 		flagSendInfo    = true;
 		flagWriteEeprom = true;
 	}
 
-	if (changeDawnTime != alarms.getDawnTime())
+	if (changeDawnTime != alarms.dawnTime)
 	{
-		verb << "\"Dawn time\" changed from " << changeDawnTime / 60 << ":" << changeDawnTime % 60 << " (" << changeDawnTime << ") to " << alarms.getDawnTime() / 60 << ":" << alarms.getDawnTime() % 60 << " (" << alarms.getDawnTime() << ")" << dendl;
+		verb << "\"Dawn time\" changed from " << changeDawnTime / 60 << ":" << changeDawnTime % 60 << " (" << changeDawnTime << ") to " << alarms.dawnTime / 60 << ":" << alarms.dawnTime % 60 << " (" << alarms.dawnTime << ")" << dendl;
 
-		changeDawnTime  = alarms.getDawnTime();
+		changeDawnTime  = alarms.dawnTime;
 		flagSendInfo    = true;
 		flagWriteEeprom = true;
 	}
@@ -119,52 +133,52 @@ void VariableChange::sendInfo ()
 {
 	trace << "Sending variables infos to the ESP8266" << dendl;
 
-	for (RequestType i = SEND_MIN; i <= SEND_MAX; i++)
+	for (RequestType type = RequestType::SEND_MIN; type <= RequestType::SEND_MAX; type++)
 	{
-		Bounds bounds = utils.getComplementBounds (i);
+		Bounds bounds = type.getComplementBounds();
 
-		for (uint8_t j = bounds.low; j <= bounds.high; j++)
+		for (uint8_t complement = bounds.low; complement <= bounds.high; complement++)
 		{
-			String message = utils.getMessageTypeName (i);
+			String message = utils.getMessageTypeName (type);
 
-			switch (i) // info
+			switch (type) // info
 			{
-				case lightRgb:
-					message += j;
-					message += utils.ltos(light.getRgb (j), HEX);
+				case RequestType::lightRgb:
+					message += complement;
+					message += utils.ltos (light.getRgb (complement), HEX);
 					break;
 
-				case lightOnOff:
+				case RequestType::lightOnOff:
 					message += light.isOn();
 					break;
 
-				case lightPower:
-					message += j;
-					message += light.getPowerPercent (j);
+				case RequestType::lightPower:
+					message += complement;
+					message += light.getPowerPercent (complement);
 					break;
 
-				case lightMode:
+				case RequestType::lightMode:
 					message += light.getMode();
 					break;
 
-				case lightModeSpeed:
-					message += j;
-					message += light.getSpeedPercent (j);
+				case RequestType::lightModeSpeed:
+					message += complement;
+					message += light.getSpeedPercent (complement);
 					break;
 
-				case soundMode:
+				case RequestType::soundMode:
 					message += sound.getMode();
 					break;
 
-				case soundVolume:
+				case RequestType::soundVolume:
 					message += sound.getVolume();
 					break;
 
-				case soundOnOff:
+				case RequestType::soundOnOff:
 					message += sound.isOn();
 					break;
 
-				case dawnTime:
+				case RequestType::dawnTime:
 					message += alarms.getDawnTime();
 					break;
 

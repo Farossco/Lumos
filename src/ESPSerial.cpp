@@ -16,6 +16,8 @@ void ESPSerial::init (long debugSerialrate, long comSerialRate)
 	comSerialRx.begin (comSerialRate);   // Initialize arduino Rx communication
 	comSerialTx.begin (comSerialRate);   // Initialize arduino Tx communication
 
+	comSerialRx.setRxBufferSize (1024);
+
 	logger.add (debugSerial, DEBUG_LEVEL);
 }
 
@@ -29,11 +31,11 @@ void ESPSerial::receiveAndDecode ()
 
 	request.process();
 
-	if (request.getType() == requestTime)
+	if (request.getType() == RequestType::requestTime)
 		serial.sendTime();  // We send the time to the Arduino
-	else if (request.getType() == requestInfos)
+	else if (request.getType() == RequestType::requestInfos)
 		verb << json.getData ("OK", "");
-} // ESPSerial::receiveAndDecode
+}
 
 void ESPSerial::sendTime ()
 {

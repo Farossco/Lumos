@@ -59,10 +59,10 @@ uint16_t Alarms::currentTime ()
 
 void Alarms::dawnStart ()
 {
-	light.setMode (LIGHT_MODE_DAWN);
+	light.setMode (LightMode::dawn);
 	light.switchOn();
 	sound.setVolume (15);
-	sound.command (SOUND_COMMAND_PLAY_DAWN, 0);
+	sound.command (SoundCommand::playDawn, 0);
 
 	inf << "Entering dawn mode from Alarms" << dendl;
 }

@@ -181,14 +181,14 @@ void Wifi::handleCommand ()
 
 	request.process();
 
-	if (request.getError() != noError)
+	if (request.getError() != RequestError::none)
 	{
 		trace << "Sending to arduino: Nothing" << dendl;
 		message = json.getDataPretty ("ERROR", utils.getErrorName (request.getError()));
 	}
 	else
 	{
-		if (request.getType() == requestInfos)
+		if (request.getType() == RequestType::requestInfos)
 			trace << "Sending to arduino: Nothing" << dendl;
 		else
 		{

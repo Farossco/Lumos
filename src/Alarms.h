@@ -21,9 +21,11 @@ public:
 	void setDawnTime (uint16_t time);
 	uint16_t getDawnTime ();
 
+	uint16_t dawnTime; // in minutes
+
 private:
 	static void dawnStart ();
-	uint16_t dawnTime; // in minutes
+
 	bool dawnTriggered;
 };
 

@@ -15,7 +15,7 @@ Sound::Sound()
 
 #endif
 
-void Sound::setVolume (uint8_t newVolume)
+void Sound::setVolume (SoundSetting newVolume)
 {
 	volume = newVolume;
 
@@ -24,7 +24,7 @@ void Sound::setVolume (uint8_t newVolume)
 	#endif
 }
 
-void Sound::setMode (uint8_t newMode)
+void Sound::setMode (SoundMode newMode)
 {
 	mode = newMode;
 }
@@ -39,12 +39,12 @@ void Sound::switchOff ()
 	on = false;
 }
 
-uint8_t Sound::getVolume ()
+SoundSetting Sound::getVolume ()
 {
 	return volume;
 }
 
-uint8_t Sound::getMode ()
+SoundMode Sound::getMode ()
 {
 	return mode;
 }
@@ -81,7 +81,7 @@ void Sound::init (HardwareSerial &serial)
 		return;
 	}
 
-	volume = SOUND_VOLUME_DEFAULT;
+	volume = SoundSetting::DEF_SOUND;
 
 	myDFPlayer.pause();
 	myDFPlayer.volume (volume);
@@ -89,81 +89,71 @@ void Sound::init (HardwareSerial &serial)
 
 void Sound::action ()
 {
-	// If lightning is off, shut all lights
 	if (isOff())
 	{
 		lastMode = -1;
+		// TODO : actually stop the music
 		return;
-	}
-
-	switch (lastMode)
-	{
-		case SOUND_MOD_FREE:
-			if (mode != SOUND_MOD_FREE)
-			{
-				inf << "Leaving Free choice mode" << dendl;
-			}
-			break;
 	}
 
 	// Calling modes functions
 	switch (mode)
 	{
-		case SOUND_MOD_FREE:
-			if (lastMode != SOUND_MOD_FREE) // If this is first call of the function, we call init function (lastMode will be set in init function)
+		case SoundMode::freeChoice:
+			if (lastMode != mode) // If this is first call of the function, we call init function (lastMode will be set in init function)
 			{
-				lastMode = SOUND_MOD_FREE;
+				lastMode = mode;
 				inf << "Entering Free choice mode" << dendl;
 			}
 
 			break;
 	}
-} // Sound::action
+}
 
-void Sound::command (uint8_t command, int32_t information)
+void Sound::command (SoundCommand command, uint32_t information)
 {
-	if (mode != SOUND_MOD_FREE)
+	if (mode != SoundMode::freeChoice)
 		return;
 
 	switch (command)
 	{
-		case SOUND_COMMAND_PLAY_RANDOM:
+		case SoundCommand::playRandom:
 			myDFPlayer.volume (volume);
 			myDFPlayer.randomAll();
 			trace << "Playing random mp3 until stop" << dendl;
 			break;
 
-		case SOUND_COMMAND_PLAY_ONE:
+		case SoundCommand::playOne:
 			myDFPlayer.volume (volume);
-			myDFPlayer.playFolder (2, (uint8_t) information);
-			trace << "Playing mp3 " << (uint16_t) information << " with volume " << volume << "/" << SOUND_VOLUME_MAX << dendl;
+			myDFPlayer.playFolder (2, information);
+			trace << "Playing mp3 " << information << " with volume " << volume << "/" << SoundSetting::MAX_SOUND << dendl;
 			break;
 
-		case SOUND_COMMAND_PLAY_NEXT:
+		case SoundCommand::playNext:
 			myDFPlayer.volume (volume);
 			myDFPlayer.next();
 			trace << "Playing next mp3" << dendl;
 			break;
 
-		case SOUND_COMMAND_PLAY_PREVIOUS:
+		case SoundCommand::playPrevious:
 			myDFPlayer.volume (volume);
 			myDFPlayer.previous();
 			trace << "Playing previous mp3" << dendl;
 			break;
 
-		case SOUND_COMMAND_PAUSE:
+		case SoundCommand::pause:
 			myDFPlayer.volume (volume);
 			myDFPlayer.pause();
 			trace << "Pausing mp3 play" << dendl;
 			break;
 
-		case SOUND_COMMAND_RESUME:
+		case SoundCommand::resume:
 			myDFPlayer.volume (volume);
 			myDFPlayer.start();
 			trace << "Resuming mp3 play" << dendl;
 			break;
 
-		case SOUND_COMMAND_PLAY_DAWN:
+		case SoundCommand::playDawn:
 			myDFPlayer.volume (volume);
 			myDFPlayer.playFolder (1, 1);
 			trace << "Playing dawn mp3" << dendl;

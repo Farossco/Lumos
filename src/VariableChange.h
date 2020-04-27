@@ -16,11 +16,13 @@ public:
 
 private:
 	bool changeOn;
-	uint8_t changePower[LIGHT_MODE_N];
-	uint16_t changeSpeed[LIGHT_MODE_N];
-	uint32_t changeRgb[LIGHT_MODE_N];
-	uint8_t changeLightMod;
-	uint8_t changeSoundMod;
+	LightSetting changePower;
+	LightSetting changeSpeed;
+	LightSetting changeRed;
+	LightSetting changeGreen;
+	LightSetting changeBlue;
+	LightMode changeLightMode;
+	SoundMode changeSoundMode;
 	uint16_t changeDawnTime;
 	bool initialized;
 };

@@ -66,7 +66,7 @@
 		{
 			"label": "ESP8266 Upload SPIFFS",
 			"type": "PlatformIO",
-			"task": "Upload File System image (ESP8266)",
+			"task": "Upload File System image",
 			"problemMatcher": [
 				"$platformio"
 			],
@@ -80,7 +80,7 @@
 				"ESP8266 Upload"
 			],
 			"type": "PlatformIO",
-			"task": "Upload File System image (ESP8266)",
+			"task": "Upload File System image",
 			"problemMatcher": [
 				"$platformio"
 			],

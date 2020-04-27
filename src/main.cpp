@@ -12,8 +12,6 @@
 
 const boolean WAIT_FOR_TIME = true; // If the Arduino has to wait for time sync (if true, program will not start until time is synced)
 
-const uint32_t COMM_BAUD_RATE = 115200; // ESP8266/Arduino communication baud rate
-
 #if defined(LUMOS_ARDUINO_MEGA) // Arduino code
 void setup ()
 {

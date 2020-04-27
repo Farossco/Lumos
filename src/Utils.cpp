@@ -14,7 +14,7 @@ const char * errorName[]              = { "No error", "Out of bounds", "Unknowm 
 
 #define getArrayString(in, array) ((in < (sizeof(array) / sizeof(* array))) ? array[in] : nameUnknown)
 
-const char * Utils::getLightModeName (uint8_t mode){ return getArrayString (mode, lightModeName); }
+const char * Utils::getLightModeName (LightMode mode){ return getArrayString (mode, lightModeName); }
 
 const char * Utils::getSoundModeName (uint8_t mode){ return getArrayString (mode, soundModeName); }
 
@@ -25,21 +25,6 @@ const char * Utils::getMessageTypeName (RequestType requestType){ return getArra
 const char * Utils::getMessageTypeDisplayName (RequestType requestType){ return getArrayString (requestType, messageTypeDisplayName); }
 
 const char * Utils::getErrorName (RequestError requestError){ return getArrayString (requestError, errorName); }
-
-Bounds Utils::getComplementBounds (RequestType requestType)
-{
-	switch (requestType)
-	{
-		case lightRgb: case lightPower: case lightModeSpeed:
-			return { LIGHT_MODE_MIN, LIGHT_MODE_MAX };
-
-		case soundCommand:
-			return{ SOUND_COMMAND_MIN, SOUND_COMMAND_MAX };
-
-		default:
-			return{ 0, 0 };
-	}
-}
 
 char * Utils::getClock ()
 {
@@ -88,14 +73,12 @@ String Utils::ltos (uint32_t value, int base)
 
 RequestType Utils::getMessageTypeFromName (String message)
 {
-	message.toUpperCase();
-
-	// Test correspondance for every type
-	for (RequestType i = MIN; i <= MAX; i++)
+	// Test correspondance for each type
+	for (RequestType i = RequestType::MIN; i <= RequestType::MAX; i++)
 		if (message == utils.getMessageTypeName (i)) // If there is a match, we return it
 			return i;
 
-	return unknown;
+	return RequestType::unknown;
 }
 
 Utils utils = Utils();
