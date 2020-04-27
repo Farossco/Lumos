@@ -181,23 +181,18 @@ void Wifi::handleCommand ()
 
 	request.process();
 
-	if (request.error != noError)
+	if (request.getError() != noError)
 	{
 		trace << "Sending to arduino: Nothing" << dendl;
-		message = json.getDataPretty ("ERROR", utils.getErrorName (request.error));
+		message = json.getDataPretty ("ERROR", utils.getErrorName (request.getError()));
 	}
 	else
 	{
-		if (request.type == requestInfos)
+		if (request.getType() == requestInfos)
 			trace << "Sending to arduino: Nothing" << dendl;
 		else
 		{
-			String data = utils.getMessageTypeName (request.type);
-
-			if (utils.messageTypeComplementType (request.type) != COMPLEMENT_TYPE_NONE)
-				data += request.complement;
-
-			data += utils.ltos (request.information, request.type == RGB ? HEX : DEC) + 'z';
+			String data = request.getTypeString() + request.getComplementString() + request.getInformationString() + 'z';
 
 			trace << "Sending to arduino: " << data << endl;
 

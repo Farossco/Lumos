@@ -13,9 +13,11 @@ public:
 	Json();
 	String getDataPretty (const char * status, const char * message);
 	String getData (const char * status, const char * message);
-	void generateData (String & string, const char * status, const char * message, bool pretty);
 	String getResourcesPretty ();
 	String getResources ();
+
+private:
+	void generateData (String & string, const char * status, const char * message, bool pretty);
 	void generateResources (String & string, bool pretty);
 };
 

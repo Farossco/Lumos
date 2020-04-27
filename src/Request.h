@@ -6,7 +6,7 @@
 #define REQ_PREFIX_LENGTH 3 // The length of the request prefix
 
 // Serial reception errors types
-enum RequestErrorType
+enum RequestError : uint8_t
 {
 	noError           = 0, // No error
 	outOfBound        = 1, // Out of bound
@@ -16,37 +16,45 @@ enum RequestErrorType
 };
 
 // Serial reception message types
-enum RequestMessageType : int
+enum RequestType : uint8_t
 {
-	MIN          = -4, // - Provide type minimum value -
-	SEND_MIN     = 1,  // - First value to send to Serial -
-	SEND_MAX     = 9,  // - Last value to send to Serial -
-	MAX          = 9,  // - Provide type maximum value -
+	MIN            = 0,  // - Minimum value -
+	SEND_MIN       = 5,  // - First value to send to Serial -
+	SEND_MAX       = 13, // - Last value to send to Serial -
+	MAX            = 13, // - Maximum value -
 
-	requestTime  = -4, // Request : Time
-	requestInfos = -3, // Request : Info
-	provideTime  = -2, // Provide : Time
-	soundCommand = -1, // Sound commands for "free choice" mode
+	unknown        = 0, // Unknown type
 
-	unknown      = 0, // Unknown type
+	requestTime    = 1, // Request : Time
+	requestInfos   = 2, // Request : Info
+	soundCommand   = 3, // Sound commands for "free choice" mode
 
-	RGB          = 1, // Provide : Light RGB
-	LON          = 2, // Provide : Light On/off
-	POW          = 3, // Provide : Light mode Power
-	LMO          = 4, // Provide : Light mode
-	SPEED        = 5, // Provide : Light mode Speed
-	SMO          = 6, // Provide : Sound mode
-	VOL          = 7, // Provide : Sound volume
-	SON          = 8, // Provide : Sound on/off
-	DTM          = 9  // Provide : Dawn time
+	provideTime    = 4, // Provide : Time
+
+	lightOnOff     = 5,  // Provide : Light On/off
+	lightRgb       = 6,  // Provide : Light RGB
+	lightPower     = 7,  // Provide : Light mode Power
+	lightMode      = 8,  // Provide : Light mode
+	lightModeSpeed = 9,  // Provide : Light mode Speed
+	soundOnOff     = 10, // Provide : Sound on/off
+	soundMode      = 11, // Provide : Sound mode
+	soundVolume    = 12, // Provide : Sound volume
+	dawnTime       = 13  // Provide : Dawn time
 };
 
-inline RequestMessageType & operator ++ (RequestMessageType& j, int) // <--- note -- must be a reference
+inline RequestType & operator ++ (RequestType& j, int)
 {
-	j = static_cast<RequestMessageType>((static_cast<int>(j) + 1));
+	j = static_cast<RequestType>((static_cast<int>(j) + 1));
 
 	return j;
 }
+
+enum ComplementType
+{
+	complementNone         = 0, // No complement
+	complementLightMode    = 1, // Light mode
+	complementSoundCommand = 2  // Sound command parameter
+};
 
 class Request
 {
@@ -55,12 +63,23 @@ public:
 	Request(String prefixString, String complementString, String informationString);
 	void process ();
 
-	RequestErrorType error  = unknowmType;
-	RequestMessageType type = unknown;
-	uint8_t complement      = 0;
-	int32_t information     = 0;
+	RequestError getError ();
+	RequestType getType ();
+	uint8_t getComplement ();
+	int32_t getInformation ();
+
+	const char * getTypeString ();
+	String getComplementString ();
+	String getInformationString ();
+
+	ComplementType getComplementType ();
 
 private:
+	RequestError error  = unknowmType;
+	RequestType type    = unknown;
+	uint8_t complement  = 0;
+	int32_t information = 0;
+
 	void decodeInput ();
 	void decodeSeparate ();
 };

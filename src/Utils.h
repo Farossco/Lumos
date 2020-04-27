@@ -4,22 +4,6 @@
 #include <Arduino.h>
 #include "Request.h"
 
-#define COMPLEMENT_MIN 0
-#define COMPLEMENT_MAX 1
-
-// ************************************* //
-// **************** IDs **************** //
-// ************************************* //
-
-// Caps
-const uint8_t CAPS_NONE  = 0; // All letters in lower case
-const uint8_t CAPS_FIRST = 1; // First letter in upper case
-const uint8_t CAPS_ALL   = 2; // All letters in upper case
-
-const uint8_t COMPLEMENT_TYPE_NONE = 0; // No complement
-const uint8_t COMPLEMENT_TYPE_LMO  = 1; // Light mode
-const uint8_t COMPLEMENT_TYPE_SCP  = 2; // Sound command parameter
-
 // ************************************************************* //
 // **************** Default, min and max values **************** //
 // ************************************************************* //
@@ -33,21 +17,28 @@ extern const char * lightModeName[];
 extern const char * soundModeName[];
 extern const char * soundCommandName[];
 
+typedef struct Bounds
+{
+	Bounds(int8_t min, int8_t max) : low (min), high (max){ }
+
+	int8_t low  = 0;
+	int8_t high = 0;
+} Bounds;
+
 class Utils
 {
 public:
 	const char * getLightModeName (uint8_t mode);
 	const char * getSoundModeName (uint8_t mode);
 	const char * getSoundCommandName (uint8_t mode);
-	const char * getMessageTypeName (RequestMessageType RequestMessageType);
-	const char * getMessageTypeDisplayName (RequestMessageType RequestMessageType);
-	const char * getErrorName (RequestErrorType RequestErrorType);
-	const uint8_t messageTypeComplementBounds (RequestMessageType RequestMessageType, uint8_t minMax);
-	const uint8_t messageTypeComplementType (RequestMessageType RequestMessageType);
+	const char * getMessageTypeName (RequestType requestType);
+	const char * getMessageTypeDisplayName (RequestType requestType);
+	const char * getErrorName (RequestError requestError);
+	Bounds getComplementBounds (RequestType requestType);
 	char * getClock ();
 	uint32_t map (float input, float inMin, float inMax, float outMin, float outMax);
 	String ltos (uint32_t value, int base = DEC);
-	RequestMessageType getMessageTypeFromName (String message);
+	RequestType getMessageTypeFromName (String message);
 
 private:
 	char clock[30];

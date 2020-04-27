@@ -4,188 +4,40 @@
 #include "Request.h"
 #include "Sound.h"
 
-const char nameUnknown[]        = "Unknown";
-const char * lightModeName[]    = { "Continuous", "Flash", "Strobe", "Fade", "Smooth", "Wake up", "Sunset", "Start animation", "Music" };
-const char * soundModeName[]    = { "Free choice" };
-const char * soundCommandName[] = { "Play random", "Play one", "Play next", "Play previous", "Pause", "Resume", "Play dawn" };
+const char nameUnknown[]              = "Unknown";
+const char * lightModeName[]          = { "Continuous", "Flash", "Strobe", "Fade", "Smooth", "Wake up", "Sunset", "Start animation", "Music" };
+const char * soundModeName[]          = { "Free choice" };
+const char * soundCommandName[]       = { "Play random", "Play one", "Play next", "Play previous", "Pause", "Resume", "Play dawn" };
+const char * messageTypeName[]        = { nameUnknown, "TIME", "INFO", "SCO", "TIM", "LON", "RGB", "POW", "LMO", "SPE", "SON", "SMO", "VOL", "DTM" };
+const char * messageTypeDisplayName[] = { nameUnknown, "Time request", "Info request", "Sound command", "Time", "Light On/Off", "RGB", "Light power", "Light mode", "Light mode speed", "Sound On/Off", "Sound mode", "Sound volume", "Dawn time" };
+const char * errorName[]              = { "No error", "Out of bounds", "Unknowm complement", "Unknown request type", "Bad String" };
 
-const char * Utils::getLightModeName (uint8_t mode)
+#define getArrayString(in, array) ((in < (sizeof(array) / sizeof(* array))) ? array[in] : nameUnknown)
+
+const char * Utils::getLightModeName (uint8_t mode){ return getArrayString (mode, lightModeName); }
+
+const char * Utils::getSoundModeName (uint8_t mode){ return getArrayString (mode, soundModeName); }
+
+const char * Utils::getSoundCommandName (uint8_t command){ return getArrayString (command, soundCommandName); }
+
+const char * Utils::getMessageTypeName (RequestType requestType){ return getArrayString (requestType, messageTypeName); }
+
+const char * Utils::getMessageTypeDisplayName (RequestType requestType){ return getArrayString (requestType, messageTypeDisplayName); }
+
+const char * Utils::getErrorName (RequestError requestError){ return getArrayString (requestError, errorName); }
+
+Bounds Utils::getComplementBounds (RequestType requestType)
 {
-	if (mode >= (sizeof(lightModeName) / sizeof(*lightModeName)))
-		return nameUnknown;
-
-	return lightModeName[mode];
-}
-
-const char * Utils::getSoundModeName (uint8_t mode)
-{
-	if (mode >= (sizeof(soundModeName) / sizeof(*soundModeName)))
-		return nameUnknown;
-
-	return soundModeName[mode];
-}
-
-const char * Utils::getSoundCommandName (uint8_t command)
-{
-	String name;
-
-	if (command >= (sizeof(soundCommandName) / sizeof(*soundCommandName)))
-		return nameUnknown;
-
-	return soundCommandName[command];
-}
-
-const char * Utils::getMessageTypeName (RequestMessageType RequestMessageType)
-{
-	switch (RequestMessageType)
+	switch (requestType)
 	{
-		case requestTime:
-			return "TIME";
-
-		case requestInfos:
-			return "INFO";
-
-		case provideTime:
-			return "TIM";
+		case lightRgb: case lightPower: case lightModeSpeed:
+			return { LIGHT_MODE_MIN, LIGHT_MODE_MAX };
 
 		case soundCommand:
-			return "SCO";
-
-		case RGB:
-			return "RGB";
-
-		case LON:
-			return "LON";
-
-		case POW:
-			return "POW";
-
-		case LMO:
-			return "LMO";
-
-		case SPEED:
-			return "SPE";
-
-		case SMO:
-			return "SMO";
-
-		case VOL:
-			return "VOL";
-
-		case SON:
-			return "SON";
-
-		case DTM:
-			return "DTM";
+			return{ SOUND_COMMAND_MIN, SOUND_COMMAND_MAX };
 
 		default:
-			return "UNK";
-	}
-} // Utils::getMessageTypeName
-
-const char * Utils::getMessageTypeDisplayName (RequestMessageType RequestMessageType)
-{
-	switch (RequestMessageType)
-	{
-		case requestTime:
-			return "Time request";
-
-		case requestInfos:
-			return "Info request";
-
-		case provideTime:
-			return "Time";
-
-		case soundCommand:
-			return "Sound command";
-
-		case RGB:
-			return "RGB";
-
-		case LON:
-			return "Light On/Off";
-
-		case POW:
-			return "Light power";
-
-		case LMO:
-			return "Light mode";
-
-		case SPEED:
-			return "Light mode speed";
-
-		case SMO:
-			return "Sound mode";
-
-		case VOL:
-			return "Sound volume";
-
-		case SON:
-			return "Sound On/Off";
-
-		case DTM:
-			return "Dawn time";
-
-		default:
-			return "Unknown";
-	}
-} // Utils::getMessageTypeName
-
-const char * Utils::getErrorName (RequestErrorType RequestErrorType)
-{
-	switch (RequestErrorType)
-	{
-		case noError:
-			return "No error";
-
-		case outOfBound:
-			return "Out of bounds";
-
-		case unknownComplement:
-			return "Unknowm complement";
-
-		case unknowmType:
-			return "Unknown request type";
-
-		case badString:
-			return "Bad String";
-
-		default:
-			return "Unknown error";
-	}
-}
-
-const uint8_t Utils::messageTypeComplementBounds (RequestMessageType infoType, uint8_t minMax)
-{
-	switch (infoType)
-	{
-		case RGB:
-		case POW:
-		case SPEED:
-			return minMax == COMPLEMENT_MIN ? LIGHT_MODE_MIN : LIGHT_MODE_MAX;
-
-		case soundCommand:
-			return minMax == COMPLEMENT_MIN ? SOUND_COMMAND_MIN : SOUND_COMMAND_MAX;
-
-		default:
-			return minMax == COMPLEMENT_MIN ? 0 : 0;
-	}
-}
-
-const uint8_t Utils::messageTypeComplementType (RequestMessageType infoType)
-{
-	switch (infoType)
-	{
-		case RGB:
-		case POW:
-		case SPEED:
-			return COMPLEMENT_TYPE_LMO;
-
-		case soundCommand:
-			return COMPLEMENT_TYPE_SCP;
-
-		default:
-			return COMPLEMENT_TYPE_NONE;
+			return{ 0, 0 };
 	}
 }
 
@@ -231,15 +83,15 @@ String Utils::ltos (uint32_t value, int base)
 	}
 	while(value);
 
-	return (String) str;
+	return String (str);
 }
 
-RequestMessageType Utils::getMessageTypeFromName (String message)
+RequestType Utils::getMessageTypeFromName (String message)
 {
 	message.toUpperCase();
 
 	// Test correspondance for every type
-	for (RequestMessageType i = MIN; i <= MAX; i++)
+	for (RequestType i = MIN; i <= MAX; i++)
 		if (message == utils.getMessageTypeName (i)) // If there is a match, we return it
 			return i;
 

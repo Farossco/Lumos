@@ -119,59 +119,63 @@ void VariableChange::sendInfo ()
 {
 	trace << "Sending variables infos to the ESP8266" << dendl;
 
-	for (RequestMessageType i = SEND_MIN; i <= SEND_MAX; i++)
+	for (RequestType i = SEND_MIN; i <= SEND_MAX; i++)
 	{
-		for (uint8_t j = utils.messageTypeComplementBounds (i, COMPLEMENT_MIN); j <= utils.messageTypeComplementBounds (i, COMPLEMENT_MAX); j++)
-		{
-			char information[15] = "\n"; // TODO : Change to a String
+		Bounds bounds = utils.getComplementBounds (i);
 
-			sprintf (information, "%s", utils.getMessageTypeName (i)); // Prefix
+		for (uint8_t j = bounds.low; j <= bounds.high; j++)
+		{
+			String message = utils.getMessageTypeName (i);
 
 			switch (i) // info
 			{
-				case RGB:
-					sprintf (information + strlen (information), "%d%lX", j, light.getRgb (j));
+				case lightRgb:
+					message += j;
+					message += utils.ltos(light.getRgb (j), HEX);
 					break;
 
-				case LON:
-					sprintf (information + strlen (information), "%d", light.isOn());
+				case lightOnOff:
+					message += light.isOn();
 					break;
 
-				case POW:
-					sprintf (information + strlen (information), "%d%d", j, light.getPowerPercent (j));
+				case lightPower:
+					message += j;
+					message += light.getPowerPercent (j);
 					break;
 
-				case LMO:
-					sprintf (information + strlen (information), "%d", light.getMode());
+				case lightMode:
+					message += light.getMode();
 					break;
 
-				case SPEED:
-					sprintf (information + strlen (information), "%d%d", j, (uint16_t) light.getSpeedPercent (j));
+				case lightModeSpeed:
+					message += j;
+					message += light.getSpeedPercent (j);
 					break;
 
-				case SMO:
-					sprintf (information + strlen (information), "%d", sound.getMode());
+				case soundMode:
+					message += sound.getMode();
 					break;
 
-				case VOL:
-					sprintf (information + strlen (information), "%d", sound.getVolume());
+				case soundVolume:
+					message += sound.getVolume();
 					break;
 
-				case SON:
-					sprintf (information + strlen (information), "%d", sound.isOn());
+				case soundOnOff:
+					message += sound.isOn();
 					break;
 
-				case DTM:
-					sprintf (information + strlen (information), "%d", alarms.getDawnTime());
+				case dawnTime:
+					message += alarms.getDawnTime();
 					break;
 
 				default:
 					break;
 			}
-			sprintf (information + strlen (information), "z"); // Suffix
 
-			verb << information;
-			serial.comSerial.print (information);
+			message += 'z';
+
+			verb << message;
+			serial.comSerial.print (message);
 		}
 	}
 
