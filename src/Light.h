@@ -61,9 +61,7 @@ class Light
 {
 public:
 	Light();
-	void init ();
-	void reset ();
-	void action (); // Perform mode actions
+
 	void lightAll (uint8_t red, uint8_t green, uint8_t blue);
 	void lightAll (uint32_t rgb);
 
@@ -80,8 +78,8 @@ public:
 	void switchOn ();
 	void switchOff ();
 
-	uint8_t addPower (uint8_t newPower, uint8_t affectedMod      = CURRENT_MODE);
-	uint8_t subtractPower (uint8_t powerAdd, uint8_t affectedMod = CURRENT_MODE);
+	uint8_t addPower (uint8_t powerAdd, uint8_t affectedMod      = CURRENT_MODE);
+	uint8_t subtractPower (uint8_t powerSub, uint8_t affectedMod = CURRENT_MODE);
 
 	uint8_t getRed (uint8_t affectedMod           = CURRENT_MODE);
 	uint8_t getGreen (uint8_t affectedMod         = CURRENT_MODE);
@@ -92,38 +90,27 @@ public:
 	uint16_t getSpeedRaw (uint8_t affectedMod     = CURRENT_MODE);
 	uint16_t getSpeedPercent (uint8_t affectedMod = CURRENT_MODE);
 	uint8_t getMode ();
+
 	bool isOn ();
 	bool isOff ();
 
-	uint16_t getDawnDuration ();
+	void init ();
+	void reset ();
+	void action (); // Perform mode actions
 
 private:
-	void initContinuous (); // Default mode initialization
+	void show ();
+
+	void modeActions ();
 	void continuous ();     // Default mode
-
-	void initFlash (); // Flash mode initialization
-	void flash ();     // Flash mode
-
-	void initStrobe (); // Strobe mode initialization
-	void strobe ();     // Strobe mode
-
-	void initFade (); // Fade mode initialization
-	void fade ();     // Fade mode
-
-	void initSmooth (); // Smooth mode Initialization
-	void smooth ();     // Smooth mode
-
-	void initDawn (); // Dawn mode initialization
-	void dawn ();     // Dawn mode
-
-	void initSunset (); // Sunset mode initialization
-	void sunset ();     // Sunset mode
-
-	void initStartAnimation (); // Start animation mode initialization
-	void startAnimation ();     // Start animation mode
-
-	void initMusic (); // Music mode initialization
-	void music ();     // Music mode
+	void flash ();          // Flash mode
+	void strobe ();         // Strobe mode
+	void fade ();           // Fade mode
+	void smooth ();         // Smooth mode
+	void dawn ();           // Dawn mode
+	void sunset ();         // Sunset mode
+	void startAnimation (); // Start animation mode
+	void music ();          // Music mode
 
 	uint8_t state;                    // Current state used by some modes
 	int32_t counter, counter2;        // Counters that are used by some modes

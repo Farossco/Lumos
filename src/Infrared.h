@@ -6,7 +6,7 @@
 # include <IRremote.h>
 
 const int N_COLOR        = 16; // Number of different colors
-const int IR_CHANGE_STEP = 5;  // increasion or decreasion step value for infrared
+const int IR_CHANGE_STEP = 10;  // increasion or decreasion step value for infrared
 const int MIN_IR_POWER   = 5;  // Minimum value in wich the power can go with infrared
 const int IR_DEFAULT_PIN = 8;  // Default infrared pin
 
