@@ -19,7 +19,7 @@ typedef struct Bounds
 class LightMode
 {
 public:
-	enum LightModeEnum : uint8_t
+	enum Enum : uint8_t
 	{
 		continuous,     // Continuous lightning mode
 		flash,          // Flash mode
@@ -39,10 +39,11 @@ public:
 	LightMode();
 	LightMode (uint8_t value);
 	operator uint8_t ();
-	inline LightMode & operator ++ (int){ _value = static_cast<LightModeEnum>(static_cast<uint8_t>(_value) + 1); return *this; }
+	const String toString () const;
+	inline LightMode & operator ++ (int){ _value = static_cast<Enum>(static_cast<uint8_t>(_value) + 1); return *this; }
 
 private:
-	LightModeEnum _value;
+	Enum _value;
 };
 
 
@@ -79,24 +80,26 @@ private:
 class RequestError
 {
 public:
-	enum RequestErrorEnum : uint8_t
+	enum Enum : uint8_t
 	{
-		none,              // No error
+		none = 0,          // No error
 		outOfBound,        // Out of bound
 		unknownComplement, // Unknown complement
 		unknownType,       // Unknown request
-		badString,         // Malformed string
+		emptyString,       // Empty string
 
+		N,
 		MIN = none,
-		MAX = badString
+		MAX = emptyString
 	};
 
 	RequestError ();
 	RequestError(uint8_t value);
 	operator uint8_t ();
+	const String toString () const;
 
 private:
-	RequestErrorEnum _value;
+	Enum _value;
 };
 
 
@@ -116,7 +119,7 @@ class RequestType
 {
 public:
 
-	enum RequestTypeEnum : uint8_t
+	enum Enum : uint8_t
 	{
 		unknown,      // Unknown type
 		requestTime,  // Request : Time
@@ -148,10 +151,13 @@ public:
 	Bounds getInformationBounds ();
 	Bounds getComplementBounds ();
 	ComplementCategory getComplementType ();
+	const String toString (bool shortened = false) const;
 
 private:
-	RequestTypeEnum _value;
+	Enum _value;
 };
+
+bool operator == (const String & string, const RequestType & type);
 
 
 /* Sound Mode
@@ -159,10 +165,11 @@ private:
 class SoundMode
 {
 public:
-	enum SoundModeEnum
+	enum Enum
 	{
 		freeChoice, // Free choice mode
 
+		N,
 		MIN = freeChoice, // -Minimum mode value-
 		MAX = freeChoice  // -Maximum mode value-
 	};
@@ -170,9 +177,10 @@ public:
 	SoundMode();
 	SoundMode(uint8_t value);
 	operator uint8_t ();
+	const String toString () const;
 
 private:
-	SoundModeEnum _value;
+	Enum _value;
 };
 
 
@@ -181,7 +189,7 @@ private:
 class SoundCommand
 {
 public:
-	enum SoundCommandEnum
+	enum Enum
 	{
 		playRandom,
 		playOne,
@@ -191,6 +199,7 @@ public:
 		resume,
 		playDawn,
 
+		N,
 		MIN = playRandom,
 		MAX = playDawn
 	};
@@ -198,9 +207,10 @@ public:
 	SoundCommand();
 	SoundCommand(uint8_t value);
 	operator uint8_t ();
+	const String toString () const;
 
 private:
-	SoundCommandEnum _value;
+	Enum _value;
 };
 
 

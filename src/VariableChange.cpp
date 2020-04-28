@@ -48,57 +48,57 @@ void VariableChange::check ()
 		flagSendInfo = true;
 	}
 
-	for (LightMode i = LightMode::MIN; i <= LightMode::MAX; i++)
+	for (LightMode mode = LightMode::MIN; mode <= LightMode::MAX; mode++)
 	{
-		if (changeRed[i] != light.red[i])
+		if (changeRed[mode] != light.red[mode])
 		{
-			verb << "\"Red\" of " << utils.getLightModeName (i) << " mode changed from " << changeRed[i] << " to " << light.red[i] << dendl;
+			verb << "\"Red\" of " << mode.toString() << " mode changed from " << changeRed[mode] << " to " << light.red[mode] << dendl;
 
-			changeRed[i]    = light.red[i];
+			changeRed[mode] = light.red[mode];
 			flagSendInfo    = true;
 			flagWriteEeprom = true;
 		}
 
-		if (changeGreen[i] != light.green[i])
+		if (changeGreen[mode] != light.green[mode])
 		{
-			verb << "\"Green\" of " << utils.getLightModeName (i) << " mode changed from " << changeGreen[i] << " to " << light.green[i] << dendl;
+			verb << "\"Green\" of " << mode.toString() << " mode changed from " << changeGreen[mode] << " to " << light.green[mode] << dendl;
 
-			changeGreen[i]  = light.green[i];
-			flagSendInfo    = true;
-			flagWriteEeprom = true;
+			changeGreen[mode] = light.green[mode];
+			flagSendInfo      = true;
+			flagWriteEeprom   = true;
 		}
 
-		if (changeBlue[i] != light.blue[i])
+		if (changeBlue[mode] != light.blue[mode])
 		{
-			verb << "\"Blue\" of " << utils.getLightModeName (i) << " mode changed from " << changeBlue[i] << " to " << light.blue[i] << dendl;
+			verb << "\"Blue\" of " << mode.toString() << " mode changed from " << changeBlue[mode] << " to " << light.blue[mode] << dendl;
 
-			changeBlue[i]   = light.blue[i];
-			flagSendInfo    = true;
-			flagWriteEeprom = true;
+			changeBlue[mode] = light.blue[mode];
+			flagSendInfo     = true;
+			flagWriteEeprom  = true;
 		}
 
-		if (changePower[i] != light.power[i])
+		if (changePower[mode] != light.power[mode])
 		{
-			verb << "\"Power\" of " << utils.getLightModeName (i) << " mode changed from " << changePower[i] << " (" << utils.map (changePower[i], LightSetting::MIN_POWER, LightSetting::MAX_POWER, LightSetting::MIN_PERCENT, LightSetting::MAX_PERCENT) << "%) to " << light.power[i] << " (" << light.getPowerPercent() << "%)" << dendl;
+			verb << "\"Power\" of " << mode.toString() << " mode changed from " << changePower[mode] << " (" << utils.map (changePower[mode], LightSetting::MIN_POWER, LightSetting::MAX_POWER, LightSetting::MIN_PERCENT, LightSetting::MAX_PERCENT) << "%) to " << light.power[mode] << " (" << light.getPowerPercent() << "%)" << dendl;
 
-			changePower[i]  = light.power[i];
-			flagSendInfo    = true;
-			flagWriteEeprom = true;
+			changePower[mode] = light.power[mode];
+			flagSendInfo      = true;
+			flagWriteEeprom   = true;
 		}
 
-		if (changeSpeed[i] != light.speed[i])
+		if (changeSpeed[mode] != light.speed[mode])
 		{
-			verb << "\"Speed\" of " << utils.getLightModeName (i) << " mode changed from " << changeSpeed[i] << " to " << light.speed[i] << dendl;
+			verb << "\"Speed\" of " << mode.toString() << " mode changed from " << changeSpeed[mode] << " to " << light.speed[mode] << dendl;
 
-			changeSpeed[i]  = light.speed[i];
-			flagSendInfo    = true;
-			flagWriteEeprom = true;
+			changeSpeed[mode] = light.speed[mode];
+			flagSendInfo      = true;
+			flagWriteEeprom   = true;
 		}
 	}
 
 	if (changeLightMode != light.mode)
 	{
-		verb << "\"Light mode\" changed from " << utils.getLightModeName (changeLightMode) << " (" << changeLightMode << ") to " << utils.getLightModeName (light.mode) << " (" << light.mode << ")" << dendl;
+		verb << "\"Light mode\" changed from " << changeLightMode.toString() << " (" << changeLightMode << ") to " << light.mode.toString() << " (" << light.mode << ")" << dendl;
 
 		changeLightMode = light.mode;
 		flagSendInfo    = true;
@@ -106,7 +106,7 @@ void VariableChange::check ()
 
 	if (changeSoundMode != sound.mode)
 	{
-		verb << "\"Sound mode\" changed from " << utils.getSoundModeName (changeSoundMode) << " (" << changeSoundMode << ") to " << utils.getSoundModeName (sound.mode) << " (" << sound.mode << ")" << dendl;
+		verb << "\"Sound mode\" changed from " << changeSoundMode.toString() << " (" << changeSoundMode << ") to " << sound.mode.toString() << " (" << sound.mode << ")" << dendl;
 
 		changeSoundMode = sound.mode;
 		flagSendInfo    = true;
@@ -139,7 +139,7 @@ void VariableChange::sendInfo ()
 
 		for (uint8_t complement = bounds.low; complement <= bounds.high; complement++)
 		{
-			String message = utils.getMessageTypeName (type);
+			String message = String ('z') + type.toString(true);
 
 			switch (type) // info
 			{

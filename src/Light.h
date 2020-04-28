@@ -10,8 +10,6 @@
 #include "time.h"
 #include "Types.h"
 
-#define FULL_LINE 0x000000
-
 const uint8_t STRIP_LENGTH = 72;
 const uint8_t PIN_DATA     = 51;
 const uint8_t PIN_CLOCK    = 52;
@@ -20,21 +18,9 @@ const uint8_t PIN_STRIP_CS = 11;
 
 const boolean LIGHT_START_ANIMATION_ENABLE = true;
 
-// TODO : move this elsewhere
-const uint32_t colorList[][6] =
-{
-	{ FULL_LINE, 0xFFFFFF                                         },
-	{ 0xFF0000,  0xFF5500, 0xFFAA00, 0xFFFF00, 0xAAFF00, 0x55FF00 },
-	{ 0x00FF00,  0x00FF55, 0x00FFAA, 0x00FFFF, 0x00AAFF, 0x0055FF },
-	{ 0x0000FF,  0x5500FF, 0xAA00FF, 0xFF00FF, 0xFF00AA, 0xFF0055 }
-};
-
 const uint16_t LIGHT_SA_COLOR_STEP = 6 * 255 / (STRIP_LENGTH / 4);
 
-class Light;
-
-extern Light light;
-
+extern class Light light;
 class Light
 {
 public:

@@ -26,6 +26,8 @@ void SdCard::init ()
 		cardPresent = true;
 
 		openCard();
+
+		flushTimer = millis(); // Prevents from imediatly flushing the card
 	}
 	else
 	{
@@ -39,7 +41,7 @@ void SdCard::openCard ()
 {
 	inf << "SD card detected" << endl;
 
-	delay (2000); // Waiting to make sure the card is properly connected
+	delay (1000); // Waiting to make sure the card is properly connected
 
 	inf << "Initializing... ";
 
@@ -103,7 +105,7 @@ void SdCard::autoDetect ()
 
 			logger.disable (file);
 
-			SD.end(); // Fermeture de la connexion à la carte SD
+			SD.end();
 
 			inf << "Done." << dendl;
 		}
@@ -116,7 +118,7 @@ void SdCard::autoDetect ()
 
 			openCard();
 
-			flushTimer = millis(); // Prenvents from imediatly flushing the card
+			flushTimer = millis(); // Prevents from imediatly flushing the card
 		}
 	}
 }
@@ -126,6 +128,8 @@ void SdCard::autoFlush ()
 	if (millis() - flushTimer >= FILE_FLUSH_TIME * 1000)
 	{
 		file.flush();
+
+		trace << np << dsb (file) << "SD File flushed" << cr;
 
 		flushTimer = millis();
 	}
@@ -146,13 +150,13 @@ boolean SdCard::createLogFile ()
 
 	if (!file)
 	{
-		verb << "Failed!" << dendl;
+		trace << "Failed!" << dendl;
 		err << loadingCreating << " log file failed! No logging..." << dendl;
 
 		return false;
 	}
 
-	verb << "Done. (" << file.name() << ")" << dendl;
+	trace << "Done. (" << file.name() << ")" << dendl;
 
 	return true;
 }

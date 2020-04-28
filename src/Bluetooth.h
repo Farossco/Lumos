@@ -22,6 +22,7 @@ public:
 	void lightConnected ();
 	void lightIdle ();
 	void lightOff ();
+	
 private:
 	BM70 module;
 	uint32_t counter;

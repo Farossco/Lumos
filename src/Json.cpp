@@ -8,6 +8,7 @@
 # include "Sound.h"
 # include "ArduinoLogger.h"
 # include "Utils.h"
+# include "Resources.h"
 
 Json::Json()
 { }
@@ -97,8 +98,8 @@ String Json::getResources ()
 
 void Json::generateResources (String & string, bool pretty)
 {
-	const int colorNRows    = sizeof(colorList) / sizeof(*colorList);
-	const int colorNColumns = sizeof(*colorList) / sizeof(**colorList);
+	const int colorNRows    = sizeof(WebcolorList) / sizeof(*WebcolorList);
+	const int colorNColumns = sizeof(*WebcolorList) / sizeof(**WebcolorList);
 
 	const size_t capacity = 0
 	  + JSON_OBJECT_SIZE (3)                         // root (Status/Message/Light)
@@ -118,8 +119,8 @@ void Json::generateResources (String & string, bool pretty)
 
 	// -- ModeNames -- //
 	JsonArray rootLightModeNames = rootLight.createNestedArray ("ModeNames");
-	for (LightMode i = LightMode::MIN; i <= LightMode::MAX; i++)
-		rootLightModeNames.add (utils.getLightModeName (i));
+	for (LightMode mode = LightMode::MIN; mode <= LightMode::MAX; mode++)
+		rootLightModeNames.add (mode.toString());
 
 	// -- Colors -- //
 	JsonArray rootLightColors = rootLight.createNestedArray ("Colors");
@@ -128,7 +129,7 @@ void Json::generateResources (String & string, bool pretty)
 		JsonArray rootLightColorsElement = rootLightColors.createNestedArray();
 
 		for (int j = 0; j < colorNColumns; j++)
-			rootLightColorsElement.add (colorList[i][j]);
+			rootLightColorsElement.add (WebcolorList[i][j]);
 	}
 
 	if (pretty)

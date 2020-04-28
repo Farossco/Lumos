@@ -81,7 +81,7 @@ void Infrared::read ()
 				light.subtractPower (IR_CHANGE_STEP);
 
 				// [DEBUG] Prints current color and RED, GREEN, BLUE values
-				trace << "Power (" << utils.getLightModeName (light.getMode()) << " mode): " << light.getPowerRaw() << " (" << light.getPowerPercent() << "%)" << endl;
+				trace << "Power (" << light.getMode().toString() << " mode): " << light.getPowerRaw() << " (" << light.getPowerPercent() << "%)" << endl;
 				trace << "RED: " << light.getRed() << " / GREEN : " << light.getGreen() << " / BLUE: " << light.getBlue() << dendl;
 
 				lastIRCode = IRCode;
@@ -94,7 +94,7 @@ void Infrared::read ()
 				light.addPower (IR_CHANGE_STEP);
 
 				// [DEBUG] Prints current color and RED, GREEN, BLUE values
-				trace << "Power (" << utils.getLightModeName (light.getMode()) << " mode): " << light.getPowerRaw() << " (" << light.getPowerPercent() << "%)" << endl;
+				trace << "Power (" << light.getMode().toString() << " mode): " << light.getPowerRaw() << " (" << light.getPowerPercent() << "%)" << endl;
 				trace << "RED: " << light.getRed() << " / GREEN : " << light.getGreen() << " / BLUE: " << light.getBlue() << dendl;
 
 				lastIRCode = IRCode;
@@ -133,11 +133,11 @@ void Infrared::read ()
 			// COLORS
 			default:
 				lastIRCode = 0;
-				for (int i = 0; i < N_COLOR; i++)
-					if (results.value == color[i][1] || results.value == color[i][2])
+				for (int i = 0; i < IR_COLOR_N; i++)
+					if (results.value == IrColorList[i][1] || results.value == IrColorList[i][2])
 					{
 						light.setMode (LightMode::continuous);
-						light.setRgb (color[i][0]);
+						light.setRgb (IrColorList[i][0]);
 					}
 				break;
 		}

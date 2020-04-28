@@ -1,11 +1,16 @@
 #include "Types.h"
+#include "Resources.h"
+
+#define getArrayString(in, array) ((in < (sizeof(array) / sizeof(*array))) ? array[in] : nameUnknown)
 
 /****************************** LightMode ******************************/
 LightMode::LightMode() : _value (MIN){ }
 
-LightMode::LightMode (uint8_t value){ _value = static_cast<LightModeEnum>(value); }
+LightMode::LightMode (uint8_t value){ _value = static_cast<Enum>(value); }
 
-LightMode::operator uint8_t (){ return _value; }
+const String LightMode::toString () const { return getArrayString (_value, lightModeName); }
+
+LightMode::operator uint8_t (){ return static_cast<uint8_t>(_value); }
 
 
 /****************************** LightSetting ******************************/
@@ -33,18 +38,20 @@ LightSetting LightSetting::operator = (LightSetting & copy)
 /****************************** RequestError ******************************/
 RequestError::RequestError (){ }
 
-RequestError::RequestError(uint8_t value){ _value = static_cast<RequestErrorEnum>(value); }
+RequestError::RequestError(uint8_t value){ _value = static_cast<Enum>(value); }
 
-RequestError::operator uint8_t (){ return (uint8_t) _value; }
+RequestError::operator uint8_t (){ return static_cast<uint8_t>(_value); }
+
+const String RequestError::toString () const { return getArrayString (_value, errorName); }
 
 /****************************** RequestType ******************************/
 RequestType::RequestType(){ }
 
-RequestType::RequestType(uint8_t value){ _value = static_cast<RequestTypeEnum>(value); }
+RequestType::RequestType(uint8_t value){ _value = static_cast<Enum>(value); }
 
 RequestType::operator uint8_t (){ return static_cast<uint8_t>(_value); }
 
-RequestType & RequestType::operator ++ (int){ _value = static_cast<RequestTypeEnum>(static_cast<uint8_t>(_value) + 1); return *this; }
+RequestType & RequestType::operator ++ (int){ _value = static_cast<Enum>(static_cast<uint8_t>(_value) + 1); return *this; }
 
 Bounds RequestType::getComplementBounds ()
 {
@@ -116,21 +123,27 @@ ComplementCategory RequestType::getComplementType ()
 	}
 }
 
+const String RequestType::toString (bool shortened) const { return getArrayString (_value, (shortened ? messageTypeName : messageTypeDisplayName)); }
+
+bool operator == (const String & string, const RequestType & type){ return string.equals (type.toString (true)); }
+
 /****************************** Sound Mode ******************************/
 SoundMode::SoundMode(){ }
 
-SoundMode::SoundMode (uint8_t value){ _value = static_cast<SoundModeEnum>(value); }
+SoundMode::SoundMode (uint8_t value){ _value = static_cast<Enum>(value); }
 
 SoundMode::operator uint8_t (){ return (uint8_t) _value; }
 
+const String SoundMode::toString () const { return getArrayString (_value, soundModeName); }
 
 /****************************** Sound Command ******************************/
 SoundCommand::SoundCommand() : _value (MIN){ }
 
-SoundCommand::SoundCommand (uint8_t value){ _value = static_cast<SoundCommandEnum>(value); }
+SoundCommand::SoundCommand (uint8_t value){ _value = static_cast<Enum>(value); }
 
 SoundCommand::operator uint8_t (){ return (uint8_t) _value; }
 
+const String SoundCommand::toString () const { return getArrayString (_value, soundCommandName); }
 
 /****************************** Sound Setting ******************************/
 SoundSetting::SoundSetting(){ }

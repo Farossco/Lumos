@@ -38,6 +38,7 @@ void ArduinoSerial::waitForTime ()
 			lastMillis = millis();
 		}
 	}
+
 	trace << "Time Received" << dendl;
 }
 
@@ -48,7 +49,7 @@ void ArduinoSerial::askForTime ()
 	comSerial.print ("TIMEPLEASEz"); // z is the end character
 }
 
-// Receive data from ESP8266 for Wi-Wi control
+// Receive data from ESP8266 for Wi-Fi control
 void ArduinoSerial::receiveAndDecode ()
 {
 	Stream * serialInput;

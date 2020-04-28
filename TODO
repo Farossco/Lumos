@@ -1,10 +1,11 @@
 - Change modes speed to cycle time
 - colorize light music mode
-- Complement constant -> new enum
-- Try to avoid any loop and blocking possibility in the code (Serial reception, WiFi request, ...) (Almost done)
-- Add color to the Logger output
+- Complement : constant -> new class
 - Review sunset mode
 - Make the Json error response empty
 - Merge ArduinoSerial and ESPSerial
 - Rework Sound.cpp
-- Create a Resources.h file
+- Try writing on SD card with the ESP also
+- Memory.cpp : directly write the object in EEPROM
+- Finish Light modes timings
+- Add new light modes

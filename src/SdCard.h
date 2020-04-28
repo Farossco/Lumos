@@ -1,5 +1,5 @@
-#ifndef SDCARD_H
-#define SDCARD_H
+#ifndef SD_CARD_H
+#define SD_CARD_H
 
 #if defined(LUMOS_ARDUINO_MEGA)
 

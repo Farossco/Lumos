@@ -10,15 +10,14 @@ class Request
 {
 public:
 	Request(String inputString);
-	Request(String prefixString, String complementString, String informationString);
+	Request(const String & prefixString, const String & complementString, const String & informationString);
 	void process ();
 
 	RequestError getError ();
 	RequestType getType ();
 	uint8_t getComplement ();
-	int32_t getInformation ();
+	uint32_t getInformation ();
 
-	const char * getTypeString ();
 	String getComplementString ();
 	String getInformationString ();
 

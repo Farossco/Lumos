@@ -4,31 +4,9 @@
 #include "Request.h"
 #include "Sound.h"
 
-const char nameUnknown[]              = "Unknown";
-const char * lightModeName[]          = { "Continuous", "Flash", "Strobe", "Fade", "Smooth", "Wake up", "Sunset", "Start animation", "Music" };
-const char * soundModeName[]          = { "Free choice" };
-const char * soundCommandName[]       = { "Play random", "Play one", "Play next", "Play previous", "Pause", "Resume", "Play dawn" };
-const char * messageTypeName[]        = { nameUnknown, "TIME", "INFO", "SCO", "TIM", "LON", "RGB", "POW", "LMO", "SPE", "SON", "SMO", "VOL", "DTM" };
-const char * messageTypeDisplayName[] = { nameUnknown, "Time request", "Info request", "Sound command", "Time", "Light On/Off", "RGB", "Light power", "Light mode", "Light mode speed", "Sound On/Off", "Sound mode", "Sound volume", "Dawn time" };
-const char * errorName[]              = { "No error", "Out of bounds", "Unknowm complement", "Unknown request type", "Bad String" };
-
-#define getArrayString(in, array) ((in < (sizeof(array) / sizeof(* array))) ? array[in] : nameUnknown)
-
-const char * Utils::getLightModeName (LightMode mode){ return getArrayString (mode, lightModeName); }
-
-const char * Utils::getSoundModeName (uint8_t mode){ return getArrayString (mode, soundModeName); }
-
-const char * Utils::getSoundCommandName (uint8_t command){ return getArrayString (command, soundCommandName); }
-
-const char * Utils::getMessageTypeName (RequestType requestType){ return getArrayString (requestType, messageTypeName); }
-
-const char * Utils::getMessageTypeDisplayName (RequestType requestType){ return getArrayString (requestType, messageTypeDisplayName); }
-
-const char * Utils::getErrorName (RequestError requestError){ return getArrayString (requestError, errorName); }
-
 char * Utils::getClock ()
 {
-	sprintf (clock, "%.2d/%.2d/%.4d %.2d:%.2d:%.2d::%.3ld", day(), month(), year(), hour(), minute(), second(), (millis() % 1000));
+	sprintf (clock, "%.2d/%.2d/%.4d %.2d:%.2d:%.2d", day(), month(), year(), hour(), minute(), second());
 
 	return clock;
 }
@@ -74,9 +52,9 @@ String Utils::ltos (uint32_t value, int base)
 RequestType Utils::getMessageTypeFromName (String message)
 {
 	// Test correspondance for each type
-	for (RequestType i = RequestType::MIN; i <= RequestType::MAX; i++)
-		if (message == utils.getMessageTypeName (i)) // If there is a match, we return it
-			return i;
+	for (RequestType type = RequestType::MIN; type <= RequestType::MAX; type++)
+		if (message == type) // If there is a match, we return it
+			return type;
 
 	return RequestType::unknown;
 }
