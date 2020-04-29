@@ -9,6 +9,7 @@
 # include "Utils.h"
 # include "TimeLib.h"
 # include "Json.h"
+# include "Wifi.h"
 
 void ESPSerial::init (long debugSerialrate, long comSerialRate)
 {
@@ -43,9 +44,7 @@ void ESPSerial::sendTime ()
 
 	if (timeStatus() != timeNotSet)
 	{
-		String str = "TIM";
-		str += now();
-		str += 'z';
+		String str = String("TIM") + now() + 'z';
 
 		trace << "Sending time to arduino: " << str << endl;
 
@@ -55,7 +54,9 @@ void ESPSerial::sendTime ()
 	}
 	else
 	{
-		warn << "Time not set, not sending time to arduino..." << dendl;
+		warn << "Time not set, new attempt" << dendl;
+
+		wifi.getTime();
 	}
 }
 

@@ -9,6 +9,9 @@
 
 Request::Request(String inputString)
 {
+	while ((inputString[0] < 'A' || inputString[0] > 'Z') && inputString.length() > 0)
+		inputString = inputString.substring (1);
+
 	if (inputString.length() == 0)
 		error = RequestError::emptyString;
 	else

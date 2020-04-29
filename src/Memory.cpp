@@ -5,6 +5,7 @@
 #include "ArduinoLogger.h"
 #include "Alarms.h"
 #include "SdCard.h"
+#include "Sound.h"
 
 Memory::Memory()
 { }
@@ -46,17 +47,11 @@ void Memory::writeLight ()
 
 	trace << "Writing EEPROM for light variables... ";
 
-	// All RGB values
-	for (LightMode i = LightMode::MIN; i <= LightMode::MAX; i++)
-		put (light.getRgb (i));
-
-	// All Light values
-	for (LightMode i = LightMode::MIN; i <= LightMode::MAX; i++)
-		put (light.getPowerRaw (i));
-
-	// All speed values
-	for (LightMode i = LightMode::MIN; i <= LightMode::MAX; i++)
-		put (light.getSpeedRaw (i));
+	put (light.red);
+	put (light.green);
+	put (light.blue);
+	put (light.power);
+	put (light.speed);
 
 	trace << "Done ! (" << _n << " byte" << ((_n > 1) ? "s" : "") << " written)" << dendl;
 }
@@ -68,14 +63,11 @@ bool Memory::readLight ()
 
 	trace << "Reading EEPROM for light variables... ";
 
-	for (LightMode i = LightMode::MIN; i <= LightMode::MAX; i++)
-		light.setRgb (get<uint32_t>(), i);
-
-	for (LightMode i = LightMode::MIN; i <= LightMode::MAX; i++)
-		light.setPowerRaw (get<uint8_t>(), i);
-
-	for (LightMode i = LightMode::MIN; i <= LightMode::MAX; i++)
-		light.setSpeedRaw (get<uint16_t>(), i);
+	light.red   = get<LightSetting>();
+	light.green = get<LightSetting>();
+	light.blue  = get<LightSetting>();
+	light.power = get<LightSetting>();
+	light.speed = get<LightSetting>();
 
 	trace << "Done ! (" << _address - EEPROM_LIGHT_START << " byte" << ((_address > 1) ? "s" : "") << " read)" << dendl;
 
@@ -88,6 +80,8 @@ void Memory::writeSound ()
 
 	trace << "Writing EEPROM for sound variables... ";
 
+	put (sound.volume);
+
 	trace << "Done ! (" << _n << " byte" << ((_n > 1) ? "s" : "") << " written)" << dendl;
 }
 
@@ -97,6 +91,8 @@ bool Memory::readSound ()
 		return true;
 
 	trace << "Reading EEPROM for sound variables... ";
+
+	sound.volume = get<SoundSetting>();
 
 	trace << "Done ! (" << _address - EEPROM_SOUND_START << " byte" << ((_address > 1) ? "s" : "") << " read)" << dendl;
 

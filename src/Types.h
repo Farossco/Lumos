@@ -67,7 +67,7 @@ public:
 	const static uint8_t MAX_PERCENT = 100;             // Maximum seekBar value
 
 	uint8_t & operator [] (LightMode mode);
-	LightSetting operator = (LightSetting & copy);
+	LightSetting operator = (const LightSetting & copy);
 	LightSetting operator = (uint8_t value);
 
 private:

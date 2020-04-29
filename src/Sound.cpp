@@ -1,5 +1,6 @@
 #include "Sound.h"
 #include "ArduinoLogger.h"
+#include "Memory.h"
 
 #if defined(LUMOS_ARDUINO_MEGA)
 
@@ -70,6 +71,13 @@ void Sound::init (HardwareSerial &serial)
 
 	serial.begin (DFP_BAUD_RATE);
 
+	if (memory.readSound())
+	{
+		inf << "This is first launch, sound variables will be initialized to their default values" << endl;
+
+		volume = SoundSetting::DEF_SOUND;
+	}
+
 	if (myDFPlayer.begin (serial))
 	{
 		inf << "Done." << dendl;
@@ -78,10 +86,7 @@ void Sound::init (HardwareSerial &serial)
 	{
 		inf << "Failed!" << endl;
 		err << "DFPlayer communication failed! No sound for this session..." << dendl;
-		return;
 	}
-
-	volume = SoundSetting::DEF_SOUND;
 
 	myDFPlayer.pause();
 	myDFPlayer.volume (volume);

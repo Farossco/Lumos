@@ -18,14 +18,16 @@ VariableChange::VariableChange() : initialized (false)
 void VariableChange::init ()
 {
 	// Initializing to default values
-	changeOn        = light.on;
-	changeLightMode = light.mode;
-	changeSoundMode = sound.mode;
-	changeRed       = light.red;
-	changeGreen     = light.green;
-	changeBlue      = light.blue;
-	changePower     = light.power;
-	changeSpeed     = light.speed;
+	changeLightOn     = light.on;
+	changeLightMode   = light.mode;
+	changeRed         = light.red;
+	changeGreen       = light.green;
+	changeBlue        = light.blue;
+	changeLightPower  = light.power;
+	changeLightSpeed  = light.speed;
+	changeSoundMode   = sound.mode;
+	changeSoundVolume = sound.volume;
+	changeSoundOn     = sound.on;
 
 	changeDawnTime = alarms.getDawnTime();
 
@@ -40,12 +42,12 @@ void VariableChange::check ()
 	boolean flagSendInfo    = false;
 	boolean flagWriteEeprom = false;
 
-	if (changeOn != light.on)
+	if (changeLightOn != light.on)
 	{
-		verb << "\"On\" changed from " << boolalpha << changeOn << " to " << light.on << dendl;
+		verb << "\"Light On\" changed from " << boolalpha << changeLightOn << " to " << light.on << dendl;
 
-		changeOn     = light.on;
-		flagSendInfo = true;
+		changeLightOn = light.on;
+		flagSendInfo  = true;
 	}
 
 	for (LightMode mode = LightMode::MIN; mode <= LightMode::MAX; mode++)
@@ -77,22 +79,22 @@ void VariableChange::check ()
 			flagWriteEeprom  = true;
 		}
 
-		if (changePower[mode] != light.power[mode])
+		if (changeLightPower[mode] != light.power[mode])
 		{
-			verb << "\"Power\" of " << mode.toString() << " mode changed from " << changePower[mode] << " (" << utils.map (changePower[mode], LightSetting::MIN_POWER, LightSetting::MAX_POWER, LightSetting::MIN_PERCENT, LightSetting::MAX_PERCENT) << "%) to " << light.power[mode] << " (" << light.getPowerPercent() << "%)" << dendl;
+			verb << "\"Light Power\" of " << mode.toString() << " mode changed from " << changeLightPower[mode] << " (" << utils.map (changeLightPower[mode], LightSetting::MIN_POWER, LightSetting::MAX_POWER, LightSetting::MIN_PERCENT, LightSetting::MAX_PERCENT) << "%) to " << light.power[mode] << " (" << light.getPowerPercent() << "%)" << dendl;
 
-			changePower[mode] = light.power[mode];
-			flagSendInfo      = true;
-			flagWriteEeprom   = true;
+			changeLightPower[mode] = light.power[mode];
+			flagSendInfo           = true;
+			flagWriteEeprom        = true;
 		}
 
-		if (changeSpeed[mode] != light.speed[mode])
+		if (changeLightSpeed[mode] != light.speed[mode])
 		{
-			verb << "\"Speed\" of " << mode.toString() << " mode changed from " << changeSpeed[mode] << " to " << light.speed[mode] << dendl;
+			verb << "\"Light Speed\" of " << mode.toString() << " mode changed from " << changeLightSpeed[mode] << " to " << light.speed[mode] << dendl;
 
-			changeSpeed[mode] = light.speed[mode];
-			flagSendInfo      = true;
-			flagWriteEeprom   = true;
+			changeLightSpeed[mode] = light.speed[mode];
+			flagSendInfo           = true;
+			flagWriteEeprom        = true;
 		}
 	}
 
@@ -109,6 +111,24 @@ void VariableChange::check ()
 		verb << "\"Sound mode\" changed from " << changeSoundMode.toString() << " (" << changeSoundMode << ") to " << sound.mode.toString() << " (" << sound.mode << ")" << dendl;
 
 		changeSoundMode = sound.mode;
+		flagSendInfo    = true;
+		flagWriteEeprom = true;
+	}
+
+	if (changeSoundVolume != sound.volume)
+	{
+		verb << "\"Sound Volume\" changed from " << changeSoundVolume << " to " << sound.volume << dendl;
+
+		changeSoundVolume = sound.volume;
+		flagSendInfo      = true;
+		flagWriteEeprom   = true;
+	}
+
+	if (changeSoundOn != sound.on)
+	{
+		verb << "\"Sound On\" changed from " << changeSoundOn << " to " << sound.on << dendl;
+
+		changeSoundOn   = sound.on;
 		flagSendInfo    = true;
 		flagWriteEeprom = true;
 	}
@@ -139,7 +159,7 @@ void VariableChange::sendInfo ()
 
 		for (uint8_t complement = bounds.low; complement <= bounds.high; complement++)
 		{
-			String message = String ('z') + type.toString(true);
+			String message = type.toString (true);
 
 			switch (type) // info
 			{

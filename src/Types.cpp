@@ -27,7 +27,7 @@ LightSetting LightSetting::operator = (uint8_t value)
 	return *this;
 }
 
-LightSetting LightSetting::operator = (LightSetting & copy)
+LightSetting LightSetting::operator = (const LightSetting & copy)
 {
 	for (LightMode i = LightMode::MIN; i <= LightMode::MAX; i++)
 		_value[i] = copy._value[i];

@@ -6,6 +6,5 @@
 - Merge ArduinoSerial and ESPSerial
 - Rework Sound.cpp
 - Try writing on SD card with the ESP also
-- Memory.cpp : directly write the object in EEPROM
 - Finish Light modes timings
 - Add new light modes

@@ -32,11 +32,11 @@ public:
 	bool isOff ();
 
 	SoundMode mode;
+	SoundSetting volume;
+	bool on;
 
 private:
-	SoundSetting volume;
 	SoundMode lastMode;
-	bool on;
 
 	#if defined(LUMOS_ARDUINO_MEGA)
 	DFRobotDFPlayerMini myDFPlayer;
