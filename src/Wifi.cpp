@@ -9,7 +9,7 @@
 # include "Wifi.h"
 # include "Request.h"
 # include "Json.h"
-# include "ESPSerial.h"
+# include "SerialCom.h"
 
 void _handleRoot (){ wifi.handleRoot(); }
 
@@ -192,7 +192,7 @@ void Wifi::handleCommand ()
 			trace << "Sending to arduino: Nothing" << dendl;
 		else
 		{
-			String data = request.getType().toString(true) + request.getComplementString() + request.getInformationString() + 'z';
+			String data = request.getType().toString (true) + request.getComplementString() + request.getInformationString() + 'z';
 
 			trace << "Sending to arduino: " << data << endl;
 

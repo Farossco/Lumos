@@ -12,7 +12,7 @@ public:
 	VariableChange();
 	void init ();
 	void check ();
-	void sendInfo ();
+	void sendData ();
 
 private:
 	bool changeLightOn;

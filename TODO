@@ -3,7 +3,6 @@
 - Complement : constant -> new class
 - Review sunset mode
 - Make the Json error response empty
-- Merge ArduinoSerial and ESPSerial
 - Rework Sound.cpp
 - Try writing on SD card with the ESP also
 - Finish Light modes timings

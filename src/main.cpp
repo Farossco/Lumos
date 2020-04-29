@@ -1,12 +1,11 @@
 #include <Time.h>
 #include "SdCard.h"
 #include "VariableChange.h"
-#include "ArduinoSerial.h"
+#include "SerialCom.h"
 #include "Alarms.h"
 #include "Bluetooth.h"
 #include "Light.h"
 #include "Sound.h"
-#include "ESPSerial.h"
 #include "Wifi.h"
 #include "Infrared.h"
 
@@ -31,7 +30,7 @@ void setup ()
 
 	variableChange.init();
 
-	variableChange.sendInfo();
+	variableChange.sendData();
 }
 
 void loop ()
@@ -66,7 +65,7 @@ void setup ()
 
 	serial.sendTime();
 
-	serial.getInfos();
+	serial.getData();
 }
 
 void loop ()

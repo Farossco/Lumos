@@ -10,7 +10,7 @@
 #include "Request.h"
 #include "Utils.h"
 #include "Alarms.h"
-#include "ArduinoSerial.h"
+#include "SerialCom.h"
 
 VariableChange::VariableChange() : initialized (false)
 { }
@@ -143,13 +143,13 @@ void VariableChange::check ()
 	}
 
 	if (flagSendInfo)
-		sendInfo();
+		sendData();
 
 	if (flagWriteEeprom)
 		memory.writeAll();
 } // VariableChange::check
 
-void VariableChange::sendInfo ()
+void VariableChange::sendData ()
 {
 	trace << "Sending variables infos to the ESP8266" << dendl;
 
@@ -209,12 +209,12 @@ void VariableChange::sendInfo ()
 			message += 'z';
 
 			verb << message;
-			serial.comSerial.print (message);
+			serial.comSerialTx.print (message);
 		}
 	}
 
 	verb << dendl;
-} // VariableChange::sendInfo
+} // VariableChange::sendData
 
 VariableChange variableChange = VariableChange();
 
