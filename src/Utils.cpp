@@ -1,8 +1,5 @@
 #include "Utils.h"
 #include <TimeLib.h>
-#include "Light.h"
-#include "Request.h"
-#include "Sound.h"
 
 char * Utils::getClock ()
 {
@@ -47,16 +44,6 @@ String Utils::ltos (uint32_t value, int base)
 	while(value);
 
 	return String (str);
-}
-
-RequestType Utils::getMessageTypeFromName (String message)
-{
-	// Test correspondance for each type
-	for (RequestType type = RequestType::MIN; type <= RequestType::MAX; type++)
-		if (message == type) // If there is a match, we return it
-			return type;
-
-	return RequestType::unknown;
 }
 
 Utils utils = Utils();

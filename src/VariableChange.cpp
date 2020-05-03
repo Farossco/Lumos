@@ -20,11 +20,9 @@ void VariableChange::init ()
 	// Initializing to default values
 	changeLightOn     = light.on;
 	changeLightMode   = light.mode;
-	changeRed         = light.red;
-	changeGreen       = light.green;
-	changeBlue        = light.blue;
-	changeLightPower  = light.power;
-	changeLightSpeed  = light.speed;
+	changeRgbs        = light.rgbs;
+	changeLightPowers = light.powers;
+	changeLightSpeeds = light.speeds;
 	changeSoundMode   = sound.mode;
 	changeSoundVolume = sound.volume;
 	changeSoundOn     = sound.on;
@@ -50,51 +48,34 @@ void VariableChange::check ()
 		flagSendInfo  = true;
 	}
 
+	// TODO : simplify and remove debug
 	for (LightMode mode = LightMode::MIN; mode <= LightMode::MAX; mode++)
 	{
-		if (changeRed[mode] != light.red[mode])
+		if (changeRgbs[mode] != light.rgbs[mode])
 		{
-			verb << "\"Red\" of " << mode.toString() << " mode changed from " << changeRed[mode] << " to " << light.red[mode] << dendl;
+			verb << "\"Rgb\" of " << mode.toString() << " mode changed from 0x" << setfill ('0') << setw (6) << hex << changeRgbs[mode] << " to 0x" << light.rgbs[mode] << dendl;
 
-			changeRed[mode] = light.red[mode];
-			flagSendInfo    = true;
-			flagWriteEeprom = true;
-		}
-
-		if (changeGreen[mode] != light.green[mode])
-		{
-			verb << "\"Green\" of " << mode.toString() << " mode changed from " << changeGreen[mode] << " to " << light.green[mode] << dendl;
-
-			changeGreen[mode] = light.green[mode];
-			flagSendInfo      = true;
-			flagWriteEeprom   = true;
-		}
-
-		if (changeBlue[mode] != light.blue[mode])
-		{
-			verb << "\"Blue\" of " << mode.toString() << " mode changed from " << changeBlue[mode] << " to " << light.blue[mode] << dendl;
-
-			changeBlue[mode] = light.blue[mode];
+			changeRgbs[mode] = light.rgbs[mode];
 			flagSendInfo     = true;
 			flagWriteEeprom  = true;
 		}
 
-		if (changeLightPower[mode] != light.power[mode])
+		if (changeLightPowers[mode] != light.powers[mode])
 		{
-			verb << "\"Light Power\" of " << mode.toString() << " mode changed from " << changeLightPower[mode] << " (" << utils.map (changeLightPower[mode], LightSetting::MIN_POWER, LightSetting::MAX_POWER, LightSetting::MIN_PERCENT, LightSetting::MAX_PERCENT) << "%) to " << light.power[mode] << " (" << light.getPowerPercent() << "%)" << dendl;
+			verb << "\"Light Power\" of " << mode.toString() << " mode changed from " << changeLightPowers[mode] << " (" << changeLightPowers[mode].toPercent() << "%) to " << light.powers[mode] << " (" << light.getPowerPercent() << "%)" << dendl;
 
-			changeLightPower[mode] = light.power[mode];
-			flagSendInfo           = true;
-			flagWriteEeprom        = true;
+			changeLightPowers[mode] = light.powers[mode];
+			flagSendInfo            = true;
+			flagWriteEeprom         = true;
 		}
 
-		if (changeLightSpeed[mode] != light.speed[mode])
+		if (changeLightSpeeds[mode] != light.speeds[mode])
 		{
-			verb << "\"Light Speed\" of " << mode.toString() << " mode changed from " << changeLightSpeed[mode] << " to " << light.speed[mode] << dendl;
+			verb << "\"Light Speed\" of " << mode.toString() << " mode changed from " << changeLightSpeeds[mode] << " to " << light.speeds[mode] << dendl;
 
-			changeLightSpeed[mode] = light.speed[mode];
-			flagSendInfo           = true;
-			flagWriteEeprom        = true;
+			changeLightSpeeds[mode] = light.speeds[mode];
+			flagSendInfo            = true;
+			flagWriteEeprom         = true;
 		}
 	}
 
@@ -163,18 +144,18 @@ void VariableChange::sendData ()
 
 			switch (type) // info
 			{
-				case RequestType::lightRgb:
+				case RequestType::lightModeRgb:
 					message += complement;
-					message += utils.ltos (light.getRgb (complement), HEX);
+					message += utils.ltos (light.getRgb (complement).value(), HEX);
 					break;
 
 				case RequestType::lightOnOff:
 					message += light.isOn();
 					break;
 
-				case RequestType::lightPower:
+				case RequestType::lightModePower:
 					message += complement;
-					message += light.getPowerPercent (complement);
+					message += light.getPowerPercent (complement).value();
 					break;
 
 				case RequestType::lightMode:
@@ -183,7 +164,7 @@ void VariableChange::sendData ()
 
 				case RequestType::lightModeSpeed:
 					message += complement;
-					message += light.getSpeedPercent (complement);
+					message += light.getSpeedPercent (complement).value();
 					break;
 
 				case RequestType::soundMode:
@@ -191,7 +172,7 @@ void VariableChange::sendData ()
 					break;
 
 				case RequestType::soundVolume:
-					message += sound.getVolume();
+					message += sound.getVolume().value();
 					break;
 
 				case RequestType::soundOnOff:

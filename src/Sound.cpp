@@ -16,12 +16,12 @@ Sound::Sound()
 
 #endif
 
-void Sound::setVolume (SoundSetting newVolume)
+void Sound::setVolume (SoundVolume newVolume)
 {
 	volume = newVolume;
 
 	#if defined(LUMOS_ARDUINO_MEGA)
-	myDFPlayer.volume (volume);
+	myDFPlayer.volume (volume.value());
 	#endif
 }
 
@@ -32,15 +32,15 @@ void Sound::setMode (SoundMode newMode)
 
 void Sound::switchOn ()
 {
-	on = true;
+	on = SoundOnOff (true);
 }
 
 void Sound::switchOff ()
 {
-	on = false;
+	on = SoundOnOff (false);
 }
 
-SoundSetting Sound::getVolume ()
+SoundVolume Sound::getVolume ()
 {
 	return volume;
 }
@@ -62,23 +62,23 @@ bool Sound::isOff ()
 
 #if defined(LUMOS_ARDUINO_MEGA)
 
-void Sound::init (HardwareSerial &serial)
+void Sound::init (HardwareSerial &soundSerial)
 {
 	if (!SOUND_ENABLED)
 		return;
-
-	inf << "Initializing sound... ";
-
-	serial.begin (DFP_BAUD_RATE);
 
 	if (memory.readSound())
 	{
 		inf << "This is first launch, sound variables will be initialized to their default values" << endl;
 
-		volume = SoundSetting::DEF_SOUND;
+		volume = SoundVolume::DEF;
 	}
 
-	if (myDFPlayer.begin (serial))
+	inf << "Initializing sound... ";
+
+	soundSerial.begin (DFP_BAUD_RATE);
+
+	if (myDFPlayer.begin (soundSerial))
 	{
 		inf << "Done." << dendl;
 	}
@@ -89,7 +89,7 @@ void Sound::init (HardwareSerial &serial)
 	}
 
 	myDFPlayer.pause();
-	myDFPlayer.volume (volume);
+	setVolume (volume);
 }
 
 void Sound::action ()
@@ -123,43 +123,43 @@ void Sound::command (SoundCommand command, uint32_t information)
 	switch (command)
 	{
 		case SoundCommand::playRandom:
-			myDFPlayer.volume (volume);
+			setVolume (volume);
 			myDFPlayer.randomAll();
 			trace << "Playing random mp3 until stop" << dendl;
 			break;
 
 		case SoundCommand::playOne:
-			myDFPlayer.volume (volume);
+			setVolume (volume);
 			myDFPlayer.playFolder (2, information);
-			trace << "Playing mp3 " << information << " with volume " << volume << "/" << SoundSetting::MAX_SOUND << dendl;
+			trace << "Playing mp3 " << information << " with volume " << volume << "/" << SoundVolume::MAX << dendl;
 			break;
 
 		case SoundCommand::playNext:
-			myDFPlayer.volume (volume);
+			setVolume (volume);
 			myDFPlayer.next();
 			trace << "Playing next mp3" << dendl;
 			break;
 
 		case SoundCommand::playPrevious:
-			myDFPlayer.volume (volume);
+			setVolume (volume);
 			myDFPlayer.previous();
 			trace << "Playing previous mp3" << dendl;
 			break;
 
 		case SoundCommand::pause:
-			myDFPlayer.volume (volume);
+			setVolume (volume);
 			myDFPlayer.pause();
 			trace << "Pausing mp3 play" << dendl;
 			break;
 
 		case SoundCommand::resume:
-			myDFPlayer.volume (volume);
+			setVolume (volume);
 			myDFPlayer.start();
 			trace << "Resuming mp3 play" << dendl;
 			break;
 
 		case SoundCommand::playDawn:
-			myDFPlayer.volume (volume);
+			setVolume (volume);
 			myDFPlayer.playFolder (1, 1);
 			trace << "Playing dawn mp3" << dendl;
 			break;

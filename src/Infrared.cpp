@@ -12,8 +12,6 @@ Infrared::Infrared() : irrecv (0)
 
 void Infrared::init (int pin)
 {
-	inf << "Initializing infrared... ";
-
 	pinMode (pin, INPUT);
 
 	irrecv = IRrecv (pin);
@@ -22,7 +20,7 @@ void Infrared::init (int pin)
 
 	enabled = true;
 
-	inf << "Done." << dendl;
+	inf << "Infrared initialized." << dendl;
 }
 
 // Read the in-comming IR signal if present

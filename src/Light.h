@@ -26,33 +26,31 @@ class Light
 public:
 	Light();
 
-	void lightAll (uint8_t red, uint8_t green, uint8_t blue);
-	void lightAll (uint32_t rgb);
+	void lightAll (LightColor red, LightColor green, LightColor blue);
+	void lightAll (LightRgb rgb);
 
-	void setRed (uint8_t newRed, LightMode affectedMod             = light.mode);
-	void setGreen (uint8_t newGreen, LightMode affectedMod         = light.mode);
-	void setBlue (uint8_t newBlue, LightMode affectedMod           = light.mode);
-	void setRgb (uint32_t newRgb, LightMode affectedMod            = light.mode);
-	void setPowerRaw (uint8_t newPower, LightMode affectedMod      = light.mode);
-	void setPowerPercent (uint8_t newPower, LightMode affectedMod  = light.mode);
-	void setSpeedRaw (uint16_t newSpeed, LightMode affectedMod     = light.mode);
-	void setSpeedPercent (uint16_t newSpeed, LightMode affectedMod = light.mode);
+	void setRed (LightColor newRed, LightMode affectedMod     = light.mode);
+	void setGreen (LightColor newGreen, LightMode affectedMod = light.mode);
+	void setBlue (LightColor newBlue, LightMode affectedMod   = light.mode);
+	void setRgb (LightRgb newRgb, LightMode affectedMod       = light.mode);
+	void setPower (Percentage newPower, LightMode affectedMod = light.mode);
+	void setSpeed (Percentage newSpeed, LightMode affectedMod = light.mode);
 
 	void setMode (LightMode newMode);
 	void switchOn ();
 	void switchOff ();
 
-	uint8_t addPower (uint8_t powerAdd, LightMode affectedMod      = light.mode);
-	uint8_t subtractPower (uint8_t powerSub, LightMode affectedMod = light.mode);
+	void addPower (Percentage powerAdd, LightMode affectedMod      = light.mode);
+	void subtractPower (Percentage powerSub, LightMode affectedMod = light.mode);
 
-	uint8_t getRed (LightMode affectedMod          = light.mode);
-	uint8_t getGreen (LightMode affectedMod        = light.mode);
-	uint8_t getBlue (LightMode affectedMod         = light.mode);
-	uint32_t getRgb (LightMode affectedMod         = light.mode);
-	uint8_t getPowerRaw (LightMode affectedMod     = light.mode);
-	uint8_t getPowerPercent (LightMode affectedMod = light.mode);
-	uint8_t getSpeedRaw (LightMode affectedMod     = light.mode);
-	uint8_t getSpeedPercent (LightMode affectedMod = light.mode);
+	LightColor getRed (LightMode affectedMod          = light.mode);
+	LightColor getGreen (LightMode affectedMod        = light.mode);
+	LightColor getBlue (LightMode affectedMod         = light.mode);
+	LightRgb getRgb (LightMode affectedMod            = light.mode);
+	LightPower getPowerRaw (LightMode affectedMod     = light.mode);
+	Percentage getPowerPercent (LightMode affectedMod = light.mode);
+	LightSpeed getSpeedRaw (LightMode affectedMod     = light.mode);
+	Percentage getSpeedPercent (LightMode affectedMod = light.mode);
 	LightMode getMode ();
 
 	bool isOn ();
@@ -62,13 +60,12 @@ public:
 	void reset ();
 	void action (); // Perform mode actions
 
-	bool on;            // If the leds are ON or OFF (True: ON / False: OFF)
-	LightSetting power; // Current lightning power for each mode (from MINPOWER to MAXPOWER)
-	LightSetting speed; // Current mode speed for each mode
-	LightSetting red;   // Current red value for each mode including lightning power (From 0 to 255)
-	LightSetting green; // Current green value for each mode including lightning power (From 0 to 255)
-	LightSetting blue;  // Current blue value for each mode including lightning power (From 0 to 255)
-	LightMode mode;     // Current lighting mode (MOD_***)
+	LightOnOff on;            // If the leds are ON or OFF (True: ON / False: OFF)
+	LightPowerArray powers;   // Current lightning power for each mode
+	LightSpeedArray speeds;   // Current mode speed for each mode
+	LightRgbArray rgbs;       // Current RGB value for each mode
+	LightTimingArray timings; // Current mode timing for each mode
+	LightMode mode;           // Current lighting mode
 
 private:
 	void show ();

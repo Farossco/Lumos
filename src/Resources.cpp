@@ -9,21 +9,21 @@ const char lightModeName3[] STORAGE = "Fade";
 const char lightModeName4[] STORAGE = "Smooth";
 const char lightModeName5[] STORAGE = "Wake up";
 const char lightModeName6[] STORAGE = "Sunset";
-const char lightModeName7[] STORAGE = "Start animation";
+const char lightModeName7[] STORAGE = "Start Animation";
 const char lightModeName8[] STORAGE = "Music";
 
 const char soundModeName0[] STORAGE = "Free choice";
 
-const char soundCommandName0[] STORAGE = "Play random";
-const char soundCommandName1[] STORAGE = "Play one";
-const char soundCommandName2[] STORAGE = "Play next";
-const char soundCommandName3[] STORAGE = "Play previous";
+const char soundCommandName0[] STORAGE = "Play Random";
+const char soundCommandName1[] STORAGE = "Play Pne";
+const char soundCommandName2[] STORAGE = "Play Next";
+const char soundCommandName3[] STORAGE = "Play Previous";
 const char soundCommandName4[] STORAGE = "Pause";
 const char soundCommandName5[] STORAGE = "Resume";
-const char soundCommandName6[] STORAGE = "Play dawn";
+const char soundCommandName6[] STORAGE = "Play Dawn";
 
-const char messageTypeName1[] STORAGE = "TIME";
-const char messageTypeName2[] STORAGE = "INFO";
+const char messageTypeName1[] STORAGE = "RQT";
+const char messageTypeName2[] STORAGE = "RQD";
 const char messageTypeName3[] STORAGE = "SCO";
 const char messageTypeName4[] STORAGE = "TIM";
 const char messageTypeName5[] STORAGE = "LON";
@@ -36,24 +36,24 @@ const char messageTypeName11[] STORAGE = "SMO";
 const char messageTypeName12[] STORAGE = "VOL";
 const char messageTypeName13[] STORAGE = "DTM";
 
-const char messageTypeDisplayName1[] STORAGE = "Time request";
-const char messageTypeDisplayName2[] STORAGE = "Info request";
-const char messageTypeDisplayName3[] STORAGE = "Sound command";
+const char messageTypeDisplayName1[] STORAGE = "Time Tequest";
+const char messageTypeDisplayName2[] STORAGE = "Data Request";
+const char messageTypeDisplayName3[] STORAGE = "Sound Command";
 const char messageTypeDisplayName4[] STORAGE = "Time";
 const char messageTypeDisplayName5[] STORAGE = "Light On/Off";
-const char messageTypeDisplayName6[] STORAGE = "RGB";
-const char messageTypeDisplayName7[] STORAGE = "Light power";
-const char messageTypeDisplayName8[] STORAGE = "Light mode";
-const char messageTypeDisplayName9[] STORAGE = "Light mode speed";
+const char messageTypeDisplayName6[] STORAGE = "Light Mode RGB";
+const char messageTypeDisplayName7[] STORAGE = "Light Mode Power";
+const char messageTypeDisplayName8[] STORAGE = "Light Mode";
+const char messageTypeDisplayName9[] STORAGE = "Light Mode Speed";
 const char messageTypeDisplayName10[] STORAGE = "Sound On/Off";
-const char messageTypeDisplayName11[] STORAGE = "Sound mode";
-const char messageTypeDisplayName12[] STORAGE = "Sound volume";
-const char messageTypeDisplayName13[] STORAGE = "Dawn time";
+const char messageTypeDisplayName11[] STORAGE = "Sound Mode";
+const char messageTypeDisplayName12[] STORAGE = "Sound Volume";
+const char messageTypeDisplayName13[] STORAGE = "Dawn Time";
 
 const char errorName0[] STORAGE = "No error";
-const char errorName1[] STORAGE = "Out of bounds";
-const char errorName2[] STORAGE = "Unknowm complement";
-const char errorName3[] STORAGE = "Unknown request type";
+const char errorName1[] STORAGE = "Incorrect Value";
+const char errorName2[] STORAGE = "Incorrect Complement";
+const char errorName3[] STORAGE = "Incorrect Request Type";
 const char errorName4[] STORAGE = "Empty String";
 
 const FlashString nameUnknown                            = Flash (nameUnknown0);

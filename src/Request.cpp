@@ -18,68 +18,78 @@ Request::Request(String inputString)
 	{
 		error = RequestError::none;
 
-		if (inputString.startsWith ("INFO") )
-			type = RequestType::requestInfos;
-		else if (inputString.startsWith ("TIME"))
-			type = RequestType::requestTime;
+		type = inputString.substring (0, 3);
+
+		// [DEBUG] Printing full word, world length and information type
+		trace << "Word: " << inputString << endl;
+		verb << "Length: " << inputString.length() << endl;
+		verb << "Type: " << type.toString() << " (" << type << ")" << endl;
+
+		if (type == RequestType::unknown)
+			error = RequestError::incorrectType;
 		else
 		{
-			type = utils.getMessageTypeFromName (inputString.substring (0, 3));
+			Bounds infoBounds = type.getInformationBounds();
 
-			// [DEBUG] Printing full word, world length and information type
-			trace << "Word: " << inputString << endl;
-			verb << "Length: " << inputString.length() << endl;
-			verb << "Type: " << type.toString() << " (" << type << ")" << endl;
+			inputString = inputString.substring (3); // Remove 3 first caracteres of the array (The prefix)
 
-			if (type == RequestType::unknown)
-				error = RequestError::unknownType;
-			else
+			// If the data type needs a complement
+			if (type.getComplementType() != ComplementCategory::none)
 			{
-				inputString = inputString.substring (3); // Remove 3 first caracteres of the array (The prefix)
+				Bounds compBounds = type.getComplementBounds();
 
-				// If the data type needs a complement
-				if (type.getComplementType() != ComplementCategory::none)
-				{
-					Bounds bounds = type.getComplementBounds();
+				complement  = inputString.charAt (0) - '0'; // Store the complement
+				inputString = inputString.substring (1);    // Remove first char of the array (the complement)
 
-					complement  = inputString.charAt (0) - '0'; // Store the complement
-					inputString = inputString.substring (1);    // Remove first char of the array (the complement)
+				if (type.getComplementType() == ComplementCategory::lightMode)
+					verb << "Light mode: " << LightMode (complement).toString() << " (" << complement << ")" << endl;
+				else if (type.getComplementType() == ComplementCategory::soundCommand)
+					verb << "Command type: " << SoundCommand (complement).toString() << " (" << complement << ")" << endl;
 
-					if (type.getComplementType() == ComplementCategory::lightMode)
-						verb << "Light mode: " << LightMode (complement).toString() << " (" << complement << ")" << endl;
-					else if (type.getComplementType() == ComplementCategory::soundCommand)
-						verb << "Command type: " << SoundCommand (complement).toString() << " (" << complement << ")" << endl;
-
-					if (complement < bounds.low || complement > bounds.high)
-						error = RequestError::unknownComplement;
-				}
-
-				information = strtol (inputString.c_str(), NULL, type == RequestType::lightRgb ? 16 : 10);
-
-				verb << type.toString() << ": " << inputString << endl;
-				verb << type.toString() << " (decoded): " << ((type == RequestType::lightRgb) ? hex : dec) << showbase << uppercase << information << endl;
+				if (complement < compBounds.low || complement > compBounds.high)
+					error = RequestError::incorrectComplement;
 			}
-			if (error)
-				trace << np << endl;
+
+			information = strtol (inputString.c_str(), NULL, type == RequestType::lightModeRgb ? 16 : 10);
+
+			verb << type.toString() << ": " << inputString << endl;
+			verb << type.toString() << " (decoded): " << ((type == RequestType::lightModeRgb) ? hex : dec) << showbase << uppercase << information << endl;
+
+			if (information < infoBounds.low || information > infoBounds.high)
+				error = RequestError::incorrectValue;
 		}
+		if (error)
+			err << "Error : " << error.toString() << " (" << error << ")" << endl;
 	}
 }
 
 Request::Request(const String & prefixString, const String & complementString, const String & informationString)
 {
-	if (prefixString.length() <= 0)
+	if (prefixString.length() == 0)
 		error = RequestError::emptyString;
 	else
 	{
-		if ((type = utils.getMessageTypeFromName (prefixString)) != RequestType::unknown)
-			error = RequestError::none;
+		type = prefixString;
 
-		if (prefixString == "INFO")
-			type = RequestType::requestInfos;
+		if (type == RequestType::unknown)
+			error = RequestError::incorrectType;
 		else
 		{
-			complement  = complementString.toInt();
-			information = strtol (informationString.c_str(), NULL, type == RequestType::lightRgb ? 16 : 10);
+			Bounds infoBounds = type.getInformationBounds();
+			Bounds compBounds = type.getComplementBounds();
+
+			if (type.getComplementType() != ComplementCategory::none)
+			{
+				complement = complementString.toInt();
+
+				if (complementString == "" || complement < compBounds.low || complement > compBounds.high)
+					error = RequestError::incorrectComplement;
+			}
+
+			information = strtol (informationString.c_str(), NULL, type == RequestType::lightModeRgb ? 16 : 10);
+
+			if (type != RequestType::requestData && (informationString == "" || information < infoBounds.low || information > infoBounds.high))
+				error = RequestError::incorrectValue;
 		}
 	}
 }
@@ -94,64 +104,59 @@ void Request::process ()
 {
 	if (!error)
 	{
-		Bounds bounds = type.getInformationBounds();
+		switch (type)
+		{
+			case RequestType::provideTime:
+				setTime (information);
+				break;
 
-		if (information < bounds.low || information > bounds.high)
-			error = RequestError::outOfBound;
-		else
-			switch (type)
-			{
-				case RequestType::provideTime:
-					setTime (information);
-					break;
+			case RequestType::lightModeRgb:
+				light.setRgb (information, complement);
+				break;
 
-				case RequestType::lightRgb:
-					light.setRgb (information, complement);
-					break;
+			case RequestType::lightOnOff:
+				(information) ? light.switchOn() : light.switchOff();
+				break;
 
-				case RequestType::lightOnOff:
-					(information) ? light.switchOn() : light.switchOff();
-					break;
+			case RequestType::lightModePower:
+				light.setPower (information, complement);
+				break;
 
-				case RequestType::lightPower:
-					light.setPowerPercent (information, complement);
-					break;
+			case RequestType::lightMode:
+				light.setMode (information);
+				break;
 
-				case RequestType::lightMode:
-					light.setMode (information);
-					break;
+			case RequestType::lightModeSpeed:
+				light.setSpeed (information, complement);
+				break;
 
-				case RequestType::lightModeSpeed:
-					light.setSpeedPercent (information, complement);
-					break;
+			case RequestType::soundMode:
+				sound.setMode (information);
+				break;
 
-				case RequestType::soundMode:
-					sound.setMode (information);
-					break;
+			case RequestType::soundVolume:
+				sound.setVolume (information);
+				break;
 
-				case RequestType::soundVolume:
-					sound.setVolume (information);
-					break;
+			case RequestType::soundOnOff:
+				(information) ? sound.switchOn() : sound.switchOff();
+				break;
 
-				case RequestType::soundOnOff:
-					(information) ? sound.switchOn() : sound.switchOff();
-					break;
+			case RequestType::dawnTime:
+				alarms.setDawnTime (information);
+				break;
 
-				case RequestType::dawnTime:
-					alarms.setDawnTime (information);
-					break;
-
-				case RequestType::soundCommand:
-					#if defined(LUMOS_ARDUINO_MEGA)
-					sound.command (complement, information);
-					#endif
-					break;
-			}
+			case RequestType::soundCommand:
+				#if defined(LUMOS_ARDUINO_MEGA)
+				sound.command (complement, information); // TODO : Do this in Sound.cpp (Sound mode action)
+				#endif
+				break;
+		}
 
 		displayDebug();
 	}
 	else if (error != RequestError::emptyString)
-		warn << "Variable has not been changed (" << error.toString() << ")" << dendl;
+		trace << np << endl;
 } // Request::process
 
 void Request::displayDebug ()
@@ -163,7 +168,7 @@ void Request::displayDebug ()
 			trace << "Time (Current value) (readable): " << utils.getClock() << dendl;
 			break;
 
-		case RequestType::lightRgb:
+		case RequestType::lightModeRgb:
 			trace << "RGB of " << LightMode (complement).toString() << " (Current value): " << hex << light.getRgb (complement) << endl;
 			verb << "Red       (Current value): " << light.getRed (complement) << endl;
 			verb << "Green     (Current value): " << light.getGreen (complement) << endl;
@@ -175,7 +180,7 @@ void Request::displayDebug ()
 			trace << "Light On/Off (Current value): " << boolalpha << light.isOn() << dendl;
 			break;
 
-		case RequestType::lightPower:
+		case RequestType::lightModePower:
 			trace << "Power of " << LightMode (complement).toString() << " (Current value): " << light.getPowerRaw (complement) << " (" << light.getPowerPercent() << "%)" << dendl;
 			break;
 
@@ -185,8 +190,8 @@ void Request::displayDebug ()
 			break;
 
 		case RequestType::lightModeSpeed:
-			verb << "Min Speed: " << LightSetting::MIN_SPEED << endl;
-			verb << "Max Speed: " << LightSetting::MAX_SPEED << endl;
+			verb << "Min Speed: " << LightSpeed::MIN << endl;
+			verb << "Max Speed: " << LightSpeed::MAX << endl;
 			trace << "Speed of " << LightMode (complement).toString() << " (Current value): " << light.getSpeedRaw (complement) << " (" << light.getSpeedPercent() << "%)" << dendl;
 			break;
 
@@ -231,5 +236,5 @@ String Request::getComplementString ()
 
 String Request::getInformationString ()
 {
-	return utils.ltos (information, type == RequestType::lightRgb ? HEX : DEC);
+	return utils.ltos (information, type == RequestType::lightModeRgb ? HEX : DEC);
 }

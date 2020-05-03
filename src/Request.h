@@ -22,7 +22,7 @@ public:
 	String getInformationString ();
 
 private:
-	RequestError error   = RequestError::unknownType;
+	RequestError error   = RequestError::none;
 	RequestType type     = RequestType::unknown;
 	uint8_t complement   = 0;
 	uint32_t information = 0;

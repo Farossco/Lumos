@@ -1,5 +1,7 @@
 #include "Types.h"
 #include "Resources.h"
+#include "Utils.h"
+#include "ArduinoLogger.h"
 
 #define getArrayString(in, array) ((in < (sizeof(array) / sizeof(*array))) ? array[in] : nameUnknown)
 
@@ -13,27 +15,9 @@ const String LightMode::toString () const { return getArrayString (_value, light
 LightMode::operator uint8_t (){ return static_cast<uint8_t>(_value); }
 
 
-/****************************** LightSetting ******************************/
-uint8_t & LightSetting::operator [] (LightMode mode)
-{
-	return _value[constrain (mode, LightMode::MIN, LightMode::MAX)];
-}
+/****************************** Percentage ******************************/
+Percentage::Percentage (uint8_t value){ _value = constrain (value, MIN, MAX); }
 
-LightSetting LightSetting::operator = (uint8_t value)
-{
-	for (LightMode i = LightMode::MIN; i <= LightMode::MAX; i++)
-		_value[i] = value;
-
-	return *this;
-}
-
-LightSetting LightSetting::operator = (const LightSetting & copy)
-{
-	for (LightMode i = LightMode::MIN; i <= LightMode::MAX; i++)
-		_value[i] = copy._value[i];
-
-	return *this;
-}
 
 /****************************** RequestError ******************************/
 RequestError::RequestError (){ }
@@ -43,6 +27,7 @@ RequestError::RequestError(uint8_t value){ _value = static_cast<Enum>(value); }
 RequestError::operator uint8_t (){ return static_cast<uint8_t>(_value); }
 
 const String RequestError::toString () const { return getArrayString (_value, errorName); }
+
 
 /****************************** RequestType ******************************/
 RequestType::RequestType(){ }
@@ -57,7 +42,7 @@ Bounds RequestType::getComplementBounds ()
 {
 	switch (_value)
 	{
-		case lightRgb: case lightPower: case lightModeSpeed:
+		case lightModeRgb: case lightModePower: case lightModeSpeed:
 			return { LightMode::MIN, LightMode::MAX };
 
 		case soundCommand:
@@ -72,22 +57,22 @@ Bounds RequestType::getInformationBounds ()
 {
 	switch (_value)
 	{
-		case unknown: case requestTime: case requestInfos: case N:
+		case unknown: case requestTime: case requestData: case N:
 			return { 0, 0 };
 
 		case provideTime:
 			return { 0, -1UL };
 
-		case lightRgb:
-			return { LightSetting::MIN_RGB, LightSetting::MAX_RGB };
+		case lightModeRgb:
+			return { LightRgb::MIN, LightRgb::MAX };
 
 		case lightOnOff:
 		case soundOnOff:
 			return{ 0, 1 };
 
-		case lightPower:
+		case lightModePower:
 		case lightModeSpeed:
-			return { LightSetting::MIN_PERCENT, LightSetting::MAX_PERCENT };
+			return { Percentage::MIN, Percentage::MAX };
 
 		case lightMode:
 			return { LightMode::MIN, LightMode::MAX };
@@ -96,7 +81,7 @@ Bounds RequestType::getInformationBounds ()
 			return { SoundMode::MIN, SoundMode::MAX };
 
 		case soundVolume:
-			return { SoundSetting::MIN_SOUND, SoundSetting::MAX_SOUND };
+			return { SoundVolume::MIN, SoundVolume::MAX };
 
 		case soundCommand:
 			return { SoundCommand::MIN, SoundCommand::MAX };
@@ -112,7 +97,7 @@ ComplementCategory RequestType::getComplementType ()
 {
 	switch (_value)
 	{
-		case lightRgb: case lightPower: case lightModeSpeed:
+		case lightModeRgb: case lightModePower: case lightModeSpeed:
 			return ComplementCategory::lightMode;
 
 		case soundCommand:
@@ -125,7 +110,18 @@ ComplementCategory RequestType::getComplementType ()
 
 const String RequestType::toString (bool shortened) const { return getArrayString (_value, (shortened ? messageTypeName : messageTypeDisplayName)); }
 
+RequestType RequestType::operator = (const String & typeString)
+{
+	// Test correspondance for each type
+	for (RequestType type = MIN; type <= MAX; type++)
+		if (typeString == type) // If there is a match, we return it
+			return *this = type;
+
+	return *this = RequestType::unknown;
+}
+
 bool operator == (const String & string, const RequestType & type){ return string.equals (type.toString (true)); }
+
 
 /****************************** Sound Mode ******************************/
 SoundMode::SoundMode(){ }
@@ -136,6 +132,7 @@ SoundMode::operator uint8_t (){ return (uint8_t) _value; }
 
 const String SoundMode::toString () const { return getArrayString (_value, soundModeName); }
 
+
 /****************************** Sound Command ******************************/
 SoundCommand::SoundCommand() : _value (MIN){ }
 
@@ -144,10 +141,3 @@ SoundCommand::SoundCommand (uint8_t value){ _value = static_cast<Enum>(value); }
 SoundCommand::operator uint8_t (){ return (uint8_t) _value; }
 
 const String SoundCommand::toString () const { return getArrayString (_value, soundCommandName); }
-
-/****************************** Sound Setting ******************************/
-SoundSetting::SoundSetting(){ }
-
-SoundSetting::SoundSetting (uint8_t value){ _value = value; }
-
-SoundSetting::operator uint8_t (){ return _value; }

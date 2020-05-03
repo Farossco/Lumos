@@ -56,7 +56,7 @@ void SerialCom::receiveAndDecode ()
 
 		if (request.getType() == RequestType::requestTime)
 			serial.sendTime();
-		else if (request.getType() == RequestType::requestInfos)
+		else if (request.getType() == RequestType::requestData)
 			serial.sendData();
 	}
 }
@@ -93,8 +93,8 @@ void SerialCom::sendTime ()
 // Getting time from the ESP8266 (via internet)
 void SerialCom::getTime ()
 {
-	trace << "Kindly asking ESP for time" << dendl;
-	comSerialTx.print ("TIMEPLEASEz"); // z is the end character
+	trace << "Time Request sent" << dendl;
+	comSerialTx.print (RequestType (RequestType::requestTime).toString(true) + 'z'); // z is the end character
 }
 
 void SerialCom::sendData ()

@@ -55,7 +55,7 @@ void Light::continuous ()
 		inf << "Entering Default mode" << dendl;
 	}
 
-	lightAll (red[mode], green[mode], blue[mode]);
+	lightAll (rgbs[mode]);
 }
 
 // Flash mode
@@ -70,7 +70,7 @@ void Light::flash ()
 		inf << "Entering Flash mode" << dendl;
 	}
 
-	if (millis() - delayCount >= 1000U - speed[mode] * 10)
+	if (millis() - delayCount >= 1000U - speeds[mode] * 10)
 	{
 		if (state >= 2)
 			state = 0;
@@ -95,7 +95,7 @@ void Light::strobe ()
 		inf << "Entering Strobe mode" << dendl;
 	}
 
-	if (millis() - delayCount >= 1000U - speed[mode] * 10)
+	if (millis() - delayCount >= 1000U - speeds[mode] * 10)
 	{
 		state = !state; // Inverting state
 
@@ -103,7 +103,7 @@ void Light::strobe ()
 	}
 
 	if (state)
-		lightAll (red[mode], green[mode], blue[mode]);
+		lightAll (rgbs[mode]);
 	else
 		lightAll (0x000000);
 }
@@ -121,12 +121,12 @@ void Light::fade ()
 		inf << "Entering Fade mode" << dendl;
 	}
 
-	if (millis() - delayCount >= (1000U - speed[mode] * 10) / 10)
+	if (millis() - delayCount >= (1000U - speeds[mode] * 10) / 10)
 	{
-		if (counter >= LightSetting::MAX_POWER)      // If color reach white, we start to decrease
-			state = 0;                               // Decreasing state
-		else if (counter <= LightSetting::MAX_POWER) // If color reach black, we start to increase
-			state = 1;                               // Increasing state
+		if (counter >= LightPower::MAX)      // If color reach white, we start to decrease
+			state = 0;                       // Decreasing state
+		else if (counter <= LightPower::MIN) // If color reach black, we start to increase
+			state = 1;                       // Increasing state
 
 		if (state)
 			counter++;  // Increasing all colors
@@ -136,7 +136,7 @@ void Light::fade ()
 		delayCount = millis();
 	}
 
-	lightAll (red[mode] * (counter / (float) LightSetting::MAX_POWER), green[mode] * (counter / (float) LightSetting::MAX_POWER), blue[mode] * (counter / (float)  LightSetting::MAX_POWER));
+	lightAll (getRed (mode) * (counter / (float) LightPower::MAX), getGreen (mode) * (counter / (float) LightPower::MAX), getBlue (mode) * (counter / (float)  LightPower::MAX));
 }
 
 // Smooth Mode
@@ -154,7 +154,7 @@ void Light::smooth ()
 		inf << "Entering Smooth mode" << dendl;
 	}
 
-	if (millis() - delayCount >= (1000U - speed[mode] * 10) / 8)
+	if (millis() - delayCount >= (1000U - speeds[mode] * 10) / 8)
 	{
 		switch (state)
 		{
@@ -184,27 +184,25 @@ void Light::dawn ()
 
 		lightAll (0x000000);
 
-		inf << "Entering Dawn mode for " << speed[mode] << " min." << dendl;
+		inf << "Entering Dawn mode for " << speeds[mode] << " min." << dendl;
 	}
 
-	const uint32_t step = speed[mode] / (STRIP_LENGTH / 2. * LightSetting::MAX_POWER / 60000.);
+	const uint32_t step = speeds[mode] / (STRIP_LENGTH / 2. * LightPower::MAX / 60000.);
 
 	if (millis() - delayCount >= step)
 	{
-		strip.setPixelColor ((STRIP_LENGTH / 2 + counter), getRed (mode) * (counter2 / (float) LightSetting::MAX_POWER), getGreen (mode) * (counter2 / (float) LightSetting::MAX_POWER), getBlue (mode) * (counter2 / (float) LightSetting::MAX_POWER));
-		strip.setPixelColor ((STRIP_LENGTH / 2 - counter), getRed (mode) * (counter2 / (float) LightSetting::MAX_POWER), getGreen (mode) * (counter2 / (float) LightSetting::MAX_POWER), getBlue (mode) * (counter2 / (float) LightSetting::MAX_POWER));
+		strip.setPixelColor ((STRIP_LENGTH / 2 + counter), getRed (mode) * (counter2 / (float) LightPower::MAX), getGreen (mode) * (counter2 / (float) LightPower::MAX), getBlue (mode) * (counter2 / (float) LightPower::MAX));
+		strip.setPixelColor ((STRIP_LENGTH / 2 - counter), getRed (mode) * (counter2 / (float) LightPower::MAX), getGreen (mode) * (counter2 / (float) LightPower::MAX), getBlue (mode) * (counter2 / (float) LightPower::MAX));
 
 		if (counter >= (STRIP_LENGTH / 2.))
 		{
 			counter = 0;
 
-			if (counter2 >= LightSetting::MAX_POWER)
+			if (counter2 >= LightPower::MAX)
 			{
-				red [LightMode::continuous]  = red [mode];            // Transfer RGB final value to default mode
-				green[LightMode::continuous] = green[mode];           // Transfer RGB final value to default mode
-				blue[LightMode::continuous]  = blue[mode];            // Transfer RGB final value to default mode
-				power[LightMode::continuous] = power[mode];           // Same for power
-				mode                         = LightMode::continuous; // Leaving the mode
+				rgbs [LightMode::continuous]  = rgbs [mode];           // Transfer RGB final value to default mode
+				powers[LightMode::continuous] = powers[mode];          // Same for power
+				mode                          = LightMode::continuous; // Leaving the mode
 			}
 			else
 			{
@@ -228,17 +226,17 @@ void Light::sunset ()
 		delayCount = millis(); // Reseting milliseconds counter
 		lastMode   = mode;     // Setting lastMode so we don't call init again
 		counter    = 0;
-		counter2   = LightSetting::MAX_POWER;
+		counter2   = LightPower::MAX;
 		state      = 0;
 
 		lightAll (getRgb (mode));
 
-		inf << "Entering Sunset mode for " << speed[mode] << " min." << dendl;
+		inf << "Entering Sunset mode for " << speeds[mode] << " min." << dendl;
 	}
 
 	if (state == 0)
 	{
-		if ((millis() - delayCount) >= ((uint64_t) speed[mode]) * 60000UL)
+		if ((millis() - delayCount) >= (uint64_t) (speeds[mode] * 60000UL))
 		{
 			state = 1;
 			trace << "Starting to shut down. Completely off in 1 minute" << dendl;
@@ -246,18 +244,18 @@ void Light::sunset ()
 	}
 	else if (state == 1)
 	{
-		const uint32_t step = 60000.0 / (((uint64_t) STRIP_LENGTH / 2.) * ((uint64_t) LightSetting::MAX_POWER));
+		const uint32_t step = 60000.0 / (STRIP_LENGTH / 2. * LightPower::MAX);
 
 		if (millis() - delayCount >= step)
 		{
-			strip.setPixelColor ((STRIP_LENGTH / 2 + counter), getRed (mode) * (counter2 / (float) LightSetting::MAX_POWER), getGreen (mode) * (counter2 / (float) LightSetting::MAX_POWER), getBlue (mode) * (counter2 / (float) LightSetting::MAX_POWER));
-			strip.setPixelColor ((STRIP_LENGTH / 2 - counter), getRed (mode) * (counter2 / (float) LightSetting::MAX_POWER), getGreen (mode) * (counter2 / (float) LightSetting::MAX_POWER), getBlue (mode) * (counter2 / (float) LightSetting::MAX_POWER));
+			strip.setPixelColor ((STRIP_LENGTH / 2 + counter), getRed (mode) * (counter2 / (float) LightPower::MAX), getGreen (mode) * (counter2 / (float) LightPower::MAX), getBlue (mode) * (counter2 / (float) LightPower::MAX));
+			strip.setPixelColor ((STRIP_LENGTH / 2 - counter), getRed (mode) * (counter2 / (float) LightPower::MAX), getGreen (mode) * (counter2 / (float) LightPower::MAX), getBlue (mode) * (counter2 / (float) LightPower::MAX));
 
 			if (counter >= (STRIP_LENGTH / 2.))
 			{
 				counter = 0;
 
-				if (counter2 <= LightSetting::MIN_POWER)
+				if (counter2 <= LightPower::MIN)
 				{
 					mode = LightMode::continuous; // Leaving the mode
 					switchOff();
@@ -298,7 +296,7 @@ void Light::startAnimation ()
 		inf << "Begin start animation" << dendl;
 	}
 
-	if (millis() - delayCount >= ((speed[mode] / (STRIP_LENGTH)) + 0.5))
+	if (millis() - delayCount >= ((speeds[mode] / (STRIP_LENGTH)) + 0.5))
 	{
 		switch (state)
 		{

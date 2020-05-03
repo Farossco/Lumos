@@ -53,23 +53,23 @@ void Json::generateData (String & string, const char * status, const char * mess
 
 	// -- Rgb -- //
 	JsonArray rootLightRgb = rootLight.createNestedArray ("Rgb");
-	for (LightMode i = LightMode::MIN; i <= LightMode::MAX; i++)
-		rootLightRgb.add ((unsigned long) light.getRgb (i));
+	for (LightMode mode = LightMode::MIN; mode <= LightMode::MAX; mode++)
+		rootLightRgb.add (light.getRgb (mode).value());
 
 	// -- Power -- //
 	JsonArray rootLightPower = rootLight.createNestedArray ("Power");
-	for (LightMode i = LightMode::MIN; i <= LightMode::MAX; i++)
-		rootLightPower.add (light.getPowerPercent (i));
+	for (LightMode mode = LightMode::MIN; mode <= LightMode::MAX; mode++)
+		rootLightPower.add (light.getPowerPercent (mode).value());
 
 	// -- Speed -- //
 	JsonArray rootLightSpeed = rootLight.createNestedArray ("Speed");
-	for (LightMode i = LightMode::MIN; i <= LightMode::MAX; i++)
-		rootLightSpeed.add ((unsigned int) light.getSpeedPercent (i));
+	for (LightMode mode = LightMode::MIN; mode <= LightMode::MAX; mode++)
+		rootLightSpeed.add (light.getSpeedPercent (mode).value());
 
 	// ****** Sound ****** //
 	JsonObject rootSound = root.createNestedObject ("Sound");
 	rootSound["On"]     = sound.isOn();
-	rootSound["Volume"] = (uint8_t) sound.getVolume();
+	rootSound["Volume"] = sound.getVolume().value();
 	rootSound["Mode"]   = (uint8_t) sound.getMode();
 
 	if (pretty)

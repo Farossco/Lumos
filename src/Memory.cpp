@@ -15,18 +15,18 @@ void Memory::dump (uint16_t start, uint16_t limit)
 {
 	limit = constrain (limit, 0, EEPROM.length());
 
-	trace << "EEPROM dump from " << hex << start << " to " << limit << dendl;
+	inf << "EEPROM dump from " << hex << start << " to " << limit << dendl;
 
 	for (uint16_t index = start; index <= limit; index++)
 	{
 		uint8_t value = EEPROM.read (index);
 
-		trace << dsb (sd.file) << "0x" << noshowbase << setfill ('0') << setw (4) << hex << index << " : "
+		inf << dsb (sd.file) << "0x" << noshowbase << setfill ('0') << setw (4) << hex << index << " : "
 		      << "0b" << setw (8) << bin << value
 		      << " (0x" << setw (2) << hex << value << ")" << endl;
 	}
 
-	trace << dsb (sd.file) << np << endl;
+	inf << dsb (sd.file) << np << endl;
 }
 
 void Memory::writeAll ()
@@ -45,15 +45,14 @@ void Memory::writeLight ()
 {
 	startWrite (EEPROM_LIGHT_START);
 
-	trace << "Writing EEPROM for light variables... ";
+	verb << "Writing EEPROM for light variables... ";
 
-	put (light.red);
-	put (light.green);
-	put (light.blue);
-	put (light.power);
-	put (light.speed);
+	put (light.rgbs);
+	put (light.powers);
+	put (light.speeds);
+	put (light.timings);
 
-	trace << "Done ! (" << _n << " byte" << ((_n > 1) ? "s" : "") << " written)" << dendl;
+	verb << "Done ! (" << _n << " byte" << ((_n > 1) ? "s" : "") << " written)" << dendl;
 }
 
 bool Memory::readLight ()
@@ -61,15 +60,14 @@ bool Memory::readLight ()
 	if (startRead (EEPROM_LIGHT_START))
 		return true;  // Returns true to say that variables needs to be initialized
 
-	trace << "Reading EEPROM for light variables... ";
+	verb << "Reading EEPROM for light variables... ";
 
-	light.red   = get<LightSetting>();
-	light.green = get<LightSetting>();
-	light.blue  = get<LightSetting>();
-	light.power = get<LightSetting>();
-	light.speed = get<LightSetting>();
+	light.rgbs    = get<LightRgbArray>();
+	light.powers  = get<LightPowerArray>();
+	light.speeds  = get<LightSpeedArray>();
+	light.timings = get<LightTimingArray>();
 
-	trace << "Done ! (" << _address - EEPROM_LIGHT_START << " byte" << ((_address > 1) ? "s" : "") << " read)" << dendl;
+	verb << "Done ! (" << _address - EEPROM_LIGHT_START << " byte" << ((_address > 1) ? "s" : "") << " read)" << dendl;
 
 	return false;
 }
@@ -78,11 +76,11 @@ void Memory::writeSound ()
 {
 	startWrite (EEPROM_SOUND_START);
 
-	trace << "Writing EEPROM for sound variables... ";
+	verb << "Writing EEPROM for sound variables... ";
 
 	put (sound.volume);
 
-	trace << "Done ! (" << _n << " byte" << ((_n > 1) ? "s" : "") << " written)" << dendl;
+	verb << "Done ! (" << _n << " byte" << ((_n > 1) ? "s" : "") << " written)" << dendl;
 }
 
 bool Memory::readSound ()
@@ -90,11 +88,11 @@ bool Memory::readSound ()
 	if (startRead (EEPROM_SOUND_START))
 		return true;
 
-	trace << "Reading EEPROM for sound variables... ";
+	verb << "Reading EEPROM for sound variables... ";
 
-	sound.volume = get<SoundSetting>();
+	sound.volume = get<SoundVolume>();
 
-	trace << "Done ! (" << _address - EEPROM_SOUND_START << " byte" << ((_address > 1) ? "s" : "") << " read)" << dendl;
+	verb << "Done ! (" << _address - EEPROM_SOUND_START << " byte" << ((_address > 1) ? "s" : "") << " read)" << dendl;
 
 	return false;
 }
@@ -103,11 +101,11 @@ void Memory::writeAlarms ()
 {
 	startWrite (EEPROM_ALARM_START);
 
-	trace << "Writing EEPROM for alarm variables... ";
+	verb << "Writing EEPROM for alarm variables... ";
 
 	put (alarms.getDawnTime());
 
-	trace << "Done ! (" << _n << " byte" << ((_n > 1) ? "s" : "") << " written)" << dendl;
+	verb << "Done ! (" << _n << " byte" << ((_n > 1) ? "s" : "") << " written)" << dendl;
 }
 
 bool Memory::readAlarms ()
@@ -115,11 +113,11 @@ bool Memory::readAlarms ()
 	if (startRead (EEPROM_ALARM_START))
 		return true;
 
-	trace << "Reading EEPROM for alarm variables... ";
+	verb << "Reading EEPROM for alarm variables... ";
 
 	alarms.setDawnTime (get<uint16_t>());
 
-	trace << "Done ! (" << _address - EEPROM_ALARM_START << " byte" << ((_address > 1) ? "s" : "") << " read)" << dendl;
+	verb << "Done ! (" << _address - EEPROM_ALARM_START << " byte" << ((_address > 1) ? "s" : "") << " read)" << dendl;
 
 	return false;
 }

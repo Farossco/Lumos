@@ -21,19 +21,19 @@ public:
 	void action ();
 	void command (SoundCommand command, uint32_t information);
 
-	void setVolume (SoundSetting newVolume);
+	void setVolume (SoundVolume newVolume);
 	void setMode (SoundMode newMode);
 	void switchOn ();
 	void switchOff ();
 
-	SoundSetting getVolume ();
+	SoundVolume getVolume ();
 	SoundMode getMode ();
 	bool isOn ();
 	bool isOff ();
 
 	SoundMode mode;
-	SoundSetting volume;
-	bool on;
+	SoundVolume volume;
+	SoundOnOff on;
 
 private:
 	SoundMode lastMode;

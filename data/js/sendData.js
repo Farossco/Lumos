@@ -19,7 +19,7 @@ function getResources() {
 	};
 }
 
-function sendData(type = 'INFO', value = 0, comp = 0) {
+function sendData(type = 'RQD', value = 0, comp = 0) {
 	/* Used to test on codepen.io
 	if (type == "LON") data.Light.On = value;
 	if (type == "LMO") data.Light.Mode = value;
@@ -53,21 +53,21 @@ function displayPage() {
 
 function displayLumos() {
 	document.getElementById("lumos").innerHTML =
-	`
-		<button class="lumos${data.Light["On"] ? " button-primary" : ""}" onclick = "sendData('LON', ${data.Light["On"] ? 0 : 1})">
-			Lumos
-		</button>
-	`;
+		`
+			<button class="lumos${data.Light["On"] ? " button-primary" : ""}" onclick = "sendData('LON', ${data.Light["On"] ? 0 : 1})">
+				Lumos
+			</button>
+		`;
 }
 
 function displayLightMode() {
 	document.getElementById("lightModes").innerHTML =
-	`
-		<div class="row">
-			<h2>Light modes</h2>
-		</div>
-		${resources.Light.ModeNames.map(mapModenames).join("")}
-	`;
+		`
+			<div class="row">
+				<h2>Light modes</h2>
+			</div>
+			${resources.Light.ModeNames.map(mapModenames).join("")}
+		`;
 }
 
 // Generate HTML for the action section
@@ -83,12 +83,12 @@ function displayActions() {
 
 function displayColors() {
 	document.getElementById("actions").innerHTML +=
-	`
-		<div class="row">
-			<h2>Color</h2>
-		</div>
-		${resources.Light.Colors.map(mapColors).join("")}
-	`;
+		`
+			<div class="row">
+				<h2>Color</h2>
+			</div>
+			${resources.Light.Colors.map(mapColors).join("")}
+		`;
 }
 
 /******************************** Maping ********************************/
@@ -109,10 +109,10 @@ function mapColors(colorRow, index) {
 
 	if (!displayFull) {
 		return `
-			<div class="row">
-				${colorRow.map(mapColorRow).join("")}
-			</div>
-		`;
+				<div class="row">
+					${colorRow.map(mapColorRow).join("")}
+				</div>
+			`;
 	} else {
 		var displayColor = colorRow[1];
 		var displayColorStr = str2hex(displayColor);
@@ -120,14 +120,14 @@ function mapColors(colorRow, index) {
 		var currentColor = data.Light.Rgb[currentMode];
 
 		return `
-			<div class="row">
-				<button
-					class="color one${displayColor == currentColor ? " selected" : ""}"
-					style="background-color: #${displayColorStr};"
-					onclick = "sendData('RGB', '${displayColorStr}', ${currentMode})"
-				></button>
-		</div>
-	`;
+				<div class="row">
+					<button
+						class="color one${displayColor == currentColor ? " selected" : ""}"
+						style="background-color: #${displayColorStr};"
+						onclick = "sendData('RGB', '${displayColorStr}', ${currentMode})"
+					></button>
+				</div>
+			`;
 	}
 }
 
@@ -137,11 +137,11 @@ function mapColorRow(displayColor, index) {
 	var displayColorStr = str2hex(displayColor);
 
 	return `
-		<button
-				class="color six${displayColor == currentColor ? " selected" : ""}"
-				style="background-color: #${displayColorStr};"
-				onclick = "sendData('RGB', '${displayColorStr}', ${currentMode})"
-		></button>
+			<button
+					class="color six${displayColor == currentColor ? " selected" : ""}"
+					style="background-color: #${displayColorStr};"
+					onclick = "sendData('RGB', '${displayColorStr}', ${currentMode})"
+			></button>
 		`;
 }
 

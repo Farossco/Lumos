@@ -188,7 +188,7 @@ void Wifi::handleCommand ()
 	}
 	else
 	{
-		if (request.getType() == RequestType::requestInfos)
+		if (request.getType() == RequestType::requestData)
 			trace << "Sending to arduino: Nothing" << dendl;
 		else
 		{

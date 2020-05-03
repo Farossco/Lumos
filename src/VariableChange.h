@@ -15,17 +15,16 @@ public:
 	void sendData ();
 
 private:
-	bool changeLightOn;
-	LightSetting changeLightPower;
-	LightSetting changeLightSpeed;
-	LightSetting changeRed;
-	LightSetting changeGreen;
-	LightSetting changeBlue;
+	LightOnOff changeLightOn;
+	LightPowerArray changeLightPowers;
+	LightSpeedArray changeLightSpeeds;
+	LightRgbArray changeRgbs;
 	LightMode changeLightMode;
 	SoundMode changeSoundMode;
-	SoundSetting changeSoundVolume;
-	bool changeSoundOn;
+	SoundVolume changeSoundVolume;
+	SoundOnOff changeSoundOn;
 	uint16_t changeDawnTime;
+
 	bool initialized;
 };
 
