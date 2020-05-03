@@ -181,10 +181,10 @@ void Wifi::handleCommand ()
 
 	request.process();
 
-	if (request.getError() != RequestError::none)
+	if (request.getError())
 	{
 		trace << "Sending to arduino: Nothing" << dendl;
-		message = json.getDataPretty ("ERROR", request.getError().toString().c_str());
+		message = json.getErrorPretty (request.getError());
 	}
 	else
 	{
@@ -199,7 +199,7 @@ void Wifi::handleCommand ()
 			serial.comSerialTx.print (data);
 		}
 
-		message = json.getDataPretty ("OK", "");
+		message = json.getDataPretty ();
 	}
 
 	server.send (200, "application/json", message);

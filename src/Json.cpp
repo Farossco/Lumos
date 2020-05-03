@@ -13,33 +13,37 @@
 Json::Json()
 { }
 
-String Json::getDataPretty (const char * status, const char * message)
+String Json::getDataPretty ()
 {
 	String string;
 
-	generateData (string, status, message, true);
+	generateData (string, true);
 
 	return string;
 }
 
-String Json::getData (const char * status, const char * message)
+String Json::getData ()
 {
 	String string;
 
-	generateData (string, status, message, false);
+	generateData (string, false);
 
 	return string;
 }
 
-void Json::generateData (String & string, const char * status, const char * message, bool pretty)
+void Json::generateData (String & string, bool pretty)
 {
+	const char status[]  = "OK";
+	const char message[] = "";
+
 	const size_t capacity =
 	  JSON_OBJECT_SIZE (4)                 // root (status/message/light/sound)
-	  + strlen (status) + strlen (message) // status + message (Strings)
+	  + sizeof(status) + sizeof(message)   // status + message (Strings)
 	  + JSON_OBJECT_SIZE (5)               // light (on/mode/rgb/power/speed)
 	  + 3 * JSON_ARRAY_SIZE (LightMode::N) // light:rgb[] + light:power[] + light:speed[]
 	  + JSON_OBJECT_SIZE (3)               // sound (on/volume/mode)
-	  + 10;                                // Security margin
+	  + 10                                 // Security margin
+	;
 
 	DynamicJsonDocument root (capacity);
 
@@ -76,7 +80,7 @@ void Json::generateData (String & string, const char * status, const char * mess
 		serializeJsonPretty (root, string);
 	else
 		serializeJson (root, string);
-} // send
+} // Json::generateData
 
 String Json::getResourcesPretty ()
 {
@@ -136,7 +140,46 @@ void Json::generateResources (String & string, bool pretty)
 		serializeJsonPretty (root, string);
 	else
 		serializeJson (root, string);
-} // send
+} // Json::generateResources
+
+String Json::getErrorPretty (RequestError error)
+{
+	String string;
+
+	generateError (string, true, error);
+
+	return string;
+}
+
+String Json::getError (RequestError error)
+{
+	String string;
+
+	generateError (string, false, error);
+
+	return string;
+}
+
+void Json::generateError (String & string, bool pretty, RequestError error)
+{
+	const char status[]  = "ERROR";
+	const String message = error.toString();
+
+	const size_t capacity =
+	  JSON_OBJECT_SIZE (2)                // root (status/message)
+	  + sizeof(status) + message.length() // status + error (Strings)
+	;
+
+	DynamicJsonDocument root (capacity);
+
+	root["Status"]  = status;
+	root["Message"] = message;
+
+	if (pretty)
+		serializeJsonPretty (root, string);
+	else
+		serializeJson (root, string);
+}
 
 Json json = Json();
 

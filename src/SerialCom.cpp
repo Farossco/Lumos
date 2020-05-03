@@ -64,7 +64,6 @@ void SerialCom::receiveAndDecode ()
 void SerialCom::sendTime ()
 {
 	#if defined(LUMOS_ARDUINO_MEGA)
-	trace << "I don't know anything about time... Let me ask the ESP" << dendl;
 	serial.getTime();
 	#endif
 
@@ -94,7 +93,7 @@ void SerialCom::sendTime ()
 void SerialCom::getTime ()
 {
 	trace << "Time Request sent" << dendl;
-	comSerialTx.print (RequestType (RequestType::requestTime).toString(true) + 'z'); // z is the end character
+	comSerialTx.print (RequestType (RequestType::requestTime).toString (true) + 'z'); // z is the end character
 }
 
 void SerialCom::sendData ()
@@ -104,13 +103,13 @@ void SerialCom::sendData ()
 	#endif
 
 	#if defined(LUMOS_ESP8266)
-	verb << json.getData ("OK", "");
+	inf << json.getData() << dendl;
 	#endif
 }
 
 void SerialCom::getData ()
 {
-	comSerialTx.print ("INFOz");
+	comSerialTx.print (RequestType (RequestType::requestData).toString (true));
 }
 
 SerialCom serial = SerialCom();
