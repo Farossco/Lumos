@@ -18,9 +18,9 @@ void setup ()
 
 	if (WAIT_FOR_TIME) serial.waitForTime();
 
-	sd.init();
-
 	light.init();
+
+	sd.init(); // SD SPI needs to be initialized after the light strip SPI
 
 	infrared.init();
 

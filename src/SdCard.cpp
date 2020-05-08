@@ -1,6 +1,5 @@
 #if defined(LUMOS_ARDUINO_MEGA)
 
-#include <Time.h>
 #include "SdCard.h"
 #include "ArduinoLogger.h"
 
@@ -14,24 +13,19 @@ SdCard::SdCard()
 
 	lightOff();
 
-	enabled     = false;
-	cardPresent = false;
-	flushTimer  = 0;
+	cardOpened   = false;
+	cardDetected = false;
+	attempts     = 0;
 }
 
 void SdCard::init ()
 {
 	if (detectCard())
 	{
-		cardPresent = true;
-
 		openCard();
-
-		flushTimer = millis(); // Prevents from imediatly flushing the card
 	}
 	else
 	{
-		cardPresent = false;
 		warn << "SD card undetected, no SD logging" << dendl;
 		lightNoCard();
 	}
@@ -39,14 +33,14 @@ void SdCard::init ()
 
 void SdCard::openCard ()
 {
-	inf << "SD card detected" << endl;
+	attempts++;
 
-	delay (1000); // Waiting to make sure the card is properly connected
+	inf << "Opening card (Attempt n°" << attempts << ")... ";
 
-	inf << "Initializing... ";
-
-	if (SD.begin (PIN_SD_CS))
+	if (SD.begin (PIN_SD_CS)) // Card successfully opened
 	{
+		attempts = 0;
+
 		inf << "Done." << dendl;
 
 		if (createLogFile())
@@ -57,81 +51,88 @@ void SdCard::openCard ()
 
 			// Printing it with error level so it is printed for any debug level
 			// It's not a problem since it's not going to print the prefix
-
 			err << dsb (Serial) << np << "------------------------------------------------------------------------------------------------------------" << endl;
 			err << dsb (Serial) << np << "----------------------------------------------- SD log Start -----------------------------------------------" << endl;
 			err << dsb (Serial) << np << "------------------------------------------------------------------------------------------------------------" << dendl;
 
-			enabled = true;
+			cardOpened = true;
 		}
 		else
 		{
 			lightError();
 		}
 	}
-	else
+	else // Card failed to opened
 	{
-		inf << "Failed!" << dendl;
-		err << "SD card opening failed! No SD logging" << dendl;
 		lightError();
+
+		inf << "Failed";
+
+		if (attempts < SD_ATTEMPTS && detectCard())
+		{
+			inf << ", reattempting..." << endl;
+			openCard();
+		}
+		else
+		{
+			inf << endl;
+			err << "SD card opening failed! No SD logging" << dendl;
+			attempts = 0;
+		}
 	}
 } // SdCard::openCard
 
+void SdCard::closeCard ()
+{
+	lightNoCard();
+
+	logger.disable (file);
+
+	inf << "Closing card... ";
+
+	SD.end();
+
+	cardOpened = false;
+
+	inf << "Done." << dendl;
+}
+
 boolean SdCard::detectCard ()
 {
-	return digitalRead (PIN_SD_CD);
+	return cardDetected = digitalRead (PIN_SD_CD);
 }
 
 void SdCard::action ()
 {
 	autoDetect();
 
-	if (enabled)
-		autoFlush();
+	if (cardOpened)
+		file.flush();
 }
 
 void SdCard::autoDetect ()
 {
-	if (cardPresent) // If card was present
+	if (cardDetected) // If card was present
 	{
 		if (!detectCard()) // But has been removed
 		{
-			enabled     = false;
-			cardPresent = false;
+			inf << dsb (file) << "SD card removed" << endl;
 
-			lightNoCard();
-
-			inf << "SD Card removed, closing card... ";
-
-			logger.disable (file);
-
-			SD.end();
-
-			inf << "Done." << dendl;
+			closeCard();
 		}
 	}
 	else // If card was absent
 	{
 		if (detectCard()) // And a card is detected
 		{
-			cardPresent = true;
+			lightIdle();
+
+			inf << "SD card detected" << endl;
+
+			delay (1000); // Waiting to make sure the card is properly connected
 
 			openCard();
-
-			flushTimer = millis(); // Prevents from imediatly flushing the card
 		}
-	}
-}
-
-void SdCard::autoFlush ()
-{
-	if (millis() - flushTimer >= FILE_FLUSH_TIME * 1000)
-	{
-		file.flush();
-
-		trace << np << dsb (file) << "SD File flushed" << cr;
-
-		flushTimer = millis();
 	}
 }
 
@@ -177,9 +178,9 @@ void SdCard::lightConnected ()
 
 void SdCard::lightIdle ()
 {
-	analogWrite (PIN_SD_LED_RED, SD_LED_POWER / 2);
-	analogWrite (PIN_SD_LED_GREEN, SD_LED_POWER / 2);
-	analogWrite (PIN_SD_LED_BLUE, LOW);
+	analogWrite (PIN_SD_LED_RED, LOW);
+	analogWrite (PIN_SD_LED_GREEN, LOW);
+	analogWrite (PIN_SD_LED_BLUE, SD_LED_POWER);
 }
 
 void SdCard::lightNoCard ()

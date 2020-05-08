@@ -5,14 +5,13 @@
 
 # include <SD.h>
 
-const float FILE_FLUSH_TIME = 5; // Send data to the card every 5s
-
 const uint8_t PIN_SD_CS        = 10; // Chip Select
 const uint8_t PIN_SD_CD        = 9;  // Card Detect
 const uint8_t PIN_SD_LED_RED   = 3;  // RGB Red pin
 const uint8_t PIN_SD_LED_GREEN = 4;  // RGB Green pin
 const uint8_t PIN_SD_LED_BLUE  = 5;  // RGB Blue pin
 const uint8_t SD_LED_POWER     = 255;
+const uint8_t SD_ATTEMPTS      = 3; // The number of attempts at opening the card
 
 class SdCard
 {
@@ -23,11 +22,12 @@ public:
 	File file;
 
 private:
-	boolean cardPresent;
-	uint32_t flushTimer;
-	bool enabled;
+	boolean cardDetected;
+	bool cardOpened;
+	uint8_t attempts;
 
 	void openCard ();
+	void closeCard ();
 	bool detectCard ();
 	void lightError ();
 	void lightConnected ();
@@ -35,7 +35,6 @@ private:
 	void lightNoCard ();
 	void lightOff ();
 	void autoDetect ();
-	void autoFlush ();
 
 	bool createLogFile ();
 };
