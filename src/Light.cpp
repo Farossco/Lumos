@@ -2,16 +2,20 @@
 #include "ArduinoLogger.h"
 #include "Memory.h"
 #include "Sound.h"
+#include "SerialCom.h"
 
 #if defined(LUMOS_ARDUINO_MEGA)
 
-Light::Light() : strip (STRIP_LENGTH, DOTSTAR_BGR)
+Light::Light() : strip (LIGHT_STRIP_LENGTH, DOTSTAR_BGR)
 {
-	pinMode (PIN_STRIP_CS, OUTPUT);
-	digitalWrite (PIN_STRIP_CS, LOW);
+	pinMode (LIGHT_PIN_STRIP_CS, OUTPUT);
+	digitalWrite (LIGHT_PIN_STRIP_CS, LOW);
+
+	for (uint8_t i = 0; i < LIGHT_STRIP_HALF_LENGTH + 1; i++)
+		rainbow[i].setHue (i * 360 / (LIGHT_STRIP_HALF_LENGTH + 1));
 }
 
-#endif
+#endif // if defined(LUMOS_ARDUINO_MEGA)
 
 #if defined(LUMOS_ESP8266)
 
@@ -22,17 +26,17 @@ Light::Light()
 
 void Light::setRed (LightColor newRed, LightMode affectedMode)
 {
-	rgbs[affectedMode] = LightRgb ((rgbs[affectedMode] & 0x00FFFF) | (newRed << 16));
+	rgbs[affectedMode].setRed (newRed);
 }
 
 void Light::setGreen (LightColor newGreen, LightMode affectedMode)
 {
-	rgbs[affectedMode] = LightRgb ((rgbs[affectedMode] & 0xFF00FF) | (newGreen << 8));
+	rgbs[affectedMode].setGreen (newGreen);
 }
 
 void Light::setBlue (LightColor newBlue, LightMode affectedMode)
 {
-	rgbs[affectedMode] = LightRgb ((rgbs[affectedMode] & 0xFFFF00) | (newBlue << 0));
+	rgbs[affectedMode].setBlue (newBlue);
 }
 
 void Light::setRgb (LightRgb newRgb, LightMode affectedMode)
@@ -77,17 +81,17 @@ void Light::subtractPower (Percentage powerSub, LightMode affectedMode)
 
 LightColor Light::getRed (LightMode affectedMode)
 {
-	return rgbs[affectedMode] >> 16;
+	return rgbs[affectedMode].getRed();
 }
 
 LightColor Light::getGreen (LightMode affectedMode)
 {
-	return rgbs[affectedMode] >> 8;
+	return rgbs[affectedMode].getGreen();
 }
 
 LightColor Light::getBlue (LightMode affectedMode)
 {
-	return rgbs[affectedMode] >> 0;
+	return rgbs[affectedMode].getBlue();
 }
 
 LightRgb Light::getRgb (LightMode affectedMode)
@@ -143,42 +147,43 @@ void Light::init ()
 		reset();
 	}
 
-	light.lightAll (0x000000);
-	show();
+	stripUpdateOff();
 
+	mode     = LightMode::continuous;
 	lastMode = LightMode::continuous; // Initialiazing last mode as well
 
-	if (LIGHT_START_ANIMATION_ENABLE)
-	{
-		mode = LightMode::startAnimation;
-		switchOn();
-	}
-	else
-		mode = LightMode::continuous;
+	while (!serial.checkTime())
+		startAnimWait();
+
+	startAnimDone();
 
 	inf << "Light initialized." << dendl;
 }
 
 void Light::reset ()
 {
-	rgbs    = LightRgb::DEF;   // Initializing rgbs their default value
-	powers  = LightPower::DEF; // Initializing powers their default value
-	speeds  = LightSpeed::DEF; // Initializing speeds their default value
-	timings = LightTiming::DEF;
+	rgbs   = LightRgb::DEF;   // Initializing rgbs their default value
+	powers = LightPower::DEF; // Initializing powers their default value
+	speeds = LightSpeed::DEF; // Initializing speeds their default value
 
 	memory.writeLight();
 }
 
 void Light::lightAll (LightColor red, LightColor green, LightColor blue)
 {
-	for (int i = 0; i < STRIP_LENGTH; i++)
+	for (int i = 0; i < LIGHT_STRIP_LENGTH; i++)
 		strip.setPixelColor (i, red.value(), green.value(), blue.value());
 }
 
 void Light::lightAll (LightRgb rgb)
 {
-	for (int i = 0; i < STRIP_LENGTH; i++)
+	for (int i = 0; i < LIGHT_STRIP_LENGTH; i++)
 		strip.setPixelColor (i, rgb.value());
+}
+
+void Light::lightAllOff ()
+{
+	strip.setBrightness (0);
 }
 
 // Perform mode action
@@ -187,23 +192,78 @@ void Light::action ()
 	// If lightning is off, shut all lights
 	if (isOff())
 	{
-		lightAll (0);
-		show();
+		stripUpdateOff();
 		lastMode = LightMode::continuous;
 		return;
 	}
 
 	modeActions();
 
-	strip.setBrightness (powers[mode].value());
-	show();
-} // action
+	stripUpdate (powers[mode]);
+}
 
-void Light::show ()
+void Light::stripUpdate (LightPower power)
 {
-	digitalWrite (PIN_STRIP_CS, HIGH);
+	strip.setBrightness (power.value());
+
+	digitalWrite (LIGHT_PIN_STRIP_CS, HIGH);
 	strip.show();
-	digitalWrite (PIN_STRIP_CS, LOW);
+	digitalWrite (LIGHT_PIN_STRIP_CS, LOW);
+}
+
+void Light::stripUpdateOff ()
+{
+	strip.setBrightness (0);
+
+	digitalWrite (LIGHT_PIN_STRIP_CS, HIGH);
+	strip.show();
+	digitalWrite (LIGHT_PIN_STRIP_CS, LOW);
+}
+
+void Light::startAnimWait ()
+{
+	counter1 = 0;
+	state   = 0;
+
+	while (counter1 >= 0)
+	{
+		for (int8_t i = 0; i < LIGHT_STRIP_LENGTH; i++)
+			if (abs (i - LIGHT_STRIP_HALF_LENGTH) < counter1)
+				strip.setPixelColor (i, rainbow[LIGHT_STRIP_HALF_LENGTH - abs (i - LIGHT_STRIP_HALF_LENGTH)].value());
+			else
+				strip.setPixelColor (i, 0);
+
+		stripUpdate (LightPower::DEF);
+
+		delay (abs (strip.sine8 (counter1 * (8 * 16) / LIGHT_STRIP_HALF_LENGTH + 64) - 128) / 5);
+
+		if (counter1 > LIGHT_STRIP_HALF_LENGTH) state = 1;
+
+		if (state)
+			counter1--;
+		else
+			counter1++;
+	}
+}
+
+void Light::startAnimDone ()
+{
+	counter1 = 0;
+
+	while (counter1 < LIGHT_STRIP_HALF_LENGTH + LIGHT_TAIL_LENGTH + 2)
+	{
+		for (int8_t i = 0; i < LIGHT_STRIP_LENGTH; i++)
+			if (counter1 > abs (i - LIGHT_STRIP_HALF_LENGTH) && abs (i - LIGHT_STRIP_HALF_LENGTH) >= counter1 - LIGHT_TAIL_LENGTH)
+				strip.setPixelColor (i, rainbow[LIGHT_STRIP_HALF_LENGTH - abs (i - LIGHT_STRIP_HALF_LENGTH)].value());
+			else
+				strip.setPixelColor (i, 0);
+
+		stripUpdate (LightPower::DEF);
+
+		delay (15);
+
+		counter1++;
+	}
 }
 
 #endif // if defined(LUMOS_ARDUINO_MEGA)

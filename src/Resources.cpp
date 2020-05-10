@@ -9,8 +9,7 @@ const char lightModeName3[] STORAGE = "Fade";
 const char lightModeName4[] STORAGE = "Smooth";
 const char lightModeName5[] STORAGE = "Wake up";
 const char lightModeName6[] STORAGE = "Sunset";
-const char lightModeName7[] STORAGE = "Start Animation";
-const char lightModeName8[] STORAGE = "Music";
+const char lightModeName7[] STORAGE = "Music";
 
 const char soundModeName0[] STORAGE = "Free choice";
 
@@ -57,7 +56,7 @@ const char errorName3[] STORAGE = "Incorrect Request Type";
 const char errorName4[] STORAGE = "Empty String";
 
 const FlashString nameUnknown                            = Flash (nameUnknown0);
-const FlashString lightModeName[LightMode::N]            = { Flash (lightModeName0), Flash (lightModeName1), Flash (lightModeName2), Flash (lightModeName3), Flash (lightModeName4), Flash (lightModeName5), Flash (lightModeName6), Flash (lightModeName7), Flash (lightModeName8) };
+const FlashString lightModeName[LightMode::N]            = { Flash (lightModeName0), Flash (lightModeName1), Flash (lightModeName2), Flash (lightModeName3), Flash (lightModeName4), Flash (lightModeName5), Flash (lightModeName6), Flash (lightModeName7) };
 const FlashString soundModeName[SoundMode::N]            = { Flash (soundModeName0) };
 const FlashString soundCommandName[SoundCommand::N]      = { Flash (soundCommandName0), Flash (soundCommandName1), Flash (soundCommandName2), Flash (soundCommandName3), Flash (soundCommandName4), Flash (soundCommandName5), Flash (soundCommandName6) };
 const FlashString messageTypeName[RequestType::N]        = { Flash (nameUnknown), Flash (messageTypeName1), Flash (messageTypeName2), Flash (messageTypeName3), Flash (messageTypeName4), Flash (messageTypeName5), Flash (messageTypeName6), Flash (messageTypeName7), Flash (messageTypeName8), Flash (messageTypeName9), Flash (messageTypeName10), Flash (messageTypeName11), Flash (messageTypeName12), Flash (messageTypeName13) };

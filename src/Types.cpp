@@ -19,6 +19,115 @@ LightMode::operator uint8_t (){ return static_cast<uint8_t>(_value); }
 Percentage::Percentage (uint8_t value){ _value = constrain (value, MIN, MAX); }
 
 
+/****************************** LightRgb ******************************/
+LightRgb::LightRgb() : SettingBase(){ }
+
+LightRgb::LightRgb (uint32_t value) : SettingBase (value){ }
+
+LightRgb LightRgb::setRed (LightColor red){ *(((uint8_t *) &_value) + 2) = red.value(); return *this; }
+
+LightRgb LightRgb::setGreen (LightColor green){ *(((uint8_t *) &_value) + 1) = green.value(); return *this; }
+
+LightRgb LightRgb::setBlue (LightColor blue){ *(((uint8_t *) &_value) + 0) = blue.value(); return *this; }
+
+LightRgb LightRgb::setHue (uint8_t hue)
+{
+	hue %= 360;
+	uint8_t x = (60 - abs (((hue % 120)) - 60)) * 255 / 60;
+
+	if (0 <= hue && hue < 60)
+	{
+		setRed (100);
+		setGreen (x);
+		setBlue (0);
+	}
+	else if (60 <= hue && hue < 120)
+	{
+		setRed (x);
+		setGreen (100);
+		setBlue (0);
+	}
+	else if (120 <= hue && hue < 180)
+	{
+		setRed (0);
+		setGreen (100);
+		setBlue (x);
+	}
+	else if (180 <= hue && hue < 240)
+	{
+		setRed (0);
+		setGreen (x);
+		setBlue (100);
+	}
+	else if (240 <= hue && hue < 300)
+	{
+		setRed (x);
+		setGreen (0);
+		setBlue (100);
+	}
+	else if (300 <= hue && hue <= 360)
+	{
+		setRed (100);
+		setGreen (0);
+		setBlue (x);
+	}
+
+	return *this;
+} // LightRgb::setHue
+
+LightColor LightRgb::getRed (){ return *(((uint8_t *) &_value) + 2); }
+
+LightColor LightRgb::getGreen (){ return *(((uint8_t *) &_value) + 1); }
+
+LightColor LightRgb::getBlue (){ return *(((uint8_t *) &_value) + 0); }
+
+LightRgb LightRgb::operator * (double value)
+{
+	LightRgb rgb;
+
+	*(&rgb._value + 0) = *(&_value + 0) * value;
+	*(&rgb._value + 1) = *(&_value + 1) * value;
+	*(&rgb._value + 2) = *(&_value + 2) * value;
+
+	return rgb;
+}
+
+LightRgb LightRgb::operator / (double value)
+{
+	LightRgb rgb;
+	uint8_t * pSelf = (uint8_t *) &_value;
+	uint8_t * pNew  = (uint8_t *) &rgb._value;
+
+	for (int i = 0; i < 3; i++)
+		*(pNew + i) = *(pSelf + i) / value;
+
+	return rgb;
+}
+
+/****************************** Timing ******************************/
+Timing::Timing () : SettingBase(){ }
+
+Timing::Timing (time_t time) : SettingBase (time){ }
+
+Timing::Timing (uint8_t minute, uint8_t second){ _value = minute * 60 + second; }
+
+uint8_t Timing::minute (){ return _value / 60; }
+
+uint8_t Timing::second (){ return _value % 60; }
+
+
+/****************************** Time ******************************/
+Time::Time () : SettingBase(){ }
+
+Time::Time (uint16_t time) : SettingBase (time){ }
+
+Time::Time (uint8_t hour, uint8_t minute){ _value = hour * 60 + minute; }
+
+uint8_t Time::hour (){ return _value / 60; }
+
+uint8_t Time::minute (){ return _value % 60; }
+
+
 /****************************** RequestError ******************************/
 RequestError::RequestError (){ }
 

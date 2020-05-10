@@ -22,8 +22,8 @@ void Memory::dump (uint16_t start, uint16_t limit)
 		uint8_t value = EEPROM.read (index);
 
 		inf << dsb (sd.file) << "0x" << noshowbase << setfill ('0') << setw (4) << hex << index << " : "
-		      << "0b" << setw (8) << bin << value
-		      << " (0x" << setw (2) << hex << value << ")" << endl;
+		    << "0b" << setw (8) << bin << value
+		    << " (0x" << setw (2) << hex << value << ")" << endl;
 	}
 
 	inf << dsb (sd.file) << np << endl;
@@ -50,7 +50,6 @@ void Memory::writeLight ()
 	put (light.rgbs);
 	put (light.powers);
 	put (light.speeds);
-	put (light.timings);
 
 	verb << "Done ! (" << _n << " byte" << ((_n > 1) ? "s" : "") << " written)" << dendl;
 }
@@ -62,10 +61,9 @@ bool Memory::readLight ()
 
 	verb << "Reading EEPROM for light variables... ";
 
-	light.rgbs    = get<LightRgbArray>();
-	light.powers  = get<LightPowerArray>();
-	light.speeds  = get<LightSpeedArray>();
-	light.timings = get<LightTimingArray>();
+	light.rgbs   = get<LightRgbArray>();
+	light.powers = get<LightPowerArray>();
+	light.speeds = get<LightSpeedArray>();
 
 	verb << "Done ! (" << _address - EEPROM_LIGHT_START << " byte" << ((_address > 1) ? "s" : "") << " read)" << dendl;
 
@@ -103,7 +101,11 @@ void Memory::writeAlarms ()
 
 	verb << "Writing EEPROM for alarm variables... ";
 
-	put (alarms.getDawnTime());
+	put (alarms.dawnTime);
+	put (alarms.dawnDuration);
+	put (alarms.sunsetDuration);
+	put (alarms.sunsetDecreaseTime);
+	put (alarms.dawnVolume);
 
 	verb << "Done ! (" << _n << " byte" << ((_n > 1) ? "s" : "") << " written)" << dendl;
 }
@@ -115,7 +117,11 @@ bool Memory::readAlarms ()
 
 	verb << "Reading EEPROM for alarm variables... ";
 
-	alarms.setDawnTime (get<uint16_t>());
+	alarms.dawnTime           = get<Time>();
+	alarms.dawnDuration       = get<Timing>();
+	alarms.sunsetDuration     = get<Timing>();
+	alarms.sunsetDecreaseTime = get<Timing>();
+	alarms.dawnVolume         = get<SoundVolume>();
 
 	verb << "Done ! (" << _address - EEPROM_ALARM_START << " byte" << ((_address > 1) ? "s" : "") << " read)" << dendl;
 

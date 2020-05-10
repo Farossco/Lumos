@@ -23,7 +23,11 @@ private:
 	SoundMode changeSoundMode;
 	SoundVolume changeSoundVolume;
 	SoundOnOff changeSoundOn;
-	uint16_t changeDawnTime;
+	Time changeDawnTime;
+	Timing changeDawnDuration;
+	Timing changeSunsetDuration;
+	Timing changeSunsetDecreaseTime;
+	SoundVolume changeDawnVolume;
 
 	bool initialized;
 };

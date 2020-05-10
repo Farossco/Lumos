@@ -23,11 +23,16 @@ void VariableChange::init ()
 	changeRgbs        = light.rgbs;
 	changeLightPowers = light.powers;
 	changeLightSpeeds = light.speeds;
+
 	changeSoundMode   = sound.mode;
 	changeSoundVolume = sound.volume;
 	changeSoundOn     = sound.on;
 
-	changeDawnTime = alarms.getDawnTime();
+	changeDawnTime           = alarms.dawnTime;
+	changeDawnDuration       = alarms.dawnDuration;
+	changeSunsetDuration     = alarms.sunsetDuration;
+	changeSunsetDecreaseTime = alarms.sunsetDecreaseTime;
+	changeDawnVolume         = alarms.dawnVolume;
 
 	initialized = true;
 }
@@ -116,7 +121,7 @@ void VariableChange::check ()
 
 	if (changeDawnTime != alarms.dawnTime)
 	{
-		verb << "\"Dawn time\" changed from " << changeDawnTime / 60 << ":" << changeDawnTime % 60 << " (" << changeDawnTime << ") to " << alarms.dawnTime / 60 << ":" << alarms.dawnTime % 60 << " (" << alarms.dawnTime << ")" << dendl;
+		verb << "\"Dawn time\" changed from " << changeDawnTime.hour() << ":" << changeDawnTime.minute() << " (" << changeDawnTime << ") to " << alarms.dawnTime.hour() << ":" << alarms.dawnTime.minute() << " (" << alarms.dawnTime << ")" << dendl;
 
 		changeDawnTime  = alarms.dawnTime;
 		flagSendInfo    = true;
@@ -180,7 +185,7 @@ void VariableChange::sendData ()
 					break;
 
 				case RequestType::dawnTime:
-					message += alarms.getDawnTime();
+					message += alarms.getDawnTime().value();
 					break;
 
 				default:

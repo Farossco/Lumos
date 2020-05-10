@@ -1,12 +1,15 @@
 #ifndef ALARMS_H
 #define ALARMS_H
 
-#include <TimeLib.h>
+#include "Types.h"
 
 const bool MORNING_ALARM_ENABLED = true; // Enable morning alarm
 
 // Wake up
-const int DEFAULT_DAWN_TIME = 8 * 60 + 30; // 08h30
+const Time DEFAULT_DAWN_TIME              = Time (8, 30);   // 08h30
+const Timing DEFAULT_DAWN_DURATION        = Timing (30, 0); // 30 min
+const Timing DEFAULT_SUNSET_DURATION      = Timing (30, 0); // 30 min
+const Timing DEFAULT_SUNSET_DECREASE_TIME = Timing (5, 0);  // 5 min
 
 class Alarms
 {
@@ -16,15 +19,26 @@ public:
 	void init ();
 	void action ();
 
-	uint16_t currentTime ();
+	Time currentTime ();
 
-	void setDawnTime (uint16_t time);
-	uint16_t getDawnTime ();
+	void setDawnTime (Time time);
+	Time getDawnTime ();
+	void setDawnDuration (Timing timing);
+	Timing getDawnDuration ();
 
-	uint16_t dawnTime; // Dawn time in minutes
+	void setSunsetDuration (Timing time);
+	Timing getSunsetDuration ();
+	void setSunsetDecreaseTime (Timing timing);
+	Timing getSunsetDecreaseTime ();
+
+	SoundVolume dawnVolume;
+	Time dawnTime;             // Dawn time in minutes
+	Timing dawnDuration;       // The amount of time it takes to end the mode (in secondes)
+	Timing sunsetDuration;     // Duration before starting to decrease (in secondes)
+	Timing sunsetDecreaseTime; // The amount of time it takes to end the mode (in secondes)
 
 private:
-	static void dawnStart ();
+	void dawnStart ();
 
 	bool dawnTriggered;
 };

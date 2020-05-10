@@ -8,7 +8,7 @@ class SerialCom
 public:
 	void init (uint32_t debugBaudRate, uint32_t comBaudRate);
 	void receiveAndDecode ();
-	void waitForTime ();
+	bool checkTime ();
 	void sendTime ();
 	void getTime ();
 	void sendData ();

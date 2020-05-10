@@ -59,7 +59,7 @@ public:
 		DEF = T (ilmap (DEFp, 0, 100, MIN, MAX))
 	};
 
-	SettingBase(){ }
+	SettingBase(){ _value = 0; }
 
 	SettingBase (T value){ _value = constrain (value, MIN, MAX); }
 
@@ -80,12 +80,6 @@ public:
 
 	template <class U>
 	U operator / (U value){ return _value / value; }
-
-	T operator >> (int value){ return _value >> value; }
-
-	uint32_t operator << (int value){ return ((uint32_t) _value) << value; }
-
-	T operator & (T value){ return _value & value; }
 
 	void operator += (const Percentage & perc){ _value = constrain (this->toPercent().value() + perc.value(), MIN, MAX); }
 
@@ -141,15 +135,14 @@ class LightMode
 public:
 	enum Enum : uint8_t
 	{
-		continuous,     // Continuous lightning mode
-		flash,          // Flash mode
-		strobe,         // Strobe mode
-		fade,           // Fade mode
-		smooth,         // Smooth mode
-		dawn,           // Dawn mode
-		sunset,         // Sunset mode
-		startAnimation, // Start animation mode
-		music,          // Music mode
+		continuous, // Continuous lightning mode
+		flash,      // Flash mode
+		strobe,     // Strobe mode
+		fade,       // Fade mode
+		smooth,     // Smooth mode
+		dawn,       // Dawn mode
+		sunset,     // Sunset mode
+		music,      // Music mode
 
 		N,
 		MIN = continuous, // -Minimum mode value-
@@ -168,20 +161,51 @@ private:
 
 typedef SettingBase<bool, false, true, 0, 0> LightOnOff;
 
-typedef SettingBase<uint8_t, 5, 25, 100> LightPower;
+typedef SettingBase<uint8_t, 5, 15, 100> LightPower;
 typedef SettingArrayBase<LightPower, LightMode> LightPowerArray;
-
-typedef SettingBase<uint32_t, 0x00000000, 0x00FFFFFF, 100> LightRgb;
-typedef SettingArrayBase<LightRgb, LightMode> LightRgbArray;
 
 typedef SettingBase<uint8_t, 0x00, 0xFF, 100> LightColor;
 typedef SettingArrayBase<LightColor, LightMode> LightColorArray;
 
+class LightRgb : public SettingBase<uint32_t, 0x00000000, 0x00FFFFFF, 100>
+{
+public:
+	LightRgb ();
+	LightRgb (uint32_t);
+	LightRgb setRed (LightColor);
+	LightRgb setGreen (LightColor);
+	LightRgb setBlue (LightColor);
+	LightRgb setHue (uint8_t);
+	LightColor getRed ();
+	LightColor getGreen ();
+	LightColor getBlue ();
+	LightRgb operator * (double);
+	LightRgb operator / (double);
+};
+typedef SettingArrayBase<LightRgb, LightMode> LightRgbArray;
+
 typedef SettingBase<uint8_t, 0, 95, 67> LightSpeed;
 typedef SettingArrayBase<LightSpeed, LightMode> LightSpeedArray;
 
-typedef SettingBase<time_t, 0, -1U, 0> LightTiming;
-typedef SettingArrayBase<LightTiming, LightMode> LightTimingArray;
+class Timing : public SettingBase<time_t, 0, -1U, 0>
+{
+public:
+	Timing ();
+	Timing (time_t time);
+	Timing (uint8_t minute, uint8_t second);
+	uint8_t minute ();
+	uint8_t second ();
+};
+
+class Time : public SettingBase<uint16_t, 0, -1, 0>
+{
+public:
+	Time ();
+	Time (uint16_t time);
+	Time (uint8_t hour, uint8_t minute);
+	uint8_t hour ();
+	uint8_t minute ();
+};
 
 /* Serial reception errors types
  */

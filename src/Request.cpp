@@ -209,7 +209,7 @@ void Request::displayDebug ()
 			break;
 
 		case RequestType::dawnTime:
-			trace << "Dawn time (Current value): " << alarms.getDawnTime() / 60 << ":" << alarms.getDawnTime() % 60 << " (" << alarms.getDawnTime() << ")" << dendl;
+			trace << "Dawn time (Current value): " << alarms.getDawnTime().hour() << ":" << alarms.getDawnTime().minute() << " (" << alarms.getDawnTime() << ")" << dendl;
 			break;
 
 		case RequestType::soundCommand:

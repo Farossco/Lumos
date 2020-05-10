@@ -24,24 +24,13 @@ void SerialCom::init (uint32_t debugBaudRate, uint32_t comBaudRate)
 	logger.add (debugSerial, DEBUG_LEVEL);
 }
 
-void SerialCom::waitForTime ()
+bool SerialCom::checkTime ()
 {
-	time_t lastMillis = millis() - 5000;
+	getTime();
+	delay (10);
+	receiveAndDecode();
 
-	inf << "Waiting to receive time..." << dendl;
-
-	while (timeStatus() == timeNotSet) // Doesn't start if time isn't set
-	{
-		receiveAndDecode();
-
-		if (millis() - lastMillis >= 5000)
-		{
-			getTime();
-			lastMillis = millis();
-		}
-	}
-
-	trace << "Time Received" << dendl;
+	return (timeStatus() != timeNotSet);
 }
 
 void SerialCom::receiveAndDecode ()
@@ -109,7 +98,7 @@ void SerialCom::sendData ()
 
 void SerialCom::getData ()
 {
-	comSerialTx.print (RequestType (RequestType::requestData).toString (true));
+	comSerialTx.print (RequestType (RequestType::requestData).toString (true) + 'z');
 }
 
 SerialCom serial = SerialCom();

@@ -7,14 +7,44 @@
 Alarms::Alarms()
 { }
 
-void Alarms::setDawnTime (uint16_t time)
+void Alarms::setDawnTime (Time time)
 {
 	dawnTime = time;
 }
 
-uint16_t Alarms::getDawnTime ()
+Time Alarms::getDawnTime ()
 {
 	return dawnTime;
+}
+
+void Alarms::setSunsetDuration (Timing time)
+{
+	sunsetDuration = time;
+}
+
+Timing Alarms::getSunsetDuration ()
+{
+	return sunsetDuration;
+}
+
+void Alarms::setDawnDuration (Timing timing)
+{
+	dawnDuration = timing;
+}
+
+Timing Alarms::getDawnDuration ()
+{
+	return dawnDuration;
+}
+
+void Alarms::setSunsetDecreaseTime (Timing timing)
+{
+	sunsetDecreaseTime = timing;
+}
+
+Timing Alarms::getSunsetDecreaseTime ()
+{
+	return sunsetDecreaseTime;
 }
 
 #if defined(LUMOS_ARDUINO_MEGA)
@@ -27,7 +57,11 @@ void Alarms::init ()
 	{
 		inf << "This is first launch, alarm variables will be initialized to their default values" << endl;
 
-		dawnTime = DEFAULT_DAWN_TIME;
+		dawnTime           = DEFAULT_DAWN_TIME;
+		dawnDuration       = DEFAULT_DAWN_DURATION;
+		sunsetDuration     = DEFAULT_SUNSET_DURATION;
+		sunsetDecreaseTime = DEFAULT_SUNSET_DECREASE_TIME;
+		dawnVolume         = SoundVolume::DEF;
 	}
 
 	inf << "Alarms initialized." << dendl;
@@ -52,16 +86,17 @@ void Alarms::action ()
 	}
 }
 
-uint16_t Alarms::currentTime ()
+Time Alarms::currentTime ()
 {
-	return (uint16_t) (hour() * 60 + minute());
+	return Time (hour(), minute());
 }
 
 void Alarms::dawnStart ()
 {
 	light.setMode (LightMode::dawn);
 	light.switchOn();
-	sound.setVolume (15);
+	sound.setVolume (dawnVolume);
+	sound.setMode (SoundMode::freeChoice);
 	sound.command (SoundCommand::playDawn, 0);
 
 	inf << "Entering dawn mode from Alarms" << dendl;

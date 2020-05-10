@@ -16,8 +16,6 @@ void setup ()
 {
 	serial.init (ARDUINO_DEBUG_BAUD_RATE, COMM_BAUD_RATE);
 
-	if (WAIT_FOR_TIME) serial.waitForTime();
-
 	light.init();
 
 	sd.init(); // SD SPI needs to be initialized after the light strip SPI
