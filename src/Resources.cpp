@@ -33,7 +33,11 @@ const char messageTypeName9[] STORAGE = "SPE";
 const char messageTypeName10[] STORAGE = "SON";
 const char messageTypeName11[] STORAGE = "SMO";
 const char messageTypeName12[] STORAGE = "VOL";
-const char messageTypeName13[] STORAGE = "DTM";
+const char messageTypeName13[] STORAGE = "DVO";
+const char messageTypeName14[] STORAGE = "DTM";
+const char messageTypeName15[] STORAGE = "DDU";
+const char messageTypeName16[] STORAGE = "SDU";
+const char messageTypeName17[] STORAGE = "SDT";
 
 const char messageTypeDisplayName1[] STORAGE = "Time Tequest";
 const char messageTypeDisplayName2[] STORAGE = "Data Request";
@@ -47,7 +51,11 @@ const char messageTypeDisplayName9[] STORAGE = "Light Mode Speed";
 const char messageTypeDisplayName10[] STORAGE = "Sound On/Off";
 const char messageTypeDisplayName11[] STORAGE = "Sound Mode";
 const char messageTypeDisplayName12[] STORAGE = "Sound Volume";
-const char messageTypeDisplayName13[] STORAGE = "Dawn Time";
+const char messageTypeDisplayName13[] STORAGE = "Dawn Volume";
+const char messageTypeDisplayName14[] STORAGE = "Dawn Time";
+const char messageTypeDisplayName15[] STORAGE = "Dawn Duration";
+const char messageTypeDisplayName16[] STORAGE = "Sunset Duration";
+const char messageTypeDisplayName17[] STORAGE = "Sunset Decrease Time";
 
 const char errorName0[] STORAGE = "No error";
 const char errorName1[] STORAGE = "Incorrect Value";
@@ -55,13 +63,13 @@ const char errorName2[] STORAGE = "Incorrect Complement";
 const char errorName3[] STORAGE = "Incorrect Request Type";
 const char errorName4[] STORAGE = "Empty String";
 
-const FlashString nameUnknown                            = Flash (nameUnknown0);
-const FlashString lightModeName[LightMode::N]            = { Flash (lightModeName0), Flash (lightModeName1), Flash (lightModeName2), Flash (lightModeName3), Flash (lightModeName4), Flash (lightModeName5), Flash (lightModeName6), Flash (lightModeName7) };
-const FlashString soundModeName[SoundMode::N]            = { Flash (soundModeName0) };
-const FlashString soundCommandName[SoundCommand::N]      = { Flash (soundCommandName0), Flash (soundCommandName1), Flash (soundCommandName2), Flash (soundCommandName3), Flash (soundCommandName4), Flash (soundCommandName5), Flash (soundCommandName6) };
-const FlashString messageTypeName[RequestType::N]        = { Flash (nameUnknown), Flash (messageTypeName1), Flash (messageTypeName2), Flash (messageTypeName3), Flash (messageTypeName4), Flash (messageTypeName5), Flash (messageTypeName6), Flash (messageTypeName7), Flash (messageTypeName8), Flash (messageTypeName9), Flash (messageTypeName10), Flash (messageTypeName11), Flash (messageTypeName12), Flash (messageTypeName13) };
-const FlashString messageTypeDisplayName[RequestType::N] = { Flash (nameUnknown), Flash (messageTypeDisplayName1), Flash (messageTypeDisplayName2), Flash (messageTypeDisplayName3), Flash (messageTypeDisplayName4), Flash (messageTypeDisplayName5), Flash (messageTypeDisplayName6), Flash (messageTypeDisplayName7), Flash (messageTypeDisplayName8), Flash (messageTypeDisplayName9), Flash (messageTypeDisplayName10), Flash (messageTypeDisplayName11), Flash (messageTypeDisplayName12), Flash (messageTypeDisplayName13) };
-const FlashString errorName[RequestError::N]             = { Flash (errorName0), Flash (errorName1), Flash (errorName2), Flash (errorName3), Flash (errorName4) };
+const StringType nameUnknown                            = Flash (nameUnknown0);
+const StringType lightModeName[LightMode::N]            = { Flash (lightModeName0), Flash (lightModeName1), Flash (lightModeName2), Flash (lightModeName3), Flash (lightModeName4), Flash (lightModeName5), Flash (lightModeName6), Flash (lightModeName7) };
+const StringType soundModeName[SoundMode::N]            = { Flash (soundModeName0) };
+const StringType soundCommandName[SoundCommand::N]      = { Flash (soundCommandName0), Flash (soundCommandName1), Flash (soundCommandName2), Flash (soundCommandName3), Flash (soundCommandName4), Flash (soundCommandName5), Flash (soundCommandName6) };
+const StringType messageTypeName[RequestType::N]        = { Flash (nameUnknown), Flash (messageTypeName1), Flash (messageTypeName2), Flash (messageTypeName3), Flash (messageTypeName4), Flash (messageTypeName5), Flash (messageTypeName6), Flash (messageTypeName7), Flash (messageTypeName8), Flash (messageTypeName9), Flash (messageTypeName10), Flash (messageTypeName11), Flash (messageTypeName12), Flash (messageTypeName13), Flash (messageTypeName14), Flash (messageTypeName15), Flash (messageTypeName16), Flash (messageTypeName17) };
+const StringType messageTypeDisplayName[RequestType::N] = { Flash (nameUnknown), Flash (messageTypeDisplayName1), Flash (messageTypeDisplayName2), Flash (messageTypeDisplayName3), Flash (messageTypeDisplayName4), Flash (messageTypeDisplayName5), Flash (messageTypeDisplayName6), Flash (messageTypeDisplayName7), Flash (messageTypeDisplayName8), Flash (messageTypeDisplayName9), Flash (messageTypeDisplayName10), Flash (messageTypeDisplayName11), Flash (messageTypeDisplayName12), Flash (messageTypeDisplayName13), Flash (messageTypeDisplayName14), Flash (messageTypeDisplayName15), Flash (messageTypeDisplayName16), Flash (messageTypeDisplayName17) };
+const StringType errorName[RequestError::N]             = { Flash (errorName0), Flash (errorName1), Flash (errorName2), Flash (errorName3), Flash (errorName4) };
 
 const uint32_t WebcolorList[WEB_COLOR_HEIGHT][WEB_COLOR_WIDTH] STORAGE =
 {

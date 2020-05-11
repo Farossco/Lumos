@@ -34,7 +34,7 @@ Request::Request(String inputString)
 			inputString = inputString.substring (3); // Remove 3 first caracteres of the array (The prefix)
 
 			// If the data type needs a complement
-			if (type.getComplementType() != ComplementCategory::none)
+			if (type.needsComplement())
 			{
 				Bounds compBounds = type.getComplementBounds();
 
@@ -78,7 +78,7 @@ Request::Request(const String & prefixString, const String & complementString, c
 			Bounds infoBounds = type.getInformationBounds();
 			Bounds compBounds = type.getComplementBounds();
 
-			if (type.getComplementType() != ComplementCategory::none)
+			if (type.needsComplement())
 			{
 				complement = complementString.toInt();
 
@@ -110,12 +110,18 @@ void Request::process ()
 				setTime (information);
 				break;
 
-			case RequestType::lightModeRgb:
-				light.setRgb (information, complement);
+			case RequestType::soundCommand:
+				#if defined(LUMOS_ARDUINO_MEGA)
+				sound.command (complement, information); // TODO : Do this in Sound.cpp (Sound mode action)
+				#endif
 				break;
 
 			case RequestType::lightOnOff:
 				(information) ? light.switchOn() : light.switchOff();
+				break;
+
+			case RequestType::lightModeRgb:
+				light.setRgb (information, complement);
 				break;
 
 			case RequestType::lightModePower:
@@ -130,6 +136,10 @@ void Request::process ()
 				light.setSpeed (information, complement);
 				break;
 
+			case RequestType::soundOnOff:
+				information ? sound.switchOn() : sound.switchOff();
+				break;
+
 			case RequestType::soundMode:
 				sound.setMode (information);
 				break;
@@ -138,18 +148,23 @@ void Request::process ()
 				sound.setVolume (information);
 				break;
 
-			case RequestType::soundOnOff:
-				(information) ? sound.switchOn() : sound.switchOff();
+			case RequestType::alarmDawnVolume:
+				alarms.setDawnVolume (information);
 				break;
 
-			case RequestType::dawnTime:
+			case RequestType::alarmDawnTime:
 				alarms.setDawnTime (information);
 				break;
+			case RequestType::alarmDawnDuration:
+				alarms.setDawnDuration (information);
+				break;
 
-			case RequestType::soundCommand:
-				#if defined(LUMOS_ARDUINO_MEGA)
-				sound.command (complement, information); // TODO : Do this in Sound.cpp (Sound mode action)
-				#endif
+			case RequestType::alarmSunsetDuration:
+				alarms.setSunsetDuration (information);
+				break;
+
+			case RequestType::alarmSunsetDecreaseTime:
+				alarms.setSunsetDecreaseTime (information);
 				break;
 		}
 
@@ -168,20 +183,20 @@ void Request::displayDebug ()
 			trace << "Time (Current value) (readable): " << utils.getClock() << dendl;
 			break;
 
-		case RequestType::lightModeRgb:
-			trace << "RGB of " << LightMode (complement).toString() << " (Current value): " << hex << light.getRgb (complement) << endl;
-			verb << "Red       (Current value): " << light.getRed (complement) << endl;
-			verb << "Green     (Current value): " << light.getGreen (complement) << endl;
-			verb << "Blue      (Current value): " << light.getBlue (complement) << endl;
-			trace << np << endl;
+		case RequestType::soundCommand:
+			verb << "Command data: (" << information << ")" << dendl;
 			break;
 
 		case RequestType::lightOnOff:
 			trace << "Light On/Off (Current value): " << boolalpha << light.isOn() << dendl;
 			break;
 
+		case RequestType::lightModeRgb:
+			trace << "RGB of " << LightMode (complement).toString() << " (Current value): " << light.getRgb (complement) << dendl;
+			break;
+
 		case RequestType::lightModePower:
-			trace << "Power of " << LightMode (complement).toString() << " (Current value): " << light.getPowerRaw (complement) << " (" << light.getPowerPercent() << "%)" << dendl;
+			trace << "Power of " << LightMode (complement).toString() << " (Current value): " << light.getPowerRaw (complement) << dendl;
 			break;
 
 		case RequestType::lightMode:
@@ -192,7 +207,11 @@ void Request::displayDebug ()
 		case RequestType::lightModeSpeed:
 			verb << "Min Speed: " << LightSpeed::MIN << endl;
 			verb << "Max Speed: " << LightSpeed::MAX << endl;
-			trace << "Speed of " << LightMode (complement).toString() << " (Current value): " << light.getSpeedRaw (complement) << " (" << light.getSpeedPercent() << "%)" << dendl;
+			trace << "Speed of " << LightMode (complement).toString() << " (Current value): " << light.getSpeedRaw (complement) << dendl;
+			break;
+
+		case RequestType::soundOnOff:
+			trace << "On/Off (Current value): " << boolalpha << sound.isOn() << dendl;
 			break;
 
 		case RequestType::soundMode:
@@ -201,19 +220,27 @@ void Request::displayDebug ()
 			break;
 
 		case RequestType::soundVolume:
-			trace << "Volume (Current value): " << sound.getVolume() << dendl;
+			trace << "Sound Volume (Current value): " << sound.getVolume() << dendl;
 			break;
 
-		case RequestType::soundOnOff:
-			trace << "On/Off (Current value): " << boolalpha << sound.isOn() << dendl;
+		case RequestType::alarmDawnVolume:
+			trace << "Dawn Volume (Current value): " << alarms.getDawnVolume() << dendl;
 			break;
 
-		case RequestType::dawnTime:
-			trace << "Dawn time (Current value): " << alarms.getDawnTime().hour() << ":" << alarms.getDawnTime().minute() << " (" << alarms.getDawnTime() << ")" << dendl;
+		case RequestType::alarmDawnTime:
+			trace << "Dawn Time (Current value): " << alarms.getDawnTime() << dendl;
 			break;
 
-		case RequestType::soundCommand:
-			verb << "Command data: (" << information << ")" << dendl;
+		case RequestType::alarmDawnDuration:
+			trace << "Dawn Duration (Current value): " << alarms.getDawnDuration() << dendl;
+			break;
+
+		case RequestType::alarmSunsetDuration:
+			trace << "Sunset Duration (Current value): " << alarms.getSunsetDuration() << dendl;
+			break;
+
+		case RequestType::alarmSunsetDecreaseTime:
+			trace << "Sunset Decrease Time (Current value): " << alarms.getSunsetDecreaseTime() << dendl;
 			break;
 	}
 } // displayDebug
@@ -228,7 +255,7 @@ uint32_t Request::getInformation (){ return information; }
 
 String Request::getComplementString ()
 {
-	if (type.getComplementType() != ComplementCategory::none)
+	if (type.needsComplement())
 		return String (complement);
 
 	return "";

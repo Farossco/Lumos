@@ -182,9 +182,9 @@ void Light::dawn ()
 		counter2   = 1;
 		step       = alarms.getDawnDuration() * (1000.0 / (LIGHT_STRIP_HALF_LENGTH * 255));
 
-		stripUpdateOff();
+		lightAll (0);
 
-		inf << "Entering Dawn mode for " << alarms.getDawnDuration().minute() << " min " << alarms.getDawnDuration().second() << " s." << dendl;
+		inf << "Entering Dawn mode for " << alarms.getDawnDuration() << dendl;
 	}
 
 	if (millis() - delayCount >= step)
@@ -224,7 +224,7 @@ void Light::sunset ()
 
 		lightAll (getRgb (mode));
 
-		inf << "Entering Sunset mode for " << alarms.getSunsetDuration().minute() << " min " << alarms.getSunsetDuration().second() << " s." << dendl;
+		inf << "Entering Sunset mode for " << alarms.getSunsetDuration() << dendl;
 	}
 
 	if (state == 0) // Waiting until sunsetTime has passed
@@ -232,7 +232,7 @@ void Light::sunset ()
 		if (millis() - delayCount >= step)
 		{
 			state = 1;
-			trace << "Starting to shut down. Completely off in " << alarms.getSunsetDecreaseTime().minute() << " min " << alarms.getSunsetDecreaseTime().second() << " s." << dendl;
+			trace << "Starting to shut down. Completely off in " << alarms.getSunsetDecreaseTime() << dendl;
 			delayCount = millis();
 			step       = alarms.getSunsetDecreaseTime() * (1000.0 / (LIGHT_STRIP_HALF_LENGTH * 255)); // Changing the step for state 1
 			counter1   = 0;

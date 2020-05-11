@@ -5,6 +5,7 @@
 
 #define getArrayString(in, array) ((in < (sizeof(array) / sizeof(*array))) ? array[in] : nameUnknown)
 
+
 /****************************** LightMode ******************************/
 LightMode::LightMode() : _value (MIN){ }
 
@@ -75,13 +76,13 @@ LightRgb LightRgb::setHue (uint8_t hue)
 	return *this;
 } // LightRgb::setHue
 
-LightColor LightRgb::getRed (){ return *(((uint8_t *) &_value) + 2); }
+LightColor LightRgb::getRed () const { return *(((uint8_t *) &_value) + 2); }
 
-LightColor LightRgb::getGreen (){ return *(((uint8_t *) &_value) + 1); }
+LightColor LightRgb::getGreen () const { return *(((uint8_t *) &_value) + 1); }
 
-LightColor LightRgb::getBlue (){ return *(((uint8_t *) &_value) + 0); }
+LightColor LightRgb::getBlue () const { return *(((uint8_t *) &_value) + 0); }
 
-LightRgb LightRgb::operator * (double value)
+LightRgb LightRgb::operator * (double value) const
 {
 	LightRgb rgb;
 
@@ -92,7 +93,7 @@ LightRgb LightRgb::operator * (double value)
 	return rgb;
 }
 
-LightRgb LightRgb::operator / (double value)
+LightRgb LightRgb::operator / (double value) const
 {
 	LightRgb rgb;
 	uint8_t * pSelf = (uint8_t *) &_value;
@@ -104,16 +105,21 @@ LightRgb LightRgb::operator / (double value)
 	return rgb;
 }
 
+ostream & operator << (ostream & os, const LightRgb & rgb){ return os << "0x" << hex << noshowbase << setfill ('0') << setw (6) << rgb._value << dec << " (R" << rgb.getRed().value() << "/G" << rgb.getGreen().value() << "/B" << rgb.getBlue().value() << ")"; }
+
+
 /****************************** Timing ******************************/
 Timing::Timing () : SettingBase(){ }
 
-Timing::Timing (time_t time) : SettingBase (time){ }
+Timing::Timing (uint32_t time) : SettingBase (time){ }
 
 Timing::Timing (uint8_t minute, uint8_t second){ _value = minute * 60 + second; }
 
-uint8_t Timing::minute (){ return _value / 60; }
+uint8_t Timing::minute () const { return _value / 60; }
 
-uint8_t Timing::second (){ return _value % 60; }
+uint8_t Timing::second () const { return _value % 60; }
+
+ostream & operator << (ostream & os, const Timing & timing){ return os << timing.minute() << "min " << timing.second() << "s (" << timing._value << ")"; }
 
 
 /****************************** Time ******************************/
@@ -123,9 +129,11 @@ Time::Time (uint16_t time) : SettingBase (time){ }
 
 Time::Time (uint8_t hour, uint8_t minute){ _value = hour * 60 + minute; }
 
-uint8_t Time::hour (){ return _value / 60; }
+uint8_t Time::hour () const { return _value / 60; }
 
-uint8_t Time::minute (){ return _value % 60; }
+uint8_t Time::minute () const { return _value % 60; }
+
+ostream & operator << (ostream & os, const Time & time){ return os << time.hour() << "h" << time.minute() << " (" << time._value << ")"; }
 
 
 /****************************** RequestError ******************************/
@@ -181,6 +189,8 @@ Bounds RequestType::getInformationBounds ()
 
 		case lightModePower:
 		case lightModeSpeed:
+		case soundVolume:
+		case alarmDawnVolume:
 			return { Percentage::MIN, Percentage::MAX };
 
 		case lightMode:
@@ -189,14 +199,16 @@ Bounds RequestType::getInformationBounds ()
 		case soundMode:
 			return { SoundMode::MIN, SoundMode::MAX };
 
-		case soundVolume:
-			return { SoundVolume::MIN, SoundVolume::MAX };
-
 		case soundCommand:
 			return { SoundCommand::MIN, SoundCommand::MAX };
 
-		case dawnTime:
-			return { 0, 1439 };
+		case alarmDawnTime:
+			return { Time::MIN, Time::MAX };
+
+		case alarmDawnDuration:
+		case alarmSunsetDuration:
+		case alarmSunsetDecreaseTime:
+			return  { Timing::MIN, Timing::MAX };
 	}
 
 	return { 0, 0 };
@@ -216,6 +228,8 @@ ComplementCategory RequestType::getComplementType ()
 			return ComplementCategory::none;
 	}
 }
+
+bool RequestType::needsComplement (){ return getComplementType() != ComplementCategory::none; }
 
 const String RequestType::toString (bool shortened) const { return getArrayString (_value, (shortened ? messageTypeName : messageTypeDisplayName)); }
 

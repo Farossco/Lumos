@@ -58,7 +58,7 @@ void VariableChange::check ()
 	{
 		if (changeRgbs[mode] != light.rgbs[mode])
 		{
-			verb << "\"Rgb\" of " << mode.toString() << " mode changed from 0x" << setfill ('0') << setw (6) << hex << changeRgbs[mode] << " to 0x" << light.rgbs[mode] << dendl;
+			verb << "\"RGB\" of " << mode.toString() << " mode changed from " << changeRgbs[mode] << " to " << light.rgbs[mode] << dendl;
 
 			changeRgbs[mode] = light.rgbs[mode];
 			flagSendInfo     = true;
@@ -67,7 +67,7 @@ void VariableChange::check ()
 
 		if (changeLightPowers[mode] != light.powers[mode])
 		{
-			verb << "\"Light Power\" of " << mode.toString() << " mode changed from " << changeLightPowers[mode] << " (" << changeLightPowers[mode].toPercent() << "%) to " << light.powers[mode] << " (" << light.getPowerPercent() << "%)" << dendl;
+			verb << "\"Light Power\" of " << mode.toString() << " mode changed from " << changeLightPowers[mode] << " to " << light.powers[mode] << dendl;
 
 			changeLightPowers[mode] = light.powers[mode];
 			flagSendInfo            = true;
@@ -121,18 +121,51 @@ void VariableChange::check ()
 
 	if (changeDawnTime != alarms.dawnTime)
 	{
-		verb << "\"Dawn time\" changed from " << changeDawnTime.hour() << ":" << changeDawnTime.minute() << " (" << changeDawnTime << ") to " << alarms.dawnTime.hour() << ":" << alarms.dawnTime.minute() << " (" << alarms.dawnTime << ")" << dendl;
+		verb << "\"Dawn time\" changed from " << changeDawnTime << " to " << alarms.dawnTime << dendl;
 
 		changeDawnTime  = alarms.dawnTime;
 		flagSendInfo    = true;
 		flagWriteEeprom = true;
 	}
 
-	if (flagSendInfo)
-		sendData();
+	if (changeDawnDuration != alarms.dawnDuration)
+	{
+		verb << "\"Dawn Duration\" changed from " << changeDawnDuration << " to " << alarms.dawnDuration << dendl;
 
-	if (flagWriteEeprom)
-		memory.writeAll();
+		changeDawnDuration = alarms.dawnDuration;
+		flagSendInfo       = true;
+		flagWriteEeprom    = true;
+	}
+
+	if (changeSunsetDuration != alarms.sunsetDuration)
+	{
+		verb << "\"Sunset Duration\" changed from " << changeSunsetDuration << " to " << alarms.sunsetDuration << dendl;
+
+		changeSunsetDuration = alarms.sunsetDuration;
+		flagSendInfo         = true;
+		flagWriteEeprom      = true;
+	}
+
+	if (changeSunsetDecreaseTime != alarms.sunsetDecreaseTime)
+	{
+		verb << "\"Sunset Decrease Time\" changed from " << changeSunsetDecreaseTime << " to " << alarms.sunsetDecreaseTime << dendl;
+
+		changeSunsetDecreaseTime = alarms.sunsetDecreaseTime;
+		flagSendInfo             = true;
+		flagWriteEeprom          = true;
+	}
+
+	if (changeDawnVolume != alarms.dawnVolume)
+	{
+		verb << "\"Dawn Volume\" changed from " << changeDawnVolume << " to " << alarms.dawnVolume << dendl;
+
+		changeDawnVolume = alarms.dawnVolume;
+		flagSendInfo     = true;
+		flagWriteEeprom  = true;
+	}
+
+	if (flagSendInfo) sendData();
+	if (flagWriteEeprom) memory.writeAll();
 } // VariableChange::check
 
 void VariableChange::sendData ()
@@ -147,10 +180,19 @@ void VariableChange::sendData ()
 		{
 			String message = type.toString (true);
 
+			if (type.needsComplement())
+				message += complement;
+
 			switch (type) // info
 			{
+				case RequestType::unknown:
+				case RequestType::requestTime:
+				case RequestType::requestData:
+				case RequestType::soundCommand:
+				case RequestType::provideTime:
+					break;
+
 				case RequestType::lightModeRgb:
-					message += complement;
 					message += utils.ltos (light.getRgb (complement).value(), HEX);
 					break;
 
@@ -159,7 +201,6 @@ void VariableChange::sendData ()
 					break;
 
 				case RequestType::lightModePower:
-					message += complement;
 					message += light.getPowerPercent (complement).value();
 					break;
 
@@ -168,7 +209,6 @@ void VariableChange::sendData ()
 					break;
 
 				case RequestType::lightModeSpeed:
-					message += complement;
 					message += light.getSpeedPercent (complement).value();
 					break;
 
@@ -184,11 +224,24 @@ void VariableChange::sendData ()
 					message += sound.isOn();
 					break;
 
-				case RequestType::dawnTime:
+				case RequestType::alarmDawnVolume:
+					message += alarms.getDawnVolume().value();
+					break;
+
+				case RequestType::alarmDawnTime:
 					message += alarms.getDawnTime().value();
 					break;
 
-				default:
+				case RequestType::alarmDawnDuration:
+					message += alarms.getDawnDuration().value();
+					break;
+
+				case RequestType::alarmSunsetDuration:
+					message += alarms.getSunsetDuration().value();
+					break;
+
+				case RequestType::alarmSunsetDecreaseTime:
+					message += alarms.getSunsetDecreaseTime().value();
 					break;
 			}
 

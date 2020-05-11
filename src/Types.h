@@ -87,9 +87,9 @@ public:
 
 	T value () const { return _value; } // Get the raw value
 
-	friend ostream & operator << (ostream & os, const SettingBase & sett){ return os << sett._value; }
+	friend ostream & operator << (ostream & os, const SettingBase & sett){ return os << sett._value << " (" << sett.toPercent() << "%)"; }
 
-	Percentage toPercent (){ return Percentage (utils.map (_value, MIN, MAX, Percentage::MIN, Percentage::MAX)); }
+	Percentage toPercent () const { return Percentage (utils.map (_value, MIN, MAX, Percentage::MIN, Percentage::MAX)); }
 
 protected:
 	T _value;
@@ -176,35 +176,38 @@ public:
 	LightRgb setGreen (LightColor);
 	LightRgb setBlue (LightColor);
 	LightRgb setHue (uint8_t);
-	LightColor getRed ();
-	LightColor getGreen ();
-	LightColor getBlue ();
-	LightRgb operator * (double);
-	LightRgb operator / (double);
+	LightColor getRed () const;
+	LightColor getGreen () const;
+	LightColor getBlue () const;
+	LightRgb operator * (double) const;
+	LightRgb operator / (double) const;
+	friend ostream & operator << (ostream & os, const LightRgb & rgb);
 };
 typedef SettingArrayBase<LightRgb, LightMode> LightRgbArray;
 
 typedef SettingBase<uint8_t, 0, 95, 67> LightSpeed;
 typedef SettingArrayBase<LightSpeed, LightMode> LightSpeedArray;
 
-class Timing : public SettingBase<time_t, 0, -1U, 0>
+class Timing : public SettingBase<uint32_t, 0, -1UL, 0>
 {
 public:
 	Timing ();
-	Timing (time_t time);
+	Timing (uint32_t time);
 	Timing (uint8_t minute, uint8_t second);
-	uint8_t minute ();
-	uint8_t second ();
+	uint8_t minute () const;
+	uint8_t second () const;
+	friend ostream & operator << (ostream & os, const Timing & timing);
 };
 
-class Time : public SettingBase<uint16_t, 0, -1, 0>
+class Time : public SettingBase<uint16_t, 0, 1439, 0>
 {
 public:
 	Time ();
 	Time (uint16_t time);
 	Time (uint8_t hour, uint8_t minute);
-	uint8_t hour ();
-	uint8_t minute ();
+	uint8_t hour () const;
+	uint8_t minute () const;
+	friend ostream & operator << (ostream & os, const Time & time);
 };
 
 /* Serial reception errors types
@@ -259,21 +262,25 @@ public:
 		soundCommand, // Sound commands for "free choice" mode
 		provideTime,  // Provide : Time
 
-		lightOnOff,     // Provide : Light On/off
-		lightModeRgb,   // Provide : Light RGB
-		lightModePower, // Provide : Light mode Power
-		lightMode,      // Provide : Light mode
-		lightModeSpeed, // Provide : Light mode Speed
-		soundOnOff,     // Provide : Sound on/off
-		soundMode,      // Provide : Sound mode
-		soundVolume,    // Provide : Sound volume
-		dawnTime,       // Provide : Dawn time
+		lightOnOff,              // Provide : Light On/off
+		lightModeRgb,            // Provide : Light RGB
+		lightModePower,          // Provide : Light mode Power
+		lightMode,               // Provide : Light mode
+		lightModeSpeed,          // Provide : Light mode Speed
+		soundOnOff,              // Provide : Sound on/off
+		soundMode,               // Provide : Sound mode
+		soundVolume,             // Provide : Sound volume
+		alarmDawnVolume,         // Provide : Dawn sounds volume
+		alarmDawnTime,           // Provide : Dawn alarm time
+		alarmDawnDuration,       // Provide : Dawn alarm duration
+		alarmSunsetDuration,     // Provide : Sunset mode duration
+		alarmSunsetDecreaseTime, // Provide : Sunset mode decrease time
 
 		N,
-		MIN      = unknown,    // - Minimum value -
-		SEND_MIN = lightOnOff, // - First value to send to Serial -
-		SEND_MAX = dawnTime,   // - Last value to send to Serial -
-		MAX      = dawnTime    // - Maximum value -
+		MIN      = unknown,                 // - Minimum value -
+		SEND_MIN = lightOnOff,              // - First value to send to Serial -
+		SEND_MAX = alarmSunsetDecreaseTime, // - Last value to send to Serial -
+		MAX      = alarmSunsetDecreaseTime  // - Maximum value -
 	};
 
 	RequestType();
@@ -283,6 +290,7 @@ public:
 	Bounds getInformationBounds ();
 	Bounds getComplementBounds ();
 	ComplementCategory getComplementType ();
+	bool needsComplement ();
 	const String toString (bool shortened = false) const;
 	RequestType operator = (const String & typeString);
 

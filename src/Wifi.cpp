@@ -33,7 +33,7 @@ void Wifi::init ()
 
 	WiFi.begin (SSID0, PASS0);
 
-	time_t a = millis();
+	uint32_t a = millis();
 	while (WiFi.status() != WL_CONNECTED)
 	{
 		if (millis() - a >= 200)
@@ -199,7 +199,7 @@ void Wifi::handleCommand ()
 			serial.comSerialTx.print (data);
 		}
 
-		message = json.getDataPretty ();
+		message = json.getDataPretty();
 	}
 
 	server.send (200, "application/json", message);

@@ -147,7 +147,8 @@ void Light::init ()
 		reset();
 	}
 
-	stripUpdateOff();
+	lightAll (0);
+	stripUpdate (0);
 
 	mode     = LightMode::continuous;
 	lastMode = LightMode::continuous; // Initialiazing last mode as well
@@ -192,7 +193,8 @@ void Light::action ()
 	// If lightning is off, shut all lights
 	if (isOff())
 	{
-		stripUpdateOff();
+		lightAll (0);
+		stripUpdate (0);
 		lastMode = LightMode::continuous;
 		return;
 	}
@@ -211,19 +213,10 @@ void Light::stripUpdate (LightPower power)
 	digitalWrite (LIGHT_PIN_STRIP_CS, LOW);
 }
 
-void Light::stripUpdateOff ()
-{
-	strip.setBrightness (0);
-
-	digitalWrite (LIGHT_PIN_STRIP_CS, HIGH);
-	strip.show();
-	digitalWrite (LIGHT_PIN_STRIP_CS, LOW);
-}
-
 void Light::startAnimWait ()
 {
 	counter1 = 0;
-	state   = 0;
+	state    = 0;
 
 	while (counter1 >= 0)
 	{

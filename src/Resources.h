@@ -7,11 +7,11 @@
 #define STORE_IN_PROGMEM true
 
 #if (STORE_IN_PROGMEM)
-# define FlashString __FlashStringHelper *
-# define Flash(x) reinterpret_cast<const FlashString>(x)
+# define StringType __FlashStringHelper *
+# define Flash(x) reinterpret_cast<const StringType>(x)
 # define STORAGE PROGMEM
 #else
-# define FlashString char *
+# define StringType char *
 # define Flash(x) x
 # define STORAGE
 #endif
@@ -23,13 +23,13 @@
 
 #define FULL_LINE        0x000000 // TODO : get rid of that
 
-extern const FlashString nameUnknown;
-extern const FlashString lightModeName[LightMode::N];
-extern const FlashString soundModeName[SoundMode::N];
-extern const FlashString soundCommandName[SoundCommand::N];
-extern const FlashString messageTypeName[RequestType::N];
-extern const FlashString messageTypeDisplayName[RequestType::N];
-extern const FlashString errorName[RequestError::N];
+extern const StringType nameUnknown;
+extern const StringType lightModeName[LightMode::N];
+extern const StringType soundModeName[SoundMode::N];
+extern const StringType soundCommandName[SoundCommand::N];
+extern const StringType messageTypeName[RequestType::N];
+extern const StringType messageTypeDisplayName[RequestType::N];
+extern const StringType errorName[RequestError::N];
 
 extern const uint32_t WebcolorList[WEB_COLOR_HEIGHT][WEB_COLOR_WIDTH];
 

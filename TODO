@@ -3,4 +3,5 @@
 - Consider : Make stored value in percent (In SettingBase, values are stored in percent and returned with constrain)
 - Stop using readUntilString for Serial
 - Consider moving to LittleFS
-- Add a way to change alarm values
+- Add Alarm settings to Json
+- Add Print for every type

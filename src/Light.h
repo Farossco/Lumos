@@ -73,7 +73,6 @@ private:
 	void startAnimWait ();
 	void startAnimDone ();
 	void stripUpdate (LightPower power);
-	void stripUpdateOff ();
 
 	void modeActions ();
 	void continuous (); // Default mode

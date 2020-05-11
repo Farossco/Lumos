@@ -21,17 +21,19 @@ public:
 
 	Time currentTime ();
 
+	void setDawnVolumeRaw (SoundVolume volume);
+	void setDawnVolume (Percentage volume);
+	SoundVolume getDawnVolume ();
 	void setDawnTime (Time time);
 	Time getDawnTime ();
 	void setDawnDuration (Timing timing);
 	Timing getDawnDuration ();
-
 	void setSunsetDuration (Timing time);
 	Timing getSunsetDuration ();
 	void setSunsetDecreaseTime (Timing timing);
 	Timing getSunsetDecreaseTime ();
 
-	SoundVolume dawnVolume;
+	SoundVolume dawnVolume;    // Dawn sounds volume
 	Time dawnTime;             // Dawn time in minutes
 	Timing dawnDuration;       // The amount of time it takes to end the mode (in secondes)
 	Timing sunsetDuration;     // Duration before starting to decrease (in secondes)

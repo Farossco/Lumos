@@ -16,9 +16,18 @@ Sound::Sound()
 
 #endif
 
-void Sound::setVolume (SoundVolume newVolume)
+void Sound::setVolumeRaw (SoundVolume newVolume)
 {
 	volume = newVolume;
+
+	#if defined(LUMOS_ARDUINO_MEGA)
+	myDFPlayer.volume (volume.value());
+	#endif
+}
+
+void Sound::setVolume (Percentage percent)
+{
+	volume = percent;
 
 	#if defined(LUMOS_ARDUINO_MEGA)
 	myDFPlayer.volume (volume.value());
@@ -89,7 +98,7 @@ void Sound::init (HardwareSerial &soundSerial)
 	}
 
 	myDFPlayer.pause();
-	setVolume (volume);
+	setVolumeRaw (volume);
 }
 
 void Sound::action ()
@@ -123,43 +132,43 @@ void Sound::command (SoundCommand command, uint32_t information)
 	switch (command)
 	{
 		case SoundCommand::playRandom:
-			setVolume (volume);
+			setVolumeRaw (volume);
 			myDFPlayer.randomAll();
 			trace << "Playing random mp3 until stop" << dendl;
 			break;
 
 		case SoundCommand::playOne:
-			setVolume (volume);
+			setVolumeRaw (volume);
 			myDFPlayer.playFolder (2, information);
 			trace << "Playing mp3 " << information << " with volume " << volume << "/" << SoundVolume::MAX << dendl;
 			break;
 
 		case SoundCommand::playNext:
-			setVolume (volume);
+			setVolumeRaw (volume);
 			myDFPlayer.next();
 			trace << "Playing next mp3" << dendl;
 			break;
 
 		case SoundCommand::playPrevious:
-			setVolume (volume);
+			setVolumeRaw (volume);
 			myDFPlayer.previous();
 			trace << "Playing previous mp3" << dendl;
 			break;
 
 		case SoundCommand::pause:
-			setVolume (volume);
+			setVolumeRaw (volume);
 			myDFPlayer.pause();
 			trace << "Pausing mp3 play" << dendl;
 			break;
 
 		case SoundCommand::resume:
-			setVolume (volume);
+			setVolumeRaw (volume);
 			myDFPlayer.start();
 			trace << "Resuming mp3 play" << dendl;
 			break;
 
 		case SoundCommand::playDawn:
-			setVolume (volume);
+			setVolumeRaw (volume);
 			myDFPlayer.playFolder (1, 1);
 			trace << "Playing dawn mp3" << dendl;
 			break;

@@ -7,47 +7,31 @@
 Alarms::Alarms()
 { }
 
-void Alarms::setDawnTime (Time time)
-{
-	dawnTime = time;
-}
+void Alarms::setDawnVolumeRaw (SoundVolume volume){ dawnVolume = volume; }
 
-Time Alarms::getDawnTime ()
-{
-	return dawnTime;
-}
+void Alarms::setDawnVolume (Percentage percent){ dawnVolume = percent; }
 
-void Alarms::setSunsetDuration (Timing time)
-{
-	sunsetDuration = time;
-}
+SoundVolume Alarms::getDawnVolume (){ return dawnVolume; }
 
-Timing Alarms::getSunsetDuration ()
-{
-	return sunsetDuration;
-}
+void Alarms::setDawnTime (Time time){ dawnTime = time; }
 
-void Alarms::setDawnDuration (Timing timing)
-{
-	dawnDuration = timing;
-}
+Time Alarms::getDawnTime (){ return dawnTime; }
 
-Timing Alarms::getDawnDuration ()
-{
-	return dawnDuration;
-}
+void Alarms::setSunsetDuration (Timing timing){ sunsetDuration = timing; }
 
-void Alarms::setSunsetDecreaseTime (Timing timing)
-{
-	sunsetDecreaseTime = timing;
-}
+Timing Alarms::getSunsetDuration (){ return sunsetDuration; }
 
-Timing Alarms::getSunsetDecreaseTime ()
-{
-	return sunsetDecreaseTime;
-}
+void Alarms::setDawnDuration (Timing timing){ dawnDuration = timing; }
+
+Timing Alarms::getDawnDuration (){ return dawnDuration; }
+
+void Alarms::setSunsetDecreaseTime (Timing timing){ sunsetDecreaseTime = timing; }
+
+Timing Alarms::getSunsetDecreaseTime (){ return sunsetDecreaseTime; }
 
 #if defined(LUMOS_ARDUINO_MEGA)
+
+Time Alarms::currentTime (){ return Time (hour(), minute()); }
 
 void Alarms::init ()
 {
@@ -86,16 +70,11 @@ void Alarms::action ()
 	}
 }
 
-Time Alarms::currentTime ()
-{
-	return Time (hour(), minute());
-}
-
 void Alarms::dawnStart ()
 {
 	light.setMode (LightMode::dawn);
 	light.switchOn();
-	sound.setVolume (dawnVolume);
+	sound.setVolumeRaw (dawnVolume);
 	sound.setMode (SoundMode::freeChoice);
 	sound.command (SoundCommand::playDawn, 0);
 

@@ -21,7 +21,8 @@ public:
 	void action ();
 	void command (SoundCommand command, uint32_t information);
 
-	void setVolume (SoundVolume newVolume);
+	void setVolumeRaw (SoundVolume newVolume);
+	void setVolume (Percentage percent);
 	void setMode (SoundMode newMode);
 	void switchOn ();
 	void switchOff ();
