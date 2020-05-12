@@ -17,7 +17,7 @@ const uint8_t LIGHT_PIN_CLOCK         = 52;
 const uint8_t LIGHT_PIN_MUSIC_IN      = 0;
 const uint8_t LIGHT_PIN_STRIP_CS      = 11;
 
-const uint8_t LIGHT_TAIL_LENGTH = 15;
+const uint8_t LIGHT_TAIL_LENGTH = LIGHT_STRIP_HALF_LENGTH;
 
 const uint16_t LIGHT_SA_COLOR_STEP = 6 * 255 / (LIGHT_STRIP_LENGTH / 4);
 

@@ -9,6 +9,7 @@
 # include "ArduinoLogger.h"
 # include "Utils.h"
 # include "Resources.h"
+# include "Alarms.h"
 
 Json::Json()
 { }
@@ -33,27 +34,25 @@ String Json::getData ()
 
 void Json::generateData (String & string, bool pretty)
 {
-	const char status[]  = "OK";
-	const char message[] = "";
-
-	const size_t capacity =
-	  JSON_OBJECT_SIZE (4)                 // root (status/message/light/sound)
-	  + sizeof(status) + sizeof(message)   // status + message (Strings)
+	const size_t capacity = 0              // Necessary margin
+	  + JSON_OBJECT_SIZE (5)               // root (status/message/light/sound/alarms)
 	  + JSON_OBJECT_SIZE (5)               // light (on/mode/rgb/power/speed)
 	  + 3 * JSON_ARRAY_SIZE (LightMode::N) // light:rgb[] + light:power[] + light:speed[]
 	  + JSON_OBJECT_SIZE (3)               // sound (on/volume/mode)
-	  + 10                                 // Security margin
+	  + JSON_OBJECT_SIZE (2)               // alarms (dawn/sunset)
+	  + JSON_OBJECT_SIZE (3)               // dawn (volume/time/duration/)
+	  + JSON_OBJECT_SIZE (2)               // sunset (duration/decreaseTime)
 	;
 
-	DynamicJsonDocument root (capacity);
+	StaticJsonDocument<capacity> root;
 
-	root["Status"]  = status;
-	root["Message"] = message;
+	root["Status"]  = "OK";
+	root["Message"] = "";
 
 	// ****** Light ****** //
 	JsonObject rootLight = root.createNestedObject ("Light");
-	rootLight["On"]   = light.isOn();
-	rootLight["Mode"] = (uint8_t) light.getMode();
+	rootLight["On"]   = light.isOn();              // -- On/Off -- //
+	rootLight["Mode"] = (uint8_t) light.getMode(); // -- Mode -- //
 
 	// -- Rgb -- //
 	JsonArray rootLightRgb = rootLight.createNestedArray ("Rgb");
@@ -70,11 +69,27 @@ void Json::generateData (String & string, bool pretty)
 	for (LightMode mode = LightMode::MIN; mode <= LightMode::MAX; mode++)
 		rootLightSpeed.add (light.getSpeedPercent (mode).value());
 
+
 	// ****** Sound ****** //
 	JsonObject rootSound = root.createNestedObject ("Sound");
-	rootSound["On"]     = sound.isOn();
-	rootSound["Volume"] = sound.getVolume().value();
-	rootSound["Mode"]   = (uint8_t) sound.getMode();
+	rootSound["On"]     = sound.isOn();              // -- On/Off -- //
+	rootSound["Volume"] = sound.getVolume().value(); // -- Volume -- //
+	rootSound["Mode"]   = (uint8_t) sound.getMode(); // -- Mode -- //
+
+
+	// ****** Alarms ****** //
+	JsonObject rootAlarms = root.createNestedObject ("Alarms");
+
+	// -- Dawn -- //
+	JsonObject rootAlarmsDawn = rootAlarms.createNestedObject ("Dawn");
+	rootAlarmsDawn["Volume"]   = alarms.getDawnVolume().value();   // Volume //
+	rootAlarmsDawn["Time"]     = alarms.getDawnTime().value();     // Time //
+	rootAlarmsDawn["Duration"] = alarms.getDawnDuration().value(); // Duration //
+
+	// -- Sunset -- //
+	JsonObject rootAlarmsSunset = rootAlarms.createNestedObject ("Sunset");
+	rootAlarmsSunset["Duration"]     = alarms.getSunsetDuration().value();     // Time //
+	rootAlarmsSunset["DecreaseTime"] = alarms.getSunsetDecreaseTime().value(); // Duration //
 
 	if (pretty)
 		serializeJsonPretty (root, string);
@@ -109,11 +124,12 @@ void Json::generateResources (String & string, bool pretty)
 	  + JSON_OBJECT_SIZE (3)                         // root (Status/Message/Light)
 	  + JSON_OBJECT_SIZE (2)                         // light (ModeNames/Colors)
 	  + JSON_ARRAY_SIZE (LightMode::N)               // modeNames array
-	  + LightMode::N * 15                            // modeNames Strings
-	  + (JSON_ARRAY_SIZE (colorNRows))               // color array
+	  + LightMode::N * JSON_STRING_SIZE (15)         // modeNames Strings
+	  + JSON_ARRAY_SIZE (colorNRows)                 // color array
 	  + colorNRows * JSON_ARRAY_SIZE (colorNColumns) // color[i] array
 	;
-	DynamicJsonDocument root (capacity);
+
+	StaticJsonDocument<capacity> root;
 
 	root["Status"]  = "OK";
 	root["Message"] = "";
@@ -162,18 +178,15 @@ String Json::getError (RequestError error)
 
 void Json::generateError (String & string, bool pretty, RequestError error)
 {
-	const char status[]  = "ERROR";
-	const String message = error.toString();
-
-	const size_t capacity =
-	  JSON_OBJECT_SIZE (2)                // root (status/message)
-	  + sizeof(status) + message.length() // status + error (Strings)
+	const size_t capacity = 0
+	  + JSON_OBJECT_SIZE (2)   // root (status/message)
+	  + JSON_STRING_SIZE (100) // message (String duplication)
 	;
 
-	DynamicJsonDocument root (capacity);
+	StaticJsonDocument<capacity> root;
 
-	root["Status"]  = status;
-	root["Message"] = message;
+	root["Status"]  = "ERROR";
+	root["Message"] = error.toString();
 
 	if (pretty)
 		serializeJsonPretty (root, string);
