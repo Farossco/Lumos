@@ -39,6 +39,8 @@ void SerialCom::receiveAndDecode ()
 
 	if ((serialInput = &debugSerial)->available() || (serialInput = &comSerialRx)->available())
 	{
+		serialInput->setTimeout (serialInput == &debugSerial ? 2000 : 50);
+
 		Request request (serialInput->readStringUntil ('z'));
 
 		request.process();
