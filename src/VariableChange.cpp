@@ -54,7 +54,7 @@ void VariableChange::check ()
 	}
 
 	// TODO : simplify and remove debug
-	for (LightMode mode = LightMode::MIN; mode <= LightMode::MAX; mode++)
+	for (LightMode mode; mode < LightMode::N; mode++)
 	{
 		if (changeRgbs[mode] != light.rgbs[mode])
 		{
@@ -172,7 +172,7 @@ void VariableChange::sendData ()
 {
 	trace << "Sending variables infos to the ESP8266" << dendl;
 
-	for (RequestType type = RequestType::SEND_MIN; type <= RequestType::SEND_MAX; type++)
+	for (RequestType type = RequestType::SEND_START; type < RequestType::N; type++)
 	{
 		Bounds bounds = type.getComplementBounds();
 

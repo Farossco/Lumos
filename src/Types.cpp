@@ -7,9 +7,9 @@
 
 
 /****************************** LightMode ******************************/
-LightMode::LightMode() : _value (MIN){ }
+LightMode::LightMode() : _value (static_cast<Enum>(0)){ }
 
-LightMode::LightMode (uint8_t value){ _value = static_cast<Enum>(value); }
+LightMode::LightMode (uint8_t value) : _value (constrain (static_cast<Enum>(value), MIN, MAX)){ }
 
 LightMode::operator uint8_t (){ return static_cast<uint8_t>(_value); }
 
@@ -21,7 +21,7 @@ ostream & operator << (ostream & os, const LightMode & mode){ return os << mode.
 
 
 /****************************** Percentage ******************************/
-Percentage::Percentage (uint8_t value){ _value = constrain (value, MIN, MAX); }
+Percentage::Percentage (uint8_t value) : _value (constrain (value, MIN, MAX)){ }
 
 
 /****************************** LightRgb ******************************/
@@ -141,9 +141,9 @@ ostream & operator << (ostream & os, const Time & time){ return os << time.hour(
 
 
 /****************************** RequestError ******************************/
-RequestError::RequestError (){ }
+RequestError::RequestError () : _value (static_cast<Enum>(0)){ }
 
-RequestError::RequestError(uint8_t value){ _value = static_cast<Enum>(value); }
+RequestError::RequestError(uint8_t value) : _value (constrain (static_cast<Enum>(value), MIN, MAX)){ }
 
 RequestError::operator uint8_t (){ return static_cast<uint8_t>(_value); }
 
@@ -153,9 +153,9 @@ ostream & operator << (ostream & os, const RequestError & error){ return os << e
 
 
 /****************************** RequestType ******************************/
-RequestType::RequestType(){ }
+RequestType::RequestType() : _value (static_cast<Enum>(0)){ }
 
-RequestType::RequestType(uint8_t value){ _value = static_cast<Enum>(value); }
+RequestType::RequestType(uint8_t value) : _value (constrain (static_cast<Enum>(value), MIN, MAX)){ }
 
 RequestType::operator uint8_t (){ return static_cast<uint8_t>(_value); }
 
@@ -242,7 +242,7 @@ const String RequestType::toString (bool shortened) const { return getArrayStrin
 RequestType RequestType::operator = (const String & typeString)
 {
 	// Test correspondance for each type
-	for (RequestType type = MIN; type <= MAX; type++)
+	for (RequestType type; type < N; type++)
 		if (typeString == type) // If there is a match, we return it
 			return *this = type;
 
@@ -255,9 +255,9 @@ ostream & operator << (ostream & os, const RequestType & type){ return os << typ
 
 
 /****************************** Sound Mode ******************************/
-SoundMode::SoundMode(){ }
+SoundMode::SoundMode() : _value (static_cast<Enum>(0)){ }
 
-SoundMode::SoundMode (uint8_t value){ _value = static_cast<Enum>(value); }
+SoundMode::SoundMode (uint8_t value) : _value (constrain (static_cast<Enum>(value), MIN, MAX)){ }
 
 SoundMode::operator uint8_t (){ return (uint8_t) _value; }
 
@@ -267,9 +267,9 @@ ostream & operator << (ostream & os, const SoundMode & mode){ return os << mode.
 
 
 /****************************** Sound Command ******************************/
-SoundCommand::SoundCommand() : _value (MIN){ }
+SoundCommand::SoundCommand() : _value (static_cast<Enum>(0)){ }
 
-SoundCommand::SoundCommand (uint8_t value){ _value = static_cast<Enum>(value); }
+SoundCommand::SoundCommand (uint8_t value) : _value (constrain (static_cast<Enum>(value), MIN, MAX)){ }
 
 SoundCommand::operator uint8_t (){ return (uint8_t) _value; }
 

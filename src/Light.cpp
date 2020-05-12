@@ -56,7 +56,7 @@ void Light::setSpeed (Percentage newSpeed, LightMode affectedMode)
 
 void Light::setMode (LightMode newMode)
 {
-	mode = constrain (newMode, LightMode::MIN, LightMode::MAX);
+	mode = newMode;
 }
 
 void Light::switchOn ()

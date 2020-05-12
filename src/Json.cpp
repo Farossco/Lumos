@@ -56,17 +56,17 @@ void Json::generateData (String & string, bool pretty)
 
 	// -- Rgb -- //
 	JsonArray rootLightRgb = rootLight.createNestedArray ("Rgb");
-	for (LightMode mode = LightMode::MIN; mode <= LightMode::MAX; mode++)
+	for (LightMode mode; mode < LightMode::N; mode++)
 		rootLightRgb.add (light.getRgb (mode).value());
 
 	// -- Power -- //
 	JsonArray rootLightPower = rootLight.createNestedArray ("Power");
-	for (LightMode mode = LightMode::MIN; mode <= LightMode::MAX; mode++)
+	for (LightMode mode; mode < LightMode::N; mode++)
 		rootLightPower.add (light.getPowerPercent (mode).value());
 
 	// -- Speed -- //
 	JsonArray rootLightSpeed = rootLight.createNestedArray ("Speed");
-	for (LightMode mode = LightMode::MIN; mode <= LightMode::MAX; mode++)
+	for (LightMode mode; mode < LightMode::N; mode++)
 		rootLightSpeed.add (light.getSpeedPercent (mode).value());
 
 
@@ -139,7 +139,7 @@ void Json::generateResources (String & string, bool pretty)
 
 	// -- ModeNames -- //
 	JsonArray rootLightModeNames = rootLight.createNestedArray ("ModeNames");
-	for (LightMode mode = LightMode::MIN; mode <= LightMode::MAX; mode++)
+	for (LightMode mode; mode <= LightMode::N; mode++)
 		rootLightModeNames.add (mode.toString());
 
 	// -- Colors -- //

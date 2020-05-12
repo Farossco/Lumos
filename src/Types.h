@@ -56,9 +56,9 @@ public:
 		DEF = T (ilmap (DEFp, 0, 100, MIN, MAX))
 	};
 
-	SettingBase(){ _value = 0; }
+	SettingBase() : _value (0){ }
 
-	SettingBase (T value){ _value = constrain (value, MIN, MAX); }
+	SettingBase (T value) : _value (constrain (value, MIN, MAX)){ }
 
 	T operator =  (Enum value){ return _value = (T) value; }
 
@@ -142,8 +142,8 @@ public:
 		music,      // Music mode
 
 		N,
-		MIN = continuous, // -Minimum mode value-
-		MAX = music,      // -Maximum mode value-
+		MIN = 0,
+		MAX = N - 1
 	};
 
 	LightMode();
@@ -215,15 +215,15 @@ class RequestError
 public:
 	enum Enum : uint8_t
 	{
-		none = 0,            // No error
+		none,                // No error
 		incorrectValue,      // Incorrect Information
 		incorrectComplement, // Incorrect Complement
 		incorrectType,       // Incorrect Type
 		emptyString,         // Empty string
 
 		N,
-		MIN = none,
-		MAX = emptyString
+		MIN = 0,
+		MAX = N - 1
 	};
 
 	RequestError ();
@@ -276,10 +276,9 @@ public:
 		alarmSunsetDecreaseTime, // Provide : Sunset mode decrease time
 
 		N,
-		MIN      = unknown,                 // - Minimum value -
-		SEND_MIN = lightOnOff,              // - First value to send to Serial -
-		SEND_MAX = alarmSunsetDecreaseTime, // - Last value to send to Serial -
-		MAX      = alarmSunsetDecreaseTime  // - Maximum value -
+		SEND_START = lightOnOff, // - First value to send to Serial -
+		MIN        = 0,          // - Minimum value -
+		MAX        = N - 1       // - Maximum value -
 	};
 
 	RequestType();
@@ -310,8 +309,8 @@ public:
 		freeChoice, // Free choice mode
 
 		N,
-		MIN = freeChoice, // -Minimum mode value-
-		MAX = freeChoice  // -Maximum mode value-
+		MIN = 0,
+		MAX = N - 1
 	};
 
 	SoundMode();
@@ -341,8 +340,8 @@ public:
 		playDawn,
 
 		N,
-		MIN = playRandom,
-		MAX = playDawn
+		MIN = 0,
+		MAX = N - 1
 	};
 
 	SoundCommand();
