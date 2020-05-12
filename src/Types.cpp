@@ -11,9 +11,13 @@ LightMode::LightMode() : _value (MIN){ }
 
 LightMode::LightMode (uint8_t value){ _value = static_cast<Enum>(value); }
 
+LightMode::operator uint8_t (){ return static_cast<uint8_t>(_value); }
+
 const String LightMode::toString () const { return getArrayString (_value, lightModeName); }
 
-LightMode::operator uint8_t (){ return static_cast<uint8_t>(_value); }
+LightMode & LightMode::operator ++ (int){ _value = static_cast<Enum>(static_cast<uint8_t>(_value) + 1); return *this; }
+
+ostream & operator << (ostream & os, const LightMode & mode){ return os << mode.toString() << " (" << mode._value << ")"; }
 
 
 /****************************** Percentage ******************************/
@@ -145,6 +149,8 @@ RequestError::operator uint8_t (){ return static_cast<uint8_t>(_value); }
 
 const String RequestError::toString () const { return getArrayString (_value, errorName); }
 
+ostream & operator << (ostream & os, const RequestError & error){ return os << error.toString() << " (" << error._value << ")"; }
+
 
 /****************************** RequestType ******************************/
 RequestType::RequestType(){ }
@@ -245,6 +251,8 @@ RequestType RequestType::operator = (const String & typeString)
 
 bool operator == (const String & string, const RequestType & type){ return string.equals (type.toString (true)); }
 
+ostream & operator << (ostream & os, const RequestType & type){ return os << type.toString() << " (" << type._value << ")"; }
+
 
 /****************************** Sound Mode ******************************/
 SoundMode::SoundMode(){ }
@@ -255,6 +263,8 @@ SoundMode::operator uint8_t (){ return (uint8_t) _value; }
 
 const String SoundMode::toString () const { return getArrayString (_value, soundModeName); }
 
+ostream & operator << (ostream & os, const SoundMode & mode){ return os << mode.toString() << " (" << mode._value << ")"; }
+
 
 /****************************** Sound Command ******************************/
 SoundCommand::SoundCommand() : _value (MIN){ }
@@ -264,3 +274,5 @@ SoundCommand::SoundCommand (uint8_t value){ _value = static_cast<Enum>(value); }
 SoundCommand::operator uint8_t (){ return (uint8_t) _value; }
 
 const String SoundCommand::toString () const { return getArrayString (_value, soundCommandName); }
+
+ostream & operator << (ostream & os, const SoundCommand & command){ return os << command.toString() << " (" << command._value << ")"; }

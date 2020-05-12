@@ -27,13 +27,10 @@ public:
 
 	Percentage (uint8_t value);
 
-	// uint8_t & raw (){ return _value; } // Gets the raw value
-
 	uint8_t value () const { return _value; } // Gets the raw value
 
-	friend ostream & operator << (ostream & os, const Percentage & p){ return os << p._value; }
+	friend ostream & operator << (ostream & os, const Percentage & p){ return os << p._value << "%"; }
 
-	// operator uint8_t () const;
 
 private:
 	uint8_t _value;
@@ -87,7 +84,7 @@ public:
 
 	T value () const { return _value; } // Get the raw value
 
-	friend ostream & operator << (ostream & os, const SettingBase & sett){ return os << sett._value << " (" << sett.toPercent() << "%)"; }
+	friend ostream & operator << (ostream & os, const SettingBase & sett){ return os << sett._value << " (" << sett.toPercent() << ")"; }
 
 	Percentage toPercent () const { return Percentage (utils.map (_value, MIN, MAX, Percentage::MIN, Percentage::MAX)); }
 
@@ -153,7 +150,8 @@ public:
 	LightMode (uint8_t value);
 	operator uint8_t ();
 	const String toString () const;
-	inline LightMode & operator ++ (int){ _value = static_cast<Enum>(static_cast<uint8_t>(_value) + 1); return *this; }
+	LightMode & operator ++ (int);
+	friend ostream & operator << (ostream & os, const LightMode & mode);
 
 private:
 	Enum _value;
@@ -232,6 +230,7 @@ public:
 	RequestError(uint8_t value);
 	operator uint8_t ();
 	const String toString () const;
+	friend ostream & operator << (ostream & os, const RequestError & mode);
 
 private:
 	Enum _value;
@@ -293,12 +292,12 @@ public:
 	bool needsComplement ();
 	const String toString (bool shortened = false) const;
 	RequestType operator = (const String & typeString);
+	friend bool operator == (const String & string, const RequestType & type);
+	friend ostream & operator << (ostream & os, const RequestType & mode);
 
 private:
 	Enum _value;
 };
-
-bool operator == (const String & string, const RequestType & type);
 
 
 /* Sound Mode
@@ -319,6 +318,7 @@ public:
 	SoundMode(uint8_t value);
 	operator uint8_t ();
 	const String toString () const;
+	friend ostream & operator << (ostream & os, const SoundMode & mode);
 
 private:
 	Enum _value;
@@ -349,6 +349,7 @@ public:
 	SoundCommand(uint8_t value);
 	operator uint8_t ();
 	const String toString () const;
+	friend ostream & operator << (ostream & os, const SoundCommand & mode);
 
 private:
 	Enum _value;

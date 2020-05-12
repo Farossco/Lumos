@@ -23,7 +23,7 @@ Request::Request(String inputString)
 		// [DEBUG] Printing full word, world length and information type
 		trace << "Word: " << inputString << endl;
 		verb << "Length: " << inputString.length() << endl;
-		verb << "Type: " << type.toString() << " (" << type << ")" << endl;
+		verb << "Type: " << type << endl;
 
 		if (type == RequestType::unknown)
 			error = RequestError::incorrectType;
@@ -42,9 +42,9 @@ Request::Request(String inputString)
 				inputString = inputString.substring (1);    // Remove first char of the array (the complement)
 
 				if (type.getComplementType() == ComplementCategory::lightMode)
-					verb << "Light mode: " << LightMode (complement).toString() << " (" << complement << ")" << endl;
+					verb << "Light mode: " << LightMode (complement) << endl;
 				else if (type.getComplementType() == ComplementCategory::soundCommand)
-					verb << "Command type: " << SoundCommand (complement).toString() << " (" << complement << ")" << endl;
+					verb << "Command type: " << SoundCommand (complement) << endl;
 
 				if (complement < compBounds.low || complement > compBounds.high)
 					error = RequestError::incorrectComplement;
@@ -52,14 +52,14 @@ Request::Request(String inputString)
 
 			information = strtol (inputString.c_str(), NULL, type == RequestType::lightModeRgb ? 16 : 10);
 
-			verb << type.toString() << ": " << inputString << endl;
-			verb << type.toString() << " (decoded): " << ((type == RequestType::lightModeRgb) ? hex : dec) << showbase << uppercase << information << endl;
+			verb << type.toString() << " (String) : " << inputString << endl;
+			verb << type.toString() << " (Decoded): " << ((type == RequestType::lightModeRgb) ? hex : dec) << showbase << uppercase << information << endl;
 
 			if (information < infoBounds.low || information > infoBounds.high)
 				error = RequestError::incorrectValue;
 		}
 		if (error)
-			err << "Error : " << error.toString() << " (" << error << ")" << endl;
+			err << "Error : " << error << endl;
 	}
 }
 
@@ -176,74 +176,76 @@ void Request::process ()
 
 void Request::displayDebug ()
 {
+	trace << type.toString();
+
+	if (type.getComplementType() == ComplementCategory::lightMode)
+		trace << " of " << LightMode (complement);
+	else if (type.getComplementType() == ComplementCategory::soundCommand)
+		trace << " of " << SoundCommand (complement);
+
+	trace << " (Current value): ";
+
 	switch (type)
 	{
 		case RequestType::provideTime:
-			verb << "Time (Current value): " << now() << endl;
-			trace << "Time (Current value) (readable): " << utils.getClock() << dendl;
-			break;
-
-		case RequestType::soundCommand:
-			verb << "Command data: (" << information << ")" << dendl;
+			trace << now() << " (" << utils.getClock() << ")";
 			break;
 
 		case RequestType::lightOnOff:
-			trace << "Light On/Off (Current value): " << boolalpha << light.isOn() << dendl;
+			trace << boolalpha << light.isOn();
 			break;
 
 		case RequestType::lightModeRgb:
-			trace << "RGB of " << LightMode (complement).toString() << " (Current value): " << light.getRgb (complement) << dendl;
+			trace << light.getRgb (complement);
 			break;
 
 		case RequestType::lightModePower:
-			trace << "Power of " << LightMode (complement).toString() << " (Current value): " << light.getPowerRaw (complement) << dendl;
+			trace << light.getPowerRaw (complement);
 			break;
 
 		case RequestType::lightMode:
-			verb << "Light mode (Text): " << LightMode (information).toString() << " (" << information << ")" << endl;
-			trace << "Light mode (Current value): " << light.getMode().toString() << " (" << light.getMode() << ")" << dendl;
+			trace << light.getMode();
 			break;
 
 		case RequestType::lightModeSpeed:
-			verb << "Min Speed: " << LightSpeed::MIN << endl;
-			verb << "Max Speed: " << LightSpeed::MAX << endl;
-			trace << "Speed of " << LightMode (complement).toString() << " (Current value): " << light.getSpeedRaw (complement) << dendl;
+			trace << light.getSpeedRaw (complement);
 			break;
 
 		case RequestType::soundOnOff:
-			trace << "On/Off (Current value): " << boolalpha << sound.isOn() << dendl;
+			trace << boolalpha << sound.isOn();
 			break;
 
 		case RequestType::soundMode:
-			verb << "Sound mode (Text): " << SoundMode (information).toString() << " (" << information << ")" << endl;
-			trace << "Sound mode (Current value): " << sound.getMode().toString() << " (" << sound.getMode() << ")" << dendl;
+			verb << sound.getMode();
 			break;
 
 		case RequestType::soundVolume:
-			trace << "Sound Volume (Current value): " << sound.getVolume() << dendl;
+			trace << sound.getVolume();
 			break;
 
 		case RequestType::alarmDawnVolume:
-			trace << "Dawn Volume (Current value): " << alarms.getDawnVolume() << dendl;
+			trace << alarms.getDawnVolume();
 			break;
 
 		case RequestType::alarmDawnTime:
-			trace << "Dawn Time (Current value): " << alarms.getDawnTime() << dendl;
+			trace << alarms.getDawnTime();
 			break;
 
 		case RequestType::alarmDawnDuration:
-			trace << "Dawn Duration (Current value): " << alarms.getDawnDuration() << dendl;
+			trace << alarms.getDawnDuration();
 			break;
 
 		case RequestType::alarmSunsetDuration:
-			trace << "Sunset Duration (Current value): " << alarms.getSunsetDuration() << dendl;
+			trace << alarms.getSunsetDuration();
 			break;
 
 		case RequestType::alarmSunsetDecreaseTime:
-			trace << "Sunset Decrease Time (Current value): " << alarms.getSunsetDecreaseTime() << dendl;
+			trace << alarms.getSunsetDecreaseTime();
 			break;
 	}
-} // displayDebug
+
+	trace << dendl;
+} // Request::displayDebug
 
 RequestError Request::getError (){ return error; }
 

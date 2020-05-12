@@ -58,7 +58,7 @@ void VariableChange::check ()
 	{
 		if (changeRgbs[mode] != light.rgbs[mode])
 		{
-			verb << "\"RGB\" of " << mode.toString() << " mode changed from " << changeRgbs[mode] << " to " << light.rgbs[mode] << dendl;
+			verb << "\"RGB\" of " << mode << " mode changed from " << changeRgbs[mode] << " to " << light.rgbs[mode] << dendl;
 
 			changeRgbs[mode] = light.rgbs[mode];
 			flagSendInfo     = true;
@@ -67,7 +67,7 @@ void VariableChange::check ()
 
 		if (changeLightPowers[mode] != light.powers[mode])
 		{
-			verb << "\"Light Power\" of " << mode.toString() << " mode changed from " << changeLightPowers[mode] << " to " << light.powers[mode] << dendl;
+			verb << "\"Light Power\" of " << mode << " mode changed from " << changeLightPowers[mode] << " to " << light.powers[mode] << dendl;
 
 			changeLightPowers[mode] = light.powers[mode];
 			flagSendInfo            = true;
@@ -76,7 +76,7 @@ void VariableChange::check ()
 
 		if (changeLightSpeeds[mode] != light.speeds[mode])
 		{
-			verb << "\"Light Speed\" of " << mode.toString() << " mode changed from " << changeLightSpeeds[mode] << " to " << light.speeds[mode] << dendl;
+			verb << "\"Light Speed\" of " << mode << " mode changed from " << changeLightSpeeds[mode] << " to " << light.speeds[mode] << dendl;
 
 			changeLightSpeeds[mode] = light.speeds[mode];
 			flagSendInfo            = true;
@@ -86,7 +86,7 @@ void VariableChange::check ()
 
 	if (changeLightMode != light.mode)
 	{
-		verb << "\"Light mode\" changed from " << changeLightMode.toString() << " (" << changeLightMode << ") to " << light.mode.toString() << " (" << light.mode << ")" << dendl;
+		verb << "\"Light mode\" changed from " << changeLightMode << " to " << light.mode << dendl;
 
 		changeLightMode = light.mode;
 		flagSendInfo    = true;
@@ -94,7 +94,7 @@ void VariableChange::check ()
 
 	if (changeSoundMode != sound.mode)
 	{
-		verb << "\"Sound mode\" changed from " << changeSoundMode.toString() << " (" << changeSoundMode << ") to " << sound.mode.toString() << " (" << sound.mode << ")" << dendl;
+		verb << "\"Sound mode\" changed from " << changeSoundMode << " to " << sound.mode << dendl;
 
 		changeSoundMode = sound.mode;
 		flagSendInfo    = true;

@@ -4,4 +4,4 @@
 - Stop using readUntilString for Serial
 - Consider moving to LittleFS
 - Add Alarm settings to Json
-- Add Print for every type
+- Remove the need for "FULL_LINE" value in the array

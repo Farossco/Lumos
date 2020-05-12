@@ -140,7 +140,7 @@ void Sound::command (SoundCommand command, uint32_t information)
 		case SoundCommand::playOne:
 			setVolumeRaw (volume);
 			myDFPlayer.playFolder (2, information);
-			trace << "Playing mp3 " << information << " with volume " << volume << "/" << SoundVolume::MAX << dendl;
+			trace << "Playing mp3 " << information << " with volume " << volume << dendl;
 			break;
 
 		case SoundCommand::playNext:
