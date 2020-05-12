@@ -10,6 +10,7 @@
 # include "Request.h"
 # include "Json.h"
 # include "SerialCom.h"
+# include "LittleFS.h"
 
 void _handleRoot (){ wifi.handleRoot(); }
 
@@ -47,7 +48,7 @@ void Wifi::init ()
 
 	trace << "WiFi connected" << dendl;
 
-	SPIFFS.begin();
+	LittleFS.begin();
 
 	server.on ("/", _handleRoot);
 	server.on ("/command", _handleCommand);
@@ -270,7 +271,7 @@ bool Wifi::loadFromSpiffs (String path)
 	else if (path.endsWith (".pdf")) dataType = "application/pdf";
 	else if (path.endsWith (".zip")) dataType = "application/zip";
 
-	File dataFile = SPIFFS.open (path.c_str(), "r");
+	File dataFile = LittleFS.open (path.c_str(), "r");
 
 	if (dataFile.isFile())
 	{
@@ -283,8 +284,8 @@ bool Wifi::loadFromSpiffs (String path)
 		fileFound = true;
 	}
 
-
 	dataFile.close();
+	
 	return fileFound;
 } // Wifi::loadFromSpiffs
 
