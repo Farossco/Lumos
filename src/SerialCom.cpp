@@ -6,17 +6,15 @@
 #include "Alarms.h"
 #include "Utils.h"
 #include "Json.h"
-#include "Wifi.h"
+#include "ESPWifi.h"
 
 void SerialCom::init (uint32_t debugBaudRate, uint32_t comBaudRate)
 {
 	debugSerial.begin (debugBaudRate); // Initialize debug communication
+	comSerial.begin (comBaudRate);     // Initialize arduino Rx communication
 
-	comSerialRx.begin (comBaudRate); // Initialize arduino Rx communication
-	comSerialTx.begin (comBaudRate); // Initialize arduino Tx communication
-
-	#if defined(LUMOS_ESP8266)
-	comSerialRx.setRxBufferSize (1024);
+	#if defined(LUMOS_ESP32)
+	comSerial.setRxBufferSize (1024);
 	#endif
 
 	debugSerial.println ("\n\n");
@@ -37,7 +35,7 @@ void SerialCom::receiveAndDecode ()
 {
 	Stream * serialInput;
 
-	if ((serialInput = &debugSerial)->available() || (serialInput = &comSerialRx)->available())
+	if ((serialInput = &debugSerial)->available() || (serialInput = &comSerial)->available())
 	{
 		serialInput->setTimeout (serialInput == &debugSerial ? 2000 : 50);
 
@@ -58,7 +56,7 @@ void SerialCom::sendTime ()
 	serial.getTime();
 	#endif
 
-	#if defined(LUMOS_ESP8266)
+	#if defined(LUMOS_ESP32)
 	trace << "Time is: " << utils.getClock() << endl;
 
 	if (timeStatus() != timeNotSet)
@@ -67,7 +65,7 @@ void SerialCom::sendTime ()
 
 		trace << "Sending time to arduino: " << str << endl;
 
-		comSerialTx.print (str.c_str());
+		comSerial.print (str.c_str());
 
 		trace << np << endl;
 	}
@@ -77,14 +75,14 @@ void SerialCom::sendTime ()
 
 		wifi.getTime();
 	}
-	#endif // if defined(LUMOS_ESP8266)
+	#endif // if defined(LUMOS_ESP32)
 }
 
 // Getting time from the ESP8266 (via internet)
 void SerialCom::getTime ()
 {
 	trace << "Time Request sent" << dendl;
-	comSerialTx.print (RequestType (RequestType::requestTime).toString (true) + 'z'); // z is the end character
+	comSerial.print (RequestType (RequestType::requestTime).toString (true) + 'z'); // z is the end character
 }
 
 void SerialCom::sendData ()
@@ -93,14 +91,14 @@ void SerialCom::sendData ()
 	variableChange.sendData();
 	#endif
 
-	#if defined(LUMOS_ESP8266)
+	#if defined(LUMOS_ESP32)
 	inf << json.getData() << dendl;
 	#endif
 }
 
 void SerialCom::getData ()
 {
-	comSerialTx.print (RequestType (RequestType::requestData).toString (true) + 'z');
+	comSerial.print (RequestType (RequestType::requestData).toString (true) + 'z');
 }
 
 SerialCom serial = SerialCom();

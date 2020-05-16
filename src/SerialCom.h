@@ -15,13 +15,11 @@ public:
 	void getData ();
 
 	#if defined(LUMOS_ARDUINO_MEGA)
-	HardwareSerial &comSerialRx = Serial1;
-	HardwareSerial &comSerialTx = Serial1;
-	#endif // if defined(LUMOS_ARDUINO_MEGA)
-	#if defined(LUMOS_ESP8266)
-	HardwareSerial &comSerialRx = Serial;
-	HardwareSerial &comSerialTx = Serial1;
-	#endif // if defined(LUMOS_ARDUINO_MEGA)
+	HardwareSerial &comSerial = Serial1;
+	#endif
+	#if defined(LUMOS_ESP32)
+	HardwareSerial &comSerial = Serial2;
+	#endif
 
 	HardwareSerial &debugSerial = Serial;
 };

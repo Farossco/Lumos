@@ -248,7 +248,7 @@ void VariableChange::sendData ()
 			message += 'z';
 
 			verb << message;
-			serial.comSerialTx.print (message);
+			serial.comSerial.print (message);
 		}
 	}
 

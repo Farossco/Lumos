@@ -9,7 +9,7 @@ Sound::Sound() : myDFPlayer()
 
 #endif
 
-#if defined(LUMOS_ESP8266)
+#if defined(LUMOS_ESP32)
 
 Sound::Sound()
 { }

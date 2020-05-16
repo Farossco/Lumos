@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <Time.h>
 #include "Utils.h"
-#include <ostream>
+#include <AL_ostream.h>
 
 #define ilmap(x, in_min, in_max, out_min, out_max) (((float(x) - float(in_min)) * (float(out_max) - float(out_min)) / (float(in_max) - float(in_min)) + float(out_min)))
 
@@ -30,7 +30,6 @@ public:
 	uint8_t value () const { return _value; } // Gets the raw value
 
 	friend ostream & operator << (ostream & os, const Percentage & p){ return os << p._value << "%"; }
-
 
 private:
 	uint8_t _value;

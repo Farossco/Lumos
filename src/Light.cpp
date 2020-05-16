@@ -17,7 +17,7 @@ Light::Light() : strip (LIGHT_STRIP_LENGTH, DOTSTAR_BGR)
 
 #endif // if defined(LUMOS_ARDUINO_MEGA)
 
-#if defined(LUMOS_ESP8266)
+#if defined(LUMOS_ESP32)
 
 Light::Light()
 { }

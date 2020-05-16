@@ -15,9 +15,9 @@
 			}
 		},
 		{
-			"label": "ESP8266 Monitor",
+			"label": "ESP32 Monitor",
 			"type": "PlatformIO",
-			"task": "Monitor (ESP8266)",
+			"task": "Monitor (ESP32)",
 			"problemMatcher": [
 				"$platformio"
 			],
@@ -29,7 +29,7 @@
 			"label": "Split Monitors",
 			"dependsOn": [
 				"Arduino Monitor",
-				"ESP8266 Monitor"
+				"ESP32 Monitor"
 			],
 			"presentation": {
 				"echo": true,
@@ -53,9 +53,9 @@
 			}
 		},
 		{
-			"label": "ESP8266 Upload",
+			"label": "ESP32 Upload",
 			"type": "PlatformIO",
-			"task": "Upload (ESP8266)",
+			"task": "Upload (ESP32)",
 			"problemMatcher": [
 				"$platformio"
 			],
@@ -64,7 +64,7 @@
 			}
 		},
 		{
-			"label": "ESP8266 Upload SPIFFS",
+			"label": "ESP32 Upload SPIFFS",
 			"type": "PlatformIO",
 			"task": "Upload File System image",
 			"problemMatcher": [
@@ -75,12 +75,12 @@
 			}
 		},
 		{
-			"label": "ESP8266 Upload all",
+			"label": "ESP32 Upload all",
 			"dependsOn": [
-				"ESP8266 Upload"
+				"ESP32 Upload"
 			],
 			"type": "PlatformIO",
-			"task": "Upload File System image (ESP8266)",
+			"task": "Upload File System image (ESP32)",
 			"problemMatcher": [
 				"$platformio"
 			],
@@ -91,7 +91,7 @@
 		{
 			"label": "Split Upload",
 			"dependsOn": [
-				"ESP8266 Upload",
+				"ESP32 Upload",
 				"Arduino Upload"
 			],
 			"presentation": {

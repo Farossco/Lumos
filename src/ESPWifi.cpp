@@ -1,29 +1,26 @@
 #include <Arduino.h>
 
-#if defined(LUMOS_ESP8266)
+#if defined(LUMOS_ESP32)
 
 # include <ArduinoJson.h>
 # include <TimeLib.h>
 # include "Utils.h"
 # include "ArduinoLogger.h"
-# include "Wifi.h"
+# include "ESPWifi.h"
 # include "Request.h"
 # include "Json.h"
 # include "SerialCom.h"
-# include "LittleFS.h"
+# include "SPIFFS.h"
 
-void _handleRoot (){ wifi.handleRoot(); }
+void _handleRoot (AsyncWebServerRequest * rqst){ wifi.handleRoot (*rqst); }
 
-void _handleCommand (){ wifi.handleCommand(); }
+void _handleCommand (AsyncWebServerRequest * rqst){ wifi.handleCommand (*rqst); }
 
-void _handleWebRequests (){ wifi.handleWebRequests(); }
+void _handleWebRequests (AsyncWebServerRequest * rqst){ wifi.handleWebRequests (*rqst); }
 
-void _handleGetRes (){ wifi.handleGetRes(); }
+void _handleGetRes (AsyncWebServerRequest * rqst){ wifi.handleGetRes (*rqst); }
 
 Wifi::Wifi() : server (80)
-{ }
-
-Wifi::Wifi (Wifi && copy)
 { }
 
 void Wifi::init ()
@@ -48,11 +45,11 @@ void Wifi::init ()
 
 	trace << "WiFi connected" << dendl;
 
-	LittleFS.begin();
+	SPIFFS.begin();
 
-	server.on ("/", _handleRoot);
-	server.on ("/command", _handleCommand);
-	server.on ("/getRes", _handleGetRes);
+	server.on ("/", HTTP_ANY, _handleRoot);
+	server.on ("/command", HTTP_ANY, _handleCommand);
+	server.on ("/getRes", HTTP_ANY, _handleGetRes);
 	server.onNotFound (_handleWebRequests);
 	server.begin();
 
@@ -153,32 +150,32 @@ void Wifi::getTime ()
 } // Wifi::getTime
 
 void Wifi::receiveAndDecode ()
+{ }
+
+void Wifi::displayRequest (AsyncWebServerRequest & rqst)
 {
-	server.handleClient();
+	trace << "Received request from " << rqst.client()->remoteIP().toString() << endl;
+
+	trace << "Request: |" << rqst.url() << "|";
+	for (int i = 0; i < rqst.args(); i++)
+		trace << " |" << rqst.argName (i) << "=" << rqst.arg (i) << "|";
+	trace << endl;
 }
 
-void Wifi::handleRoot ()
+void Wifi::handleRoot (AsyncWebServerRequest & rqst)
 {
-	trace << "Received request from " << server.client().localIP().toString() << endl;
+	displayRequest (rqst);
 
-	trace << "Request: |/|";
-
-	server.sendHeader ("Location", "/index.html", true);
-	server.send (302, "text/html", "");
+	rqst.send (SPIFFS, "/index.html", String(), false);
 }
 
-void Wifi::handleCommand ()
+void Wifi::handleCommand (AsyncWebServerRequest & rqst)
 {
 	String message;
 
-	trace << "Received request from " << server.client().localIP().toString() << endl;
+	displayRequest (rqst);
 
-	trace << "Request: |" << server.uri() << "|";
-	for (int i = 0; i < server.args(); i++)
-		trace << " |" << server.argName (i) << "=" << server.arg (i) << "|";
-	trace << endl;
-
-	Request request (server.arg ("type"), server.arg ("comp"), server.arg ("value"));
+	Request request (rqst.arg ("type"), rqst.arg ("comp"), rqst.arg ("value"));
 
 	request.process();
 
@@ -197,66 +194,47 @@ void Wifi::handleCommand ()
 
 			trace << "Sending to arduino: " << data << endl;
 
-			serial.comSerialTx.print (data);
+			serial.comSerial.print (data);
 		}
 
 		message = json.getDataPretty();
 	}
 
-	server.send (200, "application/json", message);
-} // Wifi::handleCommand
+	rqst.send (200, "application/json", message);
+}
 
-void Wifi::handleGetRes ()
+void Wifi::handleGetRes (AsyncWebServerRequest & rqst)
 {
-	String message;
+	displayRequest (rqst);
 
-	trace << "Received request from " << server.client().localIP().toString() << endl;
+	rqst.send (200, "application/json", json.getResourcesPretty());
+}
 
-	trace << "Request: |" << server.uri() << "|";
-	for (int i = 0; i < server.args(); i++)
-		trace << " |" << server.argName (i) << "=" << server.arg (i) << "|";
-	trace << dendl;
-
-	message = json.getResourcesPretty();
-
-	server.send (200, "application/json", message);
-} // Wifi::handleGetStrings
-
-void Wifi::handleWebRequests ()
+void Wifi::handleWebRequests (AsyncWebServerRequest & rqst)
 {
-	trace << "Received request from " << server.client().localIP().toString() << endl;
+	displayRequest (rqst);
 
-	trace << "Request: |" << server.uri() << "|";
-	for (int i = 0; i < server.args(); i++)
-		trace << " |" << server.argName (i) << "=" << server.arg (i) << "|";
-	trace << dendl;
-
-	if (loadFromSpiffs (server.uri()))
+	if (loadFromSpiffs (rqst.url(), rqst))
 		return;
 
 	String message = "File Not Detected\n\n";
-	message += "URI: ";
-	message += server.uri();
-	message += "\nMethod: ";
-	message += (server.method() == HTTP_GET) ? "GET" : "POST";
-	message += "\nArguments: ";
-	message += server.args();
-	message += "\n";
-	for (uint8_t i = 0; i < server.args(); i++)
-	{
-		message += " NAME:" + server.argName (i) + "\n VALUE:" + server.arg (i) + "\n";
-	}
-	server.send (404, "text/plain", message);
+	message += String ("URL: ") + rqst.url() + "\n";
+	message += String ("Method: ") + ((rqst.method() == HTTP_GET) ? "GET" : "POST") + "\n";
+	message += String ("Arguments: ") + rqst.args() + "\n";
+	for (uint8_t i = 0; i < rqst.args(); i++)
+		message += " NAME:" + rqst.argName (i) + "\n VALUE:" + rqst.arg (i) + "\n";
+
+	rqst.send (404, "text/plain", message);
 }
 
-bool Wifi::loadFromSpiffs (String path)
+bool Wifi::loadFromSpiffs (String path, AsyncWebServerRequest & rqst)
 {
 	String dataType = "text/plain";
 	bool fileFound  = false;
 
 	if (path.endsWith ("/")) path += "index.html";
 
-	if (server.hasArg ("download")) dataType = "application/octet-stream";
+	if (rqst.hasArg ("download")) dataType = "application/octet-stream";
 
 	if (path.endsWith (".src")) path = path.substring (0, path.lastIndexOf ("."));
 	else if (path.endsWith (".html")) dataType = "text/html";
@@ -271,24 +249,12 @@ bool Wifi::loadFromSpiffs (String path)
 	else if (path.endsWith (".pdf")) dataType = "application/pdf";
 	else if (path.endsWith (".zip")) dataType = "application/zip";
 
-	File dataFile = LittleFS.open (path.c_str(), "r");
+	if (SPIFFS.exists (path))
+		rqst.send (SPIFFS, rqst.url(), dataType);
 
-	if (dataFile.isFile())
-	{
-		verb << "File exists" << endl;
-
-		server.streamFile (dataFile, dataType);
-
-		verb << "File sent" << dendl;
-
-		fileFound = true;
-	}
-
-	dataFile.close();
-	
 	return fileFound;
 } // Wifi::loadFromSpiffs
 
 Wifi wifi = Wifi();
 
-#endif // if defined(LUMOS_ESP8266)
+#endif // if defined(LUMOS_ESP32)

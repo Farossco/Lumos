@@ -1,9 +1,10 @@
 #ifndef WIFI_H
 #define WIFI_H
 
-#if defined(LUMOS_ESP8266)
+#if defined(LUMOS_ESP32)
 
-# include <ESP8266WebServer.h>
+# include <WiFi.h>
+# include <ESPAsyncWebServer.h>
 
 # define TIME_HOST   "api.timezonedb.com" // HTPP time host
 # define TIME_FORMAT "json"               // Format for receive the time
@@ -19,24 +20,24 @@ class Wifi
 {
 public:
 	Wifi();
-	Wifi(Wifi && copy);
 
 	void init ();
 	void getTime ();
 	void receiveAndDecode ();
 
-	void handleRoot ();
-	void handleCommand ();
-	void handleWebRequests ();
-	void handleGetRes ();
+	void displayRequest (AsyncWebServerRequest & rqst);
+	void handleRoot (AsyncWebServerRequest & rqst);
+	void handleCommand (AsyncWebServerRequest & rqst);
+	void handleWebRequests (AsyncWebServerRequest & rqst);
+	void handleGetRes (AsyncWebServerRequest & rqst);
 
 private:
-	ESP8266WebServer server;
-	bool loadFromSpiffs (String path);
+	AsyncWebServer server;
+	bool loadFromSpiffs (String path, AsyncWebServerRequest & rqst);
 };
 
 extern Wifi wifi;
 
-#endif // if defined(LUMOS_ESP8266)
+#endif // if defined(LUMOS_ESP32)
 
 #endif // ifndef ESP_WIFI_H

@@ -6,7 +6,7 @@
 #include "Bluetooth.h"
 #include "Light.h"
 #include "Sound.h"
-#include "Wifi.h"
+#include "ESPWifi.h"
 #include "Infrared.h"
 
 const boolean WAIT_FOR_TIME = true; // If the Arduino has to wait for time sync (if true, program will not start until time is synced)
@@ -52,7 +52,7 @@ void loop ()
 
 #endif // if defined(LUMOS_ARDUINO_MEGA)
 
-#if defined(LUMOS_ESP8266) // ESP8266 Code
+#if defined(LUMOS_ESP32) // ESP8266 Code
 void setup ()
 {
 	serial.init (ESP_DEBUG_BAUD_RATE, COMM_BAUD_RATE);
@@ -73,4 +73,4 @@ void loop ()
 	wifi.receiveAndDecode();
 }
 
-#endif // if defined(LUMOS_ESP8266)
+#endif // if defined(LUMOS_ESP32)

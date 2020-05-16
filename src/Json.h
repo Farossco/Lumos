@@ -4,9 +4,7 @@
 #include <Arduino.h>
 #include "Types.h"
 
-#if defined(LUMOS_ESP8266)
-
-# include <ESP8266WiFi.h>
+#if defined(LUMOS_ESP32)
 
 class Json
 {
@@ -27,6 +25,6 @@ private:
 
 extern Json json;
 
-#endif // if defined(LUMOS_ESP8266)
+#endif // if defined(LUMOS_ESP32)
 
 #endif // ifndef JSON_H

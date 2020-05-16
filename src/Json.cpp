@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-#if defined(LUMOS_ESP8266)
+#if defined(LUMOS_ESP32)
 
 # include "Json.h"
 # include <ArduinoJson.h>
@@ -196,4 +196,4 @@ void Json::generateError (String & string, bool pretty, RequestError error)
 
 Json json = Json();
 
-#endif // if defined(LUMOS_ESP8266)
+#endif // if defined(LUMOS_ESP32)
