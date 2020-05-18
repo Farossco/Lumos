@@ -4,9 +4,9 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "Arduino Monitor",
+			"label": "Monitor",
 			"type": "PlatformIO",
-			"task": "Monitor (Arduino)",
+			"task": "Monitor",
 			"problemMatcher": [
 				"$platformio"
 			],
@@ -15,36 +15,9 @@
 			}
 		},
 		{
-			"label": "ESP32 Monitor",
+			"label": "Upload",
 			"type": "PlatformIO",
-			"task": "Monitor (ESP32)",
-			"problemMatcher": [
-				"$platformio"
-			],
-			"presentation": {
-				"group": "monitor"
-			}
-		},
-		{
-			"label": "Split Monitors",
-			"dependsOn": [
-				"Arduino Monitor",
-				"ESP32 Monitor"
-			],
-			"presentation": {
-				"echo": true,
-				"reveal": "always",
-				"focus": false,
-				"panel": "dedicated",
-				"showReuseMessage": true,
-				"clear": false
-			},
-			"problemMatcher": []
-		},
-		{
-			"label": "Arduino Upload",
-			"type": "PlatformIO",
-			"task": "Upload (Arduino)",
+			"task": "Upload",
 			"problemMatcher": [
 				"$platformio"
 			],
@@ -53,18 +26,7 @@
 			}
 		},
 		{
-			"label": "ESP32 Upload",
-			"type": "PlatformIO",
-			"task": "Upload (ESP32)",
-			"problemMatcher": [
-				"$platformio"
-			],
-			"presentation": {
-				"group": "upload"
-			}
-		},
-		{
-			"label": "ESP32 Upload SPIFFS",
+			"label": "Upload SPIFFS",
 			"type": "PlatformIO",
 			"task": "Upload File System image",
 			"problemMatcher": [
@@ -75,36 +37,18 @@
 			}
 		},
 		{
-			"label": "ESP32 Upload all",
+			"label": "Upload all",
 			"dependsOn": [
-				"ESP32 Upload"
+				"Upload"
 			],
 			"type": "PlatformIO",
-			"task": "Upload File System image (ESP32)",
+			"task": "Upload File System image",
 			"problemMatcher": [
 				"$platformio"
 			],
 			"presentation": {
 				"group": "upload"
 			}
-		},
-		{
-			"label": "Split Upload",
-			"dependsOn": [
-				"ESP32 Upload",
-				"Arduino Upload"
-			],
-			"presentation": {
-				"echo": true,
-				"reveal": "always",
-				"focus": false,
-				"panel": "dedicated",
-				"showReuseMessage": true,
-				"clear": false
-			},
-			"problemMatcher": [
-				"$platformio"
-			]
 		}
 	]
 }

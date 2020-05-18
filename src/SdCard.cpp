@@ -164,30 +164,30 @@ boolean SdCard::createLogFile ()
 
 void SdCard::lightError ()
 {
-	analogWrite (PIN_SD_LED_RED, SD_LED_POWER);
+	/*analogWrite (PIN_SD_LED_RED, SD_LED_POWER);
 	analogWrite (PIN_SD_LED_GREEN, LOW);
-	analogWrite (PIN_SD_LED_BLUE, LOW);
+	analogWrite (PIN_SD_LED_BLUE, LOW);*/
 }
 
 void SdCard::lightConnected ()
 {
-	analogWrite (PIN_SD_LED_RED, LOW);
+	/*analogWrite (PIN_SD_LED_RED, LOW);
 	analogWrite (PIN_SD_LED_GREEN, SD_LED_POWER);
-	analogWrite (PIN_SD_LED_BLUE, LOW);
+	analogWrite (PIN_SD_LED_BLUE, LOW);*/
 }
 
 void SdCard::lightIdle ()
 {
-	analogWrite (PIN_SD_LED_RED, LOW);
+	/*analogWrite (PIN_SD_LED_RED, LOW);
 	analogWrite (PIN_SD_LED_GREEN, LOW);
-	analogWrite (PIN_SD_LED_BLUE, SD_LED_POWER);
+	analogWrite (PIN_SD_LED_BLUE, SD_LED_POWER);*/
 }
 
 void SdCard::lightNoCard ()
 {
-	analogWrite (PIN_SD_LED_RED, SD_LED_POWER / 2);
+	/*analogWrite (PIN_SD_LED_RED, SD_LED_POWER / 2);
 	analogWrite (PIN_SD_LED_GREEN, LOW);
-	analogWrite (PIN_SD_LED_BLUE, SD_LED_POWER / 2);
+	analogWrite (PIN_SD_LED_BLUE, SD_LED_POWER / 2);*/
 }
 
 void SdCard::lightOff ()

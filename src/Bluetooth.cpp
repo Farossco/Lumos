@@ -140,16 +140,16 @@ bool Bluetooth::isEnabled ()
 
 void Bluetooth::lightConnected ()
 {
-	analogWrite (PIN_BLE_LED_RED, LOW);
+	/*analogWrite (PIN_BLE_LED_RED, LOW);
 	analogWrite (PIN_BLE_LED_GREEN, BLE_INDICATOR_POWER);
-	analogWrite (PIN_BLE_LED_BLUE, LOW);
+	analogWrite (PIN_BLE_LED_BLUE, LOW);*/
 }
 
 void Bluetooth::lightIdle ()
 {
-	analogWrite (PIN_BLE_LED_RED, LOW);
+	/*analogWrite (PIN_BLE_LED_RED, LOW);
 	analogWrite (PIN_BLE_LED_GREEN, LOW);
-	analogWrite (PIN_BLE_LED_BLUE, BLE_INDICATOR_POWER);
+	analogWrite (PIN_BLE_LED_BLUE, BLE_INDICATOR_POWER);*/
 }
 
 void Bluetooth::lightOff ()

@@ -2,19 +2,8 @@
 #include "ArduinoLogger.h"
 #include "Memory.h"
 
-#if defined(LUMOS_ARDUINO_MEGA)
-
 Sound::Sound() : myDFPlayer()
 { }
-
-#endif
-
-#if defined(LUMOS_ESP32)
-
-Sound::Sound()
-{ }
-
-#endif
 
 void Sound::setVolumeRaw (SoundVolume newVolume)
 {

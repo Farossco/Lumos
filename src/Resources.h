@@ -9,7 +9,7 @@
 #if (STORE_IN_PROGMEM)
 # define StringType __FlashStringHelper *
 # define Flash(x) reinterpret_cast<const StringType>(x)
-# define STORAGE PROGMEM
+# define STORAGE    PROGMEM
 #else
 # define StringType char *
 # define Flash(x) x

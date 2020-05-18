@@ -11,11 +11,11 @@
 #include "Types.h"
 
 const uint8_t LIGHT_STRIP_LENGTH      = 72;
-const uint8_t LIGHT_STRIP_HALF_LENGTH = round (LIGHT_STRIP_LENGTH / 2.);
+const uint8_t LIGHT_STRIP_HALF_LENGTH = LIGHT_STRIP_LENGTH / 2. + 0.5;
 const uint8_t LIGHT_PIN_DATA          = 51;
 const uint8_t LIGHT_PIN_CLOCK         = 52;
 const uint8_t LIGHT_PIN_MUSIC_IN      = 0;
-const uint8_t LIGHT_PIN_STRIP_CS      = 11;
+const uint8_t LIGHT_PIN_STRIP_CS      = 21;
 
 const uint8_t LIGHT_TAIL_LENGTH = LIGHT_STRIP_HALF_LENGTH;
 

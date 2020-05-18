@@ -4,8 +4,6 @@
 #include "Sound.h"
 #include "SerialCom.h"
 
-#if defined(LUMOS_ARDUINO_MEGA)
-
 Light::Light() : strip (LIGHT_STRIP_LENGTH, DOTSTAR_BGR)
 {
 	pinMode (LIGHT_PIN_STRIP_CS, OUTPUT);
@@ -14,15 +12,6 @@ Light::Light() : strip (LIGHT_STRIP_LENGTH, DOTSTAR_BGR)
 	for (uint8_t i = 0; i < LIGHT_STRIP_HALF_LENGTH + 1; i++)
 		rainbow[i].setHue (i * 360 / (LIGHT_STRIP_HALF_LENGTH + 1));
 }
-
-#endif // if defined(LUMOS_ARDUINO_MEGA)
-
-#if defined(LUMOS_ESP32)
-
-Light::Light()
-{ }
-
-#endif
 
 void Light::setRed (LightColor newRed, LightMode affectedMode)
 {
@@ -138,7 +127,7 @@ bool Light::isOff ()
 
 void Light::init ()
 {
-	strip.begin();
+	//strip.begin();
 
 	if (memory.readLight()) // Returns True if EEPROM is not correctly initialized (This may be the first launch)
 	{

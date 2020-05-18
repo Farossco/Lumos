@@ -14,13 +14,7 @@ public:
 	void sendData ();
 	void getData ();
 
-	#if defined(LUMOS_ARDUINO_MEGA)
 	HardwareSerial &comSerial = Serial1;
-	#endif
-	#if defined(LUMOS_ESP32)
-	HardwareSerial &comSerial = Serial2;
-	#endif
-
 	HardwareSerial &debugSerial = Serial;
 };
 
