@@ -2,7 +2,7 @@
 #define TYPES_H
 
 #include <Arduino.h>
-#include <Time.h>
+#include <TimeLib.h>
 #include "Utils.h"
 #include <AL_ostream.h>
 

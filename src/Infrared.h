@@ -1,7 +1,7 @@
 #ifndef INFRARED_H
 #define INFRARED_H
 
-#if defined(LUMOS_ARDUINO_MEGA)
+#if defined(LUMOS_ARDUINO_MEGAA)
 
 # include <IRremote.h>
 # include "Resources.h"

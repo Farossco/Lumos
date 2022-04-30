@@ -1,4 +1,4 @@
-#if defined(LUMOS_ARDUINO_MEGA)
+#if defined(LUMOS_ARDUINO_MEGAA)
 #include "Infrared.h"
 #include "Light.h"
 #include "ArduinoLogger.h"

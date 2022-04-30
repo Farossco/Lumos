@@ -11,6 +11,7 @@
 # include "Json.h"
 # include "SerialCom.h"
 # include "SPIFFS.h"
+# include "HTTPClient.h"
 
 void _handleRoot (AsyncWebServerRequest * rqst){ wifi.handleRoot (*rqst); }
 
@@ -64,72 +65,34 @@ void Wifi::getTime ()
 	  + 50;                // String duplications + security margin
 	DynamicJsonDocument doc (capacity);
 
-	WiFiClient client;
-	String line, status;
-	const char url[] = "/v2.1/get-time-zone?format=" TIME_FORMAT "&key=" TIME_KEY "&by=" TIME_BY "&zone=" TIME_ZONE "&fields=" TIME_FIELDS;
+	HTTPClient http;
+	String json, status;
+	const char url[] = "http://" TIME_HOST "/v2.1/get-time-zone?format=" TIME_FORMAT "&key=" TIME_KEY "&by=" TIME_BY "&zone=" TIME_ZONE "&fields=" TIME_FIELDS;
 	unsigned long timeout, timestamp;
 
-	trace << "Connecting to " TIME_HOST << endl;
+	trace << "Connecting to " << url << endl;
 
-	// Use WiFiClient class to create TCP connections
-	if (!client.connect (TIME_HOST, TIME_HTTP_PORT))
+	http.begin(url);
+
+	int code = http.GET();
+
+	trace << "HTTP response code: " << code << endl;
+
+	if (code != HTTP_CODE_OK)
 	{
-		err << "Connection failed" << dendl;
+		err << "Wrong HTTP response code, stopping here" << endl;
+		http.end();
 		return;
 	}
 
-	// We now create an url for the request
-
-	// [DEBUG] Printing the url
-	trace << "Requesting URL: " << url << endl;
-
-	// Sending web request
-	client.print (String ("GET ") + url + " HTTP/1.1\r\n" + "Host: " + TIME_HOST + "\r\n" + "Connection: close\r\n\r\n");
-	timeout = millis();
-
-	// Waiting for an answer
-	while (!client.available())
-	{
-		// If nothing comes out after the timeout, we abort
-		if (millis() - timeout > TIME_REQUEST_TIMEOUT)
-		{
-			err << "Client Timeout !" << dendl;
-			client.stop();
-			return;
-		}
-	}
-
-	verb << "Server answer:" << endl;
-	verb << "<================================ Start ================================>" << endl;
-
-	// Read all the lines of the reply from server and print them to Serial
-	while (client.available() && line.indexOf ("{\"status\"") == -1)
-	{
-		line = client.readStringUntil ('\r');
-		verb << (line.charAt (0) == '\n' ? line.c_str() + 1 : line.c_str()) << endl; // [DEBUG] We print the line we're currently reading
-	}
-	verb << "<================================ End ==================================>" << endl;
-
-	if (line.indexOf ("{\"status\"") == 1) // The first charactere is a nl
-	{
-		trace << "Success !" << endl;
-
-		line = line.substring (1); // The first charactere is a nl, so we don't want it
-	}
-	else
-	{
-		err << "Failed ! (" << line.indexOf ("{\"status\"") << ")" << endl;
-	}
+	json = http.getString();
+	trace << "HTTP body: " << json << dendl;
 
 	trace << "Closing connection" << endl;
-
-	// At this point, the json of the answer is in the string,
-	// that's actually the line we want
-
-	verb << "Json: \"" << line << "\"" << endl;
+	http.end();
 
 	// Deserialize the JSON document
-	deserializeJson (doc, line);
+	deserializeJson (doc, json);
 
 	status    = ((const char *) doc["status"]);
 	timestamp = doc["timestamp"];
