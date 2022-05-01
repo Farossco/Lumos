@@ -6,49 +6,47 @@
 #include "Bluetooth.h"
 #include "Light.h"
 #include "Sound.h"
-#include "ESPWifi.h"
+#include "wifi_com.h"
 #include "Infrared.h"
 
-void setup ()
+void setup()
 {
 	serial.init (ESP_DEBUG_BAUD_RATE, 0);
 
-	wifi.init();
+	wifi_com_init();
 
-	wifi.getTime();
+	wifi_com_time_get();
 
-	sd.init(); // SD SPI needs to be initialized after the light strip SPI
+	sd.init(); /* SD SPI needs to be initialized after the light strip SPI */
 
-	// light.init();
+	/* light.init(); */
 
-	// infrared.init();
+	/* infrared.init(); */
 
-	// sound.init (Serial2);
+	/* sound.init (Serial2); */
 
-	// alarms.init();
+	/* alarms.init(); */
 
-	// variableChange.init();
+	/* variableChange.init(); */
 
-	// variableChange.sendData();
+	/* variableChange.sendData(); */
 }
 
-void loop ()
+void loop()
 {
-	// variableChange.check();
-
-	// wifi.receiveAndDecode();
+	/* variableChange.check(); */
 
 	serial.receiveAndDecode();
 
 	sd.action();
 
-	// infrared.read();
+	/* infrared.read(); */
 
-	// light.action();
+	/* light.action(); */
 
-	// sound.action();
+	/* sound.action(); */
 
 	alarms.action();
 
-	// bluetooth.action();
+	/* bluetooth.action(); */
 }
