@@ -1,5 +1,3 @@
-#if defined(LUMOS_ARDUINO_MEGA)
-
 #include <stdlib.h>
 #include <string.h>
 #include "VariableChange.h"
@@ -12,12 +10,11 @@
 #include "Alarms.h"
 #include "SerialCom.h"
 
-VariableChange::VariableChange() : initialized (false)
-{ }
+VariableChange::VariableChange() : initialized(false) {}
 
-void VariableChange::init ()
+void VariableChange::init()
 {
-	// Initializing to default values
+	/* Initializing to default values */
 	changeLightOn     = light.on;
 	changeLightMode   = light.mode;
 	changeRgbs        = light.rgbs;
@@ -37,7 +34,7 @@ void VariableChange::init ()
 	initialized = true;
 }
 
-void VariableChange::check ()
+void VariableChange::check()
 {
 	if (!initialized)
 		return;
@@ -45,19 +42,16 @@ void VariableChange::check ()
 	boolean flagSendInfo    = false;
 	boolean flagWriteEeprom = false;
 
-	if (changeLightOn != light.on)
-	{
+	if (changeLightOn != light.on) {
 		verb << "\"Light On\" changed from " << boolalpha << changeLightOn << " to " << light.on << dendl;
 
 		changeLightOn = light.on;
 		flagSendInfo  = true;
 	}
 
-	// TODO : simplify and remove debug
-	for (LightMode mode; mode < LightMode::N; mode++)
-	{
-		if (changeRgbs[mode] != light.rgbs[mode])
-		{
+	/* TODO : simplify and remove debug */
+	for (LightMode mode; mode < LightMode::N; mode++) {
+		if (changeRgbs[mode] != light.rgbs[mode]) {
 			verb << "\"RGB\" of " << mode << " mode changed from " << changeRgbs[mode] << " to " << light.rgbs[mode] << dendl;
 
 			changeRgbs[mode] = light.rgbs[mode];
@@ -65,8 +59,7 @@ void VariableChange::check ()
 			flagWriteEeprom  = true;
 		}
 
-		if (changeLightPowers[mode] != light.powers[mode])
-		{
+		if (changeLightPowers[mode] != light.powers[mode]) {
 			verb << "\"Light Power\" of " << mode << " mode changed from " << changeLightPowers[mode] << " to " << light.powers[mode] << dendl;
 
 			changeLightPowers[mode] = light.powers[mode];
@@ -74,8 +67,7 @@ void VariableChange::check ()
 			flagWriteEeprom         = true;
 		}
 
-		if (changeLightSpeeds[mode] != light.speeds[mode])
-		{
+		if (changeLightSpeeds[mode] != light.speeds[mode]) {
 			verb << "\"Light Speed\" of " << mode << " mode changed from " << changeLightSpeeds[mode] << " to " << light.speeds[mode] << dendl;
 
 			changeLightSpeeds[mode] = light.speeds[mode];
@@ -84,16 +76,14 @@ void VariableChange::check ()
 		}
 	}
 
-	if (changeLightMode != light.mode)
-	{
+	if (changeLightMode != light.mode) {
 		verb << "\"Light mode\" changed from " << changeLightMode << " to " << light.mode << dendl;
 
 		changeLightMode = light.mode;
 		flagSendInfo    = true;
 	}
 
-	if (changeSoundMode != sound.mode)
-	{
+	if (changeSoundMode != sound.mode) {
 		verb << "\"Sound mode\" changed from " << changeSoundMode << " to " << sound.mode << dendl;
 
 		changeSoundMode = sound.mode;
@@ -101,8 +91,7 @@ void VariableChange::check ()
 		flagWriteEeprom = true;
 	}
 
-	if (changeSoundVolume != sound.volume)
-	{
+	if (changeSoundVolume != sound.volume) {
 		verb << "\"Sound Volume\" changed from " << changeSoundVolume << " to " << sound.volume << dendl;
 
 		changeSoundVolume = sound.volume;
@@ -110,8 +99,7 @@ void VariableChange::check ()
 		flagWriteEeprom   = true;
 	}
 
-	if (changeSoundOn != sound.on)
-	{
+	if (changeSoundOn != sound.on) {
 		verb << "\"Sound On\" changed from " << changeSoundOn << " to " << sound.on << dendl;
 
 		changeSoundOn   = sound.on;
@@ -119,8 +107,7 @@ void VariableChange::check ()
 		flagWriteEeprom = true;
 	}
 
-	if (changeDawnTime != alarms.dawnTime)
-	{
+	if (changeDawnTime != alarms.dawnTime) {
 		verb << "\"Dawn time\" changed from " << changeDawnTime << " to " << alarms.dawnTime << dendl;
 
 		changeDawnTime  = alarms.dawnTime;
@@ -128,8 +115,7 @@ void VariableChange::check ()
 		flagWriteEeprom = true;
 	}
 
-	if (changeDawnDuration != alarms.dawnDuration)
-	{
+	if (changeDawnDuration != alarms.dawnDuration) {
 		verb << "\"Dawn Duration\" changed from " << changeDawnDuration << " to " << alarms.dawnDuration << dendl;
 
 		changeDawnDuration = alarms.dawnDuration;
@@ -137,8 +123,7 @@ void VariableChange::check ()
 		flagWriteEeprom    = true;
 	}
 
-	if (changeSunsetDuration != alarms.sunsetDuration)
-	{
+	if (changeSunsetDuration != alarms.sunsetDuration) {
 		verb << "\"Sunset Duration\" changed from " << changeSunsetDuration << " to " << alarms.sunsetDuration << dendl;
 
 		changeSunsetDuration = alarms.sunsetDuration;
@@ -146,8 +131,7 @@ void VariableChange::check ()
 		flagWriteEeprom      = true;
 	}
 
-	if (changeSunsetDecreaseTime != alarms.sunsetDecreaseTime)
-	{
+	if (changeSunsetDecreaseTime != alarms.sunsetDecreaseTime) {
 		verb << "\"Sunset Decrease Time\" changed from " << changeSunsetDecreaseTime << " to " << alarms.sunsetDecreaseTime << dendl;
 
 		changeSunsetDecreaseTime = alarms.sunsetDecreaseTime;
@@ -155,8 +139,7 @@ void VariableChange::check ()
 		flagWriteEeprom          = true;
 	}
 
-	if (changeDawnVolume != alarms.dawnVolume)
-	{
+	if (changeDawnVolume != alarms.dawnVolume) {
 		verb << "\"Dawn Volume\" changed from " << changeDawnVolume << " to " << alarms.dawnVolume << dendl;
 
 		changeDawnVolume = alarms.dawnVolume;
@@ -166,95 +149,90 @@ void VariableChange::check ()
 
 	if (flagSendInfo) sendData();
 	if (flagWriteEeprom) memory.writeAll();
-} // VariableChange::check
+} /* VariableChange::check */
 
-void VariableChange::sendData ()
+void VariableChange::sendData()
 {
 	trace << "Sending variables infos to the ESP8266" << dendl;
 
-	for (RequestType type = RequestType::SEND_START; type < RequestType::N; type++)
-	{
+	for (RequestType type = RequestType::SEND_START; type < RequestType::N; type++) {
 		Bounds bounds = type.getComplementBounds();
 
-		for (uint8_t complement = bounds.low; complement <= bounds.high; complement++)
-		{
-			String message = type.toString (true);
+		for (uint8_t complement = bounds.low; complement <= bounds.high; complement++) {
+			String message = type.toString(true);
 
 			if (type.needsComplement())
 				message += complement;
 
-			switch (type) // info
-			{
-				case RequestType::unknown:
-				case RequestType::requestTime:
-				case RequestType::requestData:
-				case RequestType::soundCommand:
-				case RequestType::provideTime:
-					break;
+			switch (type) { /* info */
+			case RequestType::unknown:
+			case RequestType::requestTime:
+			case RequestType::requestData:
+			case RequestType::soundCommand:
+			case RequestType::provideTime:
+				break;
 
-				case RequestType::lightModeRgb:
-					message += utils.ltos (light.getRgb (complement).value(), HEX);
-					break;
+			case RequestType::lightModeRgb:
+				message += utils.ltos(light.getRgb(complement).value(), HEX);
+				break;
 
-				case RequestType::lightOnOff:
-					message += light.isOn();
-					break;
+			case RequestType::lightOnOff:
+				message += light.isOn();
+				break;
 
-				case RequestType::lightModePower:
-					message += light.getPowerPercent (complement).value();
-					break;
+			case RequestType::lightModePower:
+				message += light.getPowerPercent(complement).value();
+				break;
 
-				case RequestType::lightMode:
-					message += light.getMode();
-					break;
+			case RequestType::lightMode:
+				message += light.getMode();
+				break;
 
-				case RequestType::lightModeSpeed:
-					message += light.getSpeedPercent (complement).value();
-					break;
+			case RequestType::lightModeSpeed:
+				message += light.getSpeedPercent(complement).value();
+				break;
 
-				case RequestType::soundMode:
-					message += sound.getMode();
-					break;
+			case RequestType::soundMode:
+				message += sound.getMode();
+				break;
 
-				case RequestType::soundVolume:
-					message += sound.getVolume().value();
-					break;
+			case RequestType::soundVolume:
+				message += sound.getVolume().value();
+				break;
 
-				case RequestType::soundOnOff:
-					message += sound.isOn();
-					break;
+			case RequestType::soundOnOff:
+				message += sound.isOn();
+				break;
 
-				case RequestType::alarmDawnVolume:
-					message += alarms.getDawnVolume().value();
-					break;
+			case RequestType::alarmDawnVolume:
+				message += alarms.getDawnVolume().value();
+				break;
 
-				case RequestType::alarmDawnTime:
-					message += alarms.getDawnTime().value();
-					break;
+			case RequestType::alarmDawnTime:
+				message += alarms.getDawnTime().value();
+				break;
 
-				case RequestType::alarmDawnDuration:
-					message += alarms.getDawnDuration().value();
-					break;
+			case RequestType::alarmDawnDuration:
+				message += alarms.getDawnDuration().value();
+				break;
 
-				case RequestType::alarmSunsetDuration:
-					message += alarms.getSunsetDuration().value();
-					break;
+			case RequestType::alarmSunsetDuration:
+				message += alarms.getSunsetDuration().value();
+				break;
 
-				case RequestType::alarmSunsetDecreaseTime:
-					message += alarms.getSunsetDecreaseTime().value();
-					break;
+			case RequestType::alarmSunsetDecreaseTime:
+				message += alarms.getSunsetDecreaseTime().value();
+				break;
 			}
 
 			message += 'z';
 
 			verb << message;
-			serial.comSerial.print (message);
+			serial.comSerial.print(message);
 		}
 	}
 
 	verb << dendl;
-} // VariableChange::sendData
+} /* VariableChange::sendData */
 
 VariableChange variableChange = VariableChange();
-
-#endif // if defined(LUMOS_ARDUINO_MEGA)

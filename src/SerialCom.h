@@ -3,18 +3,17 @@
 
 #include <Arduino.h>
 
-class SerialCom
-{
+class SerialCom {
 public:
-	void init (uint32_t debugBaudRate, uint32_t comBaudRate);
-	void receiveAndDecode ();
-	bool checkTime ();
-	void sendTime ();
-	void getTime ();
-	void sendData ();
-	void getData ();
+	void init(uint32_t debugBaudRate, uint32_t comBaudRate);
+	void receiveAndDecode();
+	bool checkTime();
+	void sendTime();
+	void getTime();
+	void sendData();
+	void getData();
 
-	HardwareSerial &comSerial = Serial1;
+	HardwareSerial &comSerial   = Serial1;
 	HardwareSerial &debugSerial = Serial;
 };
 

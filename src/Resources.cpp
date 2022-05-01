@@ -63,13 +63,13 @@ const char errorName2[] STORAGE = "Incorrect Complement";
 const char errorName3[] STORAGE = "Incorrect Request Type";
 const char errorName4[] STORAGE = "Empty String";
 
-const StringType nameUnknown                            = Flash (nameUnknown0);
-const StringType lightModeName[LightMode::N]            = { Flash (lightModeName0), Flash (lightModeName1), Flash (lightModeName2), Flash (lightModeName3), Flash (lightModeName4), Flash (lightModeName5), Flash (lightModeName6), Flash (lightModeName7) };
-const StringType soundModeName[SoundMode::N]            = { Flash (soundModeName0) };
-const StringType soundCommandName[SoundCommand::N]      = { Flash (soundCommandName0), Flash (soundCommandName1), Flash (soundCommandName2), Flash (soundCommandName3), Flash (soundCommandName4), Flash (soundCommandName5), Flash (soundCommandName6) };
-const StringType messageTypeName[RequestType::N]        = { Flash (nameUnknown), Flash (messageTypeName1), Flash (messageTypeName2), Flash (messageTypeName3), Flash (messageTypeName4), Flash (messageTypeName5), Flash (messageTypeName6), Flash (messageTypeName7), Flash (messageTypeName8), Flash (messageTypeName9), Flash (messageTypeName10), Flash (messageTypeName11), Flash (messageTypeName12), Flash (messageTypeName13), Flash (messageTypeName14), Flash (messageTypeName15), Flash (messageTypeName16), Flash (messageTypeName17) };
-const StringType messageTypeDisplayName[RequestType::N] = { Flash (nameUnknown), Flash (messageTypeDisplayName1), Flash (messageTypeDisplayName2), Flash (messageTypeDisplayName3), Flash (messageTypeDisplayName4), Flash (messageTypeDisplayName5), Flash (messageTypeDisplayName6), Flash (messageTypeDisplayName7), Flash (messageTypeDisplayName8), Flash (messageTypeDisplayName9), Flash (messageTypeDisplayName10), Flash (messageTypeDisplayName11), Flash (messageTypeDisplayName12), Flash (messageTypeDisplayName13), Flash (messageTypeDisplayName14), Flash (messageTypeDisplayName15), Flash (messageTypeDisplayName16), Flash (messageTypeDisplayName17) };
-const StringType errorName[RequestError::N]             = { Flash (errorName0), Flash (errorName1), Flash (errorName2), Flash (errorName3), Flash (errorName4) };
+const StringType nameUnknown                            = Flash(nameUnknown0);
+const StringType lightModeName[LightMode::N]            = { Flash(lightModeName0), Flash(lightModeName1), Flash(lightModeName2), Flash(lightModeName3), Flash(lightModeName4), Flash(lightModeName5), Flash(lightModeName6), Flash(lightModeName7) };
+const StringType soundModeName[SoundMode::N]            = { Flash(soundModeName0) };
+const StringType soundCommandName[SoundCommand::N]      = { Flash(soundCommandName0), Flash(soundCommandName1), Flash(soundCommandName2), Flash(soundCommandName3), Flash(soundCommandName4), Flash(soundCommandName5), Flash(soundCommandName6) };
+const StringType messageTypeName[RequestType::N]        = { Flash(nameUnknown), Flash(messageTypeName1), Flash(messageTypeName2), Flash(messageTypeName3), Flash(messageTypeName4), Flash(messageTypeName5), Flash(messageTypeName6), Flash(messageTypeName7), Flash(messageTypeName8), Flash(messageTypeName9), Flash(messageTypeName10), Flash(messageTypeName11), Flash(messageTypeName12), Flash(messageTypeName13), Flash(messageTypeName14), Flash(messageTypeName15), Flash(messageTypeName16), Flash(messageTypeName17) };
+const StringType messageTypeDisplayName[RequestType::N] = { Flash(nameUnknown), Flash(messageTypeDisplayName1), Flash(messageTypeDisplayName2), Flash(messageTypeDisplayName3), Flash(messageTypeDisplayName4), Flash(messageTypeDisplayName5), Flash(messageTypeDisplayName6), Flash(messageTypeDisplayName7), Flash(messageTypeDisplayName8), Flash(messageTypeDisplayName9), Flash(messageTypeDisplayName10), Flash(messageTypeDisplayName11), Flash(messageTypeDisplayName12), Flash(messageTypeDisplayName13), Flash(messageTypeDisplayName14), Flash(messageTypeDisplayName15), Flash(messageTypeDisplayName16), Flash(messageTypeDisplayName17) };
+const StringType errorName[RequestError::N]             = { Flash(errorName0), Flash(errorName1), Flash(errorName2), Flash(errorName3), Flash(errorName4) };
 
 const uint32_t WebcolorList[WEB_COLOR_HEIGHT][WEB_COLOR_WIDTH] STORAGE =
 {
@@ -81,24 +81,24 @@ const uint32_t WebcolorList[WEB_COLOR_HEIGHT][WEB_COLOR_WIDTH] STORAGE =
 
 const uint32_t IrColorList[IR_COLOR_N][3] STORAGE =
 {
-	// RGB Code Code 1 Code 2
-	{ 0xFFFFFF, 0xFFA857, 0xA3C8EDDB }, // WHITE
+	/* RGB Code Code 1 Code 2 */
+	{ 0xFFFFFF, 0xFFA857, 0xA3C8EDDB }, /* WHITE */
 
-	{ 0xFF0000, 0xFF9867, 0x97483BFB }, // R1
-	{ 0xFF5300, 0xFFE817, 0x5BE75E7F }, // R2
-	{ 0xFF3C00, 0xFF02FD, 0xD7E84B1B }, // R3
-	{ 0xFFC400, 0xFF50AF, 0x2A89195F }, // R4
-	{ 0xFFFF00, 0xFF38C7, 0x488F3CBB }, // R5
+	{ 0xFF0000, 0xFF9867, 0x97483BFB }, /* R1 */
+	{ 0xFF5300, 0xFFE817, 0x5BE75E7F }, /* R2 */
+	{ 0xFF3C00, 0xFF02FD, 0xD7E84B1B }, /* R3 */
+	{ 0xFFC400, 0xFF50AF, 0x2A89195F }, /* R4 */
+	{ 0xFFFF00, 0xFF38C7, 0x488F3CBB }, /* R5 */
 
-	{ 0x00FF00, 0xFFD827, 0x86B0E697 }, // G1
-	{ 0x20FF5D, 0xFF48B7, 0xF377C5B7 }, // G2
-	{ 0x34FFF6, 0xFF32CD, 0xEE4ECCFB }, // G3
-	{ 0x21E7FF, 0xFF7887, 0xF63C8657 }, // G4
-	{ 0x00BDFF, 0xFF28D7, 0x13549BDF }, // G5
+	{ 0x00FF00, 0xFFD827, 0x86B0E697 }, /* G1 */
+	{ 0x20FF5D, 0xFF48B7, 0xF377C5B7 }, /* G2 */
+	{ 0x34FFF6, 0xFF32CD, 0xEE4ECCFB }, /* G3 */
+	{ 0x21E7FF, 0xFF7887, 0xF63C8657 }, /* G4 */
+	{ 0x00BDFF, 0xFF28D7, 0x13549BDF }, /* G5 */
 
-	{ 0x0000FF, 0xFF8877, 0x9EF4941F }, // B1
-	{ 0x0068FF, 0xFF6897, 0xC101E57B }, // B2
-	{ 0x8068FF, 0xFF20DF, 0x51E43D1B }, // B3
-	{ 0xDB89FF, 0xFF708F, 0x44C407DB }, // B4
-	{ 0xFF7B92, 0xFFF00F, 0x35A9425F }  // B5
+	{ 0x0000FF, 0xFF8877, 0x9EF4941F }, /* B1 */
+	{ 0x0068FF, 0xFF6897, 0xC101E57B }, /* B2 */
+	{ 0x8068FF, 0xFF20DF, 0x51E43D1B }, /* B3 */
+	{ 0xDB89FF, 0xFF708F, 0x44C407DB }, /* B4 */
+	{ 0xFF7B92, 0xFFF00F, 0x35A9425F } /* B5 */
 };

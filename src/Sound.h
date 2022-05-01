@@ -4,33 +4,30 @@
 #include <Arduino.h>
 #include "Types.h"
 
-#if defined(LUMOS_ARDUINO_MEGA)
-# include <DFRobotDFPlayerMini.h>
-#endif
+#include <DFRobotDFPlayerMini.h>
 
-const uint32_t DFP_BAUD_RATE = 9600; // DFPlayer communication baud rate
+const uint32_t DFP_BAUD_RATE = 9600; /* DFPlayer communication baud rate */
 
-const boolean SOUND_ENABLED = true; // Enable sound
+const boolean SOUND_ENABLED = true; /* Enable sound */
 
-class Sound
-{
+class Sound {
 public:
 	Sound();
-	void init (HardwareSerial &serial);
+	void init(HardwareSerial &serial);
 
-	void action ();
-	void command (SoundCommand command, uint32_t information);
+	void action();
+	void command(SoundCommand command, uint32_t information);
 
-	void setVolumeRaw (SoundVolume newVolume);
-	void setVolume (Percentage percent);
-	void setMode (SoundMode newMode);
-	void switchOn ();
-	void switchOff ();
+	void setVolumeRaw(SoundVolume newVolume);
+	void setVolume(Percentage percent);
+	void setMode(SoundMode newMode);
+	void switchOn();
+	void switchOff();
 
-	SoundVolume getVolume ();
-	SoundMode getMode ();
-	bool isOn ();
-	bool isOff ();
+	SoundVolume getVolume();
+	SoundMode getMode();
+	bool isOn();
+	bool isOff();
 
 	SoundMode mode;
 	SoundVolume volume;
@@ -39,9 +36,7 @@ public:
 private:
 	SoundMode lastMode;
 
-	#if defined(LUMOS_ARDUINO_MEGA)
 	DFRobotDFPlayerMini myDFPlayer;
-	#endif
 };
 
 extern Sound sound;

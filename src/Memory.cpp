@@ -1,5 +1,3 @@
-#if defined(LUMOS_ARDUINO_MEGA)
-
 #include "Memory.h"
 #include "Light.h"
 #include "ArduinoLogger.h"
@@ -8,56 +6,55 @@
 #include "Sound.h"
 
 Memory::Memory()
-{ }
+{}
 
 
-void Memory::dump (uint16_t start, uint16_t limit)
+void Memory::dump(uint16_t start, uint16_t limit)
 {
-	limit = constrain (limit, 0, EEPROM.length());
+	limit = constrain(limit, 0, EEPROM.length());
 
 	inf << "EEPROM dump from " << hex << start << " to " << limit << dendl;
 
-	for (uint16_t index = start; index <= limit; index++)
-	{
-		uint8_t value = EEPROM.read (index);
+	for (uint16_t index = start; index <= limit; index++) {
+		uint8_t value = EEPROM.read(index);
 
-		inf << dsb (sd.file) << "0x" << noshowbase << setfill ('0') << setw (4) << hex << index << " : "
-		    << "0b" << setw (8) << bin << value
-		    << " (0x" << setw (2) << hex << value << ")" << endl;
+		inf << dsb(sd.file) << "0x" << noshowbase << setfill('0') << setw(4) << hex << index << " : "
+		    << "0b" << setw(8) << bin << value
+		    << " (0x" << setw(2) << hex << value << ")" << endl;
 	}
 
-	inf << dsb (sd.file) << np << endl;
+	inf << dsb(sd.file) << np << endl;
 }
 
-void Memory::writeAll ()
+void Memory::writeAll()
 {
 	writeLight();
 	writeSound();
 	writeAlarms();
 }
 
-bool Memory::readAll ()
+bool Memory::readAll()
 {
 	return readLight() || readSound() || readAlarms();
 }
 
-void Memory::writeLight ()
+void Memory::writeLight()
 {
-	startWrite (EEPROM_LIGHT_START);
+	startWrite(EEPROM_LIGHT_START);
 
 	verb << "Writing EEPROM for light variables... ";
 
-	put (light.rgbs);
-	put (light.powers);
-	put (light.speeds);
+	put(light.rgbs);
+	put(light.powers);
+	put(light.speeds);
 
 	verb << "Done ! (" << _n << " byte" << ((_n > 1) ? "s" : "") << " written)" << dendl;
 }
 
-bool Memory::readLight ()
+bool Memory::readLight()
 {
-	if (startRead (EEPROM_LIGHT_START))
-		return true;  // Returns true to say that variables needs to be initialized
+	if (startRead(EEPROM_LIGHT_START))
+		return true;  /* Returns true to say that variables needs to be initialized */
 
 	verb << "Reading EEPROM for light variables... ";
 
@@ -70,20 +67,20 @@ bool Memory::readLight ()
 	return false;
 }
 
-void Memory::writeSound ()
+void Memory::writeSound()
 {
-	startWrite (EEPROM_SOUND_START);
+	startWrite(EEPROM_SOUND_START);
 
 	verb << "Writing EEPROM for sound variables... ";
 
-	put (sound.volume);
+	put(sound.volume);
 
 	verb << "Done ! (" << _n << " byte" << ((_n > 1) ? "s" : "") << " written)" << dendl;
 }
 
-bool Memory::readSound ()
+bool Memory::readSound()
 {
-	if (startRead (EEPROM_SOUND_START))
+	if (startRead(EEPROM_SOUND_START))
 		return true;
 
 	verb << "Reading EEPROM for sound variables... ";
@@ -95,24 +92,24 @@ bool Memory::readSound ()
 	return false;
 }
 
-void Memory::writeAlarms ()
+void Memory::writeAlarms()
 {
-	startWrite (EEPROM_ALARM_START);
+	startWrite(EEPROM_ALARM_START);
 
 	verb << "Writing EEPROM for alarm variables... ";
 
-	put (alarms.dawnTime);
-	put (alarms.dawnDuration);
-	put (alarms.sunsetDuration);
-	put (alarms.sunsetDecreaseTime);
-	put (alarms.dawnVolume);
+	put(alarms.dawnTime);
+	put(alarms.dawnDuration);
+	put(alarms.sunsetDuration);
+	put(alarms.sunsetDecreaseTime);
+	put(alarms.dawnVolume);
 
 	verb << "Done ! (" << _n << " byte" << ((_n > 1) ? "s" : "") << " written)" << dendl;
 }
 
-bool Memory::readAlarms ()
+bool Memory::readAlarms()
 {
-	if (startRead (EEPROM_ALARM_START))
+	if (startRead(EEPROM_ALARM_START))
 		return true;
 
 	verb << "Reading EEPROM for alarm variables... ";
@@ -128,26 +125,25 @@ bool Memory::readAlarms ()
 	return false;
 }
 
-void Memory::startWrite (uint16_t address)
+void Memory::startWrite(uint16_t address)
 {
 	_address = address;
 	_n       = 0;
 
-	if (EEPROM.read (_address) != EEPROM_TEST_BYTE)
-	{
-		EEPROM.write (_address, EEPROM_TEST_BYTE);
+	if (EEPROM.read(_address) != EEPROM_TEST_BYTE) {
+		EEPROM.write(_address, EEPROM_TEST_BYTE);
 		_n++;
 	}
 
 	_address++;
 }
 
-bool Memory::startRead (uint16_t address)
+bool Memory::startRead(uint16_t address)
 {
-	if (EEPROM.read (address) != EEPROM_TEST_BYTE) // Returns true if variables needs to be initialized
+	if (EEPROM.read(address) != EEPROM_TEST_BYTE) /* Returns true if variables needs to be initialized */
 		return true;
 
-	_n = 1; // We've just read 1 byte
+	_n = 1; /* We've just read 1 byte */
 
 	_address = address + 1;
 
@@ -155,5 +151,3 @@ bool Memory::startRead (uint16_t address)
 }
 
 Memory memory = Memory();
-
-#endif // if defined(LUMOS_ARDUINO_MEGA)

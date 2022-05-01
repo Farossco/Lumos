@@ -10,26 +10,24 @@
 
 /* A Boundary structure
  */
-typedef struct Bounds
-{
-	Bounds(uint32_t min, uint32_t max) : low (min), high (max){ }
+typedef struct Bounds {
+	Bounds(uint32_t min, uint32_t max) : low(min), high(max) {}
 
 	uint32_t low  = 0;
 	uint32_t high = 0;
 } Bounds;
 
 
-class Percentage
-{
+class Percentage {
 public:
-	const static uint8_t MIN = 0;   // Minimum seekBar value
-	const static uint8_t MAX = 100; // Maximum seekBar value
+	const static uint8_t MIN = 0;   /* Minimum seekBar value */
+	const static uint8_t MAX = 100; /* Maximum seekBar value */
 
 	Percentage (uint8_t value);
 
-	uint8_t value () const { return _value; } // Gets the raw value
+	uint8_t value() const { return _value; } /* Gets the raw value */
 
-	friend ostream & operator << (ostream & os, const Percentage & p){ return os << p._value << "%"; }
+	friend ostream & operator << (ostream & os, const Percentage & p) { return os << p._value << "%"; }
 
 private:
 	uint8_t _value;
@@ -44,48 +42,43 @@ private:
  *     (Ex : DEFp = 50 -> Default value is 50% of the max value)
  * UID : A unique ID to avoid types like LightOnOff and SoundOnOff to be the same type
  */
-template <class T, const T MINv, const T MAXv, const uint8_t DEFp, int UID = 0>
-class SettingBase
-{
+template <class T, const T MINv, const T MAXv, const uint8_t DEFp, int UID = 0> class SettingBase {
 public:
-	enum Enum : T
-	{
+	enum Enum : T {
 		MIN = MINv,
 		MAX = MAXv,
-		DEF = T (ilmap (DEFp, 0, 100, MIN, MAX))
+		DEF = T(ilmap(DEFp, 0, 100, MIN, MAX))
 	};
 
-	SettingBase() : _value (0){ }
+	SettingBase() : _value(0) {}
 
-	SettingBase (T value) : _value (constrain (value, MIN, MAX)){ }
+	SettingBase (T value) : _value(constrain(value, MIN, MAX)) {}
 
-	T operator =  (Enum value){ return _value = (T) value; }
+	T operator = (Enum value) { return _value = (T)value; }
 
-	T operator = (const Percentage & perc){ return _value = utils.map (perc.value(), Percentage::MIN, Percentage::MAX, MIN, MAX); }
+	T operator = (const Percentage & perc) { return _value = utils.map(perc.value(), Percentage::MIN, Percentage::MAX, MIN, MAX); }
 
-	T operator = (const SettingBase & sett){ return _value = constrain (sett._value, MIN, MAX); }
+	T operator = (const SettingBase & sett) { return _value = constrain(sett._value, MIN, MAX); }
 
-	bool operator == (const SettingBase & sett){ return _value == sett._value; }
+	bool operator == (const SettingBase & sett) { return _value == sett._value; }
 
-	bool operator != (const SettingBase & sett){ return _value != sett._value; }
+	bool operator != (const SettingBase & sett) { return _value != sett._value; }
 
-	T operator * (const SettingBase & sett){ return _value * sett._value; }
+	T operator * (const SettingBase & sett) { return _value * sett._value; }
 
-	template <class U>
-	U operator * (U value){ return _value * value; }
+	template <class U> U operator * (U value) { return _value * value; }
 
-	template <class U>
-	U operator / (U value){ return _value / value; }
+	template <class U> U operator / (U value) { return _value / value; }
 
-	void operator += (const Percentage & perc){ _value = constrain (this->toPercent().value() + perc.value(), MIN, MAX); }
+	void operator += (const Percentage & perc) { _value = constrain(this->toPercent().value() + perc.value(), MIN, MAX); }
 
-	void operator -= (const Percentage & perc){ _value = constrain (this->toPercent().value() - perc.value(), MIN, MAX); }
+	void operator -= (const Percentage & perc) { _value = constrain(this->toPercent().value() - perc.value(), MIN, MAX); }
 
-	T value () const { return _value; } // Get the raw value
+	T value() const { return _value; } /* Get the raw value */
 
-	friend ostream & operator << (ostream & os, const SettingBase & sett){ return os << sett._value << " (" << sett.toPercent() << ")"; }
+	friend ostream & operator << (ostream & os, const SettingBase & sett) { return os << sett._value << " (" << sett.toPercent() << ")"; }
 
-	Percentage toPercent () const { return Percentage (utils.map (_value, MIN, MAX, Percentage::MIN, Percentage::MAX)); }
+	Percentage toPercent() const { return Percentage(utils.map(_value, MIN, MAX, Percentage::MIN, Percentage::MAX)); }
 
 protected:
 	T _value;
@@ -95,13 +88,11 @@ protected:
  *
  * T : The type of setting to store in the array
  */
-template <class T, class ModeT>
-class SettingArrayBase
-{
+template <class T, class ModeT> class SettingArrayBase {
 public:
-	T & operator [] (ModeT mode){ return _value[constrain (mode, ModeT::MIN, ModeT::MAX)]; }
+	T & operator [] (ModeT mode) { return _value[constrain(mode, ModeT::MIN, ModeT::MAX)]; }
 
-	T operator [] (ModeT mode) const { return _value[constrain (mode, ModeT::MIN, ModeT::MAX)]; }
+	T operator [] (ModeT mode) const { return _value[constrain(mode, ModeT::MIN, ModeT::MAX)]; }
 
 	SettingArrayBase operator = (const SettingArrayBase & copy)
 	{
@@ -126,19 +117,17 @@ protected:
 
 /* Light Mode
  */
-class LightMode
-{
+class LightMode {
 public:
-	enum Enum : uint8_t
-	{
-		continuous, // Continuous lightning mode
-		flash,      // Flash mode
-		strobe,     // Strobe mode
-		fade,       // Fade mode
-		smooth,     // Smooth mode
-		dawn,       // Dawn mode
-		sunset,     // Sunset mode
-		music,      // Music mode
+	enum Enum : uint8_t {
+		continuous, /* Continuous lightning mode */
+		flash,      /* Flash mode */
+		strobe,     /* Strobe mode */
+		fade,       /* Fade mode */
+		smooth,     /* Smooth mode */
+		dawn,       /* Dawn mode */
+		sunset,     /* Sunset mode */
+		music,      /* Music mode */
 
 		N,
 		MIN = 0,
@@ -148,7 +137,7 @@ public:
 	LightMode();
 	LightMode (uint8_t value);
 	operator uint8_t ();
-	const String toString () const;
+	const String toString() const;
 	LightMode & operator ++ (int);
 	friend ostream & operator << (ostream & os, const LightMode & mode);
 
@@ -164,18 +153,17 @@ typedef SettingArrayBase<LightPower, LightMode> LightPowerArray;
 typedef SettingBase<uint8_t, 0x00, 0xFF, 100> LightColor;
 typedef SettingArrayBase<LightColor, LightMode> LightColorArray;
 
-class LightRgb : public SettingBase<uint32_t, 0x00000000, 0x00FFFFFF, 100>
-{
+class LightRgb : public SettingBase<uint32_t, 0x00000000, 0x00FFFFFF, 100> {
 public:
 	LightRgb ();
 	LightRgb (uint32_t);
-	LightRgb setRed (LightColor);
-	LightRgb setGreen (LightColor);
-	LightRgb setBlue (LightColor);
-	LightRgb setHue (uint8_t);
-	LightColor getRed () const;
-	LightColor getGreen () const;
-	LightColor getBlue () const;
+	LightRgb setRed(LightColor);
+	LightRgb setGreen(LightColor);
+	LightRgb setBlue(LightColor);
+	LightRgb setHue(uint8_t);
+	LightColor getRed() const;
+	LightColor getGreen() const;
+	LightColor getBlue() const;
 	LightRgb operator * (double) const;
 	LightRgb operator / (double) const;
 	friend ostream & operator << (ostream & os, const LightRgb & rgb);
@@ -185,40 +173,36 @@ typedef SettingArrayBase<LightRgb, LightMode> LightRgbArray;
 typedef SettingBase<uint8_t, 0, 95, 67> LightSpeed;
 typedef SettingArrayBase<LightSpeed, LightMode> LightSpeedArray;
 
-class Timing : public SettingBase<uint32_t, 0, -1UL, 0>
-{
+class Timing : public SettingBase<uint32_t, 0, -1UL, 0> {
 public:
 	Timing ();
 	Timing (uint32_t time);
 	Timing (uint8_t minute, uint8_t second);
-	uint8_t minute () const;
-	uint8_t second () const;
+	uint8_t minute() const;
+	uint8_t second() const;
 	friend ostream & operator << (ostream & os, const Timing & timing);
 };
 
-class Time : public SettingBase<uint16_t, 0, 1439, 0>
-{
+class Time : public SettingBase<uint16_t, 0, 1439, 0> {
 public:
 	Time ();
 	Time (uint16_t time);
 	Time (uint8_t hour, uint8_t minute);
-	uint8_t hour () const;
-	uint8_t minute () const;
+	uint8_t hour() const;
+	uint8_t minute() const;
 	friend ostream & operator << (ostream & os, const Time & time);
 };
 
 /* Serial reception errors types
  */
-class RequestError
-{
+class RequestError {
 public:
-	enum Enum : uint8_t
-	{
-		none,                // No error
-		incorrectValue,      // Incorrect Information
-		incorrectComplement, // Incorrect Complement
-		incorrectType,       // Incorrect Type
-		emptyString,         // Empty string
+	enum Enum : uint8_t {
+		none,                /* No error */
+		incorrectValue,      /* Incorrect Information */
+		incorrectComplement, /* Incorrect Complement */
+		incorrectType,       /* Incorrect Type */
+		emptyString,         /* Empty string */
 
 		N,
 		MIN = 0,
@@ -228,7 +212,7 @@ public:
 	RequestError ();
 	RequestError(uint8_t value);
 	operator uint8_t ();
-	const String toString () const;
+	const String toString() const;
 	friend ostream & operator << (ostream & os, const RequestError & mode);
 
 private:
@@ -238,57 +222,54 @@ private:
 
 /* Complement Category
  */
-enum class ComplementCategory : uint8_t
-{
-	none,        // No complement
-	lightMode,   // Light mode
-	soundCommand // Sound command parameter
+enum class ComplementCategory : uint8_t {
+	none,        /* No complement */
+	lightMode,   /* Light mode */
+	soundCommand /* Sound command parameter */
 };
 
 
 /* Serial reception request types
  */
-class RequestType
-{
+class RequestType {
 public:
 
-	enum Enum : uint8_t
-	{
-		unknown,      // Unknown type
-		requestTime,  // Request : Time
-		requestData,  // Request : Info
-		soundCommand, // Sound commands for "free choice" mode
-		provideTime,  // Provide : Time
+	enum Enum : uint8_t {
+		unknown,      /* Unknown type */
+		requestTime,  /* Request : Time */
+		requestData,  /* Request : Info */
+		soundCommand, /* Sound commands for "free choice" mode */
+		provideTime,  /* Provide : Time */
 
-		lightOnOff,              // Provide : Light On/off
-		lightModeRgb,            // Provide : Light RGB
-		lightModePower,          // Provide : Light mode Power
-		lightMode,               // Provide : Light mode
-		lightModeSpeed,          // Provide : Light mode Speed
-		soundOnOff,              // Provide : Sound on/off
-		soundMode,               // Provide : Sound mode
-		soundVolume,             // Provide : Sound volume
-		alarmDawnVolume,         // Provide : Dawn sounds volume
-		alarmDawnTime,           // Provide : Dawn alarm time
-		alarmDawnDuration,       // Provide : Dawn alarm duration
-		alarmSunsetDuration,     // Provide : Sunset mode duration
-		alarmSunsetDecreaseTime, // Provide : Sunset mode decrease time
+		lightOnOff,              /* Provide : Light On/off */
+		lightModeRgb,            /* Provide : Light RGB */
+		lightModePower,          /* Provide : Light mode Power */
+		lightMode,               /* Provide : Light mode */
+		lightModeSpeed,          /* Provide : Light mode Speed */
+		soundOnOff,              /* Provide : Sound on/off */
+		soundMode,               /* Provide : Sound mode */
+		soundVolume,             /* Provide : Sound volume */
+		alarmDawnVolume,         /* Provide : Dawn sounds volume */
+		alarmDawnTime,           /* Provide : Dawn alarm time */
+		alarmDawnDuration,       /* Provide : Dawn alarm duration */
+		alarmSunsetDuration,     /* Provide : Sunset mode duration */
+		alarmSunsetDecreaseTime, /* Provide : Sunset mode decrease time */
 
 		N,
-		SEND_START = lightOnOff, // - First value to send to Serial -
-		MIN        = 0,          // - Minimum value -
-		MAX        = N - 1       // - Maximum value -
+		SEND_START = lightOnOff, /* - First value to send to Serial - */
+		MIN        = 0,          /* - Minimum value - */
+		MAX        = N - 1       /* - Maximum value - */
 	};
 
 	RequestType();
 	RequestType(uint8_t value);
 	operator uint8_t ();
 	RequestType & operator ++ (int);
-	Bounds getInformationBounds ();
-	Bounds getComplementBounds ();
-	ComplementCategory getComplementType ();
-	bool needsComplement ();
-	const String toString (bool shortened = false) const;
+	Bounds getInformationBounds();
+	Bounds getComplementBounds();
+	ComplementCategory getComplementType();
+	bool needsComplement();
+	const String toString(bool shortened = false) const;
 	RequestType operator = (const String & typeString);
 	friend bool operator == (const String & string, const RequestType & type);
 	friend ostream & operator << (ostream & os, const RequestType & mode);
@@ -300,12 +281,10 @@ private:
 
 /* Sound Mode
  */
-class SoundMode
-{
+class SoundMode {
 public:
-	enum Enum
-	{
-		freeChoice, // Free choice mode
+	enum Enum {
+		freeChoice, /* Free choice mode */
 
 		N,
 		MIN = 0,
@@ -315,7 +294,7 @@ public:
 	SoundMode();
 	SoundMode(uint8_t value);
 	operator uint8_t ();
-	const String toString () const;
+	const String toString() const;
 	friend ostream & operator << (ostream & os, const SoundMode & mode);
 
 private:
@@ -325,11 +304,9 @@ private:
 
 /* Sound Command
  */
-class SoundCommand
-{
+class SoundCommand {
 public:
-	enum Enum
-	{
+	enum Enum {
 		playRandom,
 		playOne,
 		playNext,
@@ -346,7 +323,7 @@ public:
 	SoundCommand();
 	SoundCommand(uint8_t value);
 	operator uint8_t ();
-	const String toString () const;
+	const String toString() const;
 	friend ostream & operator << (ostream & os, const SoundCommand & mode);
 
 private:

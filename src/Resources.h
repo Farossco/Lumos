@@ -10,18 +10,18 @@
 # define StringType __FlashStringHelper *
 # define Flash(x) reinterpret_cast<const StringType>(x)
 # define STORAGE    PROGMEM
-#else
+#else /* if (STORE_IN_PROGMEM) */
 # define StringType char *
 # define Flash(x) x
 # define STORAGE
-#endif
+#endif /* if (STORE_IN_PROGMEM) */
 
-#define WEB_COLOR_WIDTH  6 // The width of the web interface's color panel
-#define WEB_COLOR_HEIGHT 4 // The height of the web interface's color panel
+#define WEB_COLOR_WIDTH  6 /* The width of the web interface's color panel */
+#define WEB_COLOR_HEIGHT 4 /* The height of the web interface's color panel */
 
-#define IR_COLOR_N       16 // Number of different colors
+#define IR_COLOR_N       16 /* Number of different colors */
 
-#define FULL_LINE        0x000000 // TODO : get rid of that
+#define FULL_LINE        0x000000 /* TODO : get rid of that */
 
 extern const StringType nameUnknown;
 extern const StringType lightModeName[LightMode::N];

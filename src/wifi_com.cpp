@@ -24,7 +24,7 @@ static AsyncWebServer server(80);
 static bool load_from_spiffs(String path, AsyncWebServerRequest * rqst)
 {
 	String dataType = "text/plain";
-	bool fileFound = false;
+	bool fileFound  = false;
 
 	if (path.endsWith("/")) {
 		path += "index.html";
@@ -91,8 +91,8 @@ static void handle_command(AsyncWebServerRequest * rqst)
 			trace << "Sending to arduino: Nothing" << dendl;
 		} else {
 			String data = request.getType().toString(true)
-			              + request.getComplementString()
-			              + request.getInformationString() + 'z';
+			  + request.getComplementString()
+			  + request.getInformationString() + 'z';
 
 			trace << "Sending to arduino: " << data << endl;
 
@@ -170,7 +170,7 @@ void wifi_com_init()
 void wifi_com_time_get()
 {
 	const size_t capacity = JSON_OBJECT_SIZE(3) /* root (status, message, timestamp) */
-	                        + 50;               /* String duplications + security margin */
+	  + 50;                                     /* String duplications + security margin */
 
 	DynamicJsonDocument doc(capacity);
 
@@ -202,7 +202,7 @@ void wifi_com_time_get()
 	/* Deserialize the JSON document */
 	deserializeJson(doc, json);
 
-	status = ((const char *) doc["status"]);
+	status    = ((const char *)doc["status"]);
 	timestamp = doc["timestamp"];
 
 	trace << "Status : |" << status << "| " << endl;

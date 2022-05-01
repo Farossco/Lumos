@@ -4,22 +4,21 @@
 #include <Arduino.h>
 #include "Types.h"
 
-#define REQ_PREFIX_LENGTH 3 // The length of the request prefix
+#define REQ_PREFIX_LENGTH 3 /* The length of the request prefix */
 
-class Request
-{
+class Request {
 public:
 	Request(String inputString);
 	Request(const String & prefixString, const String & complementString, const String & informationString);
-	void process ();
+	void process();
 
-	RequestError getError ();
-	RequestType getType ();
-	uint8_t getComplement ();
-	uint32_t getInformation ();
+	RequestError getError();
+	RequestType getType();
+	uint8_t getComplement();
+	uint32_t getInformation();
 
-	String getComplementString ();
-	String getInformationString ();
+	String getComplementString();
+	String getInformationString();
 
 private:
 	RequestError error   = RequestError::none;
@@ -27,9 +26,9 @@ private:
 	uint8_t complement   = 0;
 	uint32_t information = 0;
 
-	void decodeInput ();
-	void decodeSeparate ();
-	void displayDebug ();
+	void decodeInput();
+	void decodeSeparate();
+	void displayDebug();
 };
 
 #endif // ifndef REQUEST_H

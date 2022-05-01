@@ -11,7 +11,7 @@
 
 void setup()
 {
-	serial.init (ESP_DEBUG_BAUD_RATE, 0);
+	serial.init(ESP_DEBUG_BAUD_RATE, 0);
 
 	wifi_com_init();
 

@@ -3,12 +3,11 @@
 
 #include <Arduino.h>
 
-class Utils
-{
+class Utils {
 public:
-	char * getClock ();
-	uint32_t map (float input, float inMin, float inMax, float outMin, float outMax);
-	String ltos (uint32_t value, int base = DEC);
+	char * getClock();
+	uint32_t map(float input, float inMin, float inMax, float outMin, float outMax);
+	String ltos(uint32_t value, int base = DEC);
 
 private:
 	char clock[25];
