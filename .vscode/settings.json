@@ -1,0 +1,6 @@
+{
+	"platformio-ide.useBuiltinPIOCore": true,
+	"platformio-ide.useBuiltinPython": true,
+	"editor.defaultFormatter": "zachflower.uncrustify",
+	"editor.formatOnSave": true,
+}
