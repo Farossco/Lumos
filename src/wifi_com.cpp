@@ -11,7 +11,7 @@
 #include "ArduinoLogger.h"
 #include "Request.h"
 #include "Json.h"
-#include "SerialCom.h"
+#include "serial_com.h"
 
 #define TIME_HOST   "api.timezonedb.com" /* HTPP time host */
 #define TIME_FORMAT "json"               /* Format for receive the time */
@@ -85,19 +85,12 @@ static void handle_command(AsyncWebServerRequest * rqst)
 	request.process();
 
 	if (request.getError()) {
-		trace << "Sending to arduino: Nothing" << dendl;
 		message = json.getErrorPretty(request.getError());
 	} else {
-		if (request.getType() == RequestType::requestData) {
-			trace << "Sending to arduino: Nothing" << dendl;
-		} else {
+		if (request.getType() != RequestType::requestData) {
 			String data = request.getType().toString(true)
 			  + request.getComplementString()
 			  + request.getInformationString() + 'z';
-
-			trace << "Sending to arduino: " << data << endl;
-
-			serial.comSerial.print(data);
 		}
 
 		message = json.getDataPretty();

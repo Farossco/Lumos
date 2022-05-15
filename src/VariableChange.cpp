@@ -1,3 +1,5 @@
+/* TODO: Remove this file */
+
 #include <stdlib.h>
 #include <string.h>
 #include "VariableChange.h"
@@ -8,7 +10,7 @@
 #include "Request.h"
 #include "Utils.h"
 #include "Alarms.h"
-#include "SerialCom.h"
+#include "serial_com.h"
 
 VariableChange::VariableChange() : initialized(false) {}
 
@@ -228,7 +230,7 @@ void VariableChange::sendData()
 			message += 'z';
 
 			verb << message;
-			serial.comSerial.print(message);
+			/* serial.comSerial.print(message); */
 		}
 	}
 

@@ -1,7 +1,7 @@
 #include <TimeLib.h>
 #include "SdCard.h"
 #include "VariableChange.h"
-#include "SerialCom.h"
+#include "serial_com.h"
 #include "Alarms.h"
 #include "Bluetooth.h"
 #include "Light.h"
@@ -11,7 +11,7 @@
 
 void setup()
 {
-	serial.init(ESP_DEBUG_BAUD_RATE, 0);
+	serial_com_init(ESP_DEBUG_BAUD_RATE, 0);
 
 	wifi_com_init();
 
@@ -36,7 +36,7 @@ void loop()
 {
 	/* variableChange.check(); */
 
-	serial.receiveAndDecode();
+	serial_com_receive_and_decode();
 
 	sd.action();
 

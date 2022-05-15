@@ -2,7 +2,7 @@
 #include "ArduinoLogger.h"
 #include "Memory.h"
 #include "Sound.h"
-#include "SerialCom.h"
+#include "serial_com.h"
 
 Light::Light() : strip(LIGHT_STRIP_LENGTH, DOTSTAR_BGR)
 {
@@ -139,8 +139,10 @@ void Light::init()
 	mode     = LightMode::continuous;
 	lastMode = LightMode::continuous; /* Initialiazing last mode as well */
 
-	while (!serial.checkTime())
-		startAnimWait();
+	/* TODO: animation during Wi-Fi connection
+	 *  while (!serial.checkTime())
+	 *      startAnimWait();
+	 */
 
 	startAnimDone();
 
