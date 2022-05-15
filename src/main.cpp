@@ -1,9 +1,7 @@
 #include <TimeLib.h>
 #include "SdCard.h"
-#include "VariableChange.h"
 #include "serial_com.h"
 #include "Alarms.h"
-#include "Bluetooth.h"
 #include "Light.h"
 #include "Sound.h"
 #include "wifi_com.h"
@@ -26,16 +24,10 @@ void setup()
 	/* sound.init (Serial2); */
 
 	/* alarms.init(); */
-
-	/* variableChange.init(); */
-
-	/* variableChange.sendData(); */
 }
 
 void loop()
 {
-	/* variableChange.check(); */
-
 	serial_com_receive_and_decode();
 
 	sd.action();
@@ -47,6 +39,4 @@ void loop()
 	/* sound.action(); */
 
 	alarms.action();
-
-	/* bluetooth.action(); */
 }
