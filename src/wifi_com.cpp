@@ -49,6 +49,7 @@ static bool load_from_spiffs(String path, AsyncWebServerRequest * rqst)
 
 	if (SPIFFS.exists(path)) {
 		rqst->send(SPIFFS, rqst->url(), dataType);
+		fileFound = true;
 	}
 
 	return fileFound;
@@ -70,7 +71,7 @@ static void handle_root(AsyncWebServerRequest * rqst)
 {
 	request_display(rqst);
 
-	rqst->send(SPIFFS, "/index.html", String(), false);
+	rqst->send(SPIFFS, "/index.html");
 }
 
 static void handle_command(AsyncWebServerRequest * rqst)
@@ -105,14 +106,14 @@ static void handle_command(AsyncWebServerRequest * rqst)
 	rqst->send(200, "application/json", message);
 }
 
-static void handle_web_requests(AsyncWebServerRequest * rqst)
+static void handle_get_res(AsyncWebServerRequest * rqst)
 {
 	request_display(rqst);
 
 	rqst->send(200, "application/json", json.getResourcesPretty());
 }
 
-static void handle_get_res(AsyncWebServerRequest * rqst)
+static void handle_web_requests(AsyncWebServerRequest * rqst)
 {
 	request_display(rqst);
 
