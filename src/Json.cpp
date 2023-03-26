@@ -2,7 +2,7 @@
 
 #include "Json.h"
 #include <ArduinoJson.h>
-#include "Light.h"
+#include "light.h"
 #include "Sound.h"
 #include "ArduinoLogger.h"
 #include "Utils.h"
@@ -54,27 +54,32 @@ void Json::generateData(String & string,
 
 	/* ****** Light ****** // */
 	JsonObject rootLight = root.createNestedObject("Light");
-	rootLight["On"]   = light.isOn();             /* -- On/Off -- // */
-	rootLight["Mode"] = (uint8_t)light.getMode(); /* -- Mode -- // */
+
+	rootLight["On"]   = light_is_on();             /* -- On/Off -- // */
+	rootLight["Mode"] = (uint8_t)light_mode_get(); /* -- Mode -- // */
 
 	/* -- Rgb -- // */
 	JsonArray rootLightRgb = rootLight.createNestedArray("Rgb");
+
 	for (LightMode mode; mode < LightMode::N; mode++)
-		rootLightRgb.add(light.getRgb(mode).value());
+		rootLightRgb.add(light_color_get(mode).value());
 
 	/* -- Power -- // */
 	JsonArray rootLightPower = rootLight.createNestedArray("Power");
+
 	for (LightMode mode; mode < LightMode::N; mode++)
-		rootLightPower.add(light.getPowerPercent(mode).value());
+		rootLightPower.add(light_power_get(mode).value());
 
 	/* -- Speed -- // */
 	JsonArray rootLightSpeed = rootLight.createNestedArray("Speed");
+
 	for (LightMode mode; mode < LightMode::N; mode++)
-		rootLightSpeed.add(light.getSpeedPercent(mode).value());
+		rootLightSpeed.add(light_speed_get(mode).value());
 
 
 	/* ****** Sound ****** // */
 	JsonObject rootSound = root.createNestedObject("Sound");
+
 	rootSound["On"]     = sound.isOn();              /* -- On/Off -- // */
 	rootSound["Volume"] = sound.getVolume().value(); /* -- Volume -- // */
 	rootSound["Mode"]   = (uint8_t)sound.getMode();  /* -- Mode -- // */
@@ -85,12 +90,14 @@ void Json::generateData(String & string,
 
 	/* -- Dawn -- // */
 	JsonObject rootAlarmsDawn = rootAlarms.createNestedObject("Dawn");
+
 	rootAlarmsDawn["Volume"]   = alarms.getDawnVolume().value();   /* Volume // */
 	rootAlarmsDawn["Time"]     = alarms.getDawnTime().value();     /* Time // */
 	rootAlarmsDawn["Duration"] = alarms.getDawnDuration().value(); /* Duration // */
 
 	/* -- Sunset -- // */
 	JsonObject rootAlarmsSunset = rootAlarms.createNestedObject("Sunset");
+
 	rootAlarmsSunset["Duration"]     = alarms.getSunsetDuration().value();     /* Time // */
 	rootAlarmsSunset["DecreaseTime"] = alarms.getSunsetDecreaseTime().value(); /* Duration // */
 
@@ -142,11 +149,13 @@ void Json::generateResources(String & string, bool pretty)
 
 	/* -- ModeNames -- // */
 	JsonArray rootLightModeNames = rootLight.createNestedArray("ModeNames");
+
 	for (LightMode mode; mode <= LightMode::N; mode++)
 		rootLightModeNames.add(mode.toString());
 
 	/* -- Colors -- // */
 	JsonArray rootLightColors = rootLight.createNestedArray("Colors");
+
 	for (int i = 0; i < colorNRows; i++) {
 		JsonArray rootLightColorsElement = rootLightColors.createNestedArray();
 

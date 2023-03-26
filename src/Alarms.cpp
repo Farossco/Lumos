@@ -1,6 +1,6 @@
 #include "Alarms.h"
 #include "ArduinoLogger.h"
-#include "Light.h"
+#include "light.h"
 #include "Memory.h"
 #include "Sound.h"
 
@@ -64,8 +64,8 @@ void Alarms::action()
 
 void Alarms::dawnStart()
 {
-	light.setMode(LightMode::dawn);
-	light.switchOn();
+	light_mode_set(LightMode::dawn);
+	light_switch_on();
 	sound.setVolumeRaw(dawnVolume);
 	sound.setMode(SoundMode::freeChoice);
 	sound.command(SoundCommand::playDawn, 0);

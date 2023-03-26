@@ -3,7 +3,7 @@
 #include "Request.h"
 #include "Utils.h"
 #include "ArduinoLogger.h"
-#include "Light.h"
+#include "light.h"
 #include "Alarms.h"
 #include "Sound.h"
 
@@ -107,23 +107,23 @@ void Request::process()
 			break;
 
 		case RequestType::lightOnOff:
-			(information) ? light.switchOn() : light.switchOff();
+			(information) ? light_switch_on() : light_switch_off();
 			break;
 
 		case RequestType::lightModeRgb:
-			light.setRgb(information, complement);
+			light_color_set(information, complement);
 			break;
 
 		case RequestType::lightModePower:
-			light.setPower(information, complement);
+			light_power_set(information, complement);
 			break;
 
 		case RequestType::lightMode:
-			light.setMode(information);
+			light_mode_set(information);
 			break;
 
 		case RequestType::lightModeSpeed:
-			light.setSpeed(information, complement);
+			light_speed_set(information, complement);
 			break;
 
 		case RequestType::soundOnOff:
@@ -180,23 +180,23 @@ void Request::displayDebug()
 		break;
 
 	case RequestType::lightOnOff:
-		trace << boolalpha << light.isOn();
+		trace << boolalpha << light_is_on();
 		break;
 
 	case RequestType::lightModeRgb:
-		trace << light.getRgb(complement);
+		trace << light_color_get(complement);
 		break;
 
 	case RequestType::lightModePower:
-		trace << light.getPowerRaw(complement);
+		trace << light_power_raw_get(complement);
 		break;
 
 	case RequestType::lightMode:
-		trace << light.getMode();
+		trace << light_mode_get();
 		break;
 
 	case RequestType::lightModeSpeed:
-		trace << light.getSpeedRaw(complement);
+		trace << light_speed_raw_get(complement);
 		break;
 
 	case RequestType::soundOnOff:

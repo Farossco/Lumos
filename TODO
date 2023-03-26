@@ -9,3 +9,4 @@
 - Implement and rework Sound
 - Test Infrared
 - Find alternative for analogWrite
+- Implement Async execution

@@ -2,22 +2,22 @@
 #include "SdCard.h"
 #include "serial_com.h"
 #include "Alarms.h"
-#include "Light.h"
+#include "light.h"
 #include "Sound.h"
 #include "wifi_com.h"
 #include "Infrared.h"
 
 void setup()
 {
+	light_init();
+
 	serial_com_init(ESP_DEBUG_BAUD_RATE, 0);
 
 	wifi_com_init();
 
 	wifi_com_time_get();
 
-	sd.init(); /* SD SPI needs to be initialized after the light strip SPI */
-
-	/* light.init(); */
+	/* sd.init(); / * SD SPI needs to be initialized after the light strip SPI * / */
 
 	/* infrared.init(); */
 
@@ -30,11 +30,11 @@ void loop()
 {
 	serial_com_receive_and_decode();
 
-	sd.action();
+	/* sd.action(); */
 
 	/* infrared.read(); */
 
-	/* light.action(); */
+	light_action();
 
 	/* sound.action(); */
 

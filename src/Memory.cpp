@@ -1,5 +1,5 @@
 #include "Memory.h"
-#include "Light.h"
+#include "light.h"
 #include "ArduinoLogger.h"
 #include "Alarms.h"
 #include "SdCard.h"
@@ -44,9 +44,10 @@ void Memory::writeLight()
 
 	verb << "Writing EEPROM for light variables... ";
 
-	put(light.rgbs);
-	put(light.powers);
-	put(light.speeds);
+	/* put(light.rgbs);
+	 * put(light.powers);
+	 * put(light.speeds);
+	 */
 
 	verb << "Done ! (" << _n << " byte" << ((_n > 1) ? "s" : "") << " written)" << dendl;
 }
@@ -58,9 +59,10 @@ bool Memory::readLight()
 
 	verb << "Reading EEPROM for light variables... ";
 
-	light.rgbs   = get<LightRgbArray>();
-	light.powers = get<LightPowerArray>();
-	light.speeds = get<LightSpeedArray>();
+	/* light.rgbs   = get<LightRgbArray>();
+	 * light.powers = get<LightPowerArray>();
+	 * light.speeds = get<LightSpeedArray>();
+	 */
 
 	verb << "Done ! (" << _address - EEPROM_LIGHT_START << " byte" << ((_address > 1) ? "s" : "") << " read)" << dendl;
 
