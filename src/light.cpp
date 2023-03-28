@@ -11,13 +11,6 @@ static LightSpeedArray light_speeds; /* Current mode speed for each mode */
 static LightRgbArray light_rgbs;     /* Current RGB value for each mode */
 static LightMode light_mode;         /* Current lighting mode */
 
-static time_t light_delayCount, light_delayCount2;
-static uint32_t light_step;
-static LightMode light_mode_last; /* Mode in previous loop - Allows mode initializations */
-
-static uint8_t light_temp_red;
-static uint8_t light_temp_green;
-static uint8_t light_temp_blue;
 static LightRgb light_rainbow[LIGHT_STRIP_HALF_LENGTH + 1];
 
 static Adafruit_DotStar strip(LIGHT_STRIP_LENGTH, DOTSTAR_BGR);
@@ -35,21 +28,6 @@ void light_power_set(Percentage power, LightMode affectedMode)
 void light_speed_set(Percentage speed, LightMode affectedMode)
 {
 	light_speeds[affectedMode] = speed;
-}
-
-void light_mode_set(LightMode mode)
-{
-	light_mode = mode;
-}
-
-void light_switch_on()
-{
-	light_on = LightOnOff(true);
-}
-
-void light_switch_off()
-{
-	light_on = LightOnOff(false);
 }
 
 void light_power_add(Percentage power, LightMode affected_mode)
@@ -172,89 +150,64 @@ static void strip_anim_done_start()
 	}
 }
 
-static void light_mode_continuous()
+static void light_mode_continuous(void * pvParameters)
 {
-	if (light_mode_last != light_mode) {
-		light_mode_last = light_mode; /* Setting light_mode_last so we don't call init again */
+	inf << "Entering Continuous mode" << dendl;
 
-		inf << "Entering Default mode" << dendl;
+	while (true) {
+		strip_color_all_set(light_rgbs[light_mode]);
+
+		vTaskDelay(pdMS_TO_TICKS(1000));
 	}
-
-	strip_color_all_set(light_rgbs[light_mode]);
 }
 
 /* Flash mode */
-static void light_mode_flash()
+static void light_mode_flash(void * pvParameters)
 {
-	static uint8_t state      = 0;
-	static time_t delay_count = 0;
+	inf << "Entering Flash mode" << dendl;
 
-	if (light_mode_last != light_mode) {
-		state       = 0; /* Set initial state to 0 */
-		delay_count = 0; /* Reseting milliseconds counter */
+	while (true) {
+		strip_color_all_set(0xFF0000);
 
-		light_mode_last = light_mode; /* Setting light_mode_last so we don't call init again */
+		delay(1000U - light_speeds[light_mode] * 10);
 
-		inf << "Entering Flash mode" << dendl;
+		strip_color_all_set(0x00FF00);
+
+		delay(1000U - light_speeds[light_mode] * 10);
+
+		strip_color_all_set(0x0000FF);
+
+		delay(1000U - light_speeds[light_mode] * 10);
 	}
-
-	if (millis() - delay_count >= 1000U - light_speeds[light_mode] * 10) {
-		if (state >= 2)
-			state = 0;
-		else
-			state++;  /* Incrementing state */
-
-		delay_count = millis();
-	}
-
-	strip_color_all_set(state == 0 ? 0xFF0000 : state == 1 ? 0x00FF00 : 0x0000FF);
 }
 
 /* Strobe mode */
-static void light_mode_strobe()
+static void light_mode_strobe(void * pvParameters)
 {
-	static uint8_t state      = 0;
-	static time_t delay_count = -1;
+	inf << "Entering Strobe mode" << dendl;
 
-	if (light_mode_last != light_mode) {
-		state       = 0;  /* Set initial state to 0 */
-		delay_count = -1; /* Reseting milliseconds counter */
-
-		light_mode_last = light_mode; /* Setting light_mode_last so we don't call init again */
-
-		inf << "Entering Strobe mode" << dendl;
-	}
-
-	if (millis() - delay_count >= 1000U - light_speeds[light_mode] * 10) {
-		state = !state; /* Inverting state */
-
-		delay_count = millis();
-	}
-
-	if (state)
+	while (true) {
 		strip_color_all_set(light_rgbs[light_mode]);
-	else
-		strip_color_all_set(0x000000);
+
+		vTaskDelay(pdMS_TO_TICKS(1000U - light_speeds[light_mode] * 10));
+
+		strip_color_all_set(0);
+
+		vTaskDelay(pdMS_TO_TICKS(1000U - light_speeds[light_mode] * 10));
+	}
 }
 
 /* Fade Mode */
-static void light_mode_fade()
+static void light_mode_fade(void * pvParameters)
 {
-	static uint8_t state      = 0;
-	static time_t delay_count = -1;
-	static int32_t counter    = 0;
+	uint8_t state   = 0;
+	int32_t counter = 0;
 
-	if (light_mode_last != light_mode) {
-		state       = 0;  /* Setting state to Decreasing state */
-		delay_count = -1; /* Reseting milliseconds counter */
-		counter     = 0;
+	inf << "Entering Fade mode" << dendl;
 
-		light_mode_last = light_mode; /* Setting light_mode_last so we don't call init again */
+	while (true) {
+		strip_color_all_set(light_color_get(light_mode) * (counter / 255.));
 
-		inf << "Entering Fade mode" << dendl;
-	}
-
-	if (millis() - delay_count >= (1000U - light_speeds[light_mode] * 10) / 10) {
 		if (counter >= 255)
 			state = 0;
 		else if (counter <= 0)
@@ -265,235 +218,172 @@ static void light_mode_fade()
 		else
 			counter--;
 
-		/* verb << "counter : " << counter << endl; */
-
-		delay_count = millis();
+		vTaskDelay(pdMS_TO_TICKS((1000U - light_speeds[light_mode] * 10) / 50));
 	}
-
-	strip_color_all_set(light_color_get(light_mode) * (counter / 255.));
 }
 
 /* Smooth Mode */
-static void light_mode_smooth()
+static void light_mode_smooth(void * pvParameters)
 {
-	static uint8_t state      = 0;
-	static time_t delay_count = -1;
-	static uint8_t temp_red   = 0xFF;
-	static uint8_t temp_green = 0;
-	static uint8_t temp_blue  = 0;
+	uint8_t state = 0;
+	uint8_t red   = 0xFF;
+	uint8_t green = 0;
+	uint8_t blue  = 0;
 
-	if (light_mode_last != light_mode) {
-		state       = 0;  /* Init state to 0 */
-		delay_count = -1; /* Reseting milliseconds counter */
-		temp_red    = 0xFF;
-		temp_green  = 0;
-		temp_blue   = 0;
+	inf << "Entering Smooth mode" << dendl;
 
-		light_mode_last = light_mode; /* Setting light_mode_last so we don't call init again */
+	while (true) {
+		strip_color_all_set(red, green, blue);
 
-		inf << "Entering Smooth mode" << dendl;
-	}
-
-	if (millis() - delay_count >= (1000U - light_speeds[light_mode] * 10) / 8) {
 		switch (state) {
-		case 0: if (++temp_green == 0xFF) state = 1; break;
-		case 1: if (--temp_red == 0x00) state = 2; break;
-		case 2: if (++temp_blue == 0xFF) state = 3; break;
-		case 3: if (--temp_green == 0x00) state = 4; break;
-		case 4: if (++temp_red == 0xFF) state = 5; break;
-		case 5: if (--temp_blue == 0x00) state = 0; break;
+		case 0: if (++green == 0xFF) state = 1; break;
+		case 1: if (--red == 0x00) state = 2; break;
+		case 2: if (++blue == 0xFF) state = 3; break;
+		case 3: if (--green == 0x00) state = 4; break;
+		case 4: if (++red == 0xFF) state = 5; break;
+		case 5: if (--blue == 0x00) state = 0; break;
 		}
 
-		delay_count = millis();
+		vTaskDelay(pdMS_TO_TICKS((1000U - light_speeds[light_mode] * 10) / 8));
 	}
-
-	strip_color_all_set(temp_red, temp_green, temp_blue);
-} /* Light::smooth */
+}
 
 /* Dawn Mode */
-static void light_mode_dawn()
+static void light_mode_dawn(void * pvParameters)
 {
-	static time_t delay_count = -1;
-	static int32_t counter1   = 0;
-	static int32_t counter2   = 1;
-	static uint32_t step      = alarms.getDawnDuration() * (1000.0 / (LIGHT_STRIP_HALF_LENGTH * 255));
+	int16_t counter1 = 0;
+	int16_t counter2 = 1;
+	uint32_t step    = alarms.getDawnDuration() * (1000.0 / (LIGHT_STRIP_HALF_LENGTH * 255));
 
-	if (light_mode_last != light_mode) {
-		delay_count = -1; /* Reseting milliseconds counter */
-		counter1    = 0;
-		counter2    = 1;
-		step        = alarms.getDawnDuration() * (1000.0 / (LIGHT_STRIP_HALF_LENGTH * 255));
+	inf << "Entering Dawn mode for " << alarms.getDawnDuration() << dendl;
 
-		light_mode_last = light_mode; /* Setting light_mode_last so we don't call init again */
+	strip_color_all_set(0);
 
-		strip_color_all_set(0);
-
-		inf << "Entering Dawn mode for " << alarms.getDawnDuration() << dendl;
-	}
-
-	if (millis() - delay_count >= step) {
+	while (counter2 < 255) {
 		strip.setPixelColor(LIGHT_STRIP_HALF_LENGTH + counter1, (light_color_get(light_mode) * (counter2 / 255.)).value());
 		strip.setPixelColor(LIGHT_STRIP_HALF_LENGTH - counter1, (light_color_get(light_mode) * (counter2 / 255.)).value());
 
-		if (counter1 >= LIGHT_STRIP_HALF_LENGTH) {
+		if (counter1++ >= LIGHT_STRIP_HALF_LENGTH) {
 			counter1 = 0;
 
-			if (counter2 >= 255) {
-				light_rgbs [LightMode::continuous]  = light_rgbs [light_mode];  /* Transfer RGB final value to default mode */
-				light_powers[LightMode::continuous] = light_powers[light_mode]; /* Same for power */
-				light_mode                          = LightMode::continuous;    /* Leaving the mode */
-			} else
-				counter2++;
-		} else
-			counter1++;
+			counter2++;
+		}
 
-		delay_count = millis();
+		vTaskDelay(pdMS_TO_TICKS(step));
 	}
-} /* Light::dawn */
+
+	light_rgbs [LightMode::continuous]  = light_rgbs [light_mode];  /* Transfer RGB final value to default mode */
+	light_powers[LightMode::continuous] = light_powers[light_mode]; /* Same for power */
+
+	light_mode_set(LightMode::continuous); /* Leaving the mode */
+}
 
 /* Sunset Mode */
-static void light_mode_sunset()
+static void light_mode_sunset(void * pvParameters)
 {
-	static time_t delay_count = millis();
-	static uint8_t state      = 0;
-	static int32_t counter1   = 0;
-	static int32_t counter2   = 255;
-	static uint32_t step      = alarms.getDawnDuration() * (1000.0 / (LIGHT_STRIP_HALF_LENGTH * 255));
+	int32_t counter1 = 0;
+	int32_t counter2 = 255;
 
-	if (light_mode_last != light_mode) {
-		delay_count = millis(); /* Reseting milliseconds counter */
-		state       = 0;
-		counter1    = 0;
-		counter2    = 255;
-		step        = alarms.getSunsetDuration() * 1000; /* Step for state 0 */
+	inf << "Entering Sunset mode for " << alarms.getSunsetDuration() << dendl;
 
-		light_mode_last = light_mode; /* Setting light_mode_last so we don't call init again */
+	strip_color_all_set(light_color_get(light_mode));
 
-		strip_color_all_set(light_color_get(light_mode));
+	delay(alarms.getSunsetDuration().value());
 
-		inf << "Entering Sunset mode for " << alarms.getSunsetDuration() << dendl;
+	trace << "Starting to shut down. Completely off in " << alarms.getSunsetDecreaseTime() << dendl;
+
+	while (counter2 > 0) {
+		strip.setPixelColor(counter1,                      (light_color_get(light_mode) * (counter2 / 255.)).value());
+		strip.setPixelColor(LIGHT_STRIP_LENGTH - counter1, (light_color_get(light_mode) * (counter2 / 255.)).value());
+
+		if (counter1++ >= LIGHT_STRIP_HALF_LENGTH) {
+			counter1 = 0;
+
+			counter2--;
+		}
+
+		vTaskDelay(pdMS_TO_TICKS(alarms.getSunsetDecreaseTime() * (1000.0 / (LIGHT_STRIP_HALF_LENGTH * 255))));
 	}
 
-	if (state == 0) { /* Waiting until sunsetTime has passed */
-		if (millis() - delay_count >= step) {
-			state = 1;
-			trace << "Starting to shut down. Completely off in " << alarms.getSunsetDecreaseTime() << dendl;
-			delay_count = millis();
-			step        = alarms.getSunsetDecreaseTime() * (1000.0 / (LIGHT_STRIP_HALF_LENGTH * 255)); /* Changing the step for state 1 */
-			counter1    = 0;
-			counter2    = 255;
-		}
-	} else if (state == 1) { /* Progressively decreasing power */
-		if (millis() - delay_count >= step) {
-			strip.setPixelColor(0 + counter1,                  (light_color_get(light_mode) * (counter2 / 255.)).value());
-			strip.setPixelColor(LIGHT_STRIP_LENGTH - counter1, (light_color_get(light_mode) * (counter2 / 255.)).value());
+	light_on = LightOnOff(false); /* Shutting down the lights */
 
-			if (counter1 >= LIGHT_STRIP_HALF_LENGTH) {
-				counter1 = 0;
-
-				if (counter2 <= 0) {
-					light_mode = LightMode::continuous; /* Leaving the mode */
-					light_switch_off();
-				} else
-					counter2--;
-			} else
-				counter1++;
-
-			delay_count = millis();
-		}
-	}
-} /* Light::sunset */
+	light_mode_set(LightMode::continuous); /* Leaving the mode */
+}
 
 /* Music Mode */
-static void light_mode_music()
+static void light_mode_music(void * pvParameters)
 {
-	static time_t delay_count1 = -1;
-	static time_t delay_count2 = -1;
-	static int32_t counter     = 0;
+	int32_t counter = 0;
+	int32_t level   = 0;
 
-	if (light_mode_last != light_mode) {
-		delay_count1 = -1;
-		delay_count2 = -1;
-		counter      = 0;
+	inf << "Entering Music mode" << dendl;
 
-		light_mode_last = light_mode; /* Setting light_mode_last so we don't call init again */
+	while (true) {
+		level = utils.map(abs(510 - analogRead(LIGHT_PIN_MUSIC_IN)), 0, 25, 0, LIGHT_STRIP_LENGTH);
 
-		inf << "Entering Music mode" << dendl;
-	}
+		level = constrain(level, 0, LIGHT_STRIP_LENGTH - 1);
 
-	int32_t level = utils.map(abs(510 - analogRead(LIGHT_PIN_MUSIC_IN)), 0, 25, 0, LIGHT_STRIP_LENGTH);
+		/* TODO: Create task inside the task
+		 * if (millis() - delay_count1 >= 20) {
+		 *  if (counter > level)
+		 *      counter--;
+		 *
+		 *  if (counter < 0)
+		 *      counter = 0;
+		 *
+		 *  delay_count1 = millis();
+		 * }
+		 *
+		 * if (millis() - delay_count2 >= 2) {
+		 *  if (counter < level)
+		 *      counter++;
+		 *
+		 *  /*delay_count2 = millis();
+		 * }
+		 */
 
-	if (level < 0)
-		level = 0;
-
-	if (level >= LIGHT_STRIP_LENGTH)
-		return;
-
-	if (millis() - delay_count1 >= 20) {
-		if (counter > level)
-			counter--;
-
-		if (counter < 0)
-			counter = 0;
-
-		delay_count1 = millis();
-	}
-
-	if (millis() - delay_count2 >= 2) {
-		if (counter < level)
-			counter++;
-
-		delay_count2 = millis();
-	}
-
-
-	for (uint8_t i = 0; i < LIGHT_STRIP_LENGTH; i++) {
-		if (i < counter) {
-			strip.setPixelColor(i, 0xFFFF00);
-		} else {
-			strip.setPixelColor(i, 0x000000);
+		for (uint8_t i = 0; i < LIGHT_STRIP_LENGTH; i++) {
+			if (i == counter) {
+				strip.setPixelColor(i, 0x0000FF);
+			} else if (i < counter) {
+				strip.setPixelColor(i, 0xFFFF00);
+			} else {
+				strip.setPixelColor(i, 0x000000);
+			}
 		}
+
+		vTaskDelay(pdMS_TO_TICKS(1));
 	}
+}
 
-	strip.setPixelColor(counter, 0x0000FF);
-} /* Light::music */
+static TaskFunction_t light_mode_funcs[] = { light_mode_continuous,
+	                                         light_mode_flash,
+	                                         light_mode_strobe,
+	                                         light_mode_fade,
+	                                         light_mode_smooth,
+	                                         light_mode_dawn,
+	                                         light_mode_sunset,
+	                                         light_mode_music };
+static TaskHandle_t xHandle;
 
-static void light_mode_actions()
+static void light_mode_task_create(void)
 {
-	/* Calling mode functions */
-	switch (light_mode) {
-	case LightMode::continuous:
-		light_mode_continuous();
-		break;
+	xTaskCreatePinnedToCore(light_mode_funcs[light_mode],
+	  "LightModeTask",
+	  10240,
+	  NULL,
+	  1,
+	  &xHandle,
+	  1);
 
-	case LightMode::flash:
-		light_mode_flash();
-		break;
+	verb << "Task started, handle: " << hex << (uint32_t)xHandle << endl;
+}
 
-	case LightMode::strobe:
-		light_mode_strobe();
-		break;
-
-	case LightMode::fade:
-		light_mode_fade();
-		break;
-
-	case LightMode::smooth:
-		light_mode_smooth();
-		break;
-
-	case LightMode::dawn:
-		light_mode_dawn();
-		break;
-
-	case LightMode::sunset:
-		light_mode_sunset();
-		break;
-
-	case LightMode::music:
-		light_mode_music();
-		break;
-	}
+static void light_mode_task_delete(void)
+{
+	vTaskDelete(xHandle);
+	xHandle = NULL;
+	verb << "Light mode task deleted" << endl;
 }
 
 void light_init()
@@ -506,22 +396,21 @@ void light_init()
 
 	strip.begin();
 
-	if (memory.readLight()) { /* Returns True if EEPROM is not correctly initialized (This may be the first launch) */
-		inf << "This is first launch, light variables will be initialized to their default values" << endl;
+	/* if (memory.readLight()) { / * Returns True if EEPROM is not correctly initialized (This may be the first launch) * /
+	 * 	inf << "This is first launch, light variables will be initialized to their default values" << endl;
+	 */
 
-		light_reset();
-	}
+	/* 	light_reset();
+	 * }
+	 */
+
+	light_reset();
 
 	strip_color_all_set(0);
 	strip_update(0);
 
-	light_mode      = LightMode::continuous;
-	light_mode_last = LightMode::continuous; /* Initialiazing last mode as well */
-
-	/* TODO: animation during Wi-Fi connection
-	 *  while (!serial.checkTime())
-	 *      startAnimWait();
-	 */
+	light_mode = LightMode::continuous;
+	light_on   = LightOnOff(false);
 
 	strip_anim_done_start();
 
@@ -538,17 +427,72 @@ void light_reset()
 }
 
 /* Perform mode action */
+
 void light_action()
 {
 	/* If lighting is off, shut all lights */
 	if (light_is_off()) {
-		strip_color_all_set(0);
-		strip_update(0);
-		light_mode_last = LightMode::continuous;
 		return;
 	}
 
-	light_mode_actions();
-
 	strip_update(light_powers[light_mode]);
+}
+
+void light_mode_set(LightMode mode)
+{
+	if (mode == light_mode) {
+		return;
+	}
+
+	light_mode = mode;
+
+	if (light_is_off()) {
+		return;
+	}
+
+	/* Terminate the current light mode task*/
+	if (xHandle) {
+		light_mode_task_delete();
+	} else {
+		err << "There should be a task running!" << dendl;
+	}
+
+	light_mode_task_create();
+}
+
+void light_switch_on()
+{
+	if (light_is_on()) {
+		return;
+	}
+
+	verb << "Turning lights on" << dendl;
+
+	/* Terminate the current light mode task if running */
+	if (xHandle) {
+		err << "The light mode task shouldn't be running right now!" << dendl;
+		light_mode_task_delete();
+	}
+
+	light_mode_task_create();
+
+	light_on = LightOnOff(true);
+}
+
+void light_switch_off()
+{
+	if (light_is_off()) {
+		return;
+	}
+
+	/* Terminate the current light mode task if running */
+	if (xHandle) {
+		light_mode_task_delete();
+	} else {
+		err << "There should be a light mode task running right now!" << dendl;
+	}
+
+	light_on = LightOnOff(false);
+	strip_color_all_set(0);
+	strip_update(0);
 }

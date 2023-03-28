@@ -9,9 +9,9 @@
 
 void setup()
 {
-	light_init();
-
 	serial_com_init(ESP_DEBUG_BAUD_RATE, 0);
+
+	light_init();
 
 	wifi_com_init();
 

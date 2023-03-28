@@ -147,7 +147,11 @@ private:
 
 typedef SettingBase<bool, false, true, 0, 0> LightOnOff;
 
+#if DIMMED_MODE
 typedef SettingBase<uint8_t, 5, 15, 100> LightPower;
+#else /* if DIMMED_MODE */
+typedef SettingBase<uint8_t, 5, 255, 100> LightPower;
+#endif /* if DIMMED_MODE */
 typedef SettingArrayBase<LightPower, LightMode> LightPowerArray;
 
 typedef SettingBase<uint8_t, 0x00, 0xFF, 100> LightColor;
