@@ -34,7 +34,7 @@ private:
 
 	template <class T> void put(T value)
 	{
-		uint8_t * pValue = (uint8_t *)&value;
+		uint8_t *pValue = (uint8_t *)&value;
 
 		for (int count = sizeof(T); count; --count) {
 			if (EEPROM.read(_address) != *pValue) {
@@ -51,7 +51,7 @@ private:
 	{
 		T value;
 
-		uint8_t * pValue = (uint8_t *)&value;
+		uint8_t *pValue = (uint8_t *)&value;
 
 		for (int count = sizeof(T); count; --count) {
 			*pValue = EEPROM.read(_address);

@@ -21,7 +21,7 @@
 
 static AsyncWebServer server(80);
 
-static bool load_from_spiffs(String path, AsyncWebServerRequest * rqst)
+static bool load_from_spiffs(String path, AsyncWebServerRequest *rqst)
 {
 	String dataType = "text/plain";
 	bool fileFound  = false;
@@ -55,7 +55,7 @@ static bool load_from_spiffs(String path, AsyncWebServerRequest * rqst)
 	return fileFound;
 }
 
-static void request_display(AsyncWebServerRequest * rqst)
+static void request_display(AsyncWebServerRequest *rqst)
 {
 	trace << "Received request from " << rqst->client()->remoteIP().toString() << endl;
 
@@ -67,14 +67,14 @@ static void request_display(AsyncWebServerRequest * rqst)
 	trace << endl;
 }
 
-static void handle_root(AsyncWebServerRequest * rqst)
+static void handle_root(AsyncWebServerRequest *rqst)
 {
 	request_display(rqst);
 
 	rqst->send(SPIFFS, "/index.html");
 }
 
-static void handle_command(AsyncWebServerRequest * rqst)
+static void handle_command(AsyncWebServerRequest *rqst)
 {
 	String message;
 
@@ -88,9 +88,9 @@ static void handle_command(AsyncWebServerRequest * rqst)
 		message = json.getErrorPretty(request.getError());
 	} else {
 		if (request.getType() != RequestType::requestData) {
-			String data = request.getType().toString(true)
-			  + request.getComplementString()
-			  + request.getInformationString() + 'z';
+			String data = request.getType().toString(true) +
+			              request.getComplementString() +
+			              request.getInformationString() + 'z';
 		}
 
 		message = json.getDataPretty();
@@ -99,14 +99,14 @@ static void handle_command(AsyncWebServerRequest * rqst)
 	rqst->send(200, "application/json", message);
 }
 
-static void handle_get_res(AsyncWebServerRequest * rqst)
+static void handle_get_res(AsyncWebServerRequest *rqst)
 {
 	request_display(rqst);
 
 	rqst->send(200, "application/json", json.getResourcesPretty());
 }
 
-static void handle_web_requests(AsyncWebServerRequest * rqst)
+static void handle_web_requests(AsyncWebServerRequest *rqst)
 {
 	request_display(rqst);
 
@@ -115,6 +115,7 @@ static void handle_web_requests(AsyncWebServerRequest * rqst)
 	}
 
 	String message = "File Not Detected\n\n";
+
 	message += String("URL: ") + rqst->url() + "\n";
 	message += String("Method: ") + ((rqst->method() == HTTP_GET) ? "GET" : "POST") + "\n";
 	message += String("Arguments: ") + rqst->args() + "\n";
@@ -151,7 +152,7 @@ void wifi_com_init()
 
 	SPIFFS.begin();
 
-	server.on("/",        HTTP_ANY, handle_root);
+	server.on("/", HTTP_ANY, handle_root);
 	server.on("/command", HTTP_ANY, handle_command);
 	server.on("/getRes",  HTTP_ANY, handle_get_res);
 	server.onNotFound(handle_web_requests);
@@ -163,8 +164,8 @@ void wifi_com_init()
 
 void wifi_com_time_get()
 {
-	const size_t capacity = JSON_OBJECT_SIZE(3) /* root (status, message, timestamp) */
-	  + 50;                                     /* String duplications + security margin */
+	const size_t capacity = JSON_OBJECT_SIZE(3) + /* root (status, message, timestamp) */
+	                        50;                   /* String duplications + security margin */
 
 	DynamicJsonDocument doc(capacity);
 

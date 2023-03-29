@@ -89,8 +89,8 @@ LightRgb LightRgb::operator * (double value) const
 LightRgb LightRgb::operator / (double value) const
 {
 	LightRgb rgb;
-	uint8_t * pSelf = (uint8_t *)&_value;
-	uint8_t * pNew  = (uint8_t *)&rgb._value;
+	uint8_t *pSelf = (uint8_t *)&_value;
+	uint8_t *pNew  = (uint8_t *)&rgb._value;
 
 	for (int i = 0; i < 3; i++)
 		*(pNew + i) = *(pSelf + i) / value;

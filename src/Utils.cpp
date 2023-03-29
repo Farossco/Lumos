@@ -26,7 +26,7 @@ uint32_t Utils::map(float input, float inMin, float inMax, float outMin, float o
 String Utils::ltos(uint32_t value, int base)
 {
 	char buf[8 * sizeof(uint32_t) + 1]; /* Assumes 8-bit chars plus zero byte. */
-	char * str = &buf[sizeof(buf) - 1];
+	char *str = &buf[sizeof(buf) - 1];
 
 	*str = '\0';
 

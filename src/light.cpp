@@ -150,7 +150,7 @@ static void strip_anim_done_start()
 	}
 }
 
-static void light_mode_continuous(void * pvParameters)
+static void light_mode_continuous(void *pvParameters)
 {
 	inf << "Entering Continuous mode" << dendl;
 
@@ -162,7 +162,7 @@ static void light_mode_continuous(void * pvParameters)
 }
 
 /* Flash mode */
-static void light_mode_flash(void * pvParameters)
+static void light_mode_flash(void *pvParameters)
 {
 	inf << "Entering Flash mode" << dendl;
 
@@ -182,7 +182,7 @@ static void light_mode_flash(void * pvParameters)
 }
 
 /* Strobe mode */
-static void light_mode_strobe(void * pvParameters)
+static void light_mode_strobe(void *pvParameters)
 {
 	inf << "Entering Strobe mode" << dendl;
 
@@ -198,7 +198,7 @@ static void light_mode_strobe(void * pvParameters)
 }
 
 /* Fade Mode */
-static void light_mode_fade(void * pvParameters)
+static void light_mode_fade(void *pvParameters)
 {
 	uint8_t state   = 0;
 	int32_t counter = 0;
@@ -223,7 +223,7 @@ static void light_mode_fade(void * pvParameters)
 }
 
 /* Smooth Mode */
-static void light_mode_smooth(void * pvParameters)
+static void light_mode_smooth(void *pvParameters)
 {
 	uint8_t state = 0;
 	uint8_t red   = 0xFF;
@@ -249,7 +249,7 @@ static void light_mode_smooth(void * pvParameters)
 }
 
 /* Dawn Mode */
-static void light_mode_dawn(void * pvParameters)
+static void light_mode_dawn(void *pvParameters)
 {
 	int16_t counter1 = 0;
 	int16_t counter2 = 1;
@@ -279,7 +279,7 @@ static void light_mode_dawn(void * pvParameters)
 }
 
 /* Sunset Mode */
-static void light_mode_sunset(void * pvParameters)
+static void light_mode_sunset(void *pvParameters)
 {
 	int32_t counter1 = 0;
 	int32_t counter2 = 255;
@@ -293,7 +293,7 @@ static void light_mode_sunset(void * pvParameters)
 	trace << "Starting to shut down. Completely off in " << alarms.getSunsetDecreaseTime() << dendl;
 
 	while (counter2 > 0) {
-		strip.setPixelColor(counter1,                      (light_color_get(light_mode) * (counter2 / 255.)).value());
+		strip.setPixelColor(counter1, (light_color_get(light_mode) * (counter2 / 255.)).value());
 		strip.setPixelColor(LIGHT_STRIP_LENGTH - counter1, (light_color_get(light_mode) * (counter2 / 255.)).value());
 
 		if (counter1++ >= LIGHT_STRIP_HALF_LENGTH) {
@@ -311,7 +311,7 @@ static void light_mode_sunset(void * pvParameters)
 }
 
 /* Music Mode */
-static void light_mode_music(void * pvParameters)
+static void light_mode_music(void *pvParameters)
 {
 	int32_t counter = 0;
 	int32_t level   = 0;
@@ -369,12 +369,12 @@ static TaskHandle_t xHandle;
 static void light_mode_task_create(void)
 {
 	xTaskCreatePinnedToCore(light_mode_funcs[light_mode],
-	  "LightModeTask",
-	  10240,
-	  NULL,
-	  1,
-	  &xHandle,
-	  1);
+	                        "LightModeTask",
+	                        10240,
+	                        NULL,
+	                        1,
+	                        &xHandle,
+	                        1);
 
 	verb << "Task started, handle: " << hex << (uint32_t)xHandle << endl;
 }

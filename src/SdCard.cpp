@@ -6,8 +6,8 @@ SdCard::SdCard()
 	pinMode(PIN_SD_LED_RED,   OUTPUT);
 	pinMode(PIN_SD_LED_GREEN, OUTPUT);
 	pinMode(PIN_SD_LED_BLUE,  OUTPUT);
-	pinMode(PIN_SD_CS,        INPUT);
-	pinMode(PIN_SD_CD,        INPUT_PULLUP);
+	pinMode(PIN_SD_CS, INPUT);
+	pinMode(PIN_SD_CD, INPUT_PULLUP);
 
 	lightOff();
 
@@ -120,7 +120,7 @@ void SdCard::autoDetect()
 boolean SdCard::createLogFile()
 {
 	char name[13];
-	const char * loadingCreating;
+	const char *loadingCreating;
 
 	sprintf(name, "%d%.2d%.2d.log", year(), month(), day());
 

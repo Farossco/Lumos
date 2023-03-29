@@ -3,18 +3,18 @@
 #include "Light.h"
 #include "ArduinoLogger.h"
 
-Infrared::Infrared() : irrecv (0)
+Infrared::Infrared() : irrecv(0)
 {
-	enabled = false;
+	enabled    = false;
 	lastIRCode = 0;
-	IRCode = 0;
+	IRCode     = 0;
 }
 
 void Infrared::init(int pin)
 {
-	pinMode (pin, INPUT);
+	pinMode(pin, INPUT);
 
-	irrecv = IRrecv (pin);
+	irrecv = IRrecv(pin);
 
 	irrecv.enableIRIn(); /* Initialize IR communication */
 
@@ -30,15 +30,15 @@ void Infrared::read()
 		return;
 
 	/* If something is comming from IR reciever */
-	if (irrecv.decode (&results)) {
+	if (irrecv.decode(&results)) {
 		/* We save the IR word in IRCode */
 		IRCode = results.value;
 
 		/* [DEBUG] Print the incomming IR value */
-		trace << "Incomming IR: 0x" << utils.ltos (IRCode, HEX);
+		trace << "Incomming IR: 0x" << utils.ltos(IRCode, HEX);
 		/* REPEAT (When button is pressed continiously, sent value is 0xFFFFFFFF, so we change it with the latest code that we recieved */
 		if (IRCode == 0xFFFFFFFF) {
-			trace << " (0x" << utils.ltos (lastIRCode, HEX) << ")";
+			trace << " (0x" << utils.ltos(lastIRCode, HEX) << ")";
 			IRCode = lastIRCode;
 		}
 		trace << dendl;
@@ -71,7 +71,7 @@ void Infrared::read()
 		/* DOWN */
 		case 0xFFB847:
 		case 0xA23C94BF:
-			light.subtractPower (IR_CHANGE_STEP);
+			light.subtractPower(IR_CHANGE_STEP);
 
 			/* [DEBUG] Prints current color and RED, GREEN, BLUE values */
 			trace << "Power (" << light.getMode() << " mode): " << light.getPowerRaw() << endl;
@@ -84,7 +84,7 @@ void Infrared::read()
 		/* UP */
 		case 0xFF906F:
 		case 0xE5CFBD7F:
-			light.addPower (IR_CHANGE_STEP);
+			light.addPower(IR_CHANGE_STEP);
 
 			/* [DEBUG] Prints current color and RED, GREEN, BLUE values */
 			trace << "Power (" << light.getMode() << " mode): " << light.getPowerRaw() << endl;
@@ -98,28 +98,28 @@ void Infrared::read()
 		/* FLASH */
 		case 0xFFB24D:
 		case 0x7EC31EF7:
-			light.setMode (LightMode::flash);
+			light.setMode(LightMode::flash);
 			break;
 			break;
 
 		/* STROBE */
 		case 0xFF00FF:
 		case 0xFA3F159F:
-			light.setMode (LightMode::strobe);
+			light.setMode(LightMode::strobe);
 			break;
 			break;
 
 		/* FADE */
 		case 0xFF58A7:
 		case 0xDC0197DB:
-			light.setMode (LightMode::fade);
+			light.setMode(LightMode::fade);
 			break;
 			break;
 
 		/* SMOOTH */
 		case 0xFF30CF:
 		case 0x9716BE3F:
-			light.setMode (LightMode::smooth);
+			light.setMode(LightMode::smooth);
 			break;
 			break;
 
@@ -128,8 +128,8 @@ void Infrared::read()
 			lastIRCode = 0;
 			for (int i = 0; i < IR_COLOR_N; i++)
 				if (results.value == IrColorList[i][1] || results.value == IrColorList[i][2]) {
-					light.setMode (LightMode::continuous);
-					light.setRgb (IrColorList[i][0]);
+					light.setMode(LightMode::continuous);
+					light.setRgb(IrColorList[i][0]);
 				}
 			break;
 		}

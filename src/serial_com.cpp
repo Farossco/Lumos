@@ -21,7 +21,7 @@ void serial_com_init(uint32_t debugBaudRate, uint32_t comBaudRate)
 /* TODO: Make this asynchronous */
 void serial_com_receive_and_decode(void)
 {
-	Stream * serialInput;
+	Stream *serialInput;
 
 	if ((serialInput = &debugSerial)->available()) {
 		serialInput->setTimeout(serialInput == &debugSerial ? 2000 : 50);

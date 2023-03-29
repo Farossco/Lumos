@@ -34,17 +34,16 @@ String Json::getData()
  * n
  * k
  * l */
-void Json::generateData(String & string,
-  bool                         pretty)
+void Json::generateData(String & string, bool pretty)
 {
-	const size_t capacity = 0             /* Necessary margin */
-	  + JSON_OBJECT_SIZE(5)               /* root (status/message/light/sound/alarms) */
-	  + JSON_OBJECT_SIZE(5)               /* light (on/mode/rgb/power/speed) */
-	  + 3 * JSON_ARRAY_SIZE(LightMode::N) /* light:rgb[] + light:power[] + light:speed[] */
-	  + JSON_OBJECT_SIZE(3)               /* sound (on/volume/mode) */
-	  + JSON_OBJECT_SIZE(2)               /* alarms (dawn/sunset) */
-	  + JSON_OBJECT_SIZE(3)               /* dawn (volume/time/duration/) */
-	  + JSON_OBJECT_SIZE(2)               /* sunset (duration/decreaseTime) */
+	const size_t capacity = 0 +                                 /* Necessary margin */
+	                        JSON_OBJECT_SIZE(5) +               /* root (status/message/light/sound/alarms) */
+	                        JSON_OBJECT_SIZE(5) +               /* light (on/mode/rgb/power/speed) */
+	                        3 * JSON_ARRAY_SIZE(LightMode::N) + /* light:rgb[] + light:power[] + light:speed[] */
+	                        JSON_OBJECT_SIZE(3) +               /* sound (on/volume/mode) */
+	                        JSON_OBJECT_SIZE(2) +               /* alarms (dawn/sunset) */
+	                        JSON_OBJECT_SIZE(3) +               /* dawn (volume/time/duration/) */
+	                        JSON_OBJECT_SIZE(2)                 /* sunset (duration/decreaseTime) */
 	;
 
 	StaticJsonDocument<capacity> root;
@@ -130,13 +129,13 @@ void Json::generateResources(String & string, bool pretty)
 	const int colorNRows    = sizeof(WebcolorList) / sizeof(*WebcolorList);
 	const int colorNColumns = sizeof(*WebcolorList) / sizeof(**WebcolorList);
 
-	const size_t capacity = 0
-	  + JSON_OBJECT_SIZE(3)                         /* root (Status/Message/Light) */
-	  + JSON_OBJECT_SIZE(2)                         /* light (ModeNames/Colors) */
-	  + JSON_ARRAY_SIZE(LightMode::N)               /* modeNames array */
-	  + LightMode::N * JSON_STRING_SIZE(15)         /* modeNames Strings */
-	  + JSON_ARRAY_SIZE(colorNRows)                 /* color array */
-	  + colorNRows * JSON_ARRAY_SIZE(colorNColumns) /* color[i] array */
+	const size_t capacity = 0 +
+	                        JSON_OBJECT_SIZE(3) +                       /* root (Status/Message/Light) */
+	                        JSON_OBJECT_SIZE(2) +                       /* light (ModeNames/Colors) */
+	                        JSON_ARRAY_SIZE(LightMode::N) +             /* modeNames array */
+	                        LightMode::N * JSON_STRING_SIZE(15) +       /* modeNames Strings */
+	                        JSON_ARRAY_SIZE(colorNRows) +               /* color array */
+	                        colorNRows * JSON_ARRAY_SIZE(colorNColumns) /* color[i] array */
 	;
 
 	StaticJsonDocument<capacity> root;
@@ -189,9 +188,9 @@ String Json::getError(RequestError error)
 
 void Json::generateError(String & string, bool pretty, RequestError error)
 {
-	const size_t capacity = 0
-	  + JSON_OBJECT_SIZE(2)   /* root (status/message) */
-	  + JSON_STRING_SIZE(100) /* message (String duplication) */
+	const size_t capacity = 0 +
+	                        JSON_OBJECT_SIZE(2) + /* root (status/message) */
+	                        JSON_STRING_SIZE(100) /* message (String duplication) */
 	;
 
 	StaticJsonDocument<capacity> root;
