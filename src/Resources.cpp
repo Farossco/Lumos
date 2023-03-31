@@ -9,7 +9,6 @@ const char lightModeName3[] STORAGE = "Fade";
 const char lightModeName4[] STORAGE = "Smooth";
 const char lightModeName5[] STORAGE = "Wake up";
 const char lightModeName6[] STORAGE = "Sunset";
-const char lightModeName7[] STORAGE = "Music";
 
 const char soundModeName0[] STORAGE = "Free choice";
 
@@ -64,7 +63,7 @@ const char errorName3[] STORAGE = "Incorrect Request Type";
 const char errorName4[] STORAGE = "Empty String";
 
 const StringType nameUnknown                            = Flash(nameUnknown0);
-const StringType lightModeName[LightMode::N]            = { Flash(lightModeName0), Flash(lightModeName1), Flash(lightModeName2), Flash(lightModeName3), Flash(lightModeName4), Flash(lightModeName5), Flash(lightModeName6), Flash(lightModeName7) };
+const StringType lightModeName[LightMode::N]            = { Flash(lightModeName0), Flash(lightModeName1), Flash(lightModeName2), Flash(lightModeName3), Flash(lightModeName4), Flash(lightModeName5), Flash(lightModeName6) };
 const StringType soundModeName[SoundMode::N]            = { Flash(soundModeName0) };
 const StringType soundCommandName[SoundCommand::N]      = { Flash(soundCommandName0), Flash(soundCommandName1), Flash(soundCommandName2), Flash(soundCommandName3), Flash(soundCommandName4), Flash(soundCommandName5), Flash(soundCommandName6) };
 const StringType messageTypeName[RequestType::N]        = { Flash(nameUnknown), Flash(messageTypeName1), Flash(messageTypeName2), Flash(messageTypeName3), Flash(messageTypeName4), Flash(messageTypeName5), Flash(messageTypeName6), Flash(messageTypeName7), Flash(messageTypeName8), Flash(messageTypeName9), Flash(messageTypeName10), Flash(messageTypeName11), Flash(messageTypeName12), Flash(messageTypeName13), Flash(messageTypeName14), Flash(messageTypeName15), Flash(messageTypeName16), Flash(messageTypeName17) };
@@ -81,7 +80,7 @@ const uint32_t WebcolorList[WEB_COLOR_HEIGHT][WEB_COLOR_WIDTH] STORAGE =
 
 const uint32_t IrColorList[IR_COLOR_N][3] STORAGE =
 {
-	/* RGB Code  Code 1     Code 2  */
+/*    RGB Code   Code 1     Code 2  */
 	{ 0xFFFFFF, 0xFFA857, 0xA3C8EDDB }, /* WHITE */
 
 	{ 0xFF0000, 0xFF9867, 0x97483BFB }, /* R1 */

@@ -180,7 +180,7 @@ void Request::displayDebug()
 		break;
 
 	case RequestType::lightOnOff:
-		trace << boolalpha << light_is_on();
+		trace << boolalpha << light_state_get();
 		break;
 
 	case RequestType::lightModeRgb:

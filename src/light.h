@@ -1,43 +1,113 @@
-#ifndef LIGHT_H
-#define LIGHT_H
-
-#include <Adafruit_DotStar.h>
+#ifndef LUMOS_LIGHT_H
+#define LUMOS_LIGHT_H
 
 #include <Arduino.h>
 #include "Utils.h"
 #include "time.h"
 #include "Types.h"
 
-const uint8_t LIGHT_STRIP_LENGTH      = 72;
-const uint8_t LIGHT_STRIP_HALF_LENGTH = LIGHT_STRIP_LENGTH / 2. + 0.5;
-const uint8_t LIGHT_PIN_DATA          = 51;
-const uint8_t LIGHT_PIN_CLOCK         = 52;
-const uint8_t LIGHT_PIN_MUSIC_IN      = 0;
-const uint8_t LIGHT_PIN_STRIP_CS      = 21;
+/**
+ * @brief Initialize light module
+ *
+ */
+void light_init(void);
 
-const uint8_t LIGHT_TAIL_LENGTH = LIGHT_STRIP_HALF_LENGTH;
+/**
+ * @brief Set RGB color for a specified mode
+ *
+ * @param rgb RGB value
+ * @param mode Mode affected by the change
+ */
+void light_color_set(LightRgb rgb, LightMode mode);
 
-const uint16_t LIGHT_SA_COLOR_STEP = 6 * 255 / (LIGHT_STRIP_LENGTH / 4);
+/**
+ * @brief Set power value for a specified mode
+ *
+ * @param power Power value
+ * @param mode Mode affected by the change
+ */
+void light_power_set(Percentage power, LightMode mode);
 
-/* TODO: Document */
-void light_color_set(LightRgb rgb, LightMode affected_mode);
-void light_power_set(Percentage power, LightMode affected_mode);
-void light_speed_set(Percentage speed, LightMode affected_mode);
+/**
+ * @brief Set speed value for a specified mode
+ *
+ * @param speed Speed value
+ * @param mode Mode affected by the change
+ */
+void light_speed_set(Percentage speed, LightMode mode);
+
+/**
+ * @brief Change the current light mode
+ *
+ * @param mode Mode value
+ */
 void light_mode_set(LightMode mode);
-void light_power_add(Percentage power, LightMode affected_mode);
-void light_power_sub(Percentage power, LightMode affected_mode);
-void light_switch_on();
-void light_switch_off();
-LightRgb light_color_get(LightMode affected_mode);
-LightPower light_power_raw_get(LightMode affected_mode);
-Percentage light_power_get(LightMode affected_mode);
-LightSpeed light_speed_raw_get(LightMode affected_mode);
-Percentage light_speed_get(LightMode affected_mode);
-LightMode light_mode_get();
-bool light_is_on();
-bool light_is_off();
-void light_init();
-void light_reset();
-void light_action();
 
-#endif // ifndef LIGHT_H
+/**
+ * @brief Turn the lights on
+ *
+ */
+void light_switch_on(void);
+
+/**
+ * @brief Turn the lights off
+ *
+ */
+void light_switch_off(void);
+
+/**
+ * @brief Get the current RGB value for a given mode
+ *
+ * @param mode Desired mode
+ * @return The RGB value
+ */
+LightRgb light_color_get(LightMode mode);
+
+/**
+ * @brief Get the current raw power value for a given mode
+ *
+ * @param mode Desired mode
+ * @return The raw power value
+ */
+LightPower light_power_raw_get(LightMode mode);
+
+/**
+ * @brief Get the current power value for a given mode in percentage
+ *
+ * @param mode Desired mode
+ * @return The power value in percentage
+ */
+Percentage light_power_get(LightMode mode);
+
+/**
+ * @brief Get the current raw speed value for a given mode
+ *
+ * @param mode Desired mode
+ * @return The raw speed value
+ */
+LightSpeed light_speed_raw_get(LightMode mode);
+
+/**
+ * @brief Get the current speed value for a given mode in percentage
+ *
+ * @param mode Desired mode
+ * @return The speed value in percentage
+ */
+Percentage light_speed_get(LightMode mode);
+
+/**
+ * @brief Get the current light mode
+ *
+ * @return LightMode
+ */
+LightMode light_mode_get(void);
+
+/**
+ * @brief Get light ON/OFF state
+ *
+ * @return true if lights are on
+ * @return false if lights are off
+ */
+bool light_state_get(void);
+
+#endif /* ifndef LUMOS_LIGHT_H */

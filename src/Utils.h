@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof(*x))
+
 class Utils {
 public:
 	char * getClock();

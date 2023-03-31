@@ -30,23 +30,18 @@ String Json::getData()
 	return string;
 }
 
-/* a
- * n
- * k
- * l */
 void Json::generateData(String & string, bool pretty)
 {
-	const size_t capacity = 0 +                                 /* Necessary margin */
+	const size_t CAPACITY = 0 +                                 /* Necessary margin */
 	                        JSON_OBJECT_SIZE(5) +               /* root (status/message/light/sound/alarms) */
 	                        JSON_OBJECT_SIZE(5) +               /* light (on/mode/rgb/power/speed) */
 	                        3 * JSON_ARRAY_SIZE(LightMode::N) + /* light:rgb[] + light:power[] + light:speed[] */
 	                        JSON_OBJECT_SIZE(3) +               /* sound (on/volume/mode) */
 	                        JSON_OBJECT_SIZE(2) +               /* alarms (dawn/sunset) */
 	                        JSON_OBJECT_SIZE(3) +               /* dawn (volume/time/duration/) */
-	                        JSON_OBJECT_SIZE(2)                 /* sunset (duration/decreaseTime) */
-	;
+	                        JSON_OBJECT_SIZE(2);                /* sunset (duration/decreaseTime) */
 
-	StaticJsonDocument<capacity> root;
+	StaticJsonDocument<CAPACITY> root;
 
 	root["Status"]  = "OK";
 	root["Message"] = "";
@@ -54,7 +49,7 @@ void Json::generateData(String & string, bool pretty)
 	/* ****** Light ****** // */
 	JsonObject rootLight = root.createNestedObject("Light");
 
-	rootLight["On"]   = light_is_on();             /* -- On/Off -- // */
+	rootLight["On"]   = light_state_get();         /* -- On/Off -- // */
 	rootLight["Mode"] = (uint8_t)light_mode_get(); /* -- Mode -- // */
 
 	/* -- Rgb -- // */

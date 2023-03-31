@@ -84,37 +84,6 @@ protected:
 	T _value;
 };
 
-/** SettingBaseArray
- *
- * T : The type of setting to store in the array
- */
-template <class T, class ModeT> class SettingArrayBase {
-public:
-	T & operator [] (ModeT mode) { return _value[constrain(mode, ModeT::MIN, ModeT::MAX)]; }
-
-	T operator [] (ModeT mode) const { return _value[constrain(mode, ModeT::MIN, ModeT::MAX)]; }
-
-	SettingArrayBase operator = (const SettingArrayBase & copy)
-	{
-		for (ModeT mode = ModeT::MIN; mode <= ModeT::MAX; mode++)
-			(*this)[mode] = copy[mode];
-
-		return *this;
-	}
-
-	SettingArrayBase operator = (T value)
-	{
-		for (ModeT mode = ModeT::MIN; mode <= ModeT::MAX; mode++)
-			_value[mode] = value;
-
-		return *this;
-	}
-
-protected:
-	T _value[ModeT::N];
-};
-
-
 /* Light Mode
  */
 class LightMode {
@@ -127,7 +96,6 @@ public:
 		smooth,     /* Smooth mode */
 		dawn,       /* Dawn mode */
 		sunset,     /* Sunset mode */
-		music,      /* Music mode */
 
 		N,
 		MIN = 0,
@@ -146,36 +114,54 @@ private:
 };
 
 typedef SettingBase<bool, false, true, 0, 0> LightOnOff;
-
 #if DIMMED_MODE
 typedef SettingBase<uint8_t, 5, 15, 100> LightPower;
 #else /* if DIMMED_MODE */
 typedef SettingBase<uint8_t, 5, 255, 100> LightPower;
 #endif /* if DIMMED_MODE */
-typedef SettingArrayBase<LightPower, LightMode> LightPowerArray;
-
 typedef SettingBase<uint8_t, 0x00, 0xFF, 100> LightColor;
-typedef SettingArrayBase<LightColor, LightMode> LightColorArray;
+typedef SettingBase<uint8_t, 0, 95, 67> LightSpeed;
 
-class LightRgb : public SettingBase<uint32_t, 0x00000000, 0x00FFFFFF, 100> {
+class LightRgb {
 public:
+	enum Enum : uint32_t {
+		MIN = 0x00000000,
+		MAX = 0x00FFFFFF,
+		DEF = 0x00FFFFFF
+	};
+
 	LightRgb ();
 	LightRgb (uint32_t);
+	LightRgb (LightColor, LightColor, LightColor);
 	LightRgb setRed(LightColor);
 	LightRgb setGreen(LightColor);
 	LightRgb setBlue(LightColor);
 	LightRgb setHue(uint8_t);
+	uint32_t value() const;
 	LightColor getRed() const;
 	LightColor getGreen() const;
 	LightColor getBlue() const;
 	LightRgb operator * (double) const;
 	LightRgb operator / (double) const;
 	friend ostream & operator << (ostream & os, const LightRgb & rgb);
-};
-typedef SettingArrayBase<LightRgb, LightMode> LightRgbArray;
 
-typedef SettingBase<uint8_t, 0, 95, 67> LightSpeed;
-typedef SettingArrayBase<LightSpeed, LightMode> LightSpeedArray;
+private:
+	union {
+		uint32_t rgb;
+		struct {
+#if _BYTE_ORDER == _LITTLE_ENDIAN
+			uint8_t b;
+			uint8_t g;
+			uint8_t r;
+#else /* if _BYTE_ORDER == _LITTLE_ENDIAN */
+			uint8_t r;
+			uint8_t g;
+			uint8_t b;
+#endif /* if _BYTE_ORDER == _LITTLE_ENDIAN */
+		};
+	} _value;
+};
+
 
 class Timing : public SettingBase<uint32_t, 0, -1UL, 0> {
 public:

@@ -3,4 +3,7 @@
 	"platformio-ide.useBuiltinPython": true,
 	"editor.defaultFormatter": "zachflower.uncrustify",
 	"editor.formatOnSave": true,
+	"[jsonc]": {
+		"editor.defaultFormatter": "vscode.json-language-features"
+	},
 }

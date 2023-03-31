@@ -17,23 +17,27 @@ const String LightMode::toString() const { return getArrayString(_value, lightMo
 
 LightMode & LightMode::operator ++ (int) { _value = static_cast<Enum>(static_cast<uint8_t>(_value) + 1); return *this; }
 
-ostream & operator << (ostream & os, const LightMode & mode) { return os << mode.toString() << " (" << mode._value << ")"; }
-
+ostream & operator << (ostream & os, const LightMode & mode)
+{
+	return os << mode.toString() << " (" << mode._value << ")";
+}
 
 /****************************** Percentage ******************************/
 Percentage::Percentage (uint8_t value) : _value(constrain(value, MIN, MAX)) {}
 
 
 /****************************** LightRgb ******************************/
-LightRgb::LightRgb() : SettingBase() {}
+LightRgb::LightRgb() {}
 
-LightRgb::LightRgb (uint32_t value) : SettingBase(value) {}
+LightRgb::LightRgb (uint32_t rgb) { _value.rgb = rgb; }
 
-LightRgb LightRgb::setRed(LightColor red) { *(((uint8_t *)&_value) + 2) = red.value(); return *this; }
+LightRgb::LightRgb (LightColor red, LightColor green, LightColor blue) { setRed(red); setGreen(green); setBlue(blue); }
 
-LightRgb LightRgb::setGreen(LightColor green) { *(((uint8_t *)&_value) + 1) = green.value(); return *this; }
+LightRgb LightRgb::setRed(LightColor red) { _value.r = red.value(); return *this; }
 
-LightRgb LightRgb::setBlue(LightColor blue) { *(((uint8_t *)&_value) + 0) = blue.value(); return *this; }
+LightRgb LightRgb::setGreen(LightColor green) { _value.g = green.value(); return *this; }
+
+LightRgb LightRgb::setBlue(LightColor blue) { _value.b = blue.value(); return *this; }
 
 LightRgb LightRgb::setHue(uint8_t hue)
 {
@@ -69,37 +73,33 @@ LightRgb LightRgb::setHue(uint8_t hue)
 	return *this;
 } /* LightRgb::setHue */
 
-LightColor LightRgb::getRed() const { return *(((uint8_t *)&_value) + 2); }
+uint32_t LightRgb::value() const { return _value.rgb; }
 
-LightColor LightRgb::getGreen() const { return *(((uint8_t *)&_value) + 1); }
+LightColor LightRgb::getRed() const { return _value.r; }
 
-LightColor LightRgb::getBlue() const { return *(((uint8_t *)&_value) + 0); }
+LightColor LightRgb::getGreen() const { return _value.g; }
+
+LightColor LightRgb::getBlue() const { return _value.b; }
 
 LightRgb LightRgb::operator * (double value) const
 {
-	LightRgb rgb;
-
-	*(&rgb._value + 0) = *(&_value + 0) * value;
-	*(&rgb._value + 1) = *(&_value + 1) * value;
-	*(&rgb._value + 2) = *(&_value + 2) * value;
-
-	return rgb;
+	return LightRgb(_value.r * value,
+	                _value.g * value,
+	                _value.b * value);
 }
 
 LightRgb LightRgb::operator / (double value) const
 {
-	LightRgb rgb;
-	uint8_t *pSelf = (uint8_t *)&_value;
-	uint8_t *pNew  = (uint8_t *)&rgb._value;
-
-	for (int i = 0; i < 3; i++)
-		*(pNew + i) = *(pSelf + i) / value;
-
-	return rgb;
+	return LightRgb(_value.r / value,
+	                _value.g / value,
+	                _value.b / value);
 }
 
-ostream & operator << (ostream & os, const LightRgb & rgb) { return os << "0x" << hex << noshowbase << setfill('0') << setw(6) << rgb._value << dec << " (R" << rgb.getRed().value() << "/G" << rgb.getGreen().value() << "/B" << rgb.getBlue().value() << ")"; }
-
+ostream & operator << (ostream & os, const LightRgb & rgb)
+{
+	return os << "0x" << hex << noshowbase << setfill('0') << setw(6) << rgb._value.rgb <<
+	       dec << " (R" << rgb._value.r << "/G" << rgb._value.g << "/B" << rgb._value.b << ")";
+}
 
 /****************************** Timing ******************************/
 Timing::Timing () : SettingBase() {}
@@ -112,8 +112,10 @@ uint8_t Timing::minute() const { return _value / 60; }
 
 uint8_t Timing::second() const { return _value % 60; }
 
-ostream & operator << (ostream & os, const Timing & timing) { return os << timing.minute() << "min " << timing.second() << "s (" << timing._value << ")"; }
-
+ostream & operator << (ostream & os, const Timing & timing)
+{
+	return os << timing.minute() << "min " << timing.second() << "s (" << timing._value << ")";
+}
 
 /****************************** Time ******************************/
 Time::Time () : SettingBase() {}
@@ -126,8 +128,10 @@ uint8_t Time::hour() const { return _value / 60; }
 
 uint8_t Time::minute() const { return _value % 60; }
 
-ostream & operator << (ostream & os, const Time & time) { return os << time.hour() << "h" << time.minute() << " (" << time._value << ")"; }
-
+ostream & operator << (ostream & os, const Time & time)
+{
+	return os << time.hour() << "h" << time.minute() << " (" << time._value << ")";
+}
 
 /****************************** RequestError ******************************/
 RequestError::RequestError () : _value(static_cast<Enum>(0)) {}
@@ -138,8 +142,10 @@ RequestError::operator uint8_t () { return static_cast<uint8_t>(_value); }
 
 const String RequestError::toString() const { return getArrayString(_value, errorName); }
 
-ostream & operator << (ostream & os, const RequestError & error) { return os << error.toString() << " (" << error._value << ")"; }
-
+ostream & operator << (ostream & os, const RequestError & error)
+{
+	return os << error.toString() << " (" << error._value << ")";
+}
 
 /****************************** RequestType ******************************/
 RequestType::RequestType() : _value(static_cast<Enum>(0)) {}
@@ -148,7 +154,11 @@ RequestType::RequestType(uint8_t value) : _value(constrain(static_cast<Enum>(val
 
 RequestType::operator uint8_t () { return static_cast<uint8_t>(_value); }
 
-RequestType & RequestType::operator ++ (int) { _value = static_cast<Enum>(static_cast<uint8_t>(_value) + 1); return *this; }
+RequestType & RequestType::operator ++ (int)
+{
+	_value = static_cast<Enum>(static_cast<uint8_t>(_value) + 1);
+	return *this;
+}
 
 Bounds RequestType::getComplementBounds()
 {
@@ -223,7 +233,10 @@ ComplementCategory RequestType::getComplementType()
 
 bool RequestType::needsComplement() { return getComplementType() != ComplementCategory::none; }
 
-const String RequestType::toString(bool shortened) const { return getArrayString(_value, (shortened ? messageTypeName : messageTypeDisplayName)); }
+const String RequestType::toString(bool shortened) const
+{
+	return getArrayString(_value, (shortened ? messageTypeName : messageTypeDisplayName));
+}
 
 RequestType RequestType::operator = (const String & typeString)
 {
@@ -237,8 +250,10 @@ RequestType RequestType::operator = (const String & typeString)
 
 bool operator == (const String & string, const RequestType & type) { return string.equals(type.toString(true)); }
 
-ostream & operator << (ostream & os, const RequestType & type) { return os << type.toString() << " (" << type._value << ")"; }
-
+ostream & operator << (ostream & os, const RequestType & type)
+{
+	return os << type.toString() << " (" << type._value << ")";
+}
 
 /****************************** Sound Mode ******************************/
 SoundMode::SoundMode() : _value(static_cast<Enum>(0)) {}
@@ -249,8 +264,10 @@ SoundMode::operator uint8_t () { return (uint8_t)_value; }
 
 const String SoundMode::toString() const { return getArrayString(_value, soundModeName); }
 
-ostream & operator << (ostream & os, const SoundMode & mode) { return os << mode.toString() << " (" << mode._value << ")"; }
-
+ostream & operator << (ostream & os, const SoundMode & mode)
+{
+	return os << mode.toString() << " (" << mode._value << ")";
+}
 
 /****************************** Sound Command ******************************/
 SoundCommand::SoundCommand() : _value(static_cast<Enum>(0)) {}
@@ -261,4 +278,7 @@ SoundCommand::operator uint8_t () { return (uint8_t)_value; }
 
 const String SoundCommand::toString() const { return getArrayString(_value, soundCommandName); }
 
-ostream & operator << (ostream & os, const SoundCommand & command) { return os << command.toString() << " (" << command._value << ")"; }
+ostream & operator << (ostream & os, const SoundCommand & command)
+{
+	return os << command.toString() << " (" << command._value << ")";
+}

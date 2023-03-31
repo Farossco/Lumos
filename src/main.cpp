@@ -34,8 +34,6 @@ void loop()
 
 	/* infrared.read(); */
 
-	light_action();
-
 	/* sound.action(); */
 
 	alarms.action();
