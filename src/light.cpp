@@ -3,14 +3,11 @@
 #include "light_mode.h"
 #include "light_strip.h"
 #include "Memory.h"
-#include "serial_com.h"
 #include "Alarms.h"
 
 static LightOnOff light_on;                                  /* If the leds are ON or OFF (True: ON / False: OFF) */
 static LightMode light_mode;                                 /* Current lighting mode */
 static struct light_mode_data light_mode_data[LightMode::N]; /* Light modes data */
-
-static TaskHandle_t light_update_task_handle;
 
 static void light_reset(void)
 {
@@ -23,11 +20,40 @@ static void light_reset(void)
 	memory.writeLight();
 }
 
+static void on_light_mode_end(LightMode mode)
+{
+	switch (mode) {
+	case LightMode::dawn:
+		/* Transferring RGB value and power from Dawn to continuous */
+		light_mode_data[LightMode::continuous].rgb   = light_mode_data[LightMode::dawn].rgb;
+		light_mode_data[LightMode::continuous].power = light_mode_data[LightMode::dawn].power;
+		light_mode_set(LightMode::continuous);
+		break;
+
+	case LightMode::sunset:
+		break;
+
+	case LightMode::start:
+		light_switch_off();
+		light_mode_set(LightMode::continuous);
+		break;
+
+	default:
+		break;
+	}
+}
+
+static struct light_mode_callbacks light_mode_callbacks = {
+	.on_mode_end = on_light_mode_end
+};
+
 void light_init(void)
 {
 	light_strip_init();
 
 	light_mode_init();
+
+	light_mode_register_callbacks((struct light_mode_callbacks *)&light_mode_callbacks);
 
 	/* if (memory.readLight()) { / * Returns True if EEPROM is not correctly initialized (This may be the first launch) * /
 	 * 	inf << "This is first launch, light variables will be initialized to their default values" << endl;
@@ -35,15 +61,12 @@ void light_init(void)
 
 	light_reset();
 
-	light_strip_color_all_set(0);
-	light_strip_update(0);
-
-	light_mode = LightMode::continuous;
-	light_on   = LightOnOff(false);
-
-	/* strip_anim_done_start(); TODO: make this a mode */
+	light_mode = LightMode::start;
+	light_on   = LightOnOff(true);
 
 	inf << "Light initialized." << dendl;
+
+	light_mode_start(light_mode, &light_mode_data[light_mode]);
 }
 
 void light_color_set(LightRgb rgb, LightMode mode)

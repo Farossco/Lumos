@@ -21,6 +21,8 @@
 
 static AsyncWebServer server(80);
 
+static struct wifi_com_conn_callbacks *conn_callbacks;
+
 static bool load_from_spiffs(String path, AsyncWebServerRequest *rqst)
 {
 	String dataType = "text/plain";
@@ -125,44 +127,7 @@ static void handle_web_requests(AsyncWebServerRequest *rqst)
 	rqst->send(404, "text/plain", message);
 }
 
-void wifi_com_init()
-{
-	uint32_t a;
-
-	WiFi.mode(WIFI_STA);
-
-	trace << "Connecting to " SSID0;
-
-	WiFi.begin(SSID0, PASS0);
-
-	a = millis();
-
-	while (WiFi.status() != WL_CONNECTED) {
-		if (millis() - a >= 200) {
-			trace << ".";
-			a = millis();
-		}
-
-		delay(1);
-	}
-
-	trace << endl;
-
-	trace << "WiFi connected" << dendl;
-
-	SPIFFS.begin();
-
-	server.on("/", HTTP_ANY, handle_root);
-	server.on("/command", HTTP_ANY, handle_command);
-	server.on("/getRes",  HTTP_ANY, handle_get_res);
-	server.onNotFound(handle_web_requests);
-	server.begin();
-
-	trace << "Server started" << endl;
-	trace << "Local IP: " << WiFi.localIP().toString() << endl;
-}
-
-void wifi_com_time_get()
+static void wifi_com_time_get(void)
 {
 	const size_t capacity = JSON_OBJECT_SIZE(3) + /* root (status, message, timestamp) */
 	                        50;                   /* String duplications + security margin */
@@ -172,7 +137,7 @@ void wifi_com_time_get()
 	HTTPClient http;
 	String json, status;
 	const char url[] = "http://" TIME_HOST "/v2.1/get-time-zone?format=" TIME_FORMAT "&key=" TIME_KEY "&by=" TIME_BY "&zone=" TIME_ZONE "&fields=" TIME_FIELDS;
-	unsigned long timeout, timestamp;
+	unsigned long timestamp;
 
 	trace << "Connecting to " << url << endl;
 
@@ -212,4 +177,54 @@ void wifi_com_time_get()
 	setTime(timestamp);
 
 	trace << "Time set!" << dendl;
+}
+
+void wifi_com_init(void)
+{
+	uint32_t timer;
+
+	WiFi.mode(WIFI_STA);
+
+	trace << "Connecting to " SSID0;
+
+	WiFi.begin(SSID0, PASS0);
+
+	timer = millis();
+
+	while (WiFi.status() != WL_CONNECTED) {
+		if (millis() - timer >= 200) {
+			trace << ".";
+			timer = millis();
+		}
+
+		delay(1);
+	}
+
+	trace << endl;
+
+	trace << "WiFi connected" << dendl;
+
+	SPIFFS.begin();
+
+	server.on("/", HTTP_ANY, handle_root);
+	server.on("/command", HTTP_ANY, handle_command);
+	server.on("/getRes",  HTTP_ANY, handle_get_res);
+	server.onNotFound(handle_web_requests);
+	server.begin();
+
+	trace << "Server started" << endl;
+	trace << "Local IP: " << WiFi.localIP().toString() << endl;
+
+	wifi_com_time_get();
+
+	if (conn_callbacks && conn_callbacks->on_connected) {
+		conn_callbacks->on_connected();
+	} else {
+		err << "on_connect callback not set" << endl;
+	}
+}
+
+void wifi_com_register_conn_callbacks(struct wifi_com_conn_callbacks *callbacks)
+{
+	conn_callbacks = callbacks;
 }

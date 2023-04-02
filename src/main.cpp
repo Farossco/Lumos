@@ -15,8 +15,6 @@ void setup()
 
 	wifi_com_init();
 
-	wifi_com_time_get();
-
 	/* sd.init(); / * SD SPI needs to be initialized after the light strip SPI * / */
 
 	/* infrared.init(); */

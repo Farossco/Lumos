@@ -35,14 +35,14 @@ struct light_mode_callbacks {
 	 * Called every time a light mode ends.
 	 *
 	 */
-	void (* on_light_mode_end)(void);
+	void (* on_mode_end)(LightMode mode);
 };
 
 /**
  * @brief Initialize light_mode module
  *
  */
-void light_mode_init();
+void light_mode_init(void);
 
 /**
  * @brief Start the task for the given light mode
@@ -65,5 +65,12 @@ void light_mode_stop(void);
  * @param data The data of the mode
  */
 void light_mode_restart(LightMode mode, struct light_mode_data *data);
+
+/**
+ * @brief Register light_mode callbacks
+ *
+ * @param cbks Callback structure pointer
+ */
+void light_mode_register_callbacks(struct light_mode_callbacks *cbks);
 
 #endif /* ifndef LUMOS_LIGHT_MODE_H */

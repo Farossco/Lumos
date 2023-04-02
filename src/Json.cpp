@@ -144,7 +144,7 @@ void Json::generateResources(String & string, bool pretty)
 	/* -- ModeNames -- // */
 	JsonArray rootLightModeNames = rootLight.createNestedArray("ModeNames");
 
-	for (LightMode mode; mode <= LightMode::N; mode++)
+	for (LightMode mode; mode < LightMode::N; mode++)
 		rootLightModeNames.add(mode.toString());
 
 	/* -- Colors -- // */

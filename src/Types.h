@@ -96,6 +96,7 @@ public:
 		smooth,     /* Smooth mode */
 		dawn,       /* Dawn mode */
 		sunset,     /* Sunset mode */
+		start,      /* Start mode */
 
 		N,
 		MIN = 0,

@@ -1,3 +1,11 @@
+/**
+ * @file light.h
+ * @author Farès Chati (faresticha@gmail.com)
+ * @date 2023-03-31
+ *
+ * @brief This module handles the lights.
+ */
+
 #ifndef LUMOS_LIGHT_H
 #define LUMOS_LIGHT_H
 
