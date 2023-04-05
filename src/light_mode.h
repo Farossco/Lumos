@@ -35,7 +35,7 @@ struct light_mode_callbacks {
 	 * Called every time a light mode ends.
 	 *
 	 */
-	void (* on_mode_end)(LightMode mode);
+	void (*on_mode_end)(LightMode mode);
 };
 
 /**
@@ -57,14 +57,6 @@ void light_mode_start(LightMode mode, struct light_mode_data *data);
  *
  */
 void light_mode_stop(void);
-
-/**
- * @brief Stop the current running mode and start the task for the given light mode
- *
- * @param mode Light mode
- * @param data The data of the mode
- */
-void light_mode_restart(LightMode mode, struct light_mode_data *data);
 
 /**
  * @brief Register light_mode callbacks

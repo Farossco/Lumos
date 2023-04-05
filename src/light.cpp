@@ -95,7 +95,7 @@ void light_mode_set(LightMode mode)
 	/* if the lights are on */
 	if (light_state_get()) {
 		/* Restart the light mode */
-		light_mode_restart(light_mode, &light_mode_data[light_mode]);
+		light_mode_start(light_mode, &light_mode_data[light_mode]);
 	}
 }
 

@@ -15,30 +15,48 @@
 
 #define LIGHT_MODE_START_DONE_TAIL_LENGTH LIGHT_STRIP_HALF_LENGTH
 
+struct light_mode_task_queue_data {
+	bool            shutdown;
+	LightMode       mode;
+	light_mode_data *mode_data;
+};
+
 static struct light_mode_callbacks *callbacks;
 
 static TaskHandle_t light_mode_task_handle;
-static SemaphoreHandle_t light_mode_task_stop_semaphore;
-static TaskHandle_t light_mode_shutdown_task_handle;
-static SemaphoreHandle_t light_mode_shutdown_task_stop_semaphore;
+static QueueHandle_t light_mode_task_queue;
 
 static volatile bool light_mode_start_done;
 
-/*
- * TODO: send a message in a queue instead and make the task either
- * call a new mode task of the shutdown task
- */
-static void light_mode_update_and_delay(LightPower power, uint32_t delay_ms)
+static void light_mode_task_create(LightMode mode, struct light_mode_data *data);
+static void light_mode_shutdown_task_create(void);
+
+static void light_mode_task_delay(LightPower power, uint32_t delay_ms)
+{
+	light_mode_task_queue_data queue_data;
+
+	if (xQueueReceive(light_mode_task_queue, &queue_data, delay_ms / portTICK_PERIOD_MS)) {
+		/* Message has been sent to the queue */
+
+		if (queue_data.shutdown) {
+			light_mode_shutdown_task_create();
+		} else {
+			light_mode_task_create(queue_data.mode, queue_data.mode_data);
+		}
+
+		/* Self delete */
+		trace << "Self distructing, handle: " << hex << xTaskGetCurrentTaskHandle() << endl;
+		vTaskDelete(NULL);
+	} else {
+		/* Queue timed out, nothing to do */
+	}
+}
+
+static void light_mode_task_update_and_delay(LightPower power, uint32_t delay_ms)
 {
 	light_strip_update(power);
 
-	if (xSemaphoreTake(light_mode_task_stop_semaphore, delay_ms / portTICK_PERIOD_MS)) {
-		/* Semaphore has been released, it's the signal to end the task */
-		light_mode_task_handle = NULL;
-		vTaskDelete(NULL);
-	} else {
-		/* Semaphore timed out, nothing to do */
-	}
+	light_mode_task_delay(power, delay_ms);
 }
 
 /**
@@ -47,21 +65,14 @@ static void light_mode_update_and_delay(LightPower power, uint32_t delay_ms)
  * This periodically sends SPI commands to turn le LEDs off
  * to mitigate potential parasite signals.
  *
- * @param pvParameters Unused
+ * @param pvParameters Task parameters - Unused
  */
 static void light_mode_shutdown_task(void *pvParameters)
 {
-	while (true) {
-		light_strip_color_all_set(0);
-		light_strip_update(0);
+	light_strip_color_all_set(0);
 
-		if (xSemaphoreTake(light_mode_shutdown_task_stop_semaphore, 10000 / portTICK_PERIOD_MS)) {
-			/* Semaphore has been released, it's the signal to end the task */
-			light_mode_shutdown_task_handle = NULL;
-			vTaskDelete(NULL);
-		} else {
-			/* Semaphore timed out, nothing to do */
-		}
+	while (true) {
+		light_mode_task_update_and_delay(0, 5000);
 	}
 }
 
@@ -74,7 +85,7 @@ static void light_mode_continuous_task(void *pvParameters)
 	while (true) {
 		light_strip_color_all_set(data->rgb);
 
-		light_mode_update_and_delay(data->power, 1000);
+		light_mode_task_update_and_delay(data->power, 1000);
 	}
 }
 
@@ -88,15 +99,15 @@ static void light_mode_flash_task(void *pvParameters)
 	while (true) {
 		light_strip_color_all_set(0xFF0000);
 
-		light_mode_update_and_delay(data->power, 1000U - data->speed * 10);
+		light_mode_task_update_and_delay(data->power, 1000U - data->speed * 10);
 
 		light_strip_color_all_set(0x00FF00);
 
-		light_mode_update_and_delay(data->power, 1000U - data->speed * 10);
+		light_mode_task_update_and_delay(data->power, 1000U - data->speed * 10);
 
 		light_strip_color_all_set(0x0000FF);
 
-		light_mode_update_and_delay(data->power, 1000U - data->speed * 10);
+		light_mode_task_update_and_delay(data->power, 1000U - data->speed * 10);
 	}
 }
 
@@ -110,11 +121,11 @@ static void light_mode_strobe_task(void *pvParameters)
 	while (true) {
 		light_strip_color_all_set(data->rgb);
 
-		light_mode_update_and_delay(data->power, 1000U - data->speed * 10);
+		light_mode_task_update_and_delay(data->power, 1000U - data->speed * 10);
 
 		light_strip_color_all_set(0);
 
-		light_mode_update_and_delay(data->power, 1000U - data->speed * 10);
+		light_mode_task_update_and_delay(data->power, 1000U - data->speed * 10);
 	}
 }
 
@@ -140,7 +151,7 @@ static void light_mode_fade_task(void *pvParameters)
 		else
 			counter--;
 
-		light_mode_update_and_delay(data->power, (1000U - data->speed * 10) / 50);
+		light_mode_task_update_and_delay(data->power, (1000U - data->speed * 10) / 50);
 	}
 }
 
@@ -167,7 +178,7 @@ static void light_mode_smooth_task(void *pvParameters)
 		case 5: if (--blue == 0x00) state = 0; break;
 		}
 
-		light_mode_update_and_delay(data->power, (1000U - data->speed * 10) / 8);
+		light_mode_task_update_and_delay(data->power, (1000U - data->speed * 10) / 8);
 	}
 }
 
@@ -197,7 +208,7 @@ static void light_mode_dawn_task(void *pvParameters)
 			counter2++;
 		}
 
-		light_mode_update_and_delay(data->power, step);
+		light_mode_task_update_and_delay(data->power, step);
 	}
 
 	if (callbacks && callbacks->on_mode_end) {
@@ -207,7 +218,7 @@ static void light_mode_dawn_task(void *pvParameters)
 	}
 
 	/* Take the semaphore and start the requested task */
-	light_mode_update_and_delay(0, 0);
+	light_mode_task_update_and_delay(0, 0);
 }
 
 /* Sunset Mode */
@@ -221,7 +232,7 @@ static void light_mode_sunset_task(void *pvParameters)
 
 	light_strip_color_all_set(data->rgb);
 
-	light_mode_update_and_delay(data->power, alarms.getSunsetDuration().value());
+	light_mode_task_update_and_delay(data->power, alarms.getSunsetDuration().value());
 
 	trace << "Starting to shut down. Completely off in " << alarms.getSunsetDecreaseTime() << dendl;
 
@@ -235,7 +246,7 @@ static void light_mode_sunset_task(void *pvParameters)
 			counter2--;
 		}
 
-		light_mode_update_and_delay(data->power, alarms.getSunsetDecreaseTime() * (1000.0 / (LIGHT_STRIP_HALF_LENGTH * 255)));
+		light_mode_task_update_and_delay(data->power, alarms.getSunsetDecreaseTime() * (1000.0 / (LIGHT_STRIP_HALF_LENGTH * 255)));
 	}
 
 	if (callbacks && callbacks->on_mode_end) {
@@ -245,7 +256,7 @@ static void light_mode_sunset_task(void *pvParameters)
 	}
 
 	/* Take the semaphore and start the requested task */
-	light_mode_update_and_delay(0, 0);
+	light_mode_task_update_and_delay(0, 0);
 }
 
 static void light_mode_start(void *pvParameters)
@@ -271,7 +282,7 @@ static void light_mode_start(void *pvParameters)
 				}
 			}
 
-			light_mode_update_and_delay(data->power, abs(Adafruit_DotStar::sine8(counter * (8 * 16) / LIGHT_STRIP_LENGTH + 64) - 80) / 7);
+			light_mode_task_update_and_delay(data->power, abs(Adafruit_DotStar::sine8(counter * (8 * 16) / LIGHT_STRIP_LENGTH + 64) - 80) / 7);
 
 			if (counter > LIGHT_STRIP_HALF_LENGTH) {
 				state = 1;
@@ -296,7 +307,7 @@ static void light_mode_start(void *pvParameters)
 			else
 				light_strip_color_set(i, 0);
 
-		light_mode_update_and_delay(data->power, 15);
+		light_mode_task_update_and_delay(data->power, 15);
 
 		counter++;
 	}
@@ -308,17 +319,17 @@ static void light_mode_start(void *pvParameters)
 	}
 
 	/* Take the semaphore and start the requested task */
-	light_mode_update_and_delay(0, 0);
+	light_mode_task_update_and_delay(0, 0);
 }
 
-static const TaskFunction_t light_mode_tasks[] = { light_mode_continuous_task,
-	                                               light_mode_flash_task,
-	                                               light_mode_strobe_task,
-	                                               light_mode_fade_task,
-	                                               light_mode_smooth_task,
-	                                               light_mode_dawn_task,
-	                                               light_mode_sunset_task,
-	                                               light_mode_start };
+static const TaskFunction_t light_mode_tasks[LightMode::N] = { light_mode_continuous_task,
+	                                                           light_mode_flash_task,
+	                                                           light_mode_strobe_task,
+	                                                           light_mode_fade_task,
+	                                                           light_mode_smooth_task,
+	                                                           light_mode_dawn_task,
+	                                                           light_mode_sunset_task,
+	                                                           light_mode_start };
 
 static void light_mode_task_create(LightMode mode, struct light_mode_data *data)
 {
@@ -327,54 +338,18 @@ static void light_mode_task_create(LightMode mode, struct light_mode_data *data)
 		return;
 	}
 
-	if (light_mode_task_handle) {
-		err << "Trying to create a light mode task while another runs!" << endl;
-		light_mode_stop();
-	}
-
 	xTaskCreatePinnedToCore(light_mode_tasks[mode], "LightModeTask",
 	                        10240, data, 1, &light_mode_task_handle, 0);
 
-	verb << "Light mode task started, handle: " << hex << (uint32_t)light_mode_task_handle << endl;
-}
-
-static void light_mode_task_delete(void)
-{
-	if (!light_mode_task_handle) {
-		err << "Trying to delete an unexisting light mode task!" << endl;
-		return;
-	}
-
-	xSemaphoreGive(light_mode_task_stop_semaphore);
-	light_mode_task_handle = NULL;
-
-	verb << "Light mode task deletion request sent" << endl;
+	verb << "Light mode task started for " << mode << ", handle: " << hex << (uint32_t)light_mode_task_handle << endl;
 }
 
 static void light_mode_shutdown_task_create(void)
 {
-	if (light_mode_shutdown_task_handle) {
-		err << "Trying to create a shutdown task while another runs!" << endl;
-		light_mode_stop();
-	}
-
 	xTaskCreatePinnedToCore(light_mode_shutdown_task, "LightModeShutdownTask",
-	                        4096, NULL, 1, &light_mode_shutdown_task_handle, 0);
+	                        4096, NULL, 1, &light_mode_task_handle, 0);
 
-	verb << "Shutdown task started, handle: " << hex << (uint32_t)light_mode_shutdown_task_handle << endl;
-}
-
-static void light_mode_shutdown_task_delete(void)
-{
-	if (!light_mode_shutdown_task_handle) {
-		err << "Trying to delete an unexisting shutdown task!" << endl;
-		return;
-	}
-
-	xSemaphoreGive(light_mode_shutdown_task_stop_semaphore);
-	light_mode_shutdown_task_handle = NULL;
-
-	verb << "Shutdown task deletion request sent" << endl;
+	verb << "Shutdown task started, handle: " << hex << (uint32_t)light_mode_task_handle << endl;
 }
 
 static void on_wifi_com_connected()
@@ -388,11 +363,10 @@ static const struct wifi_com_conn_callbacks wifi_com_conn_callbacks = {
 
 void light_mode_init(void)
 {
-	light_mode_task_stop_semaphore          = xSemaphoreCreateBinary();
-	light_mode_shutdown_task_stop_semaphore = xSemaphoreCreateBinary();
+	light_mode_task_queue = xQueueCreate(1, sizeof(struct light_mode_task_queue_data));
 
-	if (light_mode_task_stop_semaphore == NULL) {
-		err << "Could not take semaphore!" << endl;
+	if (light_mode_task_queue == NULL) {
+		err << "Could not create queue!" << endl;
 		return; /* TODO : Error handling */
 	}
 
@@ -403,22 +377,26 @@ void light_mode_init(void)
 
 void light_mode_start(LightMode mode, struct light_mode_data *data)
 {
-	light_mode_shutdown_task_delete();
+	light_mode_task_queue_data queue_data = {
+		.shutdown  = false,
+		.mode      = mode,
+		.mode_data = data
+	};
 
-	light_mode_task_create(mode, data);
+	xQueueSendToBack(light_mode_task_queue, &queue_data, 0);
+
+	verb << "Light mode task creation request sent, mode: " << mode << endl;
 }
 
 void light_mode_stop(void)
 {
-	light_mode_task_delete();
+	light_mode_task_queue_data data = {
+		.shutdown = true
+	};
 
-	light_mode_shutdown_task_create();
-}
+	xQueueSendToBack(light_mode_task_queue, &data, 0);
 
-void light_mode_restart(LightMode mode, struct light_mode_data *data)
-{
-	light_mode_task_delete();
-	light_mode_task_create(mode, data);
+	verb << "Light mode task deletion request sent" << endl;
 }
 
 void light_mode_register_callbacks(struct light_mode_callbacks *cbks)
