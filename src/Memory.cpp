@@ -1,3 +1,5 @@
+#if 0
+
 #include "Memory.h"
 #include "light.h"
 #include "ArduinoLogger.h"
@@ -153,3 +155,5 @@ bool Memory::startRead(uint16_t address)
 }
 
 Memory memory = Memory();
+
+#endif

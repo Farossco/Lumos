@@ -5,37 +5,39 @@
 #include "Memory.h"
 #include "Alarms.h"
 
-static LightOnOff light_on;                                  /* If the leds are ON or OFF (True: ON / False: OFF) */
-static LightMode light_mode;                                 /* Current lighting mode */
-static struct light_mode_data light_mode_data[LightMode::N]; /* Light modes data */
+#define LIGHT_RGB_DEFAULT   0xFFFFFF
+#define LIGHT_POWER_DEFAULT 255
+#define LIGHT_SPEED_DEFAULT 63
+
+static bool light_state;                                     /* If the leds are ON or OFF (True: ON / False: OFF) */
+static uint8_t light_mode;                                   /* Current lighting mode */
+static struct light_mode_data light_mode_data[LIGHT_MODE_N]; /* Light modes data */
 
 static void light_reset(void)
 {
-	for (uint8_t i = 0; i < LightMode::N; i++) {
-		light_mode_data[i].rgb   = LightRgb::DEF;   /* Initializing rgbs to their default value */
-		light_mode_data[i].power = LightPower::DEF; /* Initializing powers to their default value */
-		light_mode_data[i].speed = LightSpeed::DEF; /* Initializing speeds to their default value */
+	for (uint8_t i = 0; i < LIGHT_MODE_N; i++) {
+		light_mode_data[i].rgb   = LIGHT_RGB_DEFAULT;   /* Initializing rgbs to their default value */
+		light_mode_data[i].power = LIGHT_POWER_DEFAULT; /* Initializing powers to their default value */
+		light_mode_data[i].speed = LIGHT_SPEED_DEFAULT; /* Initializing speeds to their default value */
 	}
-
-	memory.writeLight();
 }
 
-static void on_light_mode_end(LightMode mode)
+static void on_light_mode_end(uint8_t mode)
 {
 	switch (mode) {
-	case LightMode::dawn:
+	case LIGHT_MODE_DAWN:
 		/* Transferring RGB value and power from Dawn to continuous */
-		light_mode_data[LightMode::continuous].rgb   = light_mode_data[LightMode::dawn].rgb;
-		light_mode_data[LightMode::continuous].power = light_mode_data[LightMode::dawn].power;
-		light_mode_set(LightMode::continuous);
+		light_mode_data[LIGHT_MODE_CONTINUOUS].rgb   = light_mode_data[LIGHT_MODE_DAWN].rgb;
+		light_mode_data[LIGHT_MODE_CONTINUOUS].power = light_mode_data[LIGHT_MODE_DAWN].power;
+		light_mode_set(LIGHT_MODE_CONTINUOUS);
 		break;
 
-	case LightMode::sunset:
+	case LIGHT_MODE_SUNSET:
 		break;
 
-	case LightMode::start:
+	case LIGHT_MODE_START:
 		light_switch_off();
-		light_mode_set(LightMode::continuous);
+		light_mode_set(LIGHT_MODE_CONTINUOUS);
 		break;
 
 	default:
@@ -61,30 +63,30 @@ void light_init(void)
 
 	light_reset();
 
-	light_mode = LightMode::start;
-	light_on   = LightOnOff(true);
+	light_mode  = LIGHT_MODE_START;
+	light_state = LIGHT_ON;
 
 	inf << "Light initialized." << dendl;
 
 	light_mode_start(light_mode, &light_mode_data[light_mode]);
 }
 
-void light_color_set(LightRgb rgb, LightMode mode)
+void light_color_set(LightRgb rgb, uint8_t mode)
 {
 	light_mode_data[mode].rgb = rgb;
 }
 
-void light_power_set(Percentage power, LightMode mode)
+void light_power_set(uint8_t power, uint8_t mode)
 {
 	light_mode_data[mode].power = power;
 }
 
-void light_speed_set(Percentage speed, LightMode mode)
+void light_speed_set(uint8_t speed, uint8_t mode)
 {
 	light_mode_data[mode].speed = speed;
 }
 
-void light_mode_set(LightMode mode)
+void light_mode_set(uint8_t mode)
 {
 	if (mode == light_mode) {
 		return;
@@ -111,7 +113,7 @@ void light_switch_on()
 	light_mode_start(light_mode, &light_mode_data[light_mode]);
 
 	/* Turning lights on */
-	light_on = LightOnOff(true);
+	light_state = LIGHT_ON;
 }
 
 void light_switch_off()
@@ -124,40 +126,30 @@ void light_switch_off()
 	light_mode_stop();
 
 	/* Turning lights off */
-	light_on = LightOnOff(false);
+	light_state = LIGHT_OFF;
 }
 
-LightRgb light_color_get(LightMode mode)
+LightRgb light_color_get(uint8_t mode)
 {
 	return light_mode_data[mode].rgb;
 }
 
-LightPower light_power_raw_get(LightMode mode)
+uint8_t light_power_get(uint8_t mode)
 {
 	return light_mode_data[mode].power;
 }
 
-Percentage light_power_get(LightMode mode)
-{
-	return light_mode_data[mode].power.toPercent();
-}
-
-LightSpeed light_speed_raw_get(LightMode mode)
+uint8_t light_speed_get(uint8_t mode)
 {
 	return light_mode_data[mode].speed;
 }
 
-Percentage light_speed_get(LightMode mode)
-{
-	return light_mode_data[mode].speed.toPercent();
-}
-
-LightMode light_mode_get(void)
+uint8_t light_mode_get(void)
 {
 	return light_mode;
 }
 
 bool light_state_get(void)
 {
-	return light_on.value();
+	return light_state;
 }

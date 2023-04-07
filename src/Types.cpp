@@ -2,25 +2,9 @@
 #include "Resources.h"
 #include "Utils.h"
 #include "ArduinoLogger.h"
+#include "light_mode.h"
 
 #define getArrayString(in, array) ((in < (sizeof(array) / sizeof(*array))) ? array[in] : nameUnknown)
-
-
-/****************************** LightMode ******************************/
-LightMode::LightMode() : _value(static_cast<Enum>(0)) {}
-
-LightMode::LightMode (uint8_t value) : _value(constrain(static_cast<Enum>(value), MIN, MAX)) {}
-
-LightMode::operator uint8_t () { return static_cast<uint8_t>(_value); }
-
-const String LightMode::toString() const { return getArrayString(_value, lightModeName); }
-
-LightMode & LightMode::operator ++ (int) { _value = static_cast<Enum>(static_cast<uint8_t>(_value) + 1); return *this; }
-
-ostream & operator << (ostream & os, const LightMode & mode)
-{
-	return os << mode.toString() << " (" << mode._value << ")";
-}
 
 /****************************** Percentage ******************************/
 Percentage::Percentage (uint8_t value) : _value(constrain(value, MIN, MAX)) {}
@@ -31,13 +15,13 @@ LightRgb::LightRgb() {}
 
 LightRgb::LightRgb (uint32_t rgb) { _value.rgb = rgb; }
 
-LightRgb::LightRgb (LightColor red, LightColor green, LightColor blue) { setRed(red); setGreen(green); setBlue(blue); }
+LightRgb::LightRgb (uint8_t red, uint8_t green, uint8_t blue) { setRed(red); setGreen(green); setBlue(blue); }
 
-LightRgb LightRgb::setRed(LightColor red) { _value.r = red.value(); return *this; }
+LightRgb LightRgb::setRed(uint8_t red) { _value.r = red; return *this; }
 
-LightRgb LightRgb::setGreen(LightColor green) { _value.g = green.value(); return *this; }
+LightRgb LightRgb::setGreen(uint8_t green) { _value.g = green; return *this; }
 
-LightRgb LightRgb::setBlue(LightColor blue) { _value.b = blue.value(); return *this; }
+LightRgb LightRgb::setBlue(uint8_t blue) { _value.b = blue; return *this; }
 
 LightRgb LightRgb::setHue(uint8_t hue)
 {
@@ -75,24 +59,45 @@ LightRgb LightRgb::setHue(uint8_t hue)
 
 uint32_t LightRgb::value() const { return _value.rgb; }
 
-LightColor LightRgb::getRed() const { return _value.r; }
+uint8_t LightRgb::getRed() const { return _value.r; }
 
-LightColor LightRgb::getGreen() const { return _value.g; }
+uint8_t LightRgb::getGreen() const { return _value.g; }
 
-LightColor LightRgb::getBlue() const { return _value.b; }
+uint8_t LightRgb::getBlue() const { return _value.b; }
 
 LightRgb LightRgb::operator * (double value) const
 {
-	return LightRgb(_value.r * value,
-	                _value.g * value,
-	                _value.b * value);
+	uint8_t r, g, b;
+
+	if (_value.r * value > 255) {
+		r = 255;
+	} else {
+		r = (uint8_t)(_value.r * value);
+	}
+
+	if (_value.g * value > 255) {
+		g = 255;
+	} else {
+		g = (uint8_t)(_value.g * value);
+	}
+
+	if (_value.b * value > 255) {
+		b = 255;
+	} else {
+		b = (uint8_t)(_value.b * value);
+	}
+	return LightRgb(r, g, b);
 }
 
 LightRgb LightRgb::operator / (double value) const
 {
-	return LightRgb(_value.r / value,
-	                _value.g / value,
-	                _value.b / value);
+	if (value == 0) {
+		return LightRgb(0xFFFFFF);
+	} else {
+		return LightRgb(_value.r / value,
+		                _value.g / value,
+		                _value.b / value);
+	}
 }
 
 ostream & operator << (ostream & os, const LightRgb & rgb)
@@ -164,7 +169,7 @@ Bounds RequestType::getComplementBounds()
 {
 	switch (_value) {
 	case lightModeRgb: case lightModePower: case lightModeSpeed:
-		return { LightMode::MIN, LightMode::MAX };
+		return { LIGHT_MODE_MIN, LIGHT_MODE_MAX };
 
 	case soundCommand:
 		return{ SoundCommand::MIN, SoundCommand::MAX };
@@ -194,10 +199,10 @@ Bounds RequestType::getInformationBounds()
 	case lightModeSpeed:
 	case soundVolume:
 	case alarmDawnVolume:
-		return { Percentage::MIN, Percentage::MAX };
+		return { 0, 255 };
 
 	case lightMode:
-		return { LightMode::MIN, LightMode::MAX };
+		return { LIGHT_MODE_MIN, LIGHT_MODE_MAX };
 
 	case soundMode:
 		return { SoundMode::MIN, SoundMode::MAX };

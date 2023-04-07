@@ -84,45 +84,6 @@ protected:
 	T _value;
 };
 
-/* Light Mode
- */
-class LightMode {
-public:
-	enum Enum : uint8_t {
-		continuous, /* Continuous lightning mode */
-		flash,      /* Flash mode */
-		strobe,     /* Strobe mode */
-		fade,       /* Fade mode */
-		smooth,     /* Smooth mode */
-		dawn,       /* Dawn mode */
-		sunset,     /* Sunset mode */
-		start,      /* Start mode */
-
-		N,
-		MIN = 0,
-		MAX = N - 1
-	};
-
-	LightMode();
-	LightMode (uint8_t value);
-	operator uint8_t ();
-	const String toString() const;
-	LightMode & operator ++ (int);
-	friend ostream & operator << (ostream & os, const LightMode & mode);
-
-private:
-	Enum _value;
-};
-
-typedef SettingBase<bool, false, true, 0, 0> LightOnOff;
-#if DIMMED_MODE
-typedef SettingBase<uint8_t, 5, 15, 100> LightPower;
-#else /* if DIMMED_MODE */
-typedef SettingBase<uint8_t, 5, 255, 100> LightPower;
-#endif /* if DIMMED_MODE */
-typedef SettingBase<uint8_t, 0x00, 0xFF, 100> LightColor;
-typedef SettingBase<uint8_t, 0, 95, 67> LightSpeed;
-
 class LightRgb {
 public:
 	enum Enum : uint32_t {
@@ -132,16 +93,16 @@ public:
 	};
 
 	LightRgb ();
-	LightRgb (uint32_t);
-	LightRgb (LightColor, LightColor, LightColor);
-	LightRgb setRed(LightColor);
-	LightRgb setGreen(LightColor);
-	LightRgb setBlue(LightColor);
-	LightRgb setHue(uint8_t);
+	LightRgb (uint32_t rgb);
+	LightRgb (uint8_t red, uint8_t green, uint8_t blue);
+	LightRgb setRed(uint8_t red);
+	LightRgb setGreen(uint8_t green);
+	LightRgb setBlue(uint8_t blue);
+	LightRgb setHue(uint8_t hue);
 	uint32_t value() const;
-	LightColor getRed() const;
-	LightColor getGreen() const;
-	LightColor getBlue() const;
+	uint8_t getRed() const;
+	uint8_t getGreen() const;
+	uint8_t getBlue() const;
 	LightRgb operator * (double) const;
 	LightRgb operator / (double) const;
 	friend ostream & operator << (ostream & os, const LightRgb & rgb);

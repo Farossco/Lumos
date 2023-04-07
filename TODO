@@ -1,3 +1,5 @@
+- Transition to C
+- Transition to raw ESP-IDF
 - Add new light modes
 - Consider : Make stored value in percent (In SettingBase, values are stored in percent and returned with constrain)
 - Remove the need for "FULL_LINE" value in the array
@@ -11,3 +13,5 @@
 - Implement Async execution for UART
 - Remove some types
 - Fix alarms
+- Rename variables in Resources.cpp and make it .c
+- Use cJSON instead of ArduinoJSON

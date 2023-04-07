@@ -12,13 +12,24 @@
 #include "light_strip.h"
 #include "Alarms.h" /* TODO: Remove */
 #include "wifi_com.h"
+#include "Resources.h"
+#include "Utils.h"
 
 #define LIGHT_MODE_START_DONE_TAIL_LENGTH LIGHT_STRIP_HALF_LENGTH
 
+const static char *light_mode_strings[LIGHT_MODE_N] = { "Continuous",
+	                                                    "Flash",
+	                                                    "Strobe",
+	                                                    "Fade",
+	                                                    "Smooth",
+	                                                    "Dawn",
+	                                                    "Sunset",
+	                                                    "Start" };
+
 struct light_mode_task_queue_data {
-	bool            shutdown;
-	LightMode       mode;
-	light_mode_data *mode_data;
+	bool                   shutdown;
+	uint8_t                mode;
+	struct light_mode_data *mode_data;
 };
 
 static struct light_mode_callbacks *callbacks;
@@ -28,10 +39,10 @@ static QueueHandle_t light_mode_task_queue;
 
 static volatile bool light_mode_start_done;
 
-static void light_mode_task_create(LightMode mode, struct light_mode_data *data);
+static void light_mode_task_create(uint8_t mode, struct light_mode_data *data);
 static void light_mode_shutdown_task_create(void);
 
-static void light_mode_task_delay(LightPower power, uint32_t delay_ms)
+static void light_mode_task_delay(uint8_t power, uint32_t delay_ms)
 {
 	light_mode_task_queue_data queue_data;
 
@@ -45,14 +56,14 @@ static void light_mode_task_delay(LightPower power, uint32_t delay_ms)
 		}
 
 		/* Self delete */
-		trace << "Self distructing, handle: " << hex << xTaskGetCurrentTaskHandle() << endl;
+		trace << "Self destructing, handle: " << hex << xTaskGetCurrentTaskHandle() << endl;
 		vTaskDelete(NULL);
 	} else {
 		/* Queue timed out, nothing to do */
 	}
 }
 
-static void light_mode_task_update_and_delay(LightPower power, uint32_t delay_ms)
+static void light_mode_task_update_and_delay(uint8_t power, uint32_t delay_ms)
 {
 	light_strip_update(power);
 
@@ -212,7 +223,7 @@ static void light_mode_dawn_task(void *pvParameters)
 	}
 
 	if (callbacks && callbacks->on_mode_end) {
-		callbacks->on_mode_end(LightMode::dawn);
+		callbacks->on_mode_end(LIGHT_MODE_DAWN);
 	} else {
 		err << "light_mode callback not defined" << endl;
 	}
@@ -250,7 +261,7 @@ static void light_mode_sunset_task(void *pvParameters)
 	}
 
 	if (callbacks && callbacks->on_mode_end) {
-		callbacks->on_mode_end(LightMode::sunset);
+		callbacks->on_mode_end(LIGHT_MODE_SUNSET);
 	} else {
 		err << "light_mode callback not defined" << endl;
 	}
@@ -313,7 +324,7 @@ static void light_mode_start(void *pvParameters)
 	}
 
 	if (callbacks && callbacks->on_mode_end) {
-		callbacks->on_mode_end(LightMode::start);
+		callbacks->on_mode_end(LIGHT_MODE_START);
 	} else {
 		err << "light_mode callback not defined" << endl;
 	}
@@ -322,16 +333,16 @@ static void light_mode_start(void *pvParameters)
 	light_mode_task_update_and_delay(0, 0);
 }
 
-static const TaskFunction_t light_mode_tasks[LightMode::N] = { light_mode_continuous_task,
-	                                                           light_mode_flash_task,
-	                                                           light_mode_strobe_task,
-	                                                           light_mode_fade_task,
-	                                                           light_mode_smooth_task,
-	                                                           light_mode_dawn_task,
-	                                                           light_mode_sunset_task,
-	                                                           light_mode_start };
+static const TaskFunction_t light_mode_tasks[] = { light_mode_continuous_task,
+	                                               light_mode_flash_task,
+	                                               light_mode_strobe_task,
+	                                               light_mode_fade_task,
+	                                               light_mode_smooth_task,
+	                                               light_mode_dawn_task,
+	                                               light_mode_sunset_task,
+	                                               light_mode_start };
 
-static void light_mode_task_create(LightMode mode, struct light_mode_data *data)
+static void light_mode_task_create(uint8_t mode, struct light_mode_data *data)
 {
 	if (mode >= ARRAY_SIZE(light_mode_tasks) || !light_mode_tasks[mode]) {
 		err << "No handler for mode " << mode << endl;
@@ -375,7 +386,7 @@ void light_mode_init(void)
 	wifi_com_register_conn_callbacks((struct wifi_com_conn_callbacks *)&wifi_com_conn_callbacks);
 }
 
-void light_mode_start(LightMode mode, struct light_mode_data *data)
+void light_mode_start(uint8_t mode, struct light_mode_data *data)
 {
 	light_mode_task_queue_data queue_data = {
 		.shutdown  = false,
@@ -402,4 +413,13 @@ void light_mode_stop(void)
 void light_mode_register_callbacks(struct light_mode_callbacks *cbks)
 {
 	callbacks = cbks;
+}
+
+const char * light_mode_string_get(uint8_t mode)
+{
+	if (mode < ARRAY_SIZE(light_mode_strings)) {
+		return light_mode_strings[mode];
+	} else {
+		return "Unknown";
+	}
 }

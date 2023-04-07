@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include "Types.h"
 
-#define STORE_IN_PROGMEM true
+#define STORE_IN_PROGMEM false
 
 #if (STORE_IN_PROGMEM)
 # define StringType __FlashStringHelper *
@@ -24,7 +24,6 @@
 #define FULL_LINE        0x000000 /* TODO : get rid of that */
 
 extern const StringType nameUnknown;
-extern const StringType lightModeName[LightMode::N];
 extern const StringType soundModeName[SoundMode::N];
 extern const StringType soundCommandName[SoundCommand::N];
 extern const StringType messageTypeName[RequestType::N];

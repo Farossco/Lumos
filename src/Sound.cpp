@@ -59,11 +59,11 @@ void Sound::init(HardwareSerial &soundSerial)
 	if (!SOUND_ENABLED)
 		return;
 
-	if (memory.readSound()) {
-		inf << "This is first launch, sound variables will be initialized to their default values" << endl;
+	/* if (memory.readSound()) { */
+	inf << "This is first launch, sound variables will be initialized to their default values" << endl;
 
-		volume = SoundVolume::DEF;
-	}
+	volume = SoundVolume::DEF;
+	/* } */
 
 	inf << "Initializing sound... ";
 

@@ -1,3 +1,5 @@
+#if 0
+
 #ifndef MEMORY_H
 #define MEMORY_H
 
@@ -68,3 +70,5 @@ private:
 extern Memory memory;
 
 #endif // ifndef MEMORY_H
+
+#endif /* if 0 */

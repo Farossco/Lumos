@@ -1,15 +1,7 @@
 #include "Resources.h"
+#include "light_mode.h"
 
 const char nameUnknown0[] STORAGE = "Unknown";
-
-const char lightModeName0[] STORAGE = "Continuous";
-const char lightModeName1[] STORAGE = "Flash";
-const char lightModeName2[] STORAGE = "Strobe";
-const char lightModeName3[] STORAGE = "Fade";
-const char lightModeName4[] STORAGE = "Smooth";
-const char lightModeName5[] STORAGE = "Dawn";
-const char lightModeName6[] STORAGE = "Sunset";
-const char lightModeName7[] STORAGE = "Start";
 
 const char soundModeName0[] STORAGE = "Free choice";
 
@@ -64,7 +56,6 @@ const char errorName3[] STORAGE = "Incorrect Request Type";
 const char errorName4[] STORAGE = "Empty String";
 
 const StringType nameUnknown                            = Flash(nameUnknown0);
-const StringType lightModeName[LightMode::N]            = { Flash(lightModeName0), Flash(lightModeName1), Flash(lightModeName2), Flash(lightModeName3), Flash(lightModeName4), Flash(lightModeName5), Flash(lightModeName6), Flash(lightModeName7) };
 const StringType soundModeName[SoundMode::N]            = { Flash(soundModeName0) };
 const StringType soundCommandName[SoundCommand::N]      = { Flash(soundCommandName0), Flash(soundCommandName1), Flash(soundCommandName2), Flash(soundCommandName3), Flash(soundCommandName4), Flash(soundCommandName5), Flash(soundCommandName6) };
 const StringType messageTypeName[RequestType::N]        = { Flash(nameUnknown), Flash(messageTypeName1), Flash(messageTypeName2), Flash(messageTypeName3), Flash(messageTypeName4), Flash(messageTypeName5), Flash(messageTypeName6), Flash(messageTypeName7), Flash(messageTypeName8), Flash(messageTypeName9), Flash(messageTypeName10), Flash(messageTypeName11), Flash(messageTypeName12), Flash(messageTypeName13), Flash(messageTypeName14), Flash(messageTypeName15), Flash(messageTypeName16), Flash(messageTypeName17) };

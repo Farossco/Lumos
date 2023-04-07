@@ -31,9 +31,9 @@ void light_strip_update()
 	digitalWrite(LIGHT_STRIP_PIN_CS, LOW);
 }
 
-void light_strip_update(LightPower power)
+void light_strip_update(uint8_t power)
 {
-	light_strip.setBrightness(power.value());
+	light_strip.setBrightness(power);
 
 	light_strip_update();
 }

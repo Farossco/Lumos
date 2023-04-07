@@ -14,6 +14,9 @@
 #include "time.h"
 #include "Types.h"
 
+#define LIGHT_ON  (true)
+#define LIGHT_OFF (false)
+
 /**
  * @brief Initialize light module
  *
@@ -26,7 +29,7 @@ void light_init(void);
  * @param rgb RGB value
  * @param mode Mode affected by the change
  */
-void light_color_set(LightRgb rgb, LightMode mode);
+void light_color_set(LightRgb rgb, uint8_t mode);
 
 /**
  * @brief Set power value for a specified mode
@@ -34,7 +37,7 @@ void light_color_set(LightRgb rgb, LightMode mode);
  * @param power Power value
  * @param mode Mode affected by the change
  */
-void light_power_set(Percentage power, LightMode mode);
+void light_power_set(uint8_t power, uint8_t mode);
 
 /**
  * @brief Set speed value for a specified mode
@@ -42,14 +45,14 @@ void light_power_set(Percentage power, LightMode mode);
  * @param speed Speed value
  * @param mode Mode affected by the change
  */
-void light_speed_set(Percentage speed, LightMode mode);
+void light_speed_set(uint8_t speed, uint8_t mode);
 
 /**
  * @brief Change the current light mode
  *
  * @param mode Mode value
  */
-void light_mode_set(LightMode mode);
+void light_mode_set(uint8_t mode);
 
 /**
  * @brief Turn the lights on
@@ -69,15 +72,7 @@ void light_switch_off(void);
  * @param mode Desired mode
  * @return The RGB value
  */
-LightRgb light_color_get(LightMode mode);
-
-/**
- * @brief Get the current raw power value for a given mode
- *
- * @param mode Desired mode
- * @return The raw power value
- */
-LightPower light_power_raw_get(LightMode mode);
+LightRgb light_color_get(uint8_t mode);
 
 /**
  * @brief Get the current power value for a given mode in percentage
@@ -85,15 +80,7 @@ LightPower light_power_raw_get(LightMode mode);
  * @param mode Desired mode
  * @return The power value in percentage
  */
-Percentage light_power_get(LightMode mode);
-
-/**
- * @brief Get the current raw speed value for a given mode
- *
- * @param mode Desired mode
- * @return The raw speed value
- */
-LightSpeed light_speed_raw_get(LightMode mode);
+uint8_t light_power_get(uint8_t mode);
 
 /**
  * @brief Get the current speed value for a given mode in percentage
@@ -101,14 +88,14 @@ LightSpeed light_speed_raw_get(LightMode mode);
  * @param mode Desired mode
  * @return The speed value in percentage
  */
-Percentage light_speed_get(LightMode mode);
+uint8_t light_speed_get(uint8_t mode);
 
 /**
  * @brief Get the current light mode
  *
- * @return LightMode
+ * @return uint8_t - The current light mode
  */
-LightMode light_mode_get(void);
+uint8_t light_mode_get(void);
 
 /**
  * @brief Get light ON/OFF state

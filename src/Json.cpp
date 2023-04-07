@@ -3,6 +3,7 @@
 #include "Json.h"
 #include <ArduinoJson.h>
 #include "light.h"
+#include "light_mode.h"
 #include "Sound.h"
 #include "ArduinoLogger.h"
 #include "Utils.h"
@@ -35,7 +36,7 @@ void Json::generateData(String & string, bool pretty)
 	const size_t CAPACITY = 0 +                                 /* Necessary margin */
 	                        JSON_OBJECT_SIZE(5) +               /* root (status/message/light/sound/alarms) */
 	                        JSON_OBJECT_SIZE(5) +               /* light (on/mode/rgb/power/speed) */
-	                        3 * JSON_ARRAY_SIZE(LightMode::N) + /* light:rgb[] + light:power[] + light:speed[] */
+	                        3 * JSON_ARRAY_SIZE(LIGHT_MODE_N) + /* light:rgb[] + light:power[] + light:speed[] */
 	                        JSON_OBJECT_SIZE(3) +               /* sound (on/volume/mode) */
 	                        JSON_OBJECT_SIZE(2) +               /* alarms (dawn/sunset) */
 	                        JSON_OBJECT_SIZE(3) +               /* dawn (volume/time/duration/) */
@@ -55,20 +56,20 @@ void Json::generateData(String & string, bool pretty)
 	/* -- Rgb -- // */
 	JsonArray rootLightRgb = rootLight.createNestedArray("Rgb");
 
-	for (LightMode mode; mode < LightMode::N; mode++)
+	for (uint8_t mode; mode < LIGHT_MODE_N; mode++)
 		rootLightRgb.add(light_color_get(mode).value());
 
 	/* -- Power -- // */
 	JsonArray rootLightPower = rootLight.createNestedArray("Power");
 
-	for (LightMode mode; mode < LightMode::N; mode++)
-		rootLightPower.add(light_power_get(mode).value());
+	for (uint8_t mode; mode < LIGHT_MODE_N; mode++)
+		rootLightPower.add(light_power_get(mode));
 
 	/* -- Speed -- // */
 	JsonArray rootLightSpeed = rootLight.createNestedArray("Speed");
 
-	for (LightMode mode; mode < LightMode::N; mode++)
-		rootLightSpeed.add(light_speed_get(mode).value());
+	for (uint8_t mode; mode < LIGHT_MODE_N; mode++)
+		rootLightSpeed.add(light_speed_get(mode));
 
 
 	/* ****** Sound ****** // */
@@ -127,8 +128,8 @@ void Json::generateResources(String & string, bool pretty)
 	const size_t capacity = 0 +
 	                        JSON_OBJECT_SIZE(3) +                       /* root (Status/Message/Light) */
 	                        JSON_OBJECT_SIZE(2) +                       /* light (ModeNames/Colors) */
-	                        JSON_ARRAY_SIZE(LightMode::N) +             /* modeNames array */
-	                        LightMode::N * JSON_STRING_SIZE(15) +       /* modeNames Strings */
+	                        JSON_ARRAY_SIZE(LIGHT_MODE_N) +             /* modeNames array */
+	                        LIGHT_MODE_N * JSON_STRING_SIZE(15) +       /* modeNames Strings */
 	                        JSON_ARRAY_SIZE(colorNRows) +               /* color array */
 	                        colorNRows * JSON_ARRAY_SIZE(colorNColumns) /* color[i] array */
 	;
@@ -144,8 +145,8 @@ void Json::generateResources(String & string, bool pretty)
 	/* -- ModeNames -- // */
 	JsonArray rootLightModeNames = rootLight.createNestedArray("ModeNames");
 
-	for (LightMode mode; mode < LightMode::N; mode++)
-		rootLightModeNames.add(mode.toString());
+	for (uint8_t mode; mode < LIGHT_MODE_N; mode++)
+		rootLightModeNames.add(light_mode_string_get(mode));
 
 	/* -- Colors -- // */
 	JsonArray rootLightColors = rootLight.createNestedArray("Colors");

@@ -51,6 +51,6 @@ void light_strip_update(void);
  *
  * @param power The power value
  */
-void light_strip_update(LightPower power);
+void light_strip_update(uint8_t power);
 
 #endif /* ifndef LUMOS_LIGHT_STRIP_H */

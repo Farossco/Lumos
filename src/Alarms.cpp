@@ -35,15 +35,15 @@ void Alarms::init()
 {
 	dawnTriggered = false;
 
-	if (memory.readAlarms()) { /* Returns True if EEPROM is not correctly initialized (This may be the first launch) */
-		inf << "This is first launch, alarm variables will be initialized to their default values" << endl;
+	/* if (memory.readAlarms()) { / * Returns True if EEPROM is not correctly initialized (This may be the first launch) * / */
+	inf << "This is first launch, alarm variables will be initialized to their default values" << endl;
 
-		dawnTime           = DEFAULT_DAWN_TIME;
-		dawnDuration       = DEFAULT_DAWN_DURATION;
-		sunsetDuration     = DEFAULT_SUNSET_DURATION;
-		sunsetDecreaseTime = DEFAULT_SUNSET_DECREASE_TIME;
-		dawnVolume         = SoundVolume::DEF;
-	}
+	dawnTime           = DEFAULT_DAWN_TIME;
+	dawnDuration       = DEFAULT_DAWN_DURATION;
+	sunsetDuration     = DEFAULT_SUNSET_DURATION;
+	sunsetDecreaseTime = DEFAULT_SUNSET_DECREASE_TIME;
+	dawnVolume         = SoundVolume::DEF;
+	/* } */
 	inf << "Alarms initialized." << dendl;
 }
 
@@ -64,7 +64,7 @@ void Alarms::action()
 
 void Alarms::dawnStart()
 {
-	light_mode_set(LightMode::dawn);
+	/* light_mode_set(LIGHT_MODE_DAWN); */
 	light_switch_on();
 	sound.setVolumeRaw(dawnVolume);
 	sound.setMode(SoundMode::freeChoice);

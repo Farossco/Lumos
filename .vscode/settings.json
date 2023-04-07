@@ -6,4 +6,7 @@
 	"[jsonc]": {
 		"editor.defaultFormatter": "vscode.json-language-features"
 	},
+	"files.associations": {
+		"iomanip": "cpp"
+	},
 }

@@ -39,7 +39,7 @@ Request::Request(String inputString)
 				inputString = inputString.substring(1);    /* Remove first char of the array (the complement) */
 
 				if (type.getComplementType() == ComplementCategory::lightMode)
-					verb << "Light mode: " << LightMode(complement) << endl;
+					verb << "Light mode: " << complement << endl;
 				else if (type.getComplementType() == ComplementCategory::soundCommand)
 					verb << "Command type: " << SoundCommand(complement) << endl;
 
@@ -168,7 +168,7 @@ void Request::displayDebug()
 	trace << type.toString();
 
 	if (type.getComplementType() == ComplementCategory::lightMode)
-		trace << " of " << LightMode(complement);
+		trace << " of " << complement;
 	else if (type.getComplementType() == ComplementCategory::soundCommand)
 		trace << " of " << SoundCommand(complement);
 
@@ -188,7 +188,7 @@ void Request::displayDebug()
 		break;
 
 	case RequestType::lightModePower:
-		trace << light_power_raw_get(complement);
+		trace << light_power_get(complement);
 		break;
 
 	case RequestType::lightMode:
@@ -196,7 +196,7 @@ void Request::displayDebug()
 		break;
 
 	case RequestType::lightModeSpeed:
-		trace << light_speed_raw_get(complement);
+		trace << light_speed_get(complement);
 		break;
 
 	case RequestType::soundOnOff:
