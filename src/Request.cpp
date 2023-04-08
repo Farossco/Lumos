@@ -7,59 +7,6 @@
 #include "Alarms.h"
 #include "Sound.h"
 
-Request::Request(String inputString)
-{
-	while ((inputString[0] < 'A' || inputString[0] > 'Z') && inputString.length() > 0)
-		inputString = inputString.substring(1);
-
-	if (inputString.length() == 0)
-		error = RequestError::emptyString;
-	else {
-		error = RequestError::none;
-
-		type = inputString.substring(0, 3);
-
-		/* [DEBUG] Printing full word, world length and information type */
-		trace << "Word: " << inputString << endl;
-		verb << "Length: " << inputString.length() << endl;
-		verb << "Type: " << type << endl;
-
-		if (type == RequestType::unknown)
-			error = RequestError::incorrectType;
-		else {
-			Bounds infoBounds = type.getInformationBounds();
-
-			inputString = inputString.substring(3); /* Remove 3 first caracteres of the array (The prefix) */
-
-			/* If the data type needs a complement */
-			if (type.needsComplement()) {
-				Bounds compBounds = type.getComplementBounds();
-
-				complement  = inputString.charAt(0) - '0'; /* Store the complement */
-				inputString = inputString.substring(1);    /* Remove first char of the array (the complement) */
-
-				if (type.getComplementType() == ComplementCategory::lightMode)
-					verb << "Light mode: " << complement << endl;
-				else if (type.getComplementType() == ComplementCategory::soundCommand)
-					verb << "Command type: " << SoundCommand(complement) << endl;
-
-				if (complement < compBounds.low || complement > compBounds.high)
-					error = RequestError::incorrectComplement;
-			}
-
-			information = strtol(inputString.c_str(), NULL, type == RequestType::lightModeRgb ? 16 : 10);
-
-			verb << type.toString() << " (String) : " << inputString << endl;
-			verb << type.toString() << " (Decoded): " << ((type == RequestType::lightModeRgb) ? hex : dec) << showbase << uppercase << information << endl;
-
-			if (information < infoBounds.low || information > infoBounds.high)
-				error = RequestError::incorrectValue;
-		}
-		if (error)
-			err << "Error : " << error << endl;
-	}
-}
-
 Request::Request(const String & prefixString, const String & complementString, const String & informationString)
 {
 	if (prefixString.length() == 0)
@@ -88,12 +35,6 @@ Request::Request(const String & prefixString, const String & complementString, c
 	}
 }
 
-void Request::decodeInput()
-{} /* Request::decode */
-
-void Request::decodeSeparate()
-{}
-
 void Request::process()
 {
 	if (!error) {
@@ -107,7 +48,7 @@ void Request::process()
 			break;
 
 		case RequestType::lightOnOff:
-			(information) ? light_switch_on() : light_switch_off();
+			light_state_set(information != LIGHT_OFF);
 			break;
 
 		case RequestType::lightModeRgb:

@@ -1,5 +1,4 @@
 #include "Resources.h"
-#include "light_mode.h"
 
 const char nameUnknown0[] STORAGE = "Unknown";
 

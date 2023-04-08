@@ -1,7 +1,7 @@
 #include "light.h"
 #include <ArduinoLogger.h>
-#include "light_mode.h"
 #include "light_strip.h"
+#include "light_mode_task.h"
 #include "Memory.h"
 #include "Alarms.h"
 
@@ -13,6 +13,15 @@ static bool light_state;                                     /* If the leds are 
 static uint8_t light_mode;                                   /* Current lighting mode */
 static struct light_mode_data light_mode_data[LIGHT_MODE_N]; /* Light modes data */
 
+const static char *light_mode_strings[LIGHT_MODE_N] = { "Continuous",
+	                                                    "Flash",
+	                                                    "Strobe",
+	                                                    "Fade",
+	                                                    "Smooth",
+	                                                    "Dawn",
+	                                                    "Sunset",
+	                                                    "Start" };
+
 static void light_reset(void)
 {
 	for (uint8_t i = 0; i < LIGHT_MODE_N; i++) {
@@ -22,7 +31,7 @@ static void light_reset(void)
 	}
 }
 
-static void on_light_mode_end(uint8_t mode)
+static void on_light_mode_task_end(uint8_t mode)
 {
 	switch (mode) {
 	case LIGHT_MODE_DAWN:
@@ -36,7 +45,7 @@ static void on_light_mode_end(uint8_t mode)
 		break;
 
 	case LIGHT_MODE_START:
-		light_switch_off();
+		light_state_set(LIGHT_OFF);
 		light_mode_set(LIGHT_MODE_CONTINUOUS);
 		break;
 
@@ -45,49 +54,43 @@ static void on_light_mode_end(uint8_t mode)
 	}
 }
 
-static struct light_mode_callbacks light_mode_callbacks = {
-	.on_mode_end = on_light_mode_end
+static struct light_mode_task_callbacks light_mode_task_callbacks = {
+	.on_mode_task_end = on_light_mode_task_end
 };
-
-void light_init(void)
-{
-	light_strip_init();
-
-	light_mode_init();
-
-	light_mode_register_callbacks((struct light_mode_callbacks *)&light_mode_callbacks);
-
-	/* if (memory.readLight()) { / * Returns True if EEPROM is not correctly initialized (This may be the first launch) * /
-	 * 	inf << "This is first launch, light variables will be initialized to their default values" << endl;
-	 */
-
-	light_reset();
-
-	light_mode  = LIGHT_MODE_START;
-	light_state = LIGHT_ON;
-
-	inf << "Light initialized." << dendl;
-
-	light_mode_start(light_mode, &light_mode_data[light_mode]);
-}
 
 void light_color_set(LightRgb rgb, uint8_t mode)
 {
+	if (mode > LIGHT_MODE_MAX) {
+		return;
+	}
+
 	light_mode_data[mode].rgb = rgb;
 }
 
 void light_power_set(uint8_t power, uint8_t mode)
 {
+	if (mode > LIGHT_MODE_MAX) {
+		return;
+	}
+
 	light_mode_data[mode].power = power;
 }
 
 void light_speed_set(uint8_t speed, uint8_t mode)
 {
+	if (mode > LIGHT_MODE_MAX) {
+		return;
+	}
+
 	light_mode_data[mode].speed = speed;
 }
 
 void light_mode_set(uint8_t mode)
 {
+	if (mode > LIGHT_MODE_MAX) {
+		return;
+	}
+
 	if (mode == light_mode) {
 		return;
 	}
@@ -97,37 +100,33 @@ void light_mode_set(uint8_t mode)
 	/* if the lights are on */
 	if (light_state_get()) {
 		/* Restart the light mode */
-		light_mode_start(light_mode, &light_mode_data[light_mode]);
+		light_mode_task_start(light_mode, &light_mode_data[light_mode]);
 	}
 }
 
-void light_switch_on()
+void light_state_set(bool state)
 {
-	if (light_state_get()) {
+	if (light_state_get() == state) { /* No change to the light_state */
 		return;
 	}
 
-	verb << "Turning lights on" << dendl;
+	if (state == LIGHT_ON) {
+		verb << "Turning lights ON" << dendl;
 
-	/* Start a new task for the current mode */
-	light_mode_start(light_mode, &light_mode_data[light_mode]);
+		/* Start a new task for the current mode */
+		light_mode_task_start(light_mode, &light_mode_data[light_mode]);
+	} else {
+		verb << "Turning lights OFF" << dendl;
 
-	/* Turning lights on */
-	light_state = LIGHT_ON;
-}
-
-void light_switch_off()
-{
-	if (!light_state_get()) {
-		return;
+		/* Terminate the current light mode task */
+		light_mode_task_stop();
 	}
 
-	/* Terminate the current light mode task */
-	light_mode_stop();
-
-	/* Turning lights off */
-	light_state = LIGHT_OFF;
+	/* Turning lights ON or OFF */
+	light_state = state;
 }
+
+/* TODO: remove getter */
 
 LightRgb light_color_get(uint8_t mode)
 {
@@ -152,4 +151,42 @@ uint8_t light_mode_get(void)
 bool light_state_get(void)
 {
 	return light_state;
+}
+
+const char * light_mode_string_get(uint8_t mode)
+{
+	if (mode < ARRAY_SIZE(light_mode_strings)) {
+		return light_mode_strings[mode];
+	} else {
+		return "Unknown";
+	}
+}
+
+int light_init(void)
+{
+	int err;
+
+	light_strip_init();
+
+	light_mode_task_register_callbacks(&light_mode_task_callbacks);
+
+	err = light_mode_task_init();
+	if (err) {
+		return err;
+	}
+
+	/* if (memory.readLight()) { / * Returns True if EEPROM is not correctly initialized (This may be the first launch) * /
+	 * 	inf << "This is first launch, light variables will be initialized to their default values" << endl;
+	 */
+
+	light_reset();
+
+	light_mode  = LIGHT_MODE_START;
+	light_state = LIGHT_ON;
+
+	inf << "Light initialized." << dendl;
+
+	light_mode_task_start(light_mode, &light_mode_data[light_mode]);
+
+	return 0;
 }

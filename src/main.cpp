@@ -1,6 +1,6 @@
 #include <TimeLib.h>
 #include "SdCard.h"
-#include "serial_com.h"
+#include "uart_com.h"
 #include "Alarms.h"
 #include "light.h"
 #include "Sound.h"
@@ -9,7 +9,7 @@
 
 void setup()
 {
-	serial_com_init(ESP_DEBUG_BAUD_RATE, 0);
+	uart_com_init();
 
 	light_init();
 
@@ -22,17 +22,17 @@ void setup()
 	/* sound.init (Serial2); */
 
 	/* alarms.init(); */
+
+	vTaskDelete(NULL);
 }
 
 void loop()
 {
-	serial_com_receive_and_decode();
-
 	/* sd.action(); */
 
 	/* infrared.read(); */
 
 	/* sound.action(); */
 
-	alarms.action();
+	/* alarms.action(); */
 }

@@ -20,6 +20,6 @@ void wifi_com_init();
  *
  * @param callbacks Callback structure pointer
  */
-void wifi_com_register_conn_callbacks(struct wifi_com_conn_callbacks *callbacks);
+void wifi_com_register_conn_callbacks(const struct wifi_com_conn_callbacks *callbacks);
 
 #endif /* ifndef WIFI_COM_H */

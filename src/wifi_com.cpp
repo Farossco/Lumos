@@ -11,7 +11,6 @@
 #include "ArduinoLogger.h"
 #include "Request.h"
 #include "Json.h"
-#include "serial_com.h"
 
 #define TIME_HOST   "api.timezonedb.com" /* HTPP time host */
 #define TIME_FORMAT "json"               /* Format for receive the time */
@@ -21,7 +20,7 @@
 
 static AsyncWebServer server(80);
 
-static struct wifi_com_conn_callbacks *conn_callbacks;
+static const struct wifi_com_conn_callbacks *conn_callbacks;
 
 static bool load_from_spiffs(String path, AsyncWebServerRequest *rqst)
 {
@@ -224,7 +223,7 @@ void wifi_com_init(void)
 	}
 }
 
-void wifi_com_register_conn_callbacks(struct wifi_com_conn_callbacks *callbacks)
+void wifi_com_register_conn_callbacks(const struct wifi_com_conn_callbacks *callbacks)
 {
 	conn_callbacks = callbacks;
 }

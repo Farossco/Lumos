@@ -64,8 +64,8 @@ void Alarms::action()
 
 void Alarms::dawnStart()
 {
-	/* light_mode_set(LIGHT_MODE_DAWN); */
-	light_switch_on();
+	light_mode_set(LIGHT_MODE_DAWN);
+	light_state_set(LIGHT_ON);
 	sound.setVolumeRaw(dawnVolume);
 	sound.setMode(SoundMode::freeChoice);
 	sound.command(SoundCommand::playDawn, 0);

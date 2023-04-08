@@ -2,7 +2,7 @@
 #include "Resources.h"
 #include "Utils.h"
 #include "ArduinoLogger.h"
-#include "light_mode.h"
+#include "light.h"
 
 #define getArrayString(in, array) ((in < (sizeof(array) / sizeof(*array))) ? array[in] : nameUnknown)
 

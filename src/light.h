@@ -9,19 +9,43 @@
 #ifndef LUMOS_LIGHT_H
 #define LUMOS_LIGHT_H
 
-#include <Arduino.h>
-#include "Utils.h"
 #include "time.h"
+
+#ifdef __cplusplus
 #include "Types.h"
+#endif /* ifdef __cplusplus */
 
 #define LIGHT_ON  (true)
 #define LIGHT_OFF (false)
 
+enum {
+	LIGHT_MODE_CONTINUOUS, /* Continuous lightning mode */
+	LIGHT_MODE_FLASH,      /* Flash mode */
+	LIGHT_MODE_STROBE,     /* Strobe mode */
+	LIGHT_MODE_FADE,       /* Fade mode */
+	LIGHT_MODE_SMOOTH,     /* Smooth mode */
+	LIGHT_MODE_DAWN,       /* Dawn mode */
+	LIGHT_MODE_SUNSET,     /* Sunset mode */
+	LIGHT_MODE_START,      /* Start mode */
+
+	LIGHT_MODE_N,
+	LIGHT_MODE_MIN = 0,
+	LIGHT_MODE_MAX = LIGHT_MODE_N - 1
+};
+
+#ifdef __cplusplus
+
 /**
- * @brief Initialize light module
+ * @brief light_mode data structure.
+ *
+ * This holds all needed data for one specific mode to operate
  *
  */
-void light_init(void);
+struct light_mode_data {
+	uint8_t  power; /* Current lighting power for the mode */
+	uint8_t  speed; /* Current speed for the mode */
+	LightRgb rgb;   /* Current RGB value for the mode */
+};
 
 /**
  * @brief Set RGB color for a specified mode
@@ -30,6 +54,8 @@ void light_init(void);
  * @param mode Mode affected by the change
  */
 void light_color_set(LightRgb rgb, uint8_t mode);
+
+#endif /* ifdef __cplusplus */
 
 /**
  * @brief Set power value for a specified mode
@@ -55,16 +81,13 @@ void light_speed_set(uint8_t speed, uint8_t mode);
 void light_mode_set(uint8_t mode);
 
 /**
- * @brief Turn the lights on
+ * @brief Turn the lights ON or OFF
  *
+ * @param state LIGHT_ON or LIGHT_OFF
  */
-void light_switch_on(void);
+void light_state_set(bool state);
 
-/**
- * @brief Turn the lights off
- *
- */
-void light_switch_off(void);
+#ifdef __cplusplus
 
 /**
  * @brief Get the current RGB value for a given mode
@@ -73,6 +96,8 @@ void light_switch_off(void);
  * @return The RGB value
  */
 LightRgb light_color_get(uint8_t mode);
+
+#endif /* ifdef __cplusplus */
 
 /**
  * @brief Get the current power value for a given mode in percentage
@@ -104,5 +129,13 @@ uint8_t light_mode_get(void);
  * @return false if lights are off
  */
 bool light_state_get(void);
+
+const char * light_mode_string_get(uint8_t mode);
+
+/**
+ * @brief Initialize light module
+ *
+ */
+int light_init(void);
 
 #endif /* ifndef LUMOS_LIGHT_H */

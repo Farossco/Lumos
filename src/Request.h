@@ -8,7 +8,6 @@
 
 class Request {
 public:
-	Request(String inputString);
 	Request(const String & prefixString, const String & complementString, const String & informationString);
 	void process();
 
@@ -26,8 +25,6 @@ private:
 	uint8_t complement   = 0;
 	uint32_t information = 0;
 
-	void decodeInput();
-	void decodeSeparate();
 	void displayDebug();
 };
 
