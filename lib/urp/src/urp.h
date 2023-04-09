@@ -25,20 +25,22 @@ extern "C" {
 #define CONFIG_URP_VALUE_TYPE_LENGTH  3
 #define CONFIG_URP_RECV_THREAD_PRIO   12
 #define CONFIG_URP_RECV_DATA_SIZE_MAX 256
+#define CONFIG_URP_SEND_BUF_SIZE      0
 
 #define URP_SIZE_VARIABLE             ((size_t)-1)
 #define URP_SIZE_INT                  ((size_t)-2)
 #define URP_SIZE_FLOAT                ((size_t)-3)
+#define URP_SIZE_STRING               ((size_t)-4)
 
 /**
  * @brief Helper to declare a message handler with fixed size.
  */
-#define URP_MESSAGE_HANDLER(_type, _size, _cb, _arg) \
-	{                                                \
-		.data_type_buf = (_type),                    \
-		.data_size     = (_size),                    \
-		.cb_fixed      = (_cb),                      \
-		.arg           = _arg                        \
+#define URP_MESSAGE_FIXED_HANDLER(_type, _size, _cb, _arg) \
+	{                                                      \
+		.msg_type_buf = (_type),                           \
+		.data_size    = (_size),                           \
+		.cb_fixed     = (_cb),                             \
+		.arg          = _arg                               \
 	}
 
 /**
@@ -46,10 +48,10 @@ extern "C" {
  */
 #define URP_MESSAGE_VARIABLE_HANDLER(_type, _cb, _arg) \
 	{                                                  \
-		.data_type_buf = (_type),                      \
-		.data_size     = URP_SIZE_VARIABLE,            \
-		.cb_variable   = (_cb),                        \
-		.arg           = _arg                          \
+		.msg_type_buf = (_type),                       \
+		.data_size    = URP_SIZE_VARIABLE,             \
+		.cb_variable  = (_cb),                         \
+		.arg          = _arg                           \
 	}
 
 /**
@@ -57,10 +59,10 @@ extern "C" {
  */
 #define URP_MESSAGE_INT_HANDLER(_type, _cb, _arg) \
 	{                                             \
-		.data_type_buf = (_type),                 \
-		.data_size     = URP_SIZE_INT,            \
-		.cb_int        = (_cb),                   \
-		.arg           = _arg                     \
+		.msg_type_buf = (_type),                  \
+		.data_size    = URP_SIZE_INT,             \
+		.cb_int       = (_cb),                    \
+		.arg          = _arg                      \
 	}
 
 /**
@@ -68,10 +70,21 @@ extern "C" {
  */
 #define URP_MESSAGE_FLOAT_HANDLER(_type, _cb, _arg) \
 	{                                               \
-		.data_type_buf = (_type),                   \
-		.data_size     = URP_SIZE_FLOAT,            \
-		.cb_float      = (_cb),                     \
-		.arg           = _arg                       \
+		.msg_type_buf = (_type),                    \
+		.data_size    = URP_SIZE_FLOAT,             \
+		.cb_float     = (_cb),                      \
+		.arg          = _arg                        \
+	}
+
+/**
+ * @brief Helper to declare a message handler with string type.
+ */
+#define URP_MESSAGE_STRING_HANDLER(_type, _cb, _arg) \
+	{                                                \
+		.msg_type_buf = (_type),                     \
+		.data_size    = URP_SIZE_STRING,             \
+		.cb_string    = (_cb),                       \
+		.arg          = _arg                         \
 	}
 
 struct urp_message_handler {
@@ -82,7 +95,7 @@ struct urp_message_handler {
 	 * CONFIG_URP_VALUE_TYPE_LENGTH and remain valid for the entire time
 	 * that URP data are received or sent.
 	 */
-	const uint8_t *data_type_buf;
+	const uint8_t *msg_type_buf;
 
 	/**
 	 * @brief The size of the messages for this type.
@@ -127,6 +140,8 @@ struct urp_message_handler {
 		void (*cb_int)(long data, void *arg);
 
 		void (*cb_float)(double data, void *arg);
+
+		void (*cb_string)(const char *data, void *arg);
 	};
 };
 
@@ -161,7 +176,7 @@ int urp_init(struct urp_config *config);
  *
  * @return 0 if success, negative data otherwise
  */
-int urp_send(struct urp_config *config, const char *data_type_str, const void *data);
+int urp_send_fixed(struct urp_config *config, const char *data_type_str, const void *data);
 
 /**
  * @brief Send an URP message from the provided data type and data.
@@ -177,9 +192,11 @@ int urp_send(struct urp_config *config, const char *data_type_str, const void *d
  */
 int urp_send_variable(struct urp_config *config, const char *data_type_str, const void *data, size_t data_size);
 
-/* TODO: send_int */
+int urp_send_int(struct urp_config *config, const char *data_type_str, long data);
 
-/* TODO: send_float */
+int urp_send_float(struct urp_config *config, const char *data_type_str, double data);
+
+int urp_send_string(struct urp_config *config, const char *data_type_str, const char *data);
 
 #ifdef __cplusplus
 }

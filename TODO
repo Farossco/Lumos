@@ -13,3 +13,4 @@
 - Fix alarms
 - Get rid of Resources.cpp
 - Use cJSON instead of ArduinoJSON
+- Store Wi-Fi credentials in NVM

@@ -4,17 +4,16 @@
 #include "Alarms.h"
 #include "light.h"
 #include "Sound.h"
-#include "wifi_com.h"
+#include "network/wifi_com.h"
 #include "Infrared.h"
-#include "wifi_test.h"
 
 void setup()
 {
-	/* uart_com_init(); */
+	uart_com_init();
 
 	/* light_init(); */
 
-	initialise_wifi();
+	wifi_com_init();
 
 	/* wifi_com_init(); */
 

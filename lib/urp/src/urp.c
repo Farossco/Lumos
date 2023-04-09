@@ -21,13 +21,24 @@
 #define URP_RECV_THREAD_PRIO   CONFIG_URP_RECV_THREAD_PRIO
 #define URP_RECV_BUF_SIZE      CONFIG_URP_RECV_BUF_SIZE
 #define URP_RECV_DATA_SIZE_MAX CONFIG_URP_RECV_DATA_SIZE_MAX
+#define URP_SEND_BUF_SIZE      CONFIG_URP_SEND_BUF_SIZE
 
 
 #define TAG "urp"
 
-#define ESP_LOGE(TAG, ...) printf("["TAG "] [ERR] "); printf(__VA_ARGS__); printf("\n")
-#define ESP_LOGD(TAG, ...) printf("["TAG "] [DBG] "); printf(__VA_ARGS__); printf("\n")
-#define ESP_LOGW(TAG, ...) printf("["TAG "] [WRN] "); printf(__VA_ARGS__); printf("\n")
+#undef ESP_LOGE
+#undef ESP_LOGW
+#undef ESP_LOGD
+#undef ESP_LOGV
+#undef ESP_LOGI
+#undef ESP_LOG_BUFFER_HEX
+
+#define ESP_LOGE(TAG, ...)                        printf("[%s] [ERR] ", TAG); printf(__VA_ARGS__); printf("\n")
+#define ESP_LOGW(TAG, ...)                        printf("[%s] [WRN] ", TAG); printf(__VA_ARGS__); printf("\n")
+#define ESP_LOGD(TAG, ...)                        printf("[%s] [DBG] ", TAG); printf(__VA_ARGS__); printf("\n")
+#define ESP_LOGV(TAG, ...)                        printf("[%s] [VER] ", TAG); printf(__VA_ARGS__); printf("\n")
+#define ESP_LOGI(TAG, ...)                        printf("[%s] [INF] ", TAG); printf(__VA_ARGS__); printf("\n")
+#define ESP_LOG_BUFFER_HEX(tag, buffer, buff_len) esp_log_buffer_hex_internal(tag, buffer, buff_len, ESP_LOG_INFO)
 
 #define URP_VALUE_NEEDS_ESCAPE(_value)                                  \
 	(((_value) == URP_CHAR_START) || ((_value) == URP_CHAR_START_NC) || \
@@ -41,7 +52,7 @@ struct urp_recv_message {
 	uint16_t     cursor;
 	bool         has_checksum;
 
-	char         data_type_buf[URP_VALUE_TYPE_LENGTH];
+	char         msg_type_buf[URP_VALUE_TYPE_LENGTH];
 	uint16_t     checksum;
 	uint8_t      *data_buf;
 	size_t       data_buf_size;
@@ -50,16 +61,20 @@ struct urp_recv_message {
 };
 
 /**
- * Data structure for URP message encoding
+ * @brief Data structure for URP message encoding
+ *
  */
 struct urp_send_message {
 	const uint8_t *data_buf;
 	size_t        data_size;
-	const char    *data_type;
+	const char    *msg_type;
 };
 
 /**
- * Calls the configured handler for the data type
+ * @brief Calls the configured handler for the message type
+ *
+ * @param message The received message data
+ * @param handler The handler to be called
  */
 static void handle_data(const struct urp_recv_message    *message,
                         const struct urp_message_handler *handler)
@@ -98,22 +113,28 @@ static void handle_data(const struct urp_recv_message    *message,
 		if (handler->cb_float) {
 			return handler->cb_float(data, handler->arg);
 		}
-	} else if (handler->data_size < 0) { /* Any other data lower than 0 is invalid */
-		char data_type_str[URP_VALUE_TYPE_LENGTH + 1];
+	} else if (handler->data_size == URP_SIZE_STRING) {
+		message->data_buf[message->data_buf_size] = '\0';
 
-		memcpy(data_type_str, handler->data_type_buf, URP_VALUE_TYPE_LENGTH);
-		data_type_str[URP_VALUE_TYPE_LENGTH] = '\0';
+		if (handler->cb_string) {
+			return handler->cb_string((const char *)message->data_buf, handler->arg);
+		}
+	} else if (handler->data_size < 0) { /* Any other data lower than 0 is invalid */
+		char msg_type_str[URP_VALUE_TYPE_LENGTH + 1];
+
+		memcpy(msg_type_str, handler->msg_type_buf, URP_VALUE_TYPE_LENGTH);
+		msg_type_str[URP_VALUE_TYPE_LENGTH] = '\0';
 		ESP_LOGE(TAG, "Incorrect data size %d for mode \"%s\"", handler->data_size, message->data_buf, errno);
 		return;
 	} else {
 		if (message->data_buf_size != handler->data_size) {
-			char data_type_str[URP_VALUE_TYPE_LENGTH + 1];
+			char msg_type_str[URP_VALUE_TYPE_LENGTH + 1];
 
-			memcpy(data_type_str, message->data_type_buf, URP_VALUE_TYPE_LENGTH);
-			data_type_str[URP_VALUE_TYPE_LENGTH] = '\0';
+			memcpy(msg_type_str, message->msg_type_buf, URP_VALUE_TYPE_LENGTH);
+			msg_type_str[URP_VALUE_TYPE_LENGTH] = '\0';
 
 			ESP_LOGE(TAG, "Received URP data of type \"%s\" with incorrect size (%d should be %d)",
-			         data_type_str, message->data_buf_size, handler->data_size);
+			         msg_type_str, message->data_buf_size, handler->data_size);
 			return;
 		}
 
@@ -122,24 +143,25 @@ static void handle_data(const struct urp_recv_message    *message,
 		}
 	}
 
-	char data_type_str[URP_VALUE_TYPE_LENGTH + 1];
+	char msg_type_str[URP_VALUE_TYPE_LENGTH + 1];
 
-	memcpy(data_type_str, handler->data_type_buf, URP_VALUE_TYPE_LENGTH);
-	data_type_str[URP_VALUE_TYPE_LENGTH] = '\0';
+	memcpy(msg_type_str, handler->msg_type_buf, URP_VALUE_TYPE_LENGTH);
+	msg_type_str[URP_VALUE_TYPE_LENGTH] = '\0';
 
-	ESP_LOGE(TAG, "No callback defined for %s", data_type_str);
+	ESP_LOGE(TAG, "No callback defined for %s", msg_type_str);
 }
 
 /**
- * @brief Get a handler from a data type buffer.
+ * @brief Get a handler from a message type buffer.
  *
  * The buffer needs to have at least a size of URP_VALUE_TYPE_LENGTH.
  *
- * @param data_type_buf The data type in buffer (not NULL-terminated) format.
+ * @param config       The URP configuration object
+ * @param msg_type_buf The message type buffer (not NULL-terminated)
  *
  * @return The matching handler or NULL if no match could be found.
  */
-static struct urp_message_handler * handler_from_buf(struct urp_config *config, const uint8_t *data_type_buf)
+static struct urp_message_handler * handler_from_msg_type_buf(struct urp_config *config, const uint8_t *msg_type_buf)
 {
 	if (!config->handlers) {
 		ESP_LOGE(TAG, "No handler defined");
@@ -147,59 +169,60 @@ static struct urp_message_handler * handler_from_buf(struct urp_config *config, 
 	}
 
 	for (int i = 0; i < config->handlers_size; i++) {
-		if (memcmp(data_type_buf, config->handlers[i].data_type_buf, URP_VALUE_TYPE_LENGTH) == 0) {
+		if (memcmp(msg_type_buf, config->handlers[i].msg_type_buf, URP_VALUE_TYPE_LENGTH) == 0) {
 			return &config->handlers[i];
 		}
 	}
 
-	char data_type_str[URP_VALUE_TYPE_LENGTH + 1];
+	char msg_type_str[URP_VALUE_TYPE_LENGTH + 1];
 
-	memcpy(data_type_str, data_type_buf, URP_VALUE_TYPE_LENGTH);
-	data_type_str[URP_VALUE_TYPE_LENGTH] = '\0';
+	memcpy(msg_type_str, msg_type_buf, URP_VALUE_TYPE_LENGTH);
+	msg_type_str[URP_VALUE_TYPE_LENGTH] = '\0';
 
-	ESP_LOGE(TAG, "Given data type \"%s\" is not registered", data_type_str);
+	ESP_LOGE(TAG, "Given message type \"%s\" is not registered", msg_type_str);
 
 	return NULL;
 }
 
 /**
- * @brief Get a handler from a data type string.
+ * @brief Get a handler from a message type string.
  *
- * @param data_type_str The data type in string (NULL-terminated) format.
+ * @param msg_type_str The message type in string (NULL-terminated) format.
  *
  * @return The matching handler or NULL if no match could be found.
  */
-static struct urp_message_handler * handler_from_str(struct urp_config *config, const char *data_type_str)
+static struct urp_message_handler * handler_from_msg_type_str(struct urp_config *config, const char *msg_type_str)
 {
-	size_t len = strlen(data_type_str);
+	size_t len = strlen(msg_type_str);
 
 	if (len != URP_VALUE_TYPE_LENGTH) {
 		ESP_LOGE(TAG, "Invalid data type, length is %d, must be %d", len, URP_VALUE_TYPE_LENGTH);
 		return NULL;
 	}
 
-	return handler_from_buf(config, (const uint8_t *)data_type_str);
+	return handler_from_msg_type_buf(config, (const uint8_t *)msg_type_str);
 }
 
 /**
- * Calculate checksum from message data type and message data
- * @param data_type_str The message type string
- * @param data_str The message data array
- * @param data_size The size of the data array
- * @param checksum The outputted checksum
+ * @brief Calculate checksum from message message type and message data
+ *
+ * @param msg_type_str The message type string
+ * @param data_buf     The message data array
+ * @param data_size    The size of the data array
+ * @param checksum     The outputted checksum
+ *
  * @return 0 if success, negative data otherwise
  */
-static int calculate_checksum(const char *data_type_str, const uint8_t *data_buf,
-                              size_t data_size, uint16_t *checksum)
+static int calculate_checksum(const char *msg_type_str, const uint8_t *data_buf, size_t data_size, uint16_t *checksum)
 {
 	uint32_t sum = 0;
 
-	if (!data_type_str || !data_buf || !checksum) {
+	if (!msg_type_str || !data_buf || !checksum) {
 		return -EINVAL;
 	}
 
 	for (int i = 0; i < URP_VALUE_TYPE_LENGTH; i++) {
-		sum += data_type_str[i];
+		sum += msg_type_str[i];
 	}
 
 	for (int i = 0; i < data_size; i++) {
@@ -218,17 +241,19 @@ static int calculate_checksum(const char *data_type_str, const uint8_t *data_buf
 }
 
 /**
- * Verify the integrity of the message with the checksum
- * @param message The message conainig the data to verify
+ * @brief Verify the integrity of the message with the checksum
+ *
+ * @param message The message containig the data to verify
+ *
  * @return 0 if success,
- * -EBADMSG if checksum verification failed
+ *         -EBADMSG if checksum verification failed
  */
 static int verify_checksum(struct urp_recv_message *message)
 {
 	int err;
 	uint16_t calculated_checksum;
 
-	err = calculate_checksum(message->data_type_buf, message->data_buf,
+	err = calculate_checksum(message->msg_type_buf, message->data_buf,
 	                         message->data_buf_size, &calculated_checksum);
 	if (err) {
 		ESP_LOGE(TAG, "Error while calculating checksum: %d", err);
@@ -246,15 +271,20 @@ static int verify_checksum(struct urp_recv_message *message)
 }
 
 /**
- * Fills the decoded data structure with the content of the ring buffer
- * while decoding it
+ * @brief Fills the decoded data structure with the content of the ring buffer
+ *        while decoding it
+ *
+ * @param config  The URP configuration object
+ * @param message The decoded URP message to be filled
+ *
+ * @return -EAGAIN to request more data
+ *         0 if success, negative value otherwise
  */
-static int urp_data_fill(struct urp_config *config, struct urp_recv_message *message, uart_event_t *event)
+static int urp_data_fill(struct urp_config *config, struct urp_recv_message *message)
 {
 	while (1) {
 		uint8_t c;
 		uint8_t cs_offset = message->has_checksum ? 2 : 0;
-		uint16_t data_cursor;
 		size_t rx;
 
 		rx = uart_read_bytes(config->uart_num, &c, 1, 0);
@@ -268,8 +298,7 @@ static int urp_data_fill(struct urp_config *config, struct urp_recv_message *mes
 		if (!message->escaped && c == URP_CHAR_END) {
 			ESP_LOGD(TAG, "End of message");
 
-			if (message->cursor <=
-			    URP_VALUE_TYPE_LENGTH + cs_offset) {
+			if (message->cursor <= URP_VALUE_TYPE_LENGTH + cs_offset) {
 				ESP_LOGD(TAG, "Message incomplete (cursor: %d)", message->cursor);
 				return -EIO;
 			}
@@ -299,8 +328,8 @@ static int urp_data_fill(struct urp_config *config, struct urp_recv_message *mes
 			ESP_LOGD(TAG, "The first received character is not %c nor %c!", URP_CHAR_START, URP_CHAR_START_NC);
 			return -EIO;
 		} else if (message->cursor <= URP_VALUE_TYPE_LENGTH) {
-			message->data_type_buf[message->cursor - 1] = c;
-			ESP_LOGD(TAG, "data_type_buf[%d] = %c (%d)", message->cursor - 1, c, c);
+			message->msg_type_buf[message->cursor - 1] = c;
+			ESP_LOGD(TAG, "msg_type_buf[%d] = %c (%d)", message->cursor - 1, c, c);
 		} else if (message->has_checksum && message->cursor == URP_VALUE_TYPE_LENGTH + 1) {
 			message->checksum = (((uint16_t)c) << 8) & 0xFF00;
 			ESP_LOGD(TAG, "Checksum MSB");
@@ -308,18 +337,16 @@ static int urp_data_fill(struct urp_config *config, struct urp_recv_message *mes
 			message->checksum |= c;
 			ESP_LOGD(TAG, "Checksum LSB - CS: %d (0x%04X)", message->checksum, message->checksum);
 		} else {
-			data_cursor = message->cursor - URP_VALUE_TYPE_LENGTH - 1 - cs_offset;
-
-			message->data_buf[data_cursor] = c;
-			message->data_buf_size++;
-
 			/* Leaving 1 byte of data available in the buffer to add a \0 character if needed */
-			if (data_cursor > message->data_buf_max_size) {
+			if (message->data_buf_size >= message->data_buf_max_size - 1) {
 				ESP_LOGE(TAG, "Not enough space in buffer");
 				return -ENOMEM;
 			}
 
-			ESP_LOGD(TAG, "data_buf[%d] = %c (%d)", data_cursor, c, c);
+			message->data_buf[message->data_buf_size] = c;
+			ESP_LOGD(TAG, "data_buf[%d] = %c (%d)", message->data_buf_size, c, c);
+
+			message->data_buf_size++;
 			ESP_LOGD(TAG, "data_buf_size = %d",     message->data_buf_size);
 		}
 
@@ -329,9 +356,10 @@ static int urp_data_fill(struct urp_config *config, struct urp_recv_message *mes
 }
 
 /**
- * Data receiver thread. This thread waits for new data on the input ring buffer
- * and calls urp_data_fill to decode the data and fill de decode_data
- * structure
+ * @brief Data receiver thread. This thread waits for new data on the input ring buffer
+ *        and calls urp_data_fill to decode the data and fill the message structure
+ *
+ * @param arg Task parameter - Unused
  */
 static void urp_recv_task(void *arg)
 {
@@ -340,10 +368,12 @@ static void urp_recv_task(void *arg)
 	uart_event_t event;
 	struct urp_recv_message message = {
 		.cursor            = 0,
+		.has_checksum      = false,
+		.msg_type_buf      = { 0 },
+		.checksum          = 0,
 		.data_buf          = rx_buf,
 		.data_buf_size     = 0,
 		.data_buf_max_size = sizeof(rx_buf),
-		.has_checksum      = false,
 		.escaped           = false
 	};
 	int err;
@@ -372,7 +402,7 @@ static void urp_recv_task(void *arg)
 		}
 
 fill:
-		err = urp_data_fill(config, &message, &event);
+		err = urp_data_fill(config, &message);
 
 		if (err == -EAGAIN) {
 			taskYIELD();
@@ -384,19 +414,19 @@ fill:
 			goto fill;
 		}
 
-		const struct urp_message_handler *handler = handler_from_buf(config, message.data_type_buf);
+		const struct urp_message_handler *handler = handler_from_msg_type_buf(config, message.msg_type_buf);
 
 		if (handler) {
 			handle_data(&message, handler);
 			goto clear;
 		}
 
-		char data_type_str[URP_VALUE_TYPE_LENGTH + 1];
+		char msg_type_str[URP_VALUE_TYPE_LENGTH + 1];
 
-		memcpy(data_type_str, message.data_type_buf, URP_VALUE_TYPE_LENGTH);
-		data_type_str[URP_VALUE_TYPE_LENGTH] = '\0';
+		memcpy(msg_type_str, message.msg_type_buf, URP_VALUE_TYPE_LENGTH);
+		msg_type_str[URP_VALUE_TYPE_LENGTH] = '\0';
 
-		ESP_LOGW(TAG, "No match for %s", data_type_str);
+		ESP_LOGW(TAG, "No match for %s", msg_type_str);
 
 clear:
 		message.cursor = 0;
@@ -409,7 +439,8 @@ clear:
 /**
  * Creates the output message from the provided data
  *
- * @param data The data to encode
+ * @param config  The URP configuration object
+ * @param message The message data to encode
  *
  * @return 0 if success, negative data otherwise
  */
@@ -423,12 +454,12 @@ static int urp_data_send(struct urp_config *config, struct urp_send_message *mes
 	end    = URP_CHAR_END;
 	escape = URP_CHAR_ESCAPE;
 
-	calculate_checksum(message->data_type, message->data_buf, message->data_size, &checksum);
+	calculate_checksum(message->msg_type, message->data_buf, message->data_size, &checksum);
 	checksum_buf[0] = (uint8_t)((checksum & 0xFF00) >> 8);
 	checksum_buf[1] = (uint8_t)(checksum & 0x00FF);
 
 	uart_tx_chars(config->uart_num, &start, 1);
-	uart_tx_chars(config->uart_num, message->data_type, URP_VALUE_TYPE_LENGTH);
+	uart_tx_chars(config->uart_num, message->msg_type, URP_VALUE_TYPE_LENGTH);
 	uart_tx_chars(config->uart_num, (const char *)checksum_buf, sizeof(checksum_buf));
 	for (int i = 0; i < message->data_size; i++) {
 		if (URP_VALUE_NEEDS_ESCAPE(message->data_buf[i])) {
@@ -441,14 +472,16 @@ static int urp_data_send(struct urp_config *config, struct urp_send_message *mes
 	return 0;
 }
 
-/** Public functions */
+/* ==================================================================================== */
+/* ================================= Public functions ================================= */
+/* ==================================================================================== */
 
-int urp_send(struct urp_config *config, const char *data_type_str, const void *data_buf)
+int urp_send_fixed(struct urp_config *config, const char *msg_type_str, const void *data_buf)
 {
 	struct urp_send_message message;
 	const struct urp_message_handler *handler;
 
-	handler = handler_from_str(config, data_type_str);
+	handler = handler_from_msg_type_str(config, msg_type_str);
 	if (!handler) {
 		return -EINVAL;
 	}
@@ -458,19 +491,19 @@ int urp_send(struct urp_config *config, const char *data_type_str, const void *d
 		return -EINVAL;
 	}
 
-	message.data_type = data_type_str;
+	message.msg_type  = msg_type_str;
 	message.data_buf  = (const uint8_t *)data_buf;
 	message.data_size = handler->data_size;
 
 	return urp_data_send(config, &message);
 }
 
-int urp_send_variable(struct urp_config *config, const char *data_type_str, const void *data_buf, size_t size)
+int urp_send_variable(struct urp_config *config, const char *msg_type_str, const void *data, size_t data_size)
 {
 	struct urp_send_message message;
 	const struct urp_message_handler *handler;
 
-	handler = handler_from_str(config, data_type_str);
+	handler = handler_from_msg_type_str(config, msg_type_str);
 	if (!handler) {
 		return -EINVAL;
 	}
@@ -480,9 +513,89 @@ int urp_send_variable(struct urp_config *config, const char *data_type_str, cons
 		return -EINVAL;
 	}
 
-	message.data_type = data_type_str;
+	message.msg_type  = msg_type_str;
+	message.data_buf  = (const uint8_t *)data;
+	message.data_size = data_size;
+
+	return urp_data_send(config, &message);
+}
+
+int urp_send_int(struct urp_config *config, const char *msg_type_str, long data)
+{
+	struct urp_send_message message;
+	const struct urp_message_handler *handler;
+	char data_buf[20];
+	ssize_t data_size;
+
+	handler = handler_from_msg_type_str(config, msg_type_str);
+	if (!handler) {
+		return -EINVAL;
+	}
+
+	if (handler->data_size != URP_SIZE_INT) {
+		ESP_LOGE(TAG, "\'%s\' can only be called for integer messages", __func__);
+		return -EINVAL;
+	}
+
+	data_size = sprintf(data_buf, "%ld", data);
+	if (data_size < 0) {
+		return data_size;
+	}
+
+	message.msg_type  = msg_type_str;
 	message.data_buf  = (const uint8_t *)data_buf;
-	message.data_size = size;
+	message.data_size = data_size;
+
+	return urp_data_send(config, &message);
+}
+
+int urp_send_float(struct urp_config *config, const char *msg_type_str, double data)
+{
+	struct urp_send_message message;
+	const struct urp_message_handler *handler;
+	char data_buf[20];
+	ssize_t data_size;
+
+	handler = handler_from_msg_type_str(config, msg_type_str);
+	if (!handler) {
+		return -EINVAL;
+	}
+
+	if (handler->data_size != URP_SIZE_FLOAT) {
+		ESP_LOGE(TAG, "\'%s\' can only be called for floating point messages", __func__);
+		return -EINVAL;
+	}
+
+	data_size = sprintf(data_buf, "%Lf", data);
+	if (data_size < 0) {
+		return data_size;
+	}
+
+	message.msg_type  = msg_type_str;
+	message.data_buf  = (const uint8_t *)data_buf;
+	message.data_size = data_size;
+
+	return urp_data_send(config, &message);
+}
+
+int urp_send_string(struct urp_config *config, const char *msg_type_str, const char *data)
+{
+	struct urp_send_message message;
+	const struct urp_message_handler *handler;
+
+	handler = handler_from_msg_type_str(config, msg_type_str);
+	if (!handler) {
+		return -EINVAL;
+	}
+
+	if (handler->data_size != URP_SIZE_STRING) {
+		ESP_LOGE(TAG, "\'%s\' can only be called for string messages", __func__);
+		return -EINVAL;
+	}
+
+	message.msg_type  = msg_type_str;
+	message.data_buf  = (const uint8_t *)data;
+	message.data_size = strlen(data);
 
 	return urp_data_send(config, &message);
 }
@@ -490,7 +603,7 @@ int urp_send_variable(struct urp_config *config, const char *data_type_str, cons
 int urp_init(struct urp_config *config)
 {
 	/* Configure UART parameters */
-	ESP_ERROR_CHECK(uart_driver_install(config->uart_num, URP_RECV_BUF_SIZE, 0, 20, &config->task_queue, 0));
+	ESP_ERROR_CHECK(uart_driver_install(config->uart_num, URP_RECV_BUF_SIZE, URP_SEND_BUF_SIZE, 20, &config->task_queue, 0));
 	ESP_ERROR_CHECK(uart_param_config(config->uart_num, &config->uart_config));
 	ESP_ERROR_CHECK(uart_set_pin(config->uart_num, config->tx_io_num, config->rx_io_num,
 	                             UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));

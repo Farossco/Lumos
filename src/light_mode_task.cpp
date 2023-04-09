@@ -13,7 +13,7 @@
 #include "light.h"
 #include "light_strip.h"
 #include "Alarms.h" /* TODO: remove */
-#include "wifi_com.h"
+#include "network/wifi_com.h"
 
 #define LIGHT_MODE_START_DONE_TAIL_LENGTH LIGHT_STRIP_HALF_LENGTH
 

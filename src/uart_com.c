@@ -4,6 +4,7 @@
 #include "driver/uart.h"
 #include "utils_c.h"
 #include "light.h"
+#include "temp_log_util.h"
 
 #define UART_COM_RX_BUF_SIZE 200
 #define UART_COM_TX_BUF_SIZE 200
@@ -25,6 +26,7 @@
 #define VALUE_TYPE_DDU       "DDU"
 #define VALUE_TYPE_SDU       "SDU"
 #define VALUE_TYPE_SDT       "SDT"
+#define VALUE_TYPE_TZC       "TZC"
 
 static void onLightOnOff(long value, void *arg) {}
 
@@ -54,6 +56,23 @@ static void onAlarmSunsetDuration(long value, void *arg) {}
 
 static void onAlarmSunsetDecreaseTime(long value, void *arg) {}
 
+static void on_time_zone_change(const char *data, void *arg)
+{
+	char strftime_buf[64];
+	time_t now;
+	struct tm timeinfo;
+
+	ESP_LOGI(TAG, "Setting timezone: \"%s\"", data);
+
+	setenv("TZ", data, 1);
+	tzset();
+
+	time(&now);
+	localtime_r(&now, &timeinfo);
+	strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
+	ESP_LOGI(TAG, "The current date/time in Paris is: %s", strftime_buf);
+}
+
 static struct urp_message_handler handlers[] = {
 	URP_MESSAGE_INT_HANDLER(VALUE_TYPE_LON, onLightOnOff,              NULL),
 	URP_MESSAGE_INT_HANDLER(VALUE_TYPE_LMO, onLightMode,               NULL),
@@ -69,6 +88,7 @@ static struct urp_message_handler handlers[] = {
 	URP_MESSAGE_INT_HANDLER(VALUE_TYPE_DDU, onAlarmDawnDuration,       NULL),
 	URP_MESSAGE_INT_HANDLER(VALUE_TYPE_SDU, onAlarmSunsetDuration,     NULL),
 	URP_MESSAGE_INT_HANDLER(VALUE_TYPE_SDT, onAlarmSunsetDecreaseTime, NULL),
+	URP_MESSAGE_STRING_HANDLER(VALUE_TYPE_TZC, on_time_zone_change, NULL),
 };
 
 static struct urp_config urp_config = {
