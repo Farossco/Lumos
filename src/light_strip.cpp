@@ -1,15 +1,10 @@
 #include "light_strip.h"
 #include <Adafruit_DotStar.h>
 
-#define LIGHT_STRIP_PIN_CS 21
-
 static Adafruit_DotStar light_strip(LIGHT_STRIP_LENGTH, DOTSTAR_BGR);
 
 void light_strip_init(void)
 {
-	pinMode(LIGHT_STRIP_PIN_CS, OUTPUT);
-	digitalWrite(LIGHT_STRIP_PIN_CS, LOW);
-
 	light_strip.begin();
 }
 
@@ -26,9 +21,7 @@ void light_strip_color_all_set(LightRgb rgb)
 
 void light_strip_update()
 {
-	digitalWrite(LIGHT_STRIP_PIN_CS, HIGH);
 	light_strip.show();
-	digitalWrite(LIGHT_STRIP_PIN_CS, LOW);
 }
 
 void light_strip_update(uint8_t power)
