@@ -7,12 +7,13 @@ extern "C" {
 
 #include <stdint.h>
 #include <stddef.h>
+#include <esp_err.h>
 
 struct uart_com_callbacks {
 	void (*on_recv)(uint8_t *buf, size_t size);
 };
 
-void uart_com_init(void);
+esp_err_t uart_com_init(void);
 
 void uart_com_register_callbacks(struct uart_com_callbacks cbks);
 

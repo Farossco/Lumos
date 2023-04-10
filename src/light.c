@@ -185,6 +185,8 @@ int light_init(void)
 {
 	int err;
 
+	ESP_LOGI(TAG, "Initializing light");
+
 	light_strip_init();
 
 	light_mode_task_register_callbacks(&light_mode_task_callbacks);

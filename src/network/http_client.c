@@ -6,12 +6,6 @@
 #include "temp_log_util.h"
 #include "kconfig_stub.h"
 
-#define TIME_HOST   CONFIG_HTTP_CLIENT_TIME_HOST
-#define TIME_FORMAT CONFIG_HTTP_CLIENT_TIME_FORMAT
-#define TIME_KEY    CONFIG_HTTP_CLIENT_TIME_KEY
-#define TIME_BY     CONFIG_HTTP_CLIENT_TIME_BY
-#define TIME_FIELDS CONFIG_HTTP_CLIENT_TIME_FIELDS
-
 static const char *TAG = "http_client";
 
 static esp_err_t http_client_event_handler(esp_http_client_event_t *evt)
@@ -78,7 +72,7 @@ static esp_err_t http_client_event_handler(esp_http_client_event_t *evt)
 }
 
 /**
- * @brief Not used anymore
+ * @brief Not used anymore, keeped as a reusable template
  *
  */
 void http_client_time_get(void)
@@ -88,9 +82,9 @@ void http_client_time_get(void)
 	cJSON *json_root, *json_status, *json_timestamp;
 	esp_http_client_handle_t client;
 	esp_http_client_config_t config = {
-		.host          = TIME_HOST,
+		.host          = "[TIME_HOST]",
 		.path          = "/v2.1/get-time-zone",
-		.query         = "format=" TIME_FORMAT "&key=" TIME_KEY "&by=" TIME_BY "&zone=" TIME_ZONE "&fields=" TIME_FIELDS,
+		.query         = "format=" "[TIME_FORMAT]" "&key=" "[TIME_KEY]" "&by=" "[TIME_BY]" "&zone=" "[TIME_ZONE]" "&fields=" "[TIME_FIELDS]",
 		.event_handler = http_client_event_handler,
 		.user_data     = local_response_buffer, /* Pass address of local buffer to get response */
 	};

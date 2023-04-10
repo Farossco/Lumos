@@ -18,15 +18,27 @@ void setup()
 
 	err = memory_init();
 	if (err) {
-		ESP_LOGE(TAG, "Failed to init memory: ", err2str(err));
+		ESP_LOGE(TAG, "FATAL: Failed to init memory: ", err2str(err));
 		return;
 	}
 
-	uart_com_init();
+	err = uart_com_init();
+	if (err) {
+		ESP_LOGE(TAG, "FATAL: Failed to init uart_com: ", err2str(err));
+		return;
+	}
 
-	light_init();
+	err = light_init();
+	if (err) {
+		ESP_LOGE(TAG, "FATAL: Failed to init light: ", err2str(err));
+		return;
+	}
 
-	wifi_com_init();
+	err = wifi_com_init();
+	if (err) {
+		ESP_LOGE(TAG, "FATAL: Failed to init wifi_com: ", err2str(err));
+		return;
+	}
 
 	/* sd.init(); / * SD SPI needs to be initialized after the light strip SPI * / */
 

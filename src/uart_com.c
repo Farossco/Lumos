@@ -126,9 +126,13 @@ static struct urp_config urp_config = {
 	.rx_io_num = 3,
 };
 
-void uart_com_init(void)
+esp_err_t uart_com_init(void)
 {
+	ESP_LOGI(TAG, "Initializing uart");
+
 	urp_init(&urp_config);
+
+	return 0;
 }
 
 void uart_com_register_callbacks(struct uart_com_callbacks cbks)
