@@ -5,17 +5,14 @@
 #include "light.h"
 #include "Sound.h"
 #include "network/wifi_com.h"
-#include "Infrared.h"
 
 void setup()
 {
 	uart_com_init();
 
-	/* light_init(); */
+	light_init();
 
 	wifi_com_init();
-
-	/* wifi_com_init(); */
 
 	/* sd.init(); / * SD SPI needs to be initialized after the light strip SPI * / */
 

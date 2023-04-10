@@ -1,26 +1,30 @@
 #include "light.h"
-#include <ArduinoLogger.h>
+#include <esp_log.h>
 #include "light_strip.h"
 #include "light_mode_task.h"
-#include "Memory.h"
-#include "Alarms.h"
+#include "temp_log_util.h"
+#include "utils_c.h"
 
-#define LIGHT_RGB_DEFAULT   0xFFFFFF
+#define LIGHT_RGB_DEFAULT   RGB_WHITE
 #define LIGHT_POWER_DEFAULT 255
 #define LIGHT_SPEED_DEFAULT 63
+
+static const char *TAG = "light";
 
 static bool light_state;                                     /* If the leds are ON or OFF (True: ON / False: OFF) */
 static uint8_t light_mode;                                   /* Current lighting mode */
 static struct light_mode_data light_mode_data[LIGHT_MODE_N]; /* Light modes data */
 
-const static char *light_mode_strings[LIGHT_MODE_N] = { "Continuous",
-	                                                    "Flash",
-	                                                    "Strobe",
-	                                                    "Fade",
-	                                                    "Smooth",
-	                                                    "Dawn",
-	                                                    "Sunset",
-	                                                    "Start" };
+const static char *light_mode_strings[LIGHT_MODE_N] = {
+	"Continuous",
+	"Flash",
+	"Strobe",
+	"Fade",
+	"Smooth",
+	"Dawn",
+	"Sunset",
+	"Start"
+};
 
 static void light_reset(void)
 {
@@ -42,6 +46,8 @@ static void on_light_mode_task_end(uint8_t mode)
 		break;
 
 	case LIGHT_MODE_SUNSET:
+		light_state_set(LIGHT_OFF);
+		light_mode_set(LIGHT_MODE_CONTINUOUS);
 		break;
 
 	case LIGHT_MODE_START:
@@ -58,8 +64,12 @@ static struct light_mode_task_callbacks light_mode_task_callbacks = {
 	.on_mode_task_end = on_light_mode_task_end
 };
 
-void light_color_set(LightRgb rgb, uint8_t mode)
+void light_color_set(rgb_t rgb, uint8_t mode)
 {
+	if (mode == LIGHT_MODE_CURRENT) {
+		mode = light_mode;
+	}
+
 	if (mode > LIGHT_MODE_MAX) {
 		return;
 	}
@@ -69,6 +79,10 @@ void light_color_set(LightRgb rgb, uint8_t mode)
 
 void light_power_set(uint8_t power, uint8_t mode)
 {
+	if (mode == LIGHT_MODE_CURRENT) {
+		mode = light_mode;
+	}
+
 	if (mode > LIGHT_MODE_MAX) {
 		return;
 	}
@@ -78,6 +92,10 @@ void light_power_set(uint8_t power, uint8_t mode)
 
 void light_speed_set(uint8_t speed, uint8_t mode)
 {
+	if (mode == LIGHT_MODE_CURRENT) {
+		mode = light_mode;
+	}
+
 	if (mode > LIGHT_MODE_MAX) {
 		return;
 	}
@@ -88,6 +106,7 @@ void light_speed_set(uint8_t speed, uint8_t mode)
 void light_mode_set(uint8_t mode)
 {
 	if (mode > LIGHT_MODE_MAX) {
+		ESP_LOGE(TAG, "Trying to set incorrect mode: %d", mode);
 		return;
 	}
 
@@ -111,12 +130,12 @@ void light_state_set(bool state)
 	}
 
 	if (state == LIGHT_ON) {
-		verb << "Turning lights ON" << dendl;
+		ESP_LOGV(TAG, "Turning lights ON");
 
 		/* Start a new task for the current mode */
 		light_mode_task_start(light_mode, &light_mode_data[light_mode]);
 	} else {
-		verb << "Turning lights OFF" << dendl;
+		ESP_LOGV(TAG, "Turning lights OFF");
 
 		/* Terminate the current light mode task */
 		light_mode_task_stop();
@@ -128,7 +147,7 @@ void light_state_set(bool state)
 
 /* TODO: remove getter */
 
-LightRgb light_color_get(uint8_t mode)
+rgb_t light_color_get(uint8_t mode)
 {
 	return light_mode_data[mode].rgb;
 }
@@ -175,18 +194,12 @@ int light_init(void)
 		return err;
 	}
 
-	/* if (memory.readLight()) { / * Returns True if EEPROM is not correctly initialized (This may be the first launch) * /
-	 * 	inf << "This is first launch, light variables will be initialized to their default values" << endl;
-	 */
-
 	light_reset();
 
-	light_mode  = LIGHT_MODE_START;
-	light_state = LIGHT_ON;
+	light_mode_set(LIGHT_MODE_START);
+	light_state_set(LIGHT_ON);
 
-	inf << "Light initialized." << dendl;
-
-	light_mode_task_start(light_mode, &light_mode_data[light_mode]);
+	ESP_LOGI(TAG, "Light initialized");
 
 	return 0;
 }

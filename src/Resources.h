@@ -25,7 +25,7 @@
 
 extern const StringType nameUnknown;
 extern const StringType soundModeName[SoundMode::N];
-extern const StringType soundCommandName[SoundCommand::N];
+extern const StringType soundCommandName[7];
 extern const StringType messageTypeName[RequestType::N];
 extern const StringType messageTypeDisplayName[RequestType::N];
 extern const StringType errorName[RequestError::N];

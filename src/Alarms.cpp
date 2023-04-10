@@ -1,3 +1,4 @@
+#if 0
 #include "Alarms.h"
 #include "ArduinoLogger.h"
 #include "light.h"
@@ -74,3 +75,5 @@ void Alarms::dawnStart()
 }
 
 Alarms alarms = Alarms();
+
+#endif /* if 0 */

@@ -28,15 +28,35 @@
 #define VALUE_TYPE_SDT       "SDT"
 #define VALUE_TYPE_TZC       "TZC"
 
-static void onLightOnOff(long value, void *arg) {}
+static void onLightOnOff(long value, void *arg)
+{
+	light_state_set(value == LIGHT_ON);
+}
 
-static void onLightMode(long value, void *arg) {}
+static void onLightMode(long value, void *arg)
+{
+	light_mode_set(value);
+}
 
-static void onLightModeRgb(long value, void *arg) {}
+static void onLightModeRgb(long value, void *arg)
+{
+	if (value > 0xFFFFFF) {
+		ESP_LOGE(TAG, "Incorrect RGB value: %X", value);
+		return;
+	}
 
-static void onLightModePower(long value, void *arg) {}
+	light_color_set(rgb_from_code(value), LIGHT_MODE_CURRENT);
+}
 
-static void onLightModeSpeed(long value, void *arg) {}
+static void onLightModePower(long value, void *arg)
+{
+	light_power_set(value, LIGHT_MODE_CURRENT);
+}
+
+static void onLightModeSpeed(long value, void *arg)
+{
+	light_speed_set(value, LIGHT_MODE_CURRENT);
+}
 
 static void onSoundCommand(long value, void *arg) {}
 

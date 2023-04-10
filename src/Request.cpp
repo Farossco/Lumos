@@ -44,7 +44,7 @@ void Request::process()
 			break;
 
 		case RequestType::soundCommand:
-			sound.command(complement, information); /* TODO : Do this in Sound.cpp (Sound mode action) */
+			/* sound.command(complement, information); / * TODO : Do this in Sound.cpp (Sound mode action) * / */
 			break;
 
 		case RequestType::lightOnOff:
@@ -52,7 +52,7 @@ void Request::process()
 			break;
 
 		case RequestType::lightModeRgb:
-			light_color_set(information, complement);
+			light_color_set(rgb_from_code(information), complement);
 			break;
 
 		case RequestType::lightModePower:
@@ -68,34 +68,34 @@ void Request::process()
 			break;
 
 		case RequestType::soundOnOff:
-			information ? sound.switchOn() : sound.switchOff();
+			/* information ? sound.switchOn() : sound.switchOff(); */
 			break;
 
 		case RequestType::soundMode:
-			sound.setMode(information);
+			/* sound.setMode(information); */
 			break;
 
 		case RequestType::soundVolume:
-			sound.setVolume(information);
+			/* sound.setVolume(information); */
 			break;
 
 		case RequestType::alarmDawnVolume:
-			alarms.setDawnVolume(information);
+			/* alarms.setDawnVolume(information); */
 			break;
 
 		case RequestType::alarmDawnTime:
-			alarms.setDawnTime(information);
+			/* alarms.setDawnTime(information); */
 			break;
 		case RequestType::alarmDawnDuration:
-			alarms.setDawnDuration(information);
+			/* alarms.setDawnDuration(information); */
 			break;
 
 		case RequestType::alarmSunsetDuration:
-			alarms.setSunsetDuration(information);
+			/* alarms.setSunsetDuration(information); */
 			break;
 
 		case RequestType::alarmSunsetDecreaseTime:
-			alarms.setSunsetDecreaseTime(information);
+			/* alarms.setSunsetDecreaseTime(information); */
 			break;
 		}
 
@@ -110,8 +110,6 @@ void Request::displayDebug()
 
 	if (type.getComplementType() == ComplementCategory::lightMode)
 		trace << " of " << complement;
-	else if (type.getComplementType() == ComplementCategory::soundCommand)
-		trace << " of " << SoundCommand(complement);
 
 	trace << " (Current value): ";
 
@@ -125,7 +123,7 @@ void Request::displayDebug()
 		break;
 
 	case RequestType::lightModeRgb:
-		trace << light_color_get(complement);
+		trace << rgb_to_code(light_color_get(complement));
 		break;
 
 	case RequestType::lightModePower:
@@ -141,35 +139,35 @@ void Request::displayDebug()
 		break;
 
 	case RequestType::soundOnOff:
-		trace << boolalpha << sound.isOn();
+		/* trace << boolalpha << sound.isOn(); */
 		break;
 
 	case RequestType::soundMode:
-		verb << sound.getMode();
+		/* verb << sound.getMode(); */
 		break;
 
 	case RequestType::soundVolume:
-		trace << sound.getVolume();
+		/* trace << sound.getVolume(); */
 		break;
 
 	case RequestType::alarmDawnVolume:
-		trace << alarms.getDawnVolume();
+		/* trace << alarms.getDawnVolume(); */
 		break;
 
 	case RequestType::alarmDawnTime:
-		trace << alarms.getDawnTime();
+		/* trace << alarms.getDawnTime(); */
 		break;
 
 	case RequestType::alarmDawnDuration:
-		trace << alarms.getDawnDuration();
+		/* trace << alarms.getDawnDuration(); */
 		break;
 
 	case RequestType::alarmSunsetDuration:
-		trace << alarms.getSunsetDuration();
+		/* trace << alarms.getSunsetDuration(); */
 		break;
 
 	case RequestType::alarmSunsetDecreaseTime:
-		trace << alarms.getSunsetDecreaseTime();
+		/* trace << alarms.getSunsetDecreaseTime(); */
 		break;
 	}
 

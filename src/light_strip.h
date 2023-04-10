@@ -1,8 +1,11 @@
 #ifndef LUMOS_LIGHT_STRIP_H
 #define LUMOS_LIGHT_STRIP_H
 
-#include <Arduino.h>
-#include "Types.h"
+#ifdef __cplusplus
+extern "C" {
+#endif /* ifdef __cplusplus */
+
+#include "color.h"
 
 /**
  * @brief The length of the LED strip
@@ -28,14 +31,14 @@ void light_strip_init(void);
  * @param index The index of the LED, starting from 0
  * @param rgb The color to be set
  */
-void light_strip_color_set(uint16_t index, LightRgb rgb);
+void light_strip_color_set(uint16_t index, rgb_t rgb, uint8_t power);
 
 /**
  * @brief Sets a unique given color for all LEDs of the strip
  *
  * @param rgb The color to be set
  */
-void light_strip_color_all_set(LightRgb rgb);
+void light_strip_color_all_set(rgb_t rgb, uint8_t power);
 
 /**
  * @brief Updates the LED strip.
@@ -46,11 +49,8 @@ void light_strip_color_all_set(LightRgb rgb);
  */
 void light_strip_update(void);
 
-/**
- * @brief Updates the LED strip and sets a power value
- *
- * @param power The power value
- */
-void light_strip_update(uint8_t power);
+#ifdef __cplusplus
+}
+#endif /* ifdef __cplusplus */
 
 #endif /* ifndef LUMOS_LIGHT_STRIP_H */

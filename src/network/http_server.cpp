@@ -6,6 +6,8 @@
 #include "temp_log_util.h"
 #include "kconfig_stub.h"
 
+extern "C" {
+
 static httpd_handle_t handle;
 
 static const char *TAG = "http_server";
@@ -43,7 +45,7 @@ static bool load_from_spiffs(char *query, httpd_req_t *rqst, String path)
 		httpd_resp_send(rqst, data.c_str(), data.length());
 		file_found = true;
 	} else {
-		ESP_LOGE(TAG, "File %s doesn't exist\n", path.c_str());
+		ESP_LOGE(TAG, "File %s doesn't exist", path.c_str());
 	}
 
 	return file_found;
@@ -51,9 +53,9 @@ static bool load_from_spiffs(char *query, httpd_req_t *rqst, String path)
 
 static void request_display(httpd_req_t *rqst)
 {
-	ESP_LOGD(TAG, "Received request\n");
+	ESP_LOGD(TAG, "Received request");
 
-	ESP_LOGD(TAG, "Request: |%s|\n", rqst->uri);
+	ESP_LOGD(TAG, "Request: |%s|", rqst->uri);
 }
 
 static esp_err_t handle_command(httpd_req_t *rqst)
@@ -181,13 +183,13 @@ void http_server_start(void)
 
 	err = httpd_start(&handle, &config);
 	if (err == ESP_OK) {
-		ESP_LOGI(TAG, "Server started!\n");
+		ESP_LOGI(TAG, "Server started!");
 		httpd_register_uri_handler(handle, &command_uri);
 		httpd_register_uri_handler(handle, &get_res_uri);
 		httpd_register_err_handler(handle, HTTPD_404_NOT_FOUND, handle_web_requests);
-		ESP_LOGD(TAG, "Handler registered!\n");
+		ESP_LOGD(TAG, "Handler registered!");
 	} else {
-		ESP_LOGE(TAG, "Failed to start server: %d\n", err);
+		ESP_LOGE(TAG, "Failed to start server: %d", err);
 	}
 
 	/*
@@ -202,4 +204,6 @@ void http_server_start(void)
 	 * trace << "Server started" << endl;
 	 * trace << "Local IP: " << WiFi.localIP().toString() << endl;
 	 */
+}
+
 }

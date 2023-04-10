@@ -56,7 +56,7 @@ void Json::generateData(String & string, bool pretty)
 	JsonArray rootLightRgb = rootLight.createNestedArray("Rgb");
 
 	for (uint8_t mode; mode < LIGHT_MODE_N; mode++)
-		rootLightRgb.add(light_color_get(mode).value());
+		rootLightRgb.add(rgb_to_code(light_color_get(mode)));
 
 	/* -- Power -- // */
 	JsonArray rootLightPower = rootLight.createNestedArray("Power");
@@ -72,28 +72,40 @@ void Json::generateData(String & string, bool pretty)
 
 
 	/* ****** Sound ****** // */
-	JsonObject rootSound = root.createNestedObject("Sound");
+	/* JsonObject rootSound = root.createNestedObject("Sound"); */
 
-	rootSound["On"]     = sound.isOn();              /* -- On/Off -- // */
-	rootSound["Volume"] = sound.getVolume().value(); /* -- Volume -- // */
-	rootSound["Mode"]   = (uint8_t)sound.getMode();  /* -- Mode -- // */
+	/*
+	 * rootSound["On"]     = sound.isOn();              / * -- On/Off -- // * /
+	 * rootSound["Volume"] = sound.getVolume().value(); / * -- Volume -- // * /
+	 * rootSound["Mode"]   = (uint8_t)sound.getMode();  / * -- Mode -- // * /
+	 */
 
 
-	/* ****** Alarms ****** // */
-	JsonObject rootAlarms = root.createNestedObject("Alarms");
+	/*
+	 * / * ****** Alarms ****** // * /
+	 * JsonObject rootAlarms = root.createNestedObject("Alarms");
+	 */
 
-	/* -- Dawn -- // */
-	JsonObject rootAlarmsDawn = rootAlarms.createNestedObject("Dawn");
+	/*
+	 * / * -- Dawn -- // * /
+	 * JsonObject rootAlarmsDawn = rootAlarms.createNestedObject("Dawn");
+	 */
 
-	rootAlarmsDawn["Volume"]   = alarms.getDawnVolume().value();   /* Volume // */
-	rootAlarmsDawn["Time"]     = alarms.getDawnTime().value();     /* Time // */
-	rootAlarmsDawn["Duration"] = alarms.getDawnDuration().value(); /* Duration // */
+	/*
+	 * rootAlarmsDawn["Volume"]   = alarms.getDawnVolume().value();   / * Volume // * /
+	 * rootAlarmsDawn["Time"]     = alarms.getDawnTime().value();     / * Time // * /
+	 * rootAlarmsDawn["Duration"] = alarms.getDawnDuration().value(); / * Duration // * /
+	 */
 
-	/* -- Sunset -- // */
-	JsonObject rootAlarmsSunset = rootAlarms.createNestedObject("Sunset");
+	/*
+	 * / * -- Sunset -- // * /
+	 * JsonObject rootAlarmsSunset = rootAlarms.createNestedObject("Sunset");
+	 */
 
-	rootAlarmsSunset["Duration"]     = alarms.getSunsetDuration().value();     /* Time // */
-	rootAlarmsSunset["DecreaseTime"] = alarms.getSunsetDecreaseTime().value(); /* Duration // */
+	/*
+	 * rootAlarmsSunset["Duration"]     = alarms.getSunsetDuration().value();     / * Time // * /
+	 * rootAlarmsSunset["DecreaseTime"] = alarms.getSunsetDecreaseTime().value(); / * Duration // * /
+	 */
 
 	if (pretty)
 		serializeJsonPretty(root, string);

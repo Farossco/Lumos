@@ -9,11 +9,12 @@
 #ifndef LUMOS_LIGHT_H
 #define LUMOS_LIGHT_H
 
-#include "time.h"
-
 #ifdef __cplusplus
-#include "Types.h"
+extern "C" {
 #endif /* ifdef __cplusplus */
+
+#include "time.h"
+#include "color.h"
 
 #define LIGHT_ON  (true)
 #define LIGHT_OFF (false)
@@ -29,11 +30,10 @@ enum {
 	LIGHT_MODE_START,      /* Start mode */
 
 	LIGHT_MODE_N,
-	LIGHT_MODE_MIN = 0,
-	LIGHT_MODE_MAX = LIGHT_MODE_N - 1
+	LIGHT_MODE_MIN     = 0,
+	LIGHT_MODE_MAX     = LIGHT_MODE_N - 1,
+	LIGHT_MODE_CURRENT = 255 /* Used to target the current running mode */
 };
-
-#ifdef __cplusplus
 
 /**
  * @brief light_mode data structure.
@@ -42,9 +42,9 @@ enum {
  *
  */
 struct light_mode_data {
-	uint8_t  power; /* Current lighting power for the mode */
-	uint8_t  speed; /* Current speed for the mode */
-	LightRgb rgb;   /* Current RGB value for the mode */
+	uint8_t power; /* Current lighting power for the mode */
+	uint8_t speed; /* Current speed for the mode */
+	rgb_t   rgb;   /* Current RGB value for the mode */
 };
 
 /**
@@ -53,9 +53,8 @@ struct light_mode_data {
  * @param rgb RGB value
  * @param mode Mode affected by the change
  */
-void light_color_set(LightRgb rgb, uint8_t mode);
+void light_color_set(rgb_t rgb, uint8_t mode);
 
-#endif /* ifdef __cplusplus */
 
 /**
  * @brief Set power value for a specified mode
@@ -87,17 +86,13 @@ void light_mode_set(uint8_t mode);
  */
 void light_state_set(bool state);
 
-#ifdef __cplusplus
-
 /**
  * @brief Get the current RGB value for a given mode
  *
  * @param mode Desired mode
  * @return The RGB value
  */
-LightRgb light_color_get(uint8_t mode);
-
-#endif /* ifdef __cplusplus */
+rgb_t light_color_get(uint8_t mode);
 
 /**
  * @brief Get the current power value for a given mode in percentage
@@ -137,5 +132,9 @@ const char * light_mode_string_get(uint8_t mode);
  *
  */
 int light_init(void);
+
+#ifdef __cplusplus
+}
+#endif /* ifdef __cplusplus */
 
 #endif /* ifndef LUMOS_LIGHT_H */

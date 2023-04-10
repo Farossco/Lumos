@@ -5,6 +5,7 @@
 #include <TimeLib.h>
 #include "Utils.h"
 #include <AL_ostream.h>
+#include "rgb.h"
 
 #define ilmap(x, in_min, in_max, out_min, out_max) (((float(x) - float(in_min)) * (float(out_max) - float(out_min)) / (float(in_max) - float(in_min)) + float(out_min)))
 
@@ -31,118 +32,6 @@ public:
 
 private:
 	uint8_t _value;
-};
-
-/** SettingBase
- *
- * T : The type of value stored
- * MINv : The minimum value of the setting
- * MAXv : The maximum value of the setting
- * DEFp : The default value in percentage of the max value
- *     (Ex : DEFp = 50 -> Default value is 50% of the max value)
- * UID : A unique ID to avoid types like LightOnOff and SoundOnOff to be the same type
- */
-template <class T, const T MINv, const T MAXv, const uint8_t DEFp, int UID = 0> class SettingBase {
-public:
-	enum Enum : T {
-		MIN = MINv,
-		MAX = MAXv,
-		DEF = T(ilmap(DEFp, 0, 100, MIN, MAX))
-	};
-
-	SettingBase() : _value(0) {}
-
-	SettingBase (T value) : _value(constrain(value, MIN, MAX)) {}
-
-	T operator = (Enum value) { return _value = (T)value; }
-
-	T operator = (const Percentage & perc) { return _value = utils.map(perc.value(), Percentage::MIN, Percentage::MAX, MIN, MAX); }
-
-	T operator = (const SettingBase & sett) { return _value = constrain(sett._value, MIN, MAX); }
-
-	bool operator == (const SettingBase & sett) { return _value == sett._value; }
-
-	bool operator != (const SettingBase & sett) { return _value != sett._value; }
-
-	T operator * (const SettingBase & sett) { return _value * sett._value; }
-
-	template <class U> U operator * (U value) { return _value * value; }
-
-	template <class U> U operator / (U value) { return _value / value; }
-
-	void operator += (const Percentage & perc) { _value = constrain(this->toPercent().value() + perc.value(), MIN, MAX); }
-
-	void operator -= (const Percentage & perc) { _value = constrain(this->toPercent().value() - perc.value(), MIN, MAX); }
-
-	T value() const { return _value; } /* Get the raw value */
-
-	friend ostream & operator << (ostream & os, const SettingBase & sett) { return os << sett._value << " (" << sett.toPercent() << ")"; }
-
-	Percentage toPercent() const { return Percentage(utils.map(_value, MIN, MAX, Percentage::MIN, Percentage::MAX)); }
-
-protected:
-	T _value;
-};
-
-class LightRgb {
-public:
-	enum Enum : uint32_t {
-		MIN = 0x00000000,
-		MAX = 0x00FFFFFF,
-		DEF = 0x00FFFFFF
-	};
-
-	LightRgb ();
-	LightRgb (uint32_t rgb);
-	LightRgb (uint8_t red, uint8_t green, uint8_t blue);
-	LightRgb setRed(uint8_t red);
-	LightRgb setGreen(uint8_t green);
-	LightRgb setBlue(uint8_t blue);
-	LightRgb setHue(uint8_t hue);
-	uint32_t value() const;
-	uint8_t getRed() const;
-	uint8_t getGreen() const;
-	uint8_t getBlue() const;
-	LightRgb operator * (double) const;
-	LightRgb operator / (double) const;
-	friend ostream & operator << (ostream & os, const LightRgb & rgb);
-
-private:
-	union {
-		uint32_t rgb;
-		struct {
-#if _BYTE_ORDER == _LITTLE_ENDIAN
-			uint8_t b;
-			uint8_t g;
-			uint8_t r;
-#else /* if _BYTE_ORDER == _LITTLE_ENDIAN */
-			uint8_t r;
-			uint8_t g;
-			uint8_t b;
-#endif /* if _BYTE_ORDER == _LITTLE_ENDIAN */
-		};
-	} _value;
-};
-
-
-class Timing : public SettingBase<uint32_t, 0, -1UL, 0> {
-public:
-	Timing ();
-	Timing (uint32_t time);
-	Timing (uint8_t minute, uint8_t second);
-	uint8_t minute() const;
-	uint8_t second() const;
-	friend ostream & operator << (ostream & os, const Timing & timing);
-};
-
-class Time : public SettingBase<uint16_t, 0, 1439, 0> {
-public:
-	Time ();
-	Time (uint16_t time);
-	Time (uint8_t hour, uint8_t minute);
-	uint8_t hour() const;
-	uint8_t minute() const;
-	friend ostream & operator << (ostream & os, const Time & time);
 };
 
 /* Serial reception errors types
@@ -253,36 +142,5 @@ private:
 	Enum _value;
 };
 
-
-/* Sound Command
- */
-class SoundCommand {
-public:
-	enum Enum {
-		playRandom,
-		playOne,
-		playNext,
-		playPrevious,
-		pause,
-		resume,
-		playDawn,
-
-		N,
-		MIN = 0,
-		MAX = N - 1
-	};
-
-	SoundCommand();
-	SoundCommand(uint8_t value);
-	operator uint8_t ();
-	const String toString() const;
-	friend ostream & operator << (ostream & os, const SoundCommand & mode);
-
-private:
-	Enum _value;
-};
-
-typedef SettingBase<bool, false, true, 0, 1> SoundOnOff;
-typedef SettingBase<uint8_t, 0, 30, 15> SoundVolume;
 
 #endif // ifndef TYPES_H
