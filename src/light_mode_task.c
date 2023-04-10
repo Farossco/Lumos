@@ -188,7 +188,7 @@ static void light_mode_dawn_task(void *arg)
 	struct light_mode_data *data = arg;
 	int16_t counter1             = 0;
 	int16_t counter2             = 100;
-	uint32_t step                = LIGHT_STRIP_HALF_LENGTH * 100;
+	uint32_t step                = 0;
 	/* uint32_t step                = alarms.getDawnDuration() * 1000.0 / (LIGHT_STRIP_HALF_LENGTH * 100); */
 
 	if (step == 0) {

@@ -1,6 +1,10 @@
 #include "Utils.h"
 #include <TimeLib.h>
 
+extern "C" char err_buf[50];
+
+char err_buf[50];
+
 char * Utils::getClock()
 {
 	sprintf(clock, "%.2d/%.2d/%.4d %.2d:%.2d:%.2d", day(), month(), year(), hour(), minute(), second());

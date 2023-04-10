@@ -1,21 +1,36 @@
 #include "http_server.h"
-#include <SPIFFS.h>
+#include <esp_http_server.h>
 #include "Request.h"
 #include "Json.h"
-#include "esp_http_server.h"
 #include "temp_log_util.h"
 #include "kconfig_stub.h"
+#include "memory.h"
+#include "utils_c.h"
 
 extern "C" {
-
 static httpd_handle_t handle;
 
 static const char *TAG = "http_server";
 
+static bool on_chunk_read(char *chunk_data, size_t chunk_size, void *arg)
+{
+	httpd_req_t *rqst = (httpd_req_t *)arg;
+	esp_err_t err;
+
+	err = httpd_resp_send_chunk(rqst, chunk_data, chunk_size);
+	if (err) {
+		ESP_LOGE(TAG, "Failed to send chunk: %s", err2str(err));
+		return MEMORY_FS_READ_CB_STOP;
+	}
+
+	return MEMORY_FS_READ_CB_CONTINUE;
+}
+
 static bool load_from_spiffs(char *query, httpd_req_t *rqst, String path)
 {
 	const char *data_type = "text/plain";
-	bool file_found       = false;
+	char chunk_buf[1000];
+	esp_err_t err;
 
 	if (path.endsWith("/")) {
 		path += "index.html";
@@ -36,19 +51,17 @@ static bool load_from_spiffs(char *query, httpd_req_t *rqst, String path)
 	else if (path.endsWith(".pdf")) data_type = "application/pdf";
 	else if (path.endsWith(".zip")) data_type = "application/zip";
 
+	httpd_resp_set_type(rqst, data_type);
 
-	if (SPIFFS.exists(path)) {
-		File file   = SPIFFS.open(path);
-		String data = file.readString();
-
-		httpd_resp_set_type(rqst, data_type);
-		httpd_resp_send(rqst, data.c_str(), data.length());
-		file_found = true;
-	} else {
-		ESP_LOGE(TAG, "File %s doesn't exist", path.c_str());
+	err = memory_fs_read_file_chunks(chunk_buf, sizeof(chunk_buf), path.c_str(), on_chunk_read, rqst);
+	if (err) {
+		ESP_LOGE(TAG, "Failed to read file %s: %s", path.c_str(), err2str(err));
+		return false;
 	}
 
-	return file_found;
+	ESP_LOGV(TAG, "Response sent");
+
+	return true;
 }
 
 static void request_display(httpd_req_t *rqst)
@@ -114,11 +127,19 @@ static esp_err_t handle_web_requests(httpd_req_t *rqst, httpd_err_code_t error)
 {
 	char query[500];
 	size_t query_length;
+	esp_err_t err;
 
 	request_display(rqst);
 
 	query_length = httpd_req_get_url_query_len(rqst);
-	httpd_req_get_url_query_str(rqst, query, sizeof(query));
+
+	err = httpd_req_get_url_query_str(rqst, query, sizeof(query));
+	if (err == ESP_ERR_NOT_FOUND) {
+		query[0] = '\0';
+	} else if (err) {
+		ESP_LOGE(TAG, "Failed to get url query str: %s", err2str(err));
+		return err;
+	}
 
 	if (!load_from_spiffs(query, rqst, rqst->uri)) {
 		String message = "File Not Detected\n\n";
@@ -128,9 +149,25 @@ static esp_err_t handle_web_requests(httpd_req_t *rqst, httpd_err_code_t error)
 		message += String("Query length: ") + query_length + "\n";
 		message += String("Query: ") + query + "\n";
 
-		httpd_resp_set_status(rqst, HTTPD_404);
-		httpd_resp_set_type(rqst, "text/plain");
-		httpd_resp_send(rqst, message.c_str(), message.length());
+		err = httpd_resp_set_status(rqst, HTTPD_404);
+		if (err) {
+			ESP_LOGE(TAG, "Failed to set status: %s", err2str(err));
+			return err;
+		}
+
+		err = httpd_resp_set_type(rqst, "text/plain");
+		if (err) {
+			ESP_LOGE(TAG, "Failed to set status: %s", err2str(err));
+			return err;
+		}
+
+		err = httpd_resp_send(rqst, message.c_str(), message.length());
+		if (err) {
+			ESP_LOGE(TAG, "Failed to set status: %s", err2str(err));
+			return err;
+		}
+
+		ESP_LOGV(TAG, "404 page sent");
 	}
 
 	return ESP_OK;
@@ -154,10 +191,11 @@ httpd_uri_t get_res_uri {
 
 void http_server_start(void)
 {
-	int err;
+	esp_err_t err;
+
 	const httpd_config_t config = {
 		.task_priority                = tskIDLE_PRIORITY + 5,
-		.stack_size                   = 4096,
+		.stack_size                   = 8192,
 		.core_id                      = CONFIG_NETWORK_CORE_ID,
 		.server_port                  = 80,
 		.ctrl_port                    = 32768,
@@ -179,8 +217,6 @@ void http_server_start(void)
 		.uri_match_fn                 = NULL
 	};
 
-	SPIFFS.begin(); /* TODO: replace with ESP-IDF spiffs */
-
 	err = httpd_start(&handle, &config);
 	if (err == ESP_OK) {
 		ESP_LOGI(TAG, "Server started!");
@@ -189,21 +225,7 @@ void http_server_start(void)
 		httpd_register_err_handler(handle, HTTPD_404_NOT_FOUND, handle_web_requests);
 		ESP_LOGD(TAG, "Handler registered!");
 	} else {
-		ESP_LOGE(TAG, "Failed to start server: %d", err);
+		ESP_LOGE(TAG, "Failed to start server: %s", err2str(err));
 	}
-
-	/*
-	 * server.on("/", HTTP_ANY, handle_root);
-	 * server.on("/command", HTTP_ANY, handle_command);
-	 * server.on("/getRes",  HTTP_ANY, handle_get_res);
-	 * server.onNotFound(handle_web_requests);
-	 * server.begin();
-	 */
-
-	/*
-	 * trace << "Server started" << endl;
-	 * trace << "Local IP: " << WiFi.localIP().toString() << endl;
-	 */
 }
-
 }
