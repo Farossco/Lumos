@@ -24,8 +24,6 @@ private:
 	RequestType type     = RequestType::unknown;
 	uint8_t complement   = 0;
 	uint32_t information = 0;
-
-	void displayDebug();
 };
 
 #endif // ifndef REQUEST_H

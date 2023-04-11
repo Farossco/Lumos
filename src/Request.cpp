@@ -99,80 +99,10 @@ void Request::process()
 			break;
 		}
 
-		displayDebug();
+		/* displayDebug(); */
 	} else if (error != RequestError::emptyString)
 		trace << np << endl;
 } /* Request::process */
-
-void Request::displayDebug()
-{
-	trace << type.toString();
-
-	if (type.getComplementType() == ComplementCategory::lightMode)
-		trace << " of " << complement;
-
-	trace << " (Current value): ";
-
-	switch (type) {
-	case RequestType::provideTime:
-		trace << now() << " (" << utils.getClock() << ")";
-		break;
-
-	case RequestType::lightOnOff:
-		trace << boolalpha << light_state_get();
-		break;
-
-	case RequestType::lightModeRgb:
-		trace << rgb_to_code(light_color_get(complement));
-		break;
-
-	case RequestType::lightModePower:
-		trace << light_power_get(complement);
-		break;
-
-	case RequestType::lightMode:
-		trace << light_mode_get();
-		break;
-
-	case RequestType::lightModeSpeed:
-		trace << light_speed_get(complement);
-		break;
-
-	case RequestType::soundOnOff:
-		/* trace << boolalpha << sound.isOn(); */
-		break;
-
-	case RequestType::soundMode:
-		/* verb << sound.getMode(); */
-		break;
-
-	case RequestType::soundVolume:
-		/* trace << sound.getVolume(); */
-		break;
-
-	case RequestType::alarmDawnVolume:
-		/* trace << alarms.getDawnVolume(); */
-		break;
-
-	case RequestType::alarmDawnTime:
-		/* trace << alarms.getDawnTime(); */
-		break;
-
-	case RequestType::alarmDawnDuration:
-		/* trace << alarms.getDawnDuration(); */
-		break;
-
-	case RequestType::alarmSunsetDuration:
-		/* trace << alarms.getSunsetDuration(); */
-		break;
-
-	case RequestType::alarmSunsetDecreaseTime:
-		/* trace << alarms.getSunsetDecreaseTime(); */
-		break;
-	}
-
-	trace << dendl;
-} /* Request::displayDebug */
 
 RequestError Request::getError()
 {

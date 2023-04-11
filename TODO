@@ -1,7 +1,6 @@
 - Transition to C
 - Transition to raw ESP-IDF
 - Add new light modes
-- Remove the need for "FULL_LINE" value in the array
 - Implement OTA
 - Implement EEPROM
 - Implement Bluetooth
@@ -12,6 +11,5 @@
 - Remove all useless types
 - Fix alarms
 - Get rid of Resources.cpp
-- Use cJSON instead of ArduinoJSON
-- Store Wi-Fi credentials in NVM
 - Stop using ArduinoLogger
+- Automatically fill the json buffer with error buffer in case of a json error inside json.c (still return an error code)

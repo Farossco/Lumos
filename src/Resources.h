@@ -16,12 +16,7 @@
 # define STORAGE
 #endif /* if (STORE_IN_PROGMEM) */
 
-#define WEB_COLOR_WIDTH  6 /* The width of the web interface's color panel */
-#define WEB_COLOR_HEIGHT 4 /* The height of the web interface's color panel */
-
-#define IR_COLOR_N       16 /* Number of different colors */
-
-#define FULL_LINE        0x000000 /* TODO : get rid of that */
+#define IR_COLOR_N 16 /* Number of different colors */
 
 extern const StringType nameUnknown;
 extern const StringType soundModeName[SoundMode::N];
@@ -29,8 +24,6 @@ extern const StringType soundCommandName[7];
 extern const StringType messageTypeName[RequestType::N];
 extern const StringType messageTypeDisplayName[RequestType::N];
 extern const StringType errorName[RequestError::N];
-
-extern const int WebcolorList[WEB_COLOR_HEIGHT][WEB_COLOR_WIDTH];
 
 extern const uint32_t IrColorList[IR_COLOR_N][3];
 

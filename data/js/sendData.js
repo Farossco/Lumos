@@ -104,45 +104,41 @@ function mapModenames(name, index) {
 	`;
 }
 
-function mapColors(colorRow, index) {
-	var displayFull = colorRow[0] == 0;
+var numberList = ["zero", "one", "two", "three", "four", "five", "six"]
 
-	if (!displayFull) {
-		return `
-				<div class="row">
-					${colorRow.map(mapColorRow).join("")}
-				</div>
-			`;
-	} else {
-		var displayColor = colorRow[1];
-		var displayColorStr = str2hex(displayColor);
+var mapColorRow = function (rowSize) {
+	return function (displayColor, index) {
 		var currentMode = data.Light.Mode;
 		var currentColor = data.Light.Rgb[currentMode];
+		var displayColorStr = str2hex(displayColor);
 
 		return `
-				<div class="row">
-					<button
-						class="color one${displayColor == currentColor ? " selected" : ""}"
+				<button
+						class="color ${numberList[rowSize]}${displayColor == currentColor ? " selected" : ""}"
 						style="background-color: #${displayColorStr};"
 						onclick = "sendData('RGB', '${displayColorStr}', ${currentMode})"
-					></button>
-				</div>
+				></button>
 			`;
-	}
-}
+	};
+};
 
-function mapColorRow(displayColor, index) {
-	var currentMode = data.Light.Mode;
-	var currentColor = data.Light.Rgb[currentMode];
-	var displayColorStr = str2hex(displayColor);
+function mapColors(colorRow, index) {
+	actualRow = []
+	previousItem = -1
+
+	for (item of colorRow) {
+		if (item != previousItem) {
+			actualRow.push(item)
+			previousItem = item
+		}
+	}
 
 	return `
-			<button
-					class="color six${displayColor == currentColor ? " selected" : ""}"
-					style="background-color: #${displayColorStr};"
-					onclick = "sendData('RGB', '${displayColorStr}', ${currentMode})"
-			></button>
+			<div class="row">
+				${actualRow.map(mapColorRow(actualRow.length)).join("")}
+			</div>
 		`;
+
 }
 
 /******************************** Utils ********************************/

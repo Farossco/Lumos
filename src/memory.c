@@ -219,7 +219,7 @@ static esp_err_t memory_fs_init(void)
 
 	memory_fs_sem = xSemaphoreCreateCounting(CONFIG_MEM_FS_MAX_FILE, CONFIG_MEM_FS_MAX_FILE);
 	if (memory_fs_sem == NULL) {
-		ESP_LOGE("Failed to create fs semaphore: %s", err2str(-ENOMEM));
+		ESP_LOGE(TAG, "Failed to create fs semaphore: %s", err2str(-ENOMEM));
 		return -ENOMEM;
 	}
 
@@ -246,7 +246,7 @@ static esp_err_t memory_nvs_init(void)
 
 	memory_nvs_mutex = xSemaphoreCreateMutex();
 	if (memory_nvs_mutex == NULL) {
-		ESP_LOGE("Failed to create nvs mutex: %s", err2str(-ENOMEM));
+		ESP_LOGE(TAG, "Failed to create nvs mutex: %s", err2str(-ENOMEM));
 		return -ENOMEM;
 	}
 

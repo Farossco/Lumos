@@ -74,7 +74,8 @@ static void request_display(httpd_req_t *rqst)
 static esp_err_t handle_command(httpd_req_t *rqst)
 {
 	char query[500];
-	char json_buf[1000];
+	char resp_buf[1000];
+	const char *resp_type = "application/json";
 	size_t query_length;
 	char type[10]  = { 0 };
 	char comp[10]  = { 0 };
@@ -93,26 +94,28 @@ static esp_err_t handle_command(httpd_req_t *rqst)
 	request.process();
 
 	if (request.getError()) {
-		err = json_get_error_pretty(json_buf, sizeof(json_buf), request.getError());
+		err = json_get_error(resp_buf, sizeof(resp_buf), request.getError().toString().c_str(), true);
 		if (err) {
-			ESP_LOGE(TAG, "Failed to generate JSON: %s", err2str(err));
-			return err;
+			ESP_LOGE(TAG, "Failed to generate error JSON: %s", err2str(err));
+			snprintf(resp_buf, sizeof(resp_buf), "Failed to generate JSON: %s", err2str(err));
+			resp_type = "text/plain";
 		}
 	} else {
-		err = json_get_data_pretty(json_buf, sizeof(json_buf));
+		err = json_get(JSON_TYPE_DATA, resp_buf, sizeof(resp_buf), true);
 		if (err) {
 			ESP_LOGE(TAG, "Failed to generate JSON: %s", err2str(err));
-			return err;
+			snprintf(resp_buf, sizeof(resp_buf), "Failed to generate JSON: %s", err2str(err));
+			resp_type = "text/plain";
 		}
 	}
 
-	err = httpd_resp_set_type(rqst, "application/json");
+	err = httpd_resp_set_type(rqst, resp_type);
 	if (err) {
 		ESP_LOGE(TAG, "Failed to set response type: %s", err2str(err));
 		return err;
 	}
 
-	err = httpd_resp_sendstr(rqst, json_buf);
+	err = httpd_resp_sendstr(rqst, resp_buf);
 	if (err) {
 		ESP_LOGE(TAG, "Failed to send response: %s", err2str(err));
 		return err;
@@ -124,22 +127,24 @@ static esp_err_t handle_command(httpd_req_t *rqst)
 static esp_err_t handle_get_res(httpd_req_t *rqst)
 {
 	request_display(rqst);
-	char json_buf[1000];
+	char resp_buf[1000];
+	const char *resp_type = "application/json";
 	esp_err_t err;
 
-	err = json_get_resources_pretty(json_buf, sizeof(json_buf));
+	err = json_get(JSON_TYPE_RES, resp_buf, sizeof(resp_buf), true);
 	if (err) {
 		ESP_LOGE(TAG, "Failed to generate JSON: %s", err2str(err));
-		return err;
+		snprintf(resp_buf, sizeof(resp_buf), "Failed to generate JSON: %s", err2str(err));
+		resp_type = "text/plain";
 	}
 
-	err = httpd_resp_set_type(rqst, "application/json");
+	err = httpd_resp_set_type(rqst, resp_type);
 	if (err) {
 		ESP_LOGE(TAG, "Failed to set response type: %s", err2str(err));
 		return err;
 	}
 
-	err = httpd_resp_sendstr(rqst, json_buf);
+	err = httpd_resp_sendstr(rqst, resp_buf);
 	if (err) {
 		ESP_LOGE(TAG, "Failed to send response: %s", err2str(err));
 		return err;
@@ -188,7 +193,7 @@ static esp_err_t handle_web_requests(httpd_req_t *rqst, httpd_err_code_t error)
 
 		err = httpd_resp_send(rqst, message.c_str(), message.length());
 		if (err) {
-			ESP_LOGE(TAG, "Failed to set status: %s", err2str(err));
+			ESP_LOGE(TAG, "Failed to send page: %s", err2str(err));
 			return err;
 		}
 

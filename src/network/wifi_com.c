@@ -163,7 +163,7 @@ static void wifi_com_conn_task(void *parm)
 		if (uxBits & EVENT_CONNECTED) {
 			err = esp_wifi_sta_get_ap_info(&ap_info);
 			if (err) {
-				ESP_LOGE("Failed to get AP info: %s", err2str(err));
+				ESP_LOGE(TAG, "Failed to get AP info: %s", err2str(err));
 			} else {
 				ESP_LOGI(TAG, "WiFi successfully connected to %s", ap_info.ssid);
 			}

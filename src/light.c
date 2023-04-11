@@ -4,6 +4,7 @@
 #include "light_mode_task.h"
 #include "temp_log_util.h"
 #include "utils_c.h"
+#include "json.h"
 
 #define LIGHT_RGB_DEFAULT   RGB_WHITE
 #define LIGHT_POWER_DEFAULT 255
@@ -15,6 +16,16 @@ static bool light_state;                                     /* If the leds are 
 static uint8_t light_mode;                                   /* Current lighting mode */
 static struct light_mode_data light_mode_data[LIGHT_MODE_N]; /* Light modes data */
 
+#define WEB_COLOR_WIDTH  6 /* The width of the web interface's color panel */
+#define WEB_COLOR_HEIGHT 4 /* The height of the web interface's color panel */
+
+const int web_color_list[WEB_COLOR_HEIGHT][WEB_COLOR_WIDTH] = {
+	{ 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF },
+	{ 0xFF0000, 0xFF5500, 0xFFAA00, 0xFFFF00, 0xAAFF00, 0x55FF00 },
+	{ 0x00FF00, 0x00FF55, 0x00FFAA, 0x00FFFF, 0x00AAFF, 0x0055FF },
+	{ 0x0000FF, 0x5500FF, 0xAA00FF, 0xFF00FF, 0xFF00AA, 0xFF0055 }
+};
+
 const static char *light_mode_strings[LIGHT_MODE_N] = {
 	"Continuous",
 	"Flash",
@@ -25,6 +36,15 @@ const static char *light_mode_strings[LIGHT_MODE_N] = {
 	"Sunset",
 	"Start"
 };
+
+const char * light_mode_string_get(uint8_t mode)
+{
+	if (mode < ARRAY_SIZE(light_mode_strings)) {
+		return light_mode_strings[mode];
+	} else {
+		return "Unknown";
+	}
+}
 
 static void light_reset(void)
 {
@@ -75,6 +95,8 @@ void light_color_set(rgb_t rgb, uint8_t mode)
 	}
 
 	light_mode_data[mode].rgb = rgb;
+
+	ESP_LOGI(TAG, "Light color for %s (%d) set to %X", light_mode_string_get(mode), mode, rgb_to_code(rgb));
 }
 
 void light_power_set(uint8_t power, uint8_t mode)
@@ -88,6 +110,8 @@ void light_power_set(uint8_t power, uint8_t mode)
 	}
 
 	light_mode_data[mode].power = power;
+
+	ESP_LOGI(TAG, "Light power for %s (%d) set to %d", light_mode_string_get(mode), mode, power);
 }
 
 void light_speed_set(uint8_t speed, uint8_t mode)
@@ -101,6 +125,8 @@ void light_speed_set(uint8_t speed, uint8_t mode)
 	}
 
 	light_mode_data[mode].speed = speed;
+
+	ESP_LOGI(TAG, "Light speed for %s (%d) set to %d", light_mode_string_get(mode), mode, speed);
 }
 
 void light_mode_set(uint8_t mode)
@@ -117,15 +143,17 @@ void light_mode_set(uint8_t mode)
 	light_mode = mode;
 
 	/* if the lights are on */
-	if (light_state_get()) {
+	if (light_state == LIGHT_ON) {
 		/* Restart the light mode */
 		light_mode_task_start(light_mode, &light_mode_data[light_mode]);
 	}
+
+	ESP_LOGI(TAG, "Light mode set to %s (%d)", light_mode_string_get(mode), mode);
 }
 
 void light_state_set(bool state)
 {
-	if (light_state_get() == state) { /* No change to the light_state */
+	if (light_state == state) { /* No change to the light_state */
 		return;
 	}
 
@@ -143,47 +171,67 @@ void light_state_set(bool state)
 
 	/* Turning lights ON or OFF */
 	light_state = state;
+
+	ESP_LOGI(TAG, "Light state set to %s", state == LIGHT_ON ? "ON" : "OFF");
 }
 
-/* TODO: remove getter */
-
-rgb_t light_color_get(uint8_t mode)
+static esp_err_t on_json_data_gen(json_callback_ctx_t *ctx)
 {
-	return light_mode_data[mode].rgb;
+	uint32_t light_mode_data_array[LIGHT_MODE_N];
+
+	JSON_GEN_ADD_BOOL("On", light_state);
+
+	JSON_GEN_ADD_INT("Mode", light_mode);
+
+	for (uint8_t i = 0; i < LIGHT_MODE_N; i++) {
+		light_mode_data_array[i] = rgb_to_code(light_mode_data[i].rgb);
+	}
+	JSON_GEN_ADD_INT_ARRAY("Rgb", light_mode_data_array, LIGHT_MODE_N);
+
+	for (uint8_t i = 0; i < LIGHT_MODE_N; i++) {
+		light_mode_data_array[i] = light_mode_data[i].power;
+	}
+	JSON_GEN_ADD_INT_ARRAY("Power", light_mode_data_array, LIGHT_MODE_N);
+
+	for (uint8_t i = 0; i < LIGHT_MODE_N; i++) {
+		light_mode_data_array[i] = light_mode_data[i].speed;
+	}
+	JSON_GEN_ADD_INT_ARRAY("Speed", light_mode_data_array, LIGHT_MODE_N);
+
+	return 0;
 }
 
-uint8_t light_power_get(uint8_t mode)
+static esp_err_t on_json_res_colors_gen(json_callback_ctx_t *ctx)
 {
-	return light_mode_data[mode].power;
-}
-
-uint8_t light_speed_get(uint8_t mode)
-{
-	return light_mode_data[mode].speed;
-}
-
-uint8_t light_mode_get(void)
-{
-	return light_mode;
-}
-
-bool light_state_get(void)
-{
-	return light_state;
-}
-
-const char * light_mode_string_get(uint8_t mode)
-{
-	if (mode < ARRAY_SIZE(light_mode_strings)) {
-		return light_mode_strings[mode];
-	} else {
-		return "Unknown";
+	for (uint8_t i = 0; i < WEB_COLOR_HEIGHT; i++) {
+		JSON_GEN_ARRAY_ADD_INT_ARRAY(web_color_list[i], WEB_COLOR_WIDTH);
 	}
 }
 
-int light_init(void)
+static esp_err_t on_json_res_gen(json_callback_ctx_t *ctx)
 {
-	int err;
+	uint32_t light_mode_data_array[LIGHT_MODE_N];
+
+	JSON_GEN_ADD_STRING_ARRAY("ModeNames", light_mode_strings, LIGHT_MODE_N);
+
+	JSON_GEN_ADD_GENERIC_ARRAY("Colors", on_json_res_colors_gen);
+
+	return 0;
+}
+
+static struct json_sub_data json_data_sub = {
+	.sub_name         = "Light",
+	.json_generate_cb = on_json_data_gen
+};
+
+static struct json_sub_data json_res_sub = {
+	.sub_name         = "Light",
+	.json_generate_cb = on_json_res_gen
+};
+
+esp_err_t light_init(void)
+{
+	esp_err_t err;
 
 	ESP_LOGI(TAG, "Initializing light");
 
@@ -193,6 +241,19 @@ int light_init(void)
 
 	err = light_mode_task_init();
 	if (err) {
+		ESP_LOGE(TAG, "Failed to init light_mode_task: %s", err2str(err));
+		return err;
+	}
+
+	err = json_subscribe_to(JSON_TYPE_DATA, &json_data_sub);
+	if (err) {
+		ESP_LOGE(TAG, "Failed to subscribe to JSON data: %s", err2str(err));
+		return err;
+	}
+
+	err = json_subscribe_to(JSON_TYPE_RES, &json_res_sub);
+	if (err) {
+		ESP_LOGE(TAG, "Failed to subscribe to JSON res: %s", err2str(err));
 		return err;
 	}
 
