@@ -61,7 +61,7 @@ const StringType messageTypeName[RequestType::N]        = { Flash(nameUnknown), 
 const StringType messageTypeDisplayName[RequestType::N] = { Flash(nameUnknown), Flash(messageTypeDisplayName1), Flash(messageTypeDisplayName2), Flash(messageTypeDisplayName3), Flash(messageTypeDisplayName4), Flash(messageTypeDisplayName5), Flash(messageTypeDisplayName6), Flash(messageTypeDisplayName7), Flash(messageTypeDisplayName8), Flash(messageTypeDisplayName9), Flash(messageTypeDisplayName10), Flash(messageTypeDisplayName11), Flash(messageTypeDisplayName12), Flash(messageTypeDisplayName13), Flash(messageTypeDisplayName14), Flash(messageTypeDisplayName15), Flash(messageTypeDisplayName16), Flash(messageTypeDisplayName17) };
 const StringType errorName[RequestError::N]             = { Flash(errorName0), Flash(errorName1), Flash(errorName2), Flash(errorName3), Flash(errorName4) };
 
-const uint32_t WebcolorList[WEB_COLOR_HEIGHT][WEB_COLOR_WIDTH] STORAGE =
+const int WebcolorList[WEB_COLOR_HEIGHT][WEB_COLOR_WIDTH] STORAGE =
 {
 	{ FULL_LINE, 0xFFFFFF },
 	{ 0xFF0000,  0xFF5500, 0xFFAA00, 0xFFFF00, 0xAAFF00, 0x55FF00},

@@ -129,7 +129,7 @@ static esp_err_t wifi_com_connect_from_nvs(void)
 	ESP_LOGI(TAG, "Attempting connection from NVM data");
 
 	ESP_LOGI(TAG, "SSID: \"%s\"",     wifi_config.sta.ssid);
-	ESP_LOGI(TAG, "PASSWORD:\" %s\"", wifi_config.sta.password);
+	ESP_LOGI(TAG, "PASSWORD: \"%s\"", wifi_config.sta.password);
 
 	err = esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
 	if (err) {

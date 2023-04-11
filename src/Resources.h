@@ -30,7 +30,7 @@ extern const StringType messageTypeName[RequestType::N];
 extern const StringType messageTypeDisplayName[RequestType::N];
 extern const StringType errorName[RequestError::N];
 
-extern const uint32_t WebcolorList[WEB_COLOR_HEIGHT][WEB_COLOR_WIDTH];
+extern const int WebcolorList[WEB_COLOR_HEIGHT][WEB_COLOR_WIDTH];
 
 extern const uint32_t IrColorList[IR_COLOR_N][3];
 
