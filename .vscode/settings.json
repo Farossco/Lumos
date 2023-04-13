@@ -9,4 +9,11 @@
 	"[javascript]": {
 		"editor.defaultFormatter": "vscode.typescript-language-features"
 	},
+	"files.associations": {
+		"freertos.h": "c",
+		"queue.h": "c",
+		"portmacro.h": "c",
+		"light_mode_task.h": "c"
+	},
+	"idf.adapterTargetName": "esp32",
 }

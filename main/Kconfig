@@ -1,0 +1,20 @@
+# Kconfig - Lumos
+
+#
+# Copyright (c) 2023 Farès Chati
+#
+# SPDX -License-Identifier: Apache-2.0
+#
+
+menuconfig Lumos
+	bool "Lumos"
+	default y
+
+# Dimmed mode
+config LUMOS_DIMMED_MODE
+	bool "Dimmed mode"
+	default n
+
+config LUMOS_UART_BAUD_RATE
+	int "UART baud rate"
+	default 115200
