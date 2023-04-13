@@ -1,7 +1,6 @@
 #include "http_server_cmd.h"
 #include <string.h>
-#include "utils_c.h"
-#include "temp_log_util.h"
+#include "utils.h"
 
 static const char *TAG = "http_server_cmd";
 
@@ -83,7 +82,7 @@ static esp_err_t call_callbacks(httpd_req_t *rqst, char *err_str, size_t size)
 				err = handle->on_cmd_cb(type, comp_int, value_int);
 				if (err) {
 					ESP_LOGE(TAG, "Error raised by CB: %s", err2str(err));
-					snprintf(err_str, size, "Error raised by CB: %s", err2str(err));
+					snprintf(err_str, size, "An error happened while handling the request: %s", err2str(err));
 					return err;
 				}
 			}

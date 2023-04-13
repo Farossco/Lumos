@@ -1,9 +1,7 @@
+#if 0
+
 #include "Utils.h"
 #include <TimeLib.h>
-
-extern "C" char err_buf[50];
-
-char err_buf[50];
 
 char * Utils::getClock()
 {
@@ -48,3 +46,5 @@ String Utils::ltos(uint32_t value, int base)
 }
 
 Utils utils = Utils();
+
+#endif /* if 0 */

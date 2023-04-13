@@ -12,12 +12,11 @@
 #include <freertos/task.h>
 #include <freertos/queue.h>
 #include "light.h"
-#include "light_strip.h"
-#include "network/wifi_com.h"
-#include "temp_log_util.h"
+#include "peripherals/light_strip.h"
+#include "com/wifi_com.h"
 #include "lib8tion.h"
 #include "color.h"
-#include "utils_c.h"
+#include "utils.h"
 
 #define LIGHT_MODE_START_DONE_TAIL_LENGTH LIGHT_STRIP_HALF_LENGTH
 
@@ -189,6 +188,7 @@ static void light_mode_dawn_task(void *arg)
 	int16_t counter1             = 0;
 	int16_t counter2             = 100;
 	uint32_t step                = 0;
+
 	/* uint32_t step                = alarms.getDawnDuration() * 1000.0 / (LIGHT_STRIP_HALF_LENGTH * 100); */
 
 	if (step == 0) {

@@ -2,12 +2,11 @@
 #include <esp_log.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-#include "uart_com.h"
-#include "network/wifi_com.h"
+#include "com/uart_com.h"
+#include "com/wifi_com.h"
 #include "light.h"
 #include "memory.h"
-#include "temp_log_util.h"
-#include "utils_c.h"
+#include "utils.h"
 
 static const char *TAG = "main";
 

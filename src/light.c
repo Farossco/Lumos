@@ -1,8 +1,8 @@
 #include "light.h"
 #include <esp_log.h>
-#include "light_strip.h"
+#include "peripherals/light_strip.h"
 #include "light_mode_task.h"
-#include "utils_c.h"
+#include "utils.h"
 #include "json.h"
 
 #define LIGHT_RGB_DEFAULT   RGB_WHITE

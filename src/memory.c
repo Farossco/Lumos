@@ -6,9 +6,7 @@
 #include <stdio.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/semphr.h>
-#include <string.h>
-#include "temp_log_util.h"
-#include "utils_c.h"
+#include "utils.h"
 #include "kconfig_stub.h"
 
 const char *TAG = "memory";

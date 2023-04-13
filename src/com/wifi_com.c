@@ -19,11 +19,10 @@
 #include <esp_netif.h>
 #include <esp_smartconfig.h>
 #include <sntp.h>
-#include "temp_log_util.h"
-#include "http_server.h"
+#include "http/http_server.h"
 #include "kconfig_stub.h"
 #include "memory.h"
-#include "utils_c.h"
+#include "utils.h"
 
 #define EVENT_CONNECTED BIT0
 #define EVENT_SC_DONE   BIT1

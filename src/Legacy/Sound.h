@@ -1,4 +1,3 @@
-#if 0
 #define SOUND_H
 
 #include <Arduino.h>
@@ -54,5 +53,3 @@ private:
 };
 
 extern Sound sound;
-
-#endif // ifndef SOUND_H

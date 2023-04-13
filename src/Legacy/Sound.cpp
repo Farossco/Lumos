@@ -1,4 +1,5 @@
 #if 0
+
 #include "Sound.h"
 #include "ArduinoLogger.h"
 #include "Memory.h"
@@ -152,4 +153,5 @@ void Sound::command(SoundCommand command, uint32_t information)
 } /* Sound::command */
 
 Sound sound = Sound();
+
 #endif /* if 0 */

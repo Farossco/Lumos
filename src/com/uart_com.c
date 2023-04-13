@@ -2,9 +2,8 @@
 #include <string.h>
 #include <urp.h>
 #include "driver/uart.h"
-#include "utils_c.h"
+#include "utils.h"
 #include "light.h"
-#include "temp_log_util.h"
 
 #define UART_COM_RX_BUF_SIZE 200
 #define UART_COM_TX_BUF_SIZE 200

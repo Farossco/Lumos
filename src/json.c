@@ -1,9 +1,7 @@
 #include "json.h"
 #include <cJSON.h>
 #include <errno.h>
-#include <string.h>
-#include "temp_log_util.h"
-#include "utils_c.h"
+#include "utils.h"
 
 static const char *TAG = "json";
 
