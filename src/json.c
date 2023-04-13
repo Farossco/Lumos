@@ -1,6 +1,7 @@
 #include "json.h"
 #include <cJSON.h>
 #include <errno.h>
+#include <string.h>
 #include "temp_log_util.h"
 #include "utils_c.h"
 
@@ -69,7 +70,7 @@ end:
 	return ret;
 }
 
-esp_err_t json_get_error(char *buf, size_t size, const char *error, bool format)
+esp_err_t json_get_error(char *buf, size_t size, const char *error_str, bool format)
 {
 	struct json_subscribe_obj *obj;
 	json_callback_ctx_t ctx;
@@ -92,7 +93,7 @@ esp_err_t json_get_error(char *buf, size_t size, const char *error, bool format)
 	}
 
 	/******* Message *******/
-	if (!cJSON_AddStringToObject(root, "Message", error)) {
+	if (!cJSON_AddStringToObject(root, "Message", error_str)) {
 		ESP_LOGE(TAG, "Failed to add item to object");
 		ret = -ENOSPC;
 		goto end;
@@ -165,6 +166,7 @@ void json_dump_list(void)
 esp_err_t json_gen_add_bool(json_callback_ctx_t *ctx, const char *const name, bool value)
 {
 	cJSON *item = cJSON_CreateBool(value);
+
 	if (!item) {
 		ESP_LOGE(TAG, "Failed to create object");
 		return -ENOSPC;
@@ -181,6 +183,7 @@ esp_err_t json_gen_add_bool(json_callback_ctx_t *ctx, const char *const name, bo
 esp_err_t json_gen_add_bool_array(json_callback_ctx_t *ctx, const char *const name, const bool *array, size_t size)
 {
 	cJSON *item = cJSON_CreateArray();
+
 	if (!item) {
 		ESP_LOGE(TAG, "Failed to create array");
 		return -ENOSPC;
@@ -211,6 +214,7 @@ esp_err_t json_gen_add_int(json_callback_ctx_t *ctx, const char *const name, int
 esp_err_t json_gen_add_int_array(json_callback_ctx_t *ctx, const char *const name, const int *array, size_t size)
 {
 	cJSON *item = cJSON_CreateIntArray(array, size);
+
 	if (!item) {
 		ESP_LOGE(TAG, "Failed to create object");
 		return -ENOSPC;
@@ -227,6 +231,7 @@ esp_err_t json_gen_add_int_array(json_callback_ctx_t *ctx, const char *const nam
 esp_err_t json_gen_add_double(json_callback_ctx_t *ctx, const char *const name, double value)
 {
 	cJSON *item = cJSON_CreateNumber(value);
+
 	if (!item) {
 		ESP_LOGE(TAG, "Failed to create object");
 		return -ENOSPC;
@@ -243,6 +248,7 @@ esp_err_t json_gen_add_double(json_callback_ctx_t *ctx, const char *const name, 
 esp_err_t json_gen_add_double_array(json_callback_ctx_t *ctx, const char *const name, const double *array, size_t size)
 {
 	cJSON *item = cJSON_CreateDoubleArray(array, size);
+
 	if (!item) {
 		ESP_LOGE(TAG, "Failed to create object");
 		return -ENOSPC;
@@ -259,6 +265,7 @@ esp_err_t json_gen_add_double_array(json_callback_ctx_t *ctx, const char *const 
 esp_err_t json_gen_add_string(json_callback_ctx_t *ctx, const char *const name, const char *value)
 {
 	cJSON *item = cJSON_CreateString(value);
+
 	if (!item) {
 		ESP_LOGE(TAG, "Failed to create object");
 		return -ENOSPC;
@@ -275,6 +282,7 @@ esp_err_t json_gen_add_string(json_callback_ctx_t *ctx, const char *const name, 
 esp_err_t json_gen_add_string_array(json_callback_ctx_t *ctx, const char *const name, const char *const *array, size_t size)
 {
 	cJSON *item = cJSON_CreateStringArray(array, size);
+
 	if (!item) {
 		ESP_LOGE(TAG, "Failed to create object");
 		return -ENOSPC;
@@ -294,6 +302,7 @@ esp_err_t json_gen_add_generic_array(json_callback_ctx_t *ctx, const char *const
 	esp_err_t err;
 
 	cJSON *item = cJSON_AddArrayToObject(ctx->root, name);
+
 	if (!item) {
 		ESP_LOGE(TAG, "Failed to create object");
 		return -ENOSPC;
@@ -317,6 +326,7 @@ esp_err_t json_gen_add_generic_object(json_callback_ctx_t *ctx, const char *cons
 	esp_err_t err;
 
 	cJSON *item = cJSON_AddObjectToObject(ctx->root, name);
+
 	if (!item) {
 		ESP_LOGE(TAG, "Failed to create object");
 		return -ENOSPC;

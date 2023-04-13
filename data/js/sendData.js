@@ -116,7 +116,7 @@ var mapColorRow = function (rowSize) {
 				<button
 						class="color ${numberList[rowSize]}${displayColor == currentColor ? " selected" : ""}"
 						style="background-color: #${displayColorStr};"
-						onclick = "sendData('RGB', '${displayColorStr}', ${currentMode})"
+						onclick = "sendData('RGB', '${displayColor}', ${currentMode})"
 				></button>
 			`;
 	};

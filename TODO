@@ -1,15 +1,10 @@
-- Transition to C
 - Transition to raw ESP-IDF
 - Add new light modes
 - Implement OTA
 - Implement EEPROM
 - Implement Bluetooth
-- Implement SD Card
-- Implement and rework Sound
-- Test Infrared
-- Find alternative for analogWrite
-- Remove all useless types
-- Fix alarms
-- Get rid of Resources.cpp
-- Stop using ArduinoLogger
+- Re-Implement SD Card
+- Re-Implement Sound
+- Re-implement Infrared
+- Re-implement alarms
 - Automatically fill the json buffer with error buffer in case of a json error inside json.c (still return an error code)

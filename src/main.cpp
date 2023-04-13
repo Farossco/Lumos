@@ -1,11 +1,10 @@
 #include <esp_err.h>
 #include <esp_log.h>
-#include "SdCard.h"
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 #include "uart_com.h"
-#include "Alarms.h"
-#include "light.h"
-#include "Sound.h"
 #include "network/wifi_com.h"
+#include "light.h"
 #include "memory.h"
 #include "temp_log_util.h"
 #include "utils_c.h"

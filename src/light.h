@@ -53,7 +53,7 @@ struct light_mode_data {
  * @param rgb RGB value
  * @param mode Mode affected by the change
  */
-void light_color_set(rgb_t rgb, uint8_t mode);
+esp_err_t light_color_set(rgb_t rgb, uint8_t mode);
 
 
 /**
@@ -62,7 +62,7 @@ void light_color_set(rgb_t rgb, uint8_t mode);
  * @param power Power value
  * @param mode Mode affected by the change
  */
-void light_power_set(uint8_t power, uint8_t mode);
+esp_err_t light_power_set(uint8_t power, uint8_t mode);
 
 /**
  * @brief Set speed value for a specified mode
@@ -70,21 +70,21 @@ void light_power_set(uint8_t power, uint8_t mode);
  * @param speed Speed value
  * @param mode Mode affected by the change
  */
-void light_speed_set(uint8_t speed, uint8_t mode);
+esp_err_t light_speed_set(uint8_t speed, uint8_t mode);
 
 /**
  * @brief Change the current light mode
  *
  * @param mode Mode value
  */
-void light_mode_set(uint8_t mode);
+esp_err_t light_mode_set(uint8_t mode);
 
 /**
  * @brief Turn the lights ON or OFF
  *
  * @param state LIGHT_ON or LIGHT_OFF
  */
-void light_state_set(bool state);
+esp_err_t light_state_set(bool state);
 
 const char * light_mode_string_get(uint8_t mode);
 

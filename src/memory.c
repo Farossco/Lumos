@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/semphr.h>
+#include <string.h>
 #include "temp_log_util.h"
 #include "utils_c.h"
 #include "kconfig_stub.h"
@@ -112,7 +113,7 @@ esp_err_t memory_fs_read_file_chunks(char *chunk_buf, size_t buf_size, const cha
 						break;
 					}
 				}
-			}while(read_size > 0);
+			}while (read_size > 0);
 
 			fclose(file);
 		}
@@ -141,7 +142,7 @@ char * memory_nvs_get_str(const char *key, char *buf, size_t buf_size)
 	if (err) {
 		ESP_LOGW(TAG, "Could not get NVS string entry for %s: %s", key, err2str(err));
 	} else {
-		if (length >= buf_size) {/* Accouting for '\0' */
+		if (length >= buf_size) { /* Accouting for '\0' */
 			ESP_LOGW(TAG, "Provided buffer to small, (is %d, should be %s at least)", buf_size, length + 1);
 		} else {
 			err = nvs_get_str(memory_nvs_handle, key, buf, &length);

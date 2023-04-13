@@ -189,8 +189,8 @@ static void wifi_com_event_handler(void *arg, esp_event_base_t event_base, int32
 	if (event_base == WIFI_EVENT) {
 		if (event_id == WIFI_EVENT_STA_START) {
 			ESP_LOGD(TAG, "Event: WIFI_EVENT_STA_START");
-			ESP_LOGD(TAG, "Starting Smart Config task");
-			xTaskCreate(wifi_com_conn_task, "wifi_com_smartconfig_task", 4096, NULL, 3, NULL);
+			ESP_LOGD(TAG, "Starting connection task");
+			xTaskCreate(wifi_com_conn_task, "wifi_com_conn_task", 4096, NULL, 3, NULL);
 		} else if (event_id == WIFI_EVENT_STA_DISCONNECTED) {
 			ESP_LOGD(TAG, "Event: WIFI_EVENT_STA_DISCONNECTED");
 			ESP_LOGD(TAG, "Attempting reconnection");

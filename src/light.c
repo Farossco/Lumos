@@ -2,7 +2,6 @@
 #include <esp_log.h>
 #include "light_strip.h"
 #include "light_mode_task.h"
-#include "temp_log_util.h"
 #include "utils_c.h"
 #include "json.h"
 
@@ -84,60 +83,66 @@ static struct light_mode_task_callbacks light_mode_task_callbacks = {
 	.on_mode_task_end = on_light_mode_task_end
 };
 
-void light_color_set(rgb_t rgb, uint8_t mode)
+esp_err_t light_color_set(rgb_t rgb, uint8_t mode)
 {
 	if (mode == LIGHT_MODE_CURRENT) {
 		mode = light_mode;
 	}
 
 	if (mode > LIGHT_MODE_MAX) {
-		return;
+		return ESP_ERR_INVALID_ARG;
 	}
 
 	light_mode_data[mode].rgb = rgb;
 
 	ESP_LOGI(TAG, "Light color for %s (%d) set to %X", light_mode_string_get(mode), mode, rgb_to_code(rgb));
+
+	return 0;
 }
 
-void light_power_set(uint8_t power, uint8_t mode)
+esp_err_t light_power_set(uint8_t power, uint8_t mode)
 {
 	if (mode == LIGHT_MODE_CURRENT) {
 		mode = light_mode;
 	}
 
 	if (mode > LIGHT_MODE_MAX) {
-		return;
+		return ESP_ERR_INVALID_ARG;
 	}
 
 	light_mode_data[mode].power = power;
 
 	ESP_LOGI(TAG, "Light power for %s (%d) set to %d", light_mode_string_get(mode), mode, power);
+
+	return 0;
 }
 
-void light_speed_set(uint8_t speed, uint8_t mode)
+esp_err_t light_speed_set(uint8_t speed, uint8_t mode)
 {
 	if (mode == LIGHT_MODE_CURRENT) {
 		mode = light_mode;
 	}
 
 	if (mode > LIGHT_MODE_MAX) {
-		return;
+		return ESP_ERR_INVALID_ARG;
 	}
 
 	light_mode_data[mode].speed = speed;
 
 	ESP_LOGI(TAG, "Light speed for %s (%d) set to %d", light_mode_string_get(mode), mode, speed);
+
+	return 0;
 }
 
-void light_mode_set(uint8_t mode)
+esp_err_t light_mode_set(uint8_t mode)
 {
 	if (mode > LIGHT_MODE_MAX) {
 		ESP_LOGE(TAG, "Trying to set incorrect mode: %d", mode);
-		return;
+		return ESP_ERR_INVALID_ARG;
 	}
 
 	if (mode == light_mode) {
-		return;
+		return 0;
 	}
 
 	light_mode = mode;
@@ -149,12 +154,14 @@ void light_mode_set(uint8_t mode)
 	}
 
 	ESP_LOGI(TAG, "Light mode set to %s (%d)", light_mode_string_get(mode), mode);
+
+	return 0;
 }
 
-void light_state_set(bool state)
+esp_err_t light_state_set(bool state)
 {
 	if (light_state == state) { /* No change to the light_state */
-		return;
+		return 0;
 	}
 
 	if (state == LIGHT_ON) {
@@ -173,6 +180,8 @@ void light_state_set(bool state)
 	light_state = state;
 
 	ESP_LOGI(TAG, "Light state set to %s", state == LIGHT_ON ? "ON" : "OFF");
+
+	return 0;
 }
 
 static esp_err_t on_json_data_gen(json_callback_ctx_t *ctx)
