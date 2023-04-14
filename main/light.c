@@ -1,5 +1,4 @@
 #include "light.h"
-#include <esp_log.h>
 #include "peripherals/light_strip.h"
 #include "light_mode_task.h"
 #include "utils.h"

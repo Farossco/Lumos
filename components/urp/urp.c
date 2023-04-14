@@ -12,31 +12,19 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <errno.h>
+#include <esp_log.h>
 
 #define URP_CHAR_START         CONFIG_URP_CHAR_START
 #define URP_CHAR_START_NC      CONFIG_URP_CHAR_START_NC
 #define URP_CHAR_END           CONFIG_URP_CHAR_END
 #define URP_CHAR_ESCAPE        CONFIG_URP_CHAR_ESCAPE
 #define URP_VALUE_TYPE_LENGTH  CONFIG_URP_VALUE_TYPE_LENGTH
-#define URP_RECV_THREAD_PRIO   CONFIG_URP_RECV_THREAD_PRIO
+#define URP_RECV_TASK_PRIO     CONFIG_URP_RECV_TASK_PRIO
 #define URP_RECV_BUF_SIZE      CONFIG_URP_RECV_BUF_SIZE
 #define URP_RECV_DATA_SIZE_MAX CONFIG_URP_RECV_DATA_SIZE_MAX
 #define URP_SEND_BUF_SIZE      CONFIG_URP_SEND_BUF_SIZE
 
-
-#define TAG "urp"
-
-#undef ESP_LOGE
-#undef ESP_LOGW
-#undef ESP_LOGD
-#undef ESP_LOGV
-#undef ESP_LOGI
-
-#define ESP_LOGE(TAG, ...) printf("[%s] [ERR] ", TAG); printf(__VA_ARGS__); printf("\n")
-#define ESP_LOGW(TAG, ...) printf("[%s] [WRN] ", TAG); printf(__VA_ARGS__); printf("\n")
-#define ESP_LOGD(TAG, ...) printf("[%s] [DBG] ", TAG); printf(__VA_ARGS__); printf("\n")
-#define ESP_LOGV(TAG, ...) printf("[%s] [VER] ", TAG); printf(__VA_ARGS__); printf("\n")
-#define ESP_LOGI(TAG, ...) printf("[%s] [INF] ", TAG); printf(__VA_ARGS__); printf("\n")
+#define TAG                    "urp"
 
 #define URP_VALUE_NEEDS_ESCAPE(_value)                                  \
 		(((_value) == URP_CHAR_START) || ((_value) == URP_CHAR_START_NC) || \
@@ -441,7 +429,7 @@ static int urp_data_send(struct urp_config *config, struct urp_send_message *mes
 /* ================================= Public functions ================================= */
 /* ==================================================================================== */
 
-int urp_send_fixed(struct urp_config *config, const char *msg_type_str, const void *data_buf)
+esp_err_t urp_send_fixed(struct urp_config *config, const char *msg_type_str, const void *data_buf)
 {
 	struct urp_send_message message;
 	const struct urp_message_handler *handler;
@@ -463,7 +451,7 @@ int urp_send_fixed(struct urp_config *config, const char *msg_type_str, const vo
 	return urp_data_send(config, &message);
 }
 
-int urp_send_variable(struct urp_config *config, const char *msg_type_str, const void *data, size_t data_size)
+esp_err_t urp_send_variable(struct urp_config *config, const char *msg_type_str, const void *data, size_t data_size)
 {
 	struct urp_send_message message;
 	const struct urp_message_handler *handler;
@@ -485,7 +473,7 @@ int urp_send_variable(struct urp_config *config, const char *msg_type_str, const
 	return urp_data_send(config, &message);
 }
 
-int urp_send_int(struct urp_config *config, const char *msg_type_str, long data)
+esp_err_t urp_send_int(struct urp_config *config, const char *msg_type_str, long data)
 {
 	struct urp_send_message message;
 	const struct urp_message_handler *handler;
@@ -514,7 +502,7 @@ int urp_send_int(struct urp_config *config, const char *msg_type_str, long data)
 	return urp_data_send(config, &message);
 }
 
-int urp_send_float(struct urp_config *config, const char *msg_type_str, double data)
+esp_err_t urp_send_float(struct urp_config *config, const char *msg_type_str, double data)
 {
 	struct urp_send_message message;
 	const struct urp_message_handler *handler;
@@ -543,7 +531,7 @@ int urp_send_float(struct urp_config *config, const char *msg_type_str, double d
 	return urp_data_send(config, &message);
 }
 
-int urp_send_string(struct urp_config *config, const char *msg_type_str, const char *data)
+esp_err_t urp_send_string(struct urp_config *config, const char *msg_type_str, const char *data)
 {
 	struct urp_send_message message;
 	const struct urp_message_handler *handler;
@@ -565,16 +553,33 @@ int urp_send_string(struct urp_config *config, const char *msg_type_str, const c
 	return urp_data_send(config, &message);
 }
 
-int urp_init(struct urp_config *config)
+esp_err_t urp_init(struct urp_config *config)
 {
-	/* Configure UART parameters */
-	ESP_ERROR_CHECK(uart_driver_install(config->uart_num, URP_RECV_BUF_SIZE, URP_SEND_BUF_SIZE, 20, &config->task_queue, 0));
-	ESP_ERROR_CHECK(uart_param_config(config->uart_num, &config->uart_config));
-	ESP_ERROR_CHECK(uart_set_pin(config->uart_num, config->tx_io_num, config->rx_io_num,
-	                             UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+	esp_err_t err;
+
+	/* Configure UART */
+	err = uart_driver_install(config->uart_num, URP_RECV_BUF_SIZE, URP_SEND_BUF_SIZE, 20, &config->task_queue, 0);
+	if (err) {
+		ESP_LOGE(TAG, "Failed to install UART driver : %s", esp_err_to_name(err));
+		return err;
+	}
+
+	err = uart_param_config(config->uart_num, &config->uart_config);
+	if (err) {
+		ESP_LOGE(TAG, "Failed to set UART param config : %s", esp_err_to_name(err));
+		return err;
+	}
+
+	err = uart_set_pin(config->uart_num, config->tx_io_num, config->rx_io_num, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+	if (err) {
+		ESP_LOGE(TAG, "Failed to set UART pin : %s", esp_err_to_name(err));
+		return err;
+	}
 
 	/* Create recv task */
-	xTaskCreate(urp_recv_task, "urp_task", 4048, config, URP_RECV_THREAD_PRIO, NULL);
+	if (xTaskCreate(urp_recv_task, "urp_task", 4048, config, URP_RECV_TASK_PRIO, NULL) == 0) {
+		ESP_LOGE(TAG, "Failed to create recv task");
+	}
 
 	return 0;
 }

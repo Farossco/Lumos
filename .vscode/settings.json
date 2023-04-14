@@ -1,19 +1,4 @@
 {
-	"platformio-ide.useBuiltinPIOCore": true,
-	"platformio-ide.useBuiltinPython": true,
 	"editor.defaultFormatter": "zachflower.uncrustify",
-	"editor.formatOnSave": true,
-	"[jsonc]": {
-		"editor.defaultFormatter": "vscode.json-language-features"
-	},
-	"[javascript]": {
-		"editor.defaultFormatter": "vscode.typescript-language-features"
-	},
-	"files.associations": {
-		"freertos.h": "c",
-		"queue.h": "c",
-		"portmacro.h": "c",
-		"light_mode_task.h": "c"
-	},
-	"idf.adapterTargetName": "esp32",
+	"idf.adapterTargetName": "esp32"
 }

@@ -9,3 +9,4 @@
 - Automatically fill the json buffer with error buffer in case of a json error inside json.c (still return an error code)
 - Implement proper Kconfig for URP and project
 - Update README
+- move http_server_command as an external component

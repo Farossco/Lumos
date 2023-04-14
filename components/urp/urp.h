@@ -15,6 +15,7 @@ extern "C" {
 
 #include <stdint.h>
 #include <driver/uart.h>
+#include <esp_err.h>
 
 /* Temporary definitions until Kconfig can be used */
 #define CONFIG_URP_CHAR_START         '$'
@@ -23,7 +24,7 @@ extern "C" {
 #define CONFIG_URP_CHAR_ESCAPE        '\\'
 #define CONFIG_URP_RECV_BUF_SIZE      1024
 #define CONFIG_URP_VALUE_TYPE_LENGTH  3
-#define CONFIG_URP_RECV_THREAD_PRIO   12
+#define CONFIG_URP_RECV_TASK_PRIO     12
 #define CONFIG_URP_RECV_DATA_SIZE_MAX 256
 #define CONFIG_URP_SEND_BUF_SIZE      0
 
@@ -164,7 +165,7 @@ struct urp_config {
  * @param uart_dev_name The UART device name
  * @return 0 if success, negative data otherwise
  */
-int urp_init(struct urp_config *config);
+esp_err_t urp_init(struct urp_config *config);
 
 /**
  * @brief Send an URP message from the provided data type and data.
@@ -176,7 +177,7 @@ int urp_init(struct urp_config *config);
  *
  * @return 0 if success, negative data otherwise
  */
-int urp_send_fixed(struct urp_config *config, const char *data_type_str, const void *data);
+esp_err_t urp_send_fixed(struct urp_config *config, const char *data_type_str, const void *data);
 
 /**
  * @brief Send an URP message from the provided data type and data.
@@ -190,13 +191,13 @@ int urp_send_fixed(struct urp_config *config, const char *data_type_str, const v
  *
  * @return 0 if success, negative data otherwise
  */
-int urp_send_variable(struct urp_config *config, const char *data_type_str, const void *data, size_t data_size);
+esp_err_t urp_send_variable(struct urp_config *config, const char *data_type_str, const void *data, size_t data_size);
 
-int urp_send_int(struct urp_config *config, const char *data_type_str, long data);
+esp_err_t urp_send_int(struct urp_config *config, const char *data_type_str, long data);
 
-int urp_send_float(struct urp_config *config, const char *data_type_str, double data);
+esp_err_t urp_send_float(struct urp_config *config, const char *data_type_str, double data);
 
-int urp_send_string(struct urp_config *config, const char *data_type_str, const char *data);
+esp_err_t urp_send_string(struct urp_config *config, const char *data_type_str, const char *data);
 
 #ifdef __cplusplus
 }

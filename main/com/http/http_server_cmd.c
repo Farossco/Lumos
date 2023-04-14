@@ -1,6 +1,6 @@
 #include "http_server_cmd.h"
 #include <string.h>
-#include "utils.h"
+#include <esp_log.h>
 
 static const char *TAG = "http_server_cmd";
 
@@ -22,8 +22,8 @@ static esp_err_t call_callbacks(httpd_req_t *rqst, char *err_str, size_t size)
 	if (err == ESP_ERR_NOT_FOUND) {
 		query[0] = '\0';
 	} else if (err) {
-		ESP_LOGE(TAG, "Failed to get URL query: %s", err2str(err));
-		snprintf(err_str, size, "Failed to get URL query: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to get URL query: %s", esp_err_to_name(err));
+		snprintf(err_str, size, "Failed to get URL query: %s", esp_err_to_name(err));
 		return err;
 	}
 
@@ -35,8 +35,8 @@ static esp_err_t call_callbacks(httpd_req_t *rqst, char *err_str, size_t size)
 		snprintf(err_str, size, "type key value not provided");
 		return err;
 	} else if (err) {
-		ESP_LOGE(TAG, "Failed to get \"type\" key value: %s", err2str(err));
-		snprintf(err_str, size, "Failed to get type key value: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to get \"type\" key value: %s", esp_err_to_name(err));
+		snprintf(err_str, size, "Failed to get type key value: %s", esp_err_to_name(err));
 		return err;
 	}
 
@@ -44,8 +44,8 @@ static esp_err_t call_callbacks(httpd_req_t *rqst, char *err_str, size_t size)
 	if (err == ESP_ERR_NOT_FOUND) {
 		comp_int = 0;
 	} else if (err) {
-		ESP_LOGE(TAG, "Failed to get \"comp\" key value: %s", err2str(err));
-		snprintf(err_str, size, "Failed to get comp key value: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to get \"comp\" key value: %s", esp_err_to_name(err));
+		snprintf(err_str, size, "Failed to get comp key value: %s", esp_err_to_name(err));
 		return err;
 	} else {
 		comp_int = strtol(comp, &str_end, 10);
@@ -61,8 +61,8 @@ static esp_err_t call_callbacks(httpd_req_t *rqst, char *err_str, size_t size)
 	if (err == ESP_ERR_NOT_FOUND) {
 		value_int = 0;
 	} else if (err) {
-		ESP_LOGE(TAG, "Failed to get \"value\" key value: %s", err2str(err));
-		snprintf(err_str, size, "Failed to get value key value: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to get \"value\" key value: %s", esp_err_to_name(err));
+		snprintf(err_str, size, "Failed to get value key value: %s", esp_err_to_name(err));
 		return err;
 	} else {
 		value_int = strtol(value, &str_end, 10);
@@ -81,8 +81,8 @@ static esp_err_t call_callbacks(httpd_req_t *rqst, char *err_str, size_t size)
 			if (handle->on_cmd_cb) {
 				err = handle->on_cmd_cb(type, comp_int, value_int);
 				if (err) {
-					ESP_LOGE(TAG, "Error raised by CB: %s", err2str(err));
-					snprintf(err_str, size, "An error happened while handling the request: %s", err2str(err));
+					ESP_LOGE(TAG, "Error raised by CB: %s", esp_err_to_name(err));
+					snprintf(err_str, size, "An error happened while handling the request: %s", esp_err_to_name(err));
 					return err;
 				}
 			}
@@ -112,7 +112,7 @@ static esp_err_t http_server_cmd_handler(httpd_req_t *rqst)
 		err = http_server_cmd_config->on_end_cb(rqst, err, err_str);
 		{
 			if (err) {
-				ESP_LOGE(TAG, "An error happened during on_end_cb: %s", err2str(err));
+				ESP_LOGE(TAG, "An error happened during on_end_cb: %s", esp_err_to_name(err));
 				return err;
 			}
 		}

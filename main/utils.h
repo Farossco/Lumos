@@ -4,20 +4,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include <esp_log.h>
 
-#undef ESP_LOGE
-#undef ESP_LOGW
-#undef ESP_LOGI
-#undef ESP_LOGD
-#undef ESP_LOGV
-
-#define ESP_LOGE(TAG, ...) printf("[%s][%d] [ERR] ", TAG, __LINE__); printf(__VA_ARGS__); printf("\n")
-#define ESP_LOGW(TAG, ...) printf("[%s][%d] [WRN] ", TAG, __LINE__); printf(__VA_ARGS__); printf("\n")
-#define ESP_LOGI(TAG, ...) printf("[%s][%d] [INF] ", TAG, __LINE__); printf(__VA_ARGS__); printf("\n")
-#define ESP_LOGD(TAG, ...) printf("[%s][%d] [DBG] ", TAG, __LINE__); printf(__VA_ARGS__); printf("\n")
-#define ESP_LOGV(TAG, ...) printf("[%s][%d] [VER] ", TAG, __LINE__); printf(__VA_ARGS__); printf("\n")
-
-#define ARRAY_SIZE(x)      (sizeof(x) / sizeof(*x))
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof(*x))
 #define RGB_BLACK (rgb_t) { 0 }
 #define RGB_RED   (rgb_t) { { 255 }, { 0 }, { 0 } }
 #define RGB_GREEN (rgb_t) { { 0 }, { 255 }, { 0 } }
