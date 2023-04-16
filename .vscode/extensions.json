@@ -4,6 +4,8 @@
     "recommendations": [
         "zachflower.uncrustify",
         "espressif.esp-idf-extension",
-        "ms-python.python"
+        "ms-python.python",
+        "Vue.volar",
+        "Vue.vscode-typescript-vue-plugin"
     ]
 }

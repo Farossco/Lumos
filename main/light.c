@@ -5,8 +5,10 @@
 #include "json.h"
 
 #define LIGHT_RGB_DEFAULT   RGB_WHITE
-#define LIGHT_POWER_DEFAULT 255
+#define LIGHT_POWER_DEFAULT LIGHT_POWER_MAX
+#define LIGHT_POWER_MAX     255
 #define LIGHT_SPEED_DEFAULT 63
+#define LIGHT_SPEED_MAX     100
 
 static const char *TAG = "light";
 
@@ -109,6 +111,10 @@ esp_err_t light_power_set(uint8_t power, uint8_t mode)
 		return ESP_ERR_INVALID_ARG;
 	}
 
+	if (power > LIGHT_POWER_MAX) {
+		return ESP_ERR_INVALID_ARG;
+	}
+
 	light_mode_data[mode].power = power;
 
 	ESP_LOGI(TAG, "Light power for %s (%d) set to %d", light_mode_string_get(mode), mode, power);
@@ -123,6 +129,10 @@ esp_err_t light_speed_set(uint8_t speed, uint8_t mode)
 	}
 
 	if (mode > LIGHT_MODE_MAX) {
+		return ESP_ERR_INVALID_ARG;
+	}
+
+	if (speed > LIGHT_SPEED_MAX) {
 		return ESP_ERR_INVALID_ARG;
 	}
 

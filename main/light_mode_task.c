@@ -152,7 +152,7 @@ static void light_mode_fade_task(void *arg)
 		else if (counter == 0)
 			state = 1;
 
-		light_mode_task_update_and_delay((1000U - data->speed * 10) / 50);
+		light_mode_task_update_and_delay((110U - data->speed) / 5);
 	}
 }
 

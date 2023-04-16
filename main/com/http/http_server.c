@@ -162,11 +162,23 @@ static esp_err_t on_cmd_rgb(const char *const cmd_type, uint32_t complement, uin
 	return light_color_set(rgb_from_code(value), complement);
 }
 
+static esp_err_t on_cmd_spe(const char *const cmd_type, uint32_t complement, uint32_t value)
+{
+	return light_speed_set(value, complement);
+}
+
+static esp_err_t on_cmd_pow(const char *const cmd_type, uint32_t complement, uint32_t value)
+{
+	return light_power_set(value, complement);
+}
+
 static const http_server_cmd_handle_t cmd_handles[] = {
 	HTTP_SERVER_CMD_HANDLE("RQD", NULL),
 	HTTP_SERVER_CMD_HANDLE("LON", on_cmd_lon),
 	HTTP_SERVER_CMD_HANDLE("LMO", on_cmd_lmo),
-	HTTP_SERVER_CMD_HANDLE("RGB", on_cmd_rgb)
+	HTTP_SERVER_CMD_HANDLE("RGB", on_cmd_rgb),
+	HTTP_SERVER_CMD_HANDLE("SPE", on_cmd_spe),
+	HTTP_SERVER_CMD_HANDLE("POW", on_cmd_pow)
 };
 
 static esp_err_t http_server_cmd_send_response(httpd_req_t *rqst, const uint8_t error, const char *error_str)
@@ -177,24 +189,25 @@ static esp_err_t http_server_cmd_send_response(httpd_req_t *rqst, const uint8_t 
 
 	if (error) {
 		err = json_get_error(resp_buf, sizeof(resp_buf), error_str, true);
-		if (err) {
-			ESP_LOGE(TAG, "Failed to generate error JSON: %s", err2str(err));
-			snprintf(resp_buf, sizeof(resp_buf), "Failed to generate JSON: %s", err2str(err));
-			resp_type = "text/plain";
-		}
 	} else {
 		err = json_get(JSON_TYPE_DATA, resp_buf, sizeof(resp_buf), true);
-		if (err) {
-			ESP_LOGE(TAG, "Failed to generate JSON: %s", err2str(err));
-			snprintf(resp_buf, sizeof(resp_buf), "Failed to generate JSON: %s", err2str(err));
-			resp_type = "text/plain";
-		}
+	}
+
+	if (err) {
+		ESP_LOGE(TAG, "Failed to generate JSON: %s", err2str(err));
+		snprintf(resp_buf, sizeof(resp_buf), "Failed to generate JSON: %s", err2str(err));
+		resp_type = "text/plain";
 	}
 
 	err = httpd_resp_set_type(rqst, resp_type);
 	if (err) {
 		ESP_LOGE(TAG, "Failed to set response type: %s", err2str(err));
-		return err;
+	}
+
+	/* Necessary for the web app to be hosted on a separate server */
+	err = httpd_resp_set_hdr(rqst, "Access-Control-Allow-Origin", "*");
+	if (err) {
+		ESP_LOGE(TAG, "Failed to set header: %s", err2str(err));
 	}
 
 	err = httpd_resp_sendstr(rqst, resp_buf);

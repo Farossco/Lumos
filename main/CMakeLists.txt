@@ -23,4 +23,8 @@ idf_component_register(SRCS ${src}
 
 target_compile_definitions(${COMPONENT_LIB} PUBLIC "-DLOG_LOCAL_LEVEL=ESP_LOG_VERBOSE")
 
-spiffs_create_partition_image(storage ../data FLASH_IN_PROJECT)
+IF(EXISTS "${CMAKE_SOURCE_DIR}/app/dist")
+        spiffs_create_partition_image(storage "${CMAKE_SOURCE_DIR}/app/dist" FLASH_IN_PROJECT)
+ELSE()
+        message(WARNING "Web app hasn't been built, spiffs image won't be created. Please run 'npm run build' inside the app folder to build the web app")
+ENDIF()

@@ -27,7 +27,7 @@ esp_err_t json_get(enum json_type type, char *buf, size_t size, bool format)
 	}
 
 	/******* Status *******/
-	if (!cJSON_AddStringToObject(root, "Status", "Ok")) {
+	if (!cJSON_AddStringToObject(root, "Status", "OK")) {
 		ESP_LOGE(TAG, "Failed to add item to object");
 		ret = -ENOSPC;
 		goto end;
