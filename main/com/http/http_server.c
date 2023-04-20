@@ -1,5 +1,6 @@
 #include "http_server.h"
 #include <esp_http_server.h>
+#include <errno.h>
 #include "http_server_cmd.h"
 #include "json.h"
 #include "kconfig_stub.h"
@@ -29,17 +30,9 @@ static bool load_from_spiffs(char *query, httpd_req_t *rqst, const char *path)
 {
 	const char *data_type = "text/plain";
 	char chunk_buf[1000];
-	char path_buf[100];
 	esp_err_t err;
 
-	if (str_endswith(path, "/")) {
-		snprintf(path_buf, sizeof(path_buf), "%sindex.html", path);
-		path = (char *)&path_buf;
-	}
-
-	if (httpd_query_key_value(query, "download", NULL, 0) == ESP_OK) data_type = "application/octet-stream";
-	else if (str_endswith(path, ".html")) data_type = "text/html";
-	else if (str_endswith(path, ".htm")) data_type = "text/html";
+	if (str_endswith(path, ".html")) data_type = "text/html";
 	else if (str_endswith(path, ".css")) data_type = "text/css";
 	else if (str_endswith(path, ".js")) data_type = "application/javascript";
 	else if (str_endswith(path, ".png")) data_type = "image/png";
@@ -49,6 +42,16 @@ static bool load_from_spiffs(char *query, httpd_req_t *rqst, const char *path)
 	else if (str_endswith(path, ".xml")) data_type = "text/xml";
 	else if (str_endswith(path, ".pdf")) data_type = "application/pdf";
 	else if (str_endswith(path, ".zip")) data_type = "application/zip";
+
+	err = memory_fs_read_file(NULL, 0, path);
+	if (err == ENOENT && strchr(path, '/') == strrchr(path, '/')) {
+		ESP_LOGD(TAG, "Redirecting %s to %s", path, "/index.html");
+		path      = "/index.html";
+		data_type = "text/html";
+	} else if (err) {
+		ESP_LOGE(TAG, "Failed to read file %s: %s", path, err2str(err));
+		return false;
+	}
 
 	httpd_resp_set_type(rqst, data_type);
 
@@ -69,7 +72,7 @@ static esp_err_t handle_get_res(httpd_req_t *rqst)
 	const char *resp_type = "application/json";
 	esp_err_t err;
 
-	ESP_LOGD(TAG, "Received request");
+	ESP_LOGV(TAG, "Received request");
 	ESP_LOGD(TAG, "Request: |%s|", rqst->uri);
 
 	err = json_get(JSON_TYPE_RES, resp_buf, sizeof(resp_buf), true);
@@ -261,6 +264,9 @@ void http_server_start(void)
 		.close_fn                     = NULL,
 		.uri_match_fn                 = NULL
 	};
+
+	esp_log_level_set(TAG, ESP_LOG_DEBUG);
+	esp_log_level_set("httpd_uri", ESP_LOG_ERROR); /* Annoying with not_found warnings */
 
 	err = httpd_start(&httpd_handle, &config);
 	if (err) {

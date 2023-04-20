@@ -420,7 +420,7 @@ int light_mode_task_init(void)
 
 	if (light_mode_task_queue == NULL) {
 		ESP_LOGE(TAG, "Could not create queue!");
-		return -ENOMEM;
+		return ESP_ERR_NO_MEM;
 	}
 
 	wifi_com_register_conn_callbacks(&wifi_com_conn_callbacks);

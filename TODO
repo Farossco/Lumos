@@ -10,3 +10,5 @@
 - Implement proper Kconfig for URP and project
 - Update README
 - move http_server_command as an external component
+- Use ESP errors when possible and use ESP_OK for return
+- Document everything

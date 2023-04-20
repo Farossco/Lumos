@@ -1,16 +1,16 @@
 <template>
-	<light-rgb v-if="displayLightRgb()" :light_rgb="light_rgb" @light_rgb-click="onEventLightRgb" />
 	<light-power v-if="displayLightPower()" :light_power="light_power" @light_power-click="onEventLightPower" />
 	<light-speed v-if="displayLightSpeed()" :light_speed="light_speed" @light_speed-click="onEventLightSpeed" />
+	<light-rgb v-if="displayLightRgb()" :light_rgb="light_rgb" @light_rgb-click="onEventLightRgb" />
 </template>
 
 <script>
-import LightRgb from "./LightActions/LightRgb.vue"
-import LightPower from "./LightActions/LightPower.vue"
-import LightSpeed from "./LightActions/LightSpeed.vue"
+import LightRgb from "../../components/LightActions/LightRgb.vue"
+import LightPower from "../../components/LightActions/LightPower.vue"
+import LightSpeed from "../../components/LightActions/LightSpeed.vue"
 
 export default {
-	name: 'LightActions',
+	name: 'AppLightActions',
 	components: {
 		LightRgb,
 		LightPower,

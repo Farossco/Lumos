@@ -22,7 +22,7 @@ esp_err_t memory_fs_read_file(char *buf, size_t buf_size, const char *path)
 	size_t read_size;
 	char full_path[255];
 	struct stat sbuf;
-	esp_err_t ret = 0;
+	esp_err_t ret = ESP_OK;
 
 	if (path[0] == '/') {
 		snprintf(full_path, sizeof(full_path), "/spiffs%s", path);
@@ -31,15 +31,15 @@ esp_err_t memory_fs_read_file(char *buf, size_t buf_size, const char *path)
 	}
 
 	if (xSemaphoreTake(memory_fs_sem, CONFIG_MEM_FS_MUTEX_TIMEOUT_MS) == pdFALSE) {
-		ESP_LOGE(TAG, "FS semaphore timed_out");
-		return -EAGAIN;
+		ESP_LOGE(TAG, "Couldn't take semaphore");
+		return EAGAIN;
 	}
 
 	/* Check if the requested file exists */
 	if (stat(full_path, &sbuf)) {
 		ESP_LOGE(TAG, "File %s doesn't exist or an error occured: %s", full_path, err2str(errno));
 		ret = errno;
-	} else {
+	} else if (buf) {
 		file = fopen(full_path, "r");
 		if (file == NULL) {
 			ESP_LOGE(TAG, "Failed to open %s: %s", full_path, err2str(errno));
@@ -57,7 +57,7 @@ esp_err_t memory_fs_read_file(char *buf, size_t buf_size, const char *path)
 
 	if (xSemaphoreGive(memory_fs_sem) == pdFALSE) {
 		ESP_LOGE(TAG, "Failed to release semaphore");
-		return -ENOMEM;
+		return ESP_ERR_INVALID_STATE;
 	}
 
 	return ret;
@@ -70,10 +70,10 @@ esp_err_t memory_fs_read_file_chunks(char *chunk_buf, size_t buf_size, const cha
 	size_t read_size;
 	char full_path[255];
 	struct stat sbuf;
-	esp_err_t ret = 0;
+	esp_err_t ret = ESP_OK;
 
 	if (on_chunk_read_cb == NULL) {
-		return -ESP_ERR_INVALID_ARG;
+		return ESP_ERR_INVALID_ARG;
 	}
 
 	if (path[0] == '/') {
@@ -83,8 +83,8 @@ esp_err_t memory_fs_read_file_chunks(char *chunk_buf, size_t buf_size, const cha
 	}
 
 	if (xSemaphoreTake(memory_fs_sem, CONFIG_MEM_FS_MUTEX_TIMEOUT_MS) == pdFALSE) {
-		ESP_LOGE(TAG, "FS semaphore timed_out");
-		return -EAGAIN;
+		ESP_LOGE(TAG, "Couldn't take semaphore");
+		return EAGAIN;
 	}
 
 	/* Check if the requested file exists */
@@ -117,7 +117,7 @@ esp_err_t memory_fs_read_file_chunks(char *chunk_buf, size_t buf_size, const cha
 
 	if (xSemaphoreGive(memory_fs_sem) == pdFALSE) {
 		ESP_LOGE(TAG, "Failed to release semaphore");
-		return -ENOMEM;
+		return ESP_ERR_INVALID_STATE;
 	}
 
 	return ret;
@@ -130,7 +130,7 @@ char * memory_nvs_get_str(const char *key, char *buf, size_t buf_size)
 	char *out_buf = NULL;
 
 	if (xSemaphoreTake(memory_nvs_mutex, CONFIG_MEM_FS_MUTEX_TIMEOUT_MS) == pdFALSE) {
-		ESP_LOGE(TAG, "NVS mutex timed_out");
+		ESP_LOGE(TAG, "Couldn't take NVS mutex");
 		return NULL;
 	}
 
@@ -161,11 +161,11 @@ char * memory_nvs_get_str(const char *key, char *buf, size_t buf_size)
 esp_err_t memory_nvs_set_str(const char *key, const char *str)
 {
 	esp_err_t err;
-	esp_err_t ret = 0;
+	esp_err_t ret = ESP_OK;
 
 	if (xSemaphoreTake(memory_nvs_mutex, CONFIG_MEM_FS_MUTEX_TIMEOUT_MS) == pdFALSE) {
-		ESP_LOGE(TAG, "NVS mutex timed_out");
-		return -EAGAIN;
+		ESP_LOGE(TAG, "Couldn't take NVS mutex");
+		return ENOENT;
 	}
 
 	err = nvs_set_str(memory_nvs_handle, key, str);
@@ -183,7 +183,7 @@ esp_err_t memory_nvs_set_str(const char *key, const char *str)
 
 	if (xSemaphoreGive(memory_nvs_mutex) == pdFALSE) {
 		ESP_LOGE(TAG, "Failed to release NVS mutex");
-		return -EAGAIN;
+		return ESP_ERR_INVALID_STATE;
 	}
 
 	return ret;
@@ -216,11 +216,11 @@ static esp_err_t memory_fs_init(void)
 
 	memory_fs_sem = xSemaphoreCreateCounting(CONFIG_MEM_FS_MAX_FILE, CONFIG_MEM_FS_MAX_FILE);
 	if (memory_fs_sem == NULL) {
-		ESP_LOGE(TAG, "Failed to create fs semaphore: %s", err2str(-ENOMEM));
-		return -ENOMEM;
+		ESP_LOGE(TAG, "Failed to create fs semaphore: %s", err2str(ESP_ERR_NO_MEM));
+		return ESP_ERR_NO_MEM;
 	}
 
-	return 0;
+	return ESP_OK;
 }
 
 static esp_err_t memory_nvs_init(void)
@@ -244,10 +244,10 @@ static esp_err_t memory_nvs_init(void)
 	memory_nvs_mutex = xSemaphoreCreateMutex();
 	if (memory_nvs_mutex == NULL) {
 		ESP_LOGE(TAG, "Failed to create nvs mutex: %s", err2str(-ENOMEM));
-		return -ENOMEM;
+		return ESP_ERR_NO_MEM;
 	}
 
-	return 0;
+	return ESP_OK;
 }
 
 esp_err_t memory_init(void)
@@ -268,5 +268,5 @@ esp_err_t memory_init(void)
 		return err;
 	}
 
-	return 0;
+	return ESP_OK;
 }

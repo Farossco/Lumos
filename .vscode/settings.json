@@ -1,8 +1,5 @@
 {
 	"editor.defaultFormatter": "zachflower.uncrustify",
-	"idf.adapterTargetName": "esp32",
-	"idf.flashType": "UART",
-	"idf.port": "/dev/ttyUSB0",
 	"[vue]": {
 		"editor.defaultFormatter": "Vue.volar"
 	},
@@ -14,5 +11,7 @@
 	},
 	"[jsonc]": {
 		"editor.defaultFormatter": "vscode.json-language-features"
-	}
+	},
+	"idf.flashType": "UART",
+	"idf.port": "/dev/ttyUSB0"
 }

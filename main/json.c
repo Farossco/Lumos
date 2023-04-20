@@ -3,6 +3,8 @@
 #include <errno.h>
 #include "utils.h"
 
+#include "sys/queue.h" /* TODO: Use this instead (slist) */
+
 static const char *TAG = "json";
 
 static struct json_sub_data *sub_list[JSON_TYPE_N];
@@ -23,7 +25,7 @@ esp_err_t json_get(enum json_type type, char *buf, size_t size, bool format)
 	root = cJSON_CreateObject();
 	if (!root) {
 		ESP_LOGE(TAG, "Failed to create root object");
-		return -ENOSPC;
+		return ESP_ERR_NO_MEM;
 	}
 
 	/******* Status *******/
@@ -77,7 +79,7 @@ esp_err_t json_get_error(char *buf, size_t size, const char *error_str, bool for
 	root = cJSON_CreateObject();
 	if (!root) {
 		ESP_LOGE(TAG, "Failed to create root object");
-		return -ENOSPC;
+		return ESP_ERR_NO_MEM;
 	}
 
 	/******* Status *******/
@@ -112,7 +114,7 @@ static esp_err_t json_sub_list_add(enum json_type type, struct json_sub_data *ob
 	while (*cur != NULL) {
 		if (*cur == obj) {
 			ESP_LOGE(TAG, "Subscriber %s (%p) already in the list", obj->sub_name, obj);
-			return -EEXIST;
+			return ESP_ERR_INVALID_STATE;
 		}
 		cur = &((*cur)->next);
 	}
@@ -127,7 +129,7 @@ esp_err_t json_subscribe_to(enum json_type type, struct json_sub_data *obj)
 	esp_err_t err;
 
 	if (!obj || type >= JSON_TYPE_N || !obj->json_generate_cb) {
-		return -ENOENT;
+		return ESP_ERR_INVALID_ARG;
 	}
 
 	err = json_sub_list_add(type, obj);
@@ -164,12 +166,12 @@ esp_err_t json_gen_add_bool(json_callback_ctx_t *ctx, const char *const name, bo
 
 	if (!item) {
 		ESP_LOGE(TAG, "Failed to create object");
-		return -ENOSPC;
+		return ESP_ERR_NO_MEM;
 	}
 
 	if (!cJSON_AddItemToObject(ctx->root, name, item)) {
 		ESP_LOGE(TAG, "Failed to add item to object");
-		return -ENOSPC;
+		return ESP_ERR_NO_MEM;
 	}
 
 	return 0;
@@ -181,19 +183,19 @@ esp_err_t json_gen_add_bool_array(json_callback_ctx_t *ctx, const char *const na
 
 	if (!item) {
 		ESP_LOGE(TAG, "Failed to create array");
-		return -ENOSPC;
+		return ESP_ERR_NO_MEM;
 	}
 
 	for (size_t i = 0; i < size; i++) {
 		cJSON *array_item = cJSON_CreateBool(array[i]);
 		if (!array_item) {
 			ESP_LOGE(TAG, "Failed to create object");
-			return -ENOSPC;
+			return ESP_ERR_NO_MEM;
 		}
 
 		if (!cJSON_AddItemToArray(item, array_item)) {
 			ESP_LOGE(TAG, "Failed to add item to array");
-			return -ENOSPC;
+			return ESP_ERR_NO_MEM;
 		}
 	}
 
@@ -212,12 +214,12 @@ esp_err_t json_gen_add_int_array(json_callback_ctx_t *ctx, const char *const nam
 
 	if (!item) {
 		ESP_LOGE(TAG, "Failed to create object");
-		return -ENOSPC;
+		return ESP_ERR_NO_MEM;
 	}
 
 	if (!cJSON_AddItemToObject(ctx->root, name, item)) {
 		ESP_LOGE(TAG, "Failed to add item to object");
-		return -ENOSPC;
+		return ESP_ERR_NO_MEM;
 	}
 
 	return 0;
@@ -229,12 +231,12 @@ esp_err_t json_gen_add_double(json_callback_ctx_t *ctx, const char *const name, 
 
 	if (!item) {
 		ESP_LOGE(TAG, "Failed to create object");
-		return -ENOSPC;
+		return ESP_ERR_NO_MEM;
 	}
 
 	if (!cJSON_AddItemToObject(ctx->root, name, item)) {
 		ESP_LOGE(TAG, "Failed to add item to object");
-		return -ENOSPC;
+		return ESP_ERR_NO_MEM;
 	}
 
 	return 0;
@@ -246,12 +248,12 @@ esp_err_t json_gen_add_double_array(json_callback_ctx_t *ctx, const char *const 
 
 	if (!item) {
 		ESP_LOGE(TAG, "Failed to create object");
-		return -ENOSPC;
+		return ESP_ERR_NO_MEM;
 	}
 
 	if (!cJSON_AddItemToObject(ctx->root, name, item)) {
 		ESP_LOGE(TAG, "Failed to add item to object");
-		return -ENOSPC;
+		return ESP_ERR_NO_MEM;
 	}
 
 	return 0;
@@ -263,12 +265,12 @@ esp_err_t json_gen_add_string(json_callback_ctx_t *ctx, const char *const name, 
 
 	if (!item) {
 		ESP_LOGE(TAG, "Failed to create object");
-		return -ENOSPC;
+		return ESP_ERR_NO_MEM;
 	}
 
 	if (!cJSON_AddItemToObject(ctx->root, name, item)) {
 		ESP_LOGE(TAG, "Failed to add item to object");
-		return -ENOSPC;
+		return ESP_ERR_NO_MEM;
 	}
 
 	return 0;
@@ -280,12 +282,12 @@ esp_err_t json_gen_add_string_array(json_callback_ctx_t *ctx, const char *const 
 
 	if (!item) {
 		ESP_LOGE(TAG, "Failed to create object");
-		return -ENOSPC;
+		return ESP_ERR_NO_MEM;
 	}
 
 	if (!cJSON_AddItemToObject(ctx->root, name, item)) {
 		ESP_LOGE(TAG, "Failed to add item to object");
-		return -ENOSPC;
+		return ESP_ERR_NO_MEM;
 	}
 
 	return 0;
@@ -300,7 +302,7 @@ esp_err_t json_gen_add_generic_array(json_callback_ctx_t *ctx, const char *const
 
 	if (!item) {
 		ESP_LOGE(TAG, "Failed to create object");
-		return -ENOSPC;
+		return ESP_ERR_NO_MEM;
 	}
 
 	array_ctx.root     = item;
@@ -324,7 +326,7 @@ esp_err_t json_gen_add_generic_object(json_callback_ctx_t *ctx, const char *cons
 
 	if (!item) {
 		ESP_LOGE(TAG, "Failed to create object");
-		return -ENOSPC;
+		return ESP_ERR_NO_MEM;
 	}
 
 	object_ctx.root     = item;
