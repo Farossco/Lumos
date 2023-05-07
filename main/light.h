@@ -9,10 +9,6 @@
 #ifndef LUMOS_LIGHT_H
 #define LUMOS_LIGHT_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* ifdef __cplusplus */
-
 #include "time.h"
 #include "color.h"
 
@@ -93,9 +89,5 @@ const char * light_mode_string_get(uint8_t mode);
  *
  */
 int light_init(void);
-
-#ifdef __cplusplus
-}
-#endif /* ifdef __cplusplus */
 
 #endif /* ifndef LUMOS_LIGHT_H */

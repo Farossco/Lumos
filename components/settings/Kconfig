@@ -1,0 +1,60 @@
+menu "Settings"
+
+	config SETTINGS_PATH_KEYS
+		string "Settings keys path"
+		default "res/settings_keys.csv"
+
+	config SETTINGS_PATH_GROUPS
+		string "Settings groups path"
+		default "res/settings_groups.csv"
+
+	config SETTINGS_PATH_DEFS
+		string "Settings groups path"
+		default "res/settings_defs.h"
+
+	config SETTINGS_GROUP_INSTANCE_MAX
+		range 1 65535
+		int "Maximum instances for a multi-instance group"
+		default 99
+
+	config SETTINGS_GROUP_NAME_LENGTH_MAX
+		int "Maximum length of a group name"
+		default 20
+
+	config SETTINGS_KEY_NAME_LENGTH_MAX
+		int "Maximum length of a key name"
+		default 30
+	
+	config SETTINGS_BLOCKING
+		bool "Block during concurrent calls"
+		default y
+		help
+			Whether two parrallel calls should have the second one block until
+			the first one is finished.
+			If set, the blocking timeout is defined by SETTINGS_BLOCKING_TIMEOUT_MS
+
+	config SETTINGS_BLOCKING_TIMEOUT_MS
+		int "Concurrent blocking timeout in ms"
+		default 2
+		help
+			The maximum amount of time in ms that a function is allowed to block
+		depends on SETTINGS_BLOCKING
+
+	choice SETTINGS_IMPL
+		prompt "Settings back-end implementation"
+        default SETTINGS_IMPL_NVS
+			config SETTINGS_IMPL_NVS
+				bool "NVS"
+	endchoice
+
+	config SETTINGS_IMPL_NVS_PART_CUSTOM
+		bool "NVS: Use custom partition"
+		default n
+		depends on SETTINGS_IMPL_NVS
+
+	config SETTINGS_IMPL_NVS_PART_CUSTOM_NAME
+		string "NVS: Partition name"
+		default "settings"
+		depends on SETTINGS_IMPL_NVS && SETTINGS_IMPL_NVS_PART_CUSTOM
+
+endmenu

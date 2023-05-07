@@ -1,10 +1,11 @@
 #include <esp_err.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include <settings.h>
 #include "com/uart_com.h"
 #include "com/wifi_com.h"
 #include "light.h"
-#include "memory.h"
+#include "spiffs.h"
 #include "utils.h"
 
 static const char *TAG = "main";
@@ -13,7 +14,13 @@ void app_main(void)
 {
 	esp_err_t err;
 
-	err = memory_init();
+	err = settings_init();
+	if (err) {
+		ESP_LOGE(TAG, "FATAL: Failed to init settings: %s", err2str(err));
+		return;
+	}
+
+	err = spiffs_init();
 	if (err) {
 		ESP_LOGE(TAG, "FATAL: Failed to init memory: %s", err2str(err));
 		return;

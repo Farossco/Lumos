@@ -14,10 +14,10 @@
 #include <errno.h>
 #include <esp_log.h>
 
-#define URP_CHAR_START         CONFIG_URP_CHAR_START
-#define URP_CHAR_START_NC      CONFIG_URP_CHAR_START_NC
-#define URP_CHAR_END           CONFIG_URP_CHAR_END
-#define URP_CHAR_ESCAPE        CONFIG_URP_CHAR_ESCAPE
+#define URP_CHAR_START         '$'
+#define URP_CHAR_START_NC      '&'
+#define URP_CHAR_END           '*'
+#define URP_CHAR_ESCAPE        '\\'
 #define URP_VALUE_TYPE_LENGTH  CONFIG_URP_VALUE_TYPE_LENGTH
 #define URP_RECV_TASK_PRIO     CONFIG_URP_RECV_TASK_PRIO
 #define URP_RECV_BUF_SIZE      CONFIG_URP_RECV_BUF_SIZE

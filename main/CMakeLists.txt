@@ -15,7 +15,7 @@ set(src ${com_src}
         json.c
         light.c
         light_mode_task.c
-        memory.c
+        spiffs.c
         utils.c)
 
 idf_component_register(SRCS ${src} 

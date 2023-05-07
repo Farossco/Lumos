@@ -1,36 +1,25 @@
-# Kconfig - URP library options
+menu "URP"
 
-#
-# Copyright (c) 2023 Farès Chati
-#
-# SPDX -License-Identifier: Apache-2.0
-#
+	config URP_RECV_BUF_SIZE
+		int "UART receiver buffer size"
+		default 1024
 
-menuconfig URP
-	bool "UART Readable Protocole"
-	default n
+	config URP_VALUE_TYPE_LENGTH
+		int "Number of character in the value type"
+		default 3
 
-if (URP)
+	config URP_RECV_TASK_PRIO
+		int "Priority of the recv task"
+		default 12
 
-# UART receiver buffer size
-config URP_RECV_BUF_SIZE
-	int "UART receiver buffer size"
-	default 1024
+	config URP_RECV_DATA_SIZE_MAX
+		int "Maximum receive data size"
+		default 256
+		help
+			This does not include start and end characters as well as value type and checksum.
 
-# Number of character in the value type
-config URP_VALUE_TYPE_LENGTH
-	int "Number of character in the value type"
-	default 3
+	config URP_SEND_BUF_SIZE
+		int "UART TX buffer size"
+		default 0
 
-# Priority of the recv thread
-config URP_RECV_THREAD_PRIO
-	int "Priority of the recv thread"
-	default 0
-
-# Maximum size of messages to receive.
-# This does not include start and end characters as well as value type and checksum.
-config URP_RECV_DATA_SIZE_MAX
-	int "Maximum receive data size"
-	default 256
-
-endif #URP
+endmenu

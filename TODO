@@ -1,6 +1,5 @@
 - Add new light modes
 - Implement OTA
-- Implement EEPROM
 - Implement Bluetooth
 - Re-Implement SD Card
 - Re-Implement Sound
@@ -11,4 +10,7 @@
 - Update README
 - move http_server_command as an external component
 - Use ESP errors when possible and use ESP_OK for return
+- Use netif SNTP instead
+- Use #pragma once in all headers
 - Document everything
+- Remove Kconfig stubs

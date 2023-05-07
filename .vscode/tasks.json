@@ -2,6 +2,29 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Build - Reconfigure project",
+            "type": "shell",
+            "command": "${config:idf.pythonBinPath} ${config:idf.espIdfPath}/tools/idf.py reconfigure",
+            "windows": {
+                "command": "${config:idf.pythonBinPathWin} ${config:idf.espIdfPathWin}\\tools\\idf.py reconfigure",
+                "options": {
+                    "env": {
+                        "PATH": "${env:PATH};${config:idf.customExtraPaths}"
+                    }
+                }
+            },
+            "options": {
+                "env": {
+                    "PATH": "${env:PATH}:${config:idf.customExtraPaths}"
+                }
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
             "label": "Build - Build project",
             "type": "shell",
             "command": "${config:idf.pythonBinPath} ${config:idf.espIdfPath}/tools/idf.py build",

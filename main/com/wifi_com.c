@@ -5,6 +5,7 @@
  *
  * @brief
  */
+
 #undef __linux__ /* Temporary solution to fix intellisense detection */
 #include "wifi_com.h"
 #include <string.h>
@@ -19,9 +20,9 @@
 #include <esp_netif.h>
 #include <esp_smartconfig.h>
 #include <esp_sntp.h> /* TODO: use new netif sntp instead */
+#include <settings.h>
 #include "http/http_server.h"
 #include "kconfig_stub.h"
-#include "memory.h"
 #include "utils.h"
 
 struct wifi_com_task_queue_data {
@@ -92,44 +93,46 @@ static esp_err_t wifi_com_connect_from_smartconfig(smartconfig_event_got_ssid_ps
 	ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
 	esp_wifi_connect();
 
-	ESP_LOGI(TAG, "Writing SSID and PASS to NVS");
+	ESP_LOGI(TAG, "Writing SSID and PASS to settings");
 
-	err = MEMORY_NVS_SET_STR(WIFI_SSID, (char *)evt->ssid);
+	err = SETTINGS_SET(WIFI_SSID, evt->ssid);
 	if (err) {
-		ESP_LOGE(TAG, "Failed to write SSID to NVS");
+		ESP_LOGE(TAG, "Failed to write SSID to settings");
 		return err;
 	}
 
-	err = MEMORY_NVS_SET_STR(WIFI_PASS, (char *)evt->password);
+	err = SETTINGS_SET(WIFI_PASS, evt->password);
 	if (err) {
-		ESP_LOGE(TAG, "Failed to write PASS to NVS");
+		ESP_LOGE(TAG, "Failed to write PASS to settings");
 		return err;
 	}
 
 	return 0;
 }
 
-static esp_err_t wifi_com_connect_from_nvs(void)
+static esp_err_t wifi_com_connect_from_settings(void)
 {
 	wifi_config_t wifi_config = { 0 };
-	char nvs_buf[64];
 	esp_err_t err;
 
-	if (MEMORY_NVS_GET_STR(WIFI_SSID, nvs_buf) == NULL) {
-		ESP_LOGW(TAG, "Could not find SSID in NVS");
-		return -ENOENT;
+	err = SETTINGS_GET(WIFI_SSID, wifi_config.sta.ssid);
+	if (err) {
+		ESP_LOGE(TAG, "Failed to read SSID from settings");
+		return err;
 	}
 
-	memcpy(wifi_config.sta.ssid, nvs_buf, sizeof(wifi_config.sta.ssid));
-
-	if (MEMORY_NVS_GET_STR(WIFI_PASS, nvs_buf) == NULL) {
-		ESP_LOGW(TAG, "Could not find PASS in NVS");
-		return -ENOENT;
+	if (strlen((char *)wifi_config.sta.ssid) == 0) {
+		ESP_LOGW(TAG, "No SSID stored in settings");
+		return ESP_ERR_NOT_FOUND;
 	}
 
-	memcpy(wifi_config.sta.password, nvs_buf, sizeof(wifi_config.sta.password));
+	err = SETTINGS_GET(WIFI_PASS, wifi_config.sta.password);
+	if (err) {
+		ESP_LOGE(TAG, "Failed to read PASS from settings");
+		return err;
+	}
 
-	ESP_LOGI(TAG, "Attempting connection from NVS data");
+	ESP_LOGI(TAG, "Attempting connection from settings");
 
 	ESP_LOGI(TAG, "SSID: \"%s\"",     wifi_config.sta.ssid);
 	ESP_LOGI(TAG, "PASSWORD: \"%s\"", wifi_config.sta.password);
@@ -162,9 +165,9 @@ static void wifi_com_conn_task(void *parm)
 
 		switch (queue_data.event_type) {
 		case WIFI_COM_EVENT_WIFI_START:
-			err = wifi_com_connect_from_nvs();
+			err = wifi_com_connect_from_settings();
 			if (err) {
-				ESP_LOGW(TAG, "Could not connect from NVS: %s", err2str(err));
+				ESP_LOGW(TAG, "Could not connect from settings: %s", err2str(err));
 				wifi_com_initiate_smartconfig();
 			}
 			break;

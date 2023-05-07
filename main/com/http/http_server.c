@@ -4,7 +4,7 @@
 #include "http_server_cmd.h"
 #include "json.h"
 #include "kconfig_stub.h"
-#include "memory.h"
+#include "spiffs.h"
 #include "utils.h"
 #include "light.h"
 
@@ -20,10 +20,10 @@ static bool on_chunk_read(char *chunk_data, size_t chunk_size, void *arg)
 	err = httpd_resp_send_chunk(rqst, chunk_data, chunk_size);
 	if (err) {
 		ESP_LOGE(TAG, "Failed to send chunk: %s", err2str(err));
-		return MEMORY_FS_READ_CB_STOP;
+		return SPIFFS_READ_CB_STOP;
 	}
 
-	return MEMORY_FS_READ_CB_CONTINUE;
+	return SPIFFS_READ_CB_CONTINUE;
 }
 
 static bool load_from_spiffs(char *query, httpd_req_t *rqst, const char *path)
@@ -43,7 +43,7 @@ static bool load_from_spiffs(char *query, httpd_req_t *rqst, const char *path)
 	else if (str_endswith(path, ".pdf")) data_type = "application/pdf";
 	else if (str_endswith(path, ".zip")) data_type = "application/zip";
 
-	err = memory_fs_read_file(NULL, 0, path);
+	err = spiffs_read_file(NULL, 0, path);
 	if (err == ENOENT && strchr(path, '/') == strrchr(path, '/')) {
 		ESP_LOGD(TAG, "Redirecting %s to %s", path, "/index.html");
 		path      = "/index.html";
@@ -55,7 +55,7 @@ static bool load_from_spiffs(char *query, httpd_req_t *rqst, const char *path)
 
 	httpd_resp_set_type(rqst, data_type);
 
-	err = memory_fs_read_file_chunks(chunk_buf, sizeof(chunk_buf), path, on_chunk_read, rqst);
+	err = spiffs_read_file_chunks(chunk_buf, sizeof(chunk_buf), path, on_chunk_read, rqst);
 	if (err) {
 		ESP_LOGE(TAG, "Failed to read file %s: %s", path, err2str(err));
 		return false;

@@ -45,7 +45,7 @@ export default {
   },
   methods: {
     async sendCommand(type, complement, value) {
-      const url_base = 'http://192.168.1.107'
+      const url_base = ''
       const url = url_base + '/command?type=' + type + '&comp=' + Number(complement) + '&value=' + Number(value);
       try {
         const response = await axios.get(url);

@@ -17,17 +17,6 @@ extern "C" {
 #include <driver/uart.h>
 #include <esp_err.h>
 
-/* Temporary definitions until Kconfig can be used */
-#define CONFIG_URP_CHAR_START         '$'
-#define CONFIG_URP_CHAR_START_NC      '&'
-#define CONFIG_URP_CHAR_END           '*'
-#define CONFIG_URP_CHAR_ESCAPE        '\\'
-#define CONFIG_URP_RECV_BUF_SIZE      1024
-#define CONFIG_URP_VALUE_TYPE_LENGTH  3
-#define CONFIG_URP_RECV_TASK_PRIO     12
-#define CONFIG_URP_RECV_DATA_SIZE_MAX 256
-#define CONFIG_URP_SEND_BUF_SIZE      0
-
 #define URP_SIZE_VARIABLE             ((size_t)-1)
 #define URP_SIZE_INT                  ((size_t)-2)
 #define URP_SIZE_FLOAT                ((size_t)-3)

@@ -1,0 +1,6 @@
+# Settings version
+@V0.0.1, First version, added WIFI SSID and password
+
+# Group		Type						Name							Default value
+base,		char[32],					wifi_ssid,						""
+base,		char[64],					wifi_pass,						""
