@@ -13,5 +13,8 @@
 		"editor.defaultFormatter": "vscode.json-language-features"
 	},
 	"idf.flashType": "UART",
-	"idf.port": "/dev/ttyUSB0"
+	"idf.port": "/dev/ttyUSB0",
+	"files.associations": {
+		"esp_sntp.h": "c"
+	}
 }

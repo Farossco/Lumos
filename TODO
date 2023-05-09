@@ -10,7 +10,7 @@
 - Update README
 - move http_server_command as an external component
 - Use ESP errors when possible and use ESP_OK for return
-- Use netif SNTP instead
 - Use #pragma once in all headers
 - Document everything
 - Remove Kconfig stubs
+- replace http_server_start() call with callback (wifi.com.c ligne 178)

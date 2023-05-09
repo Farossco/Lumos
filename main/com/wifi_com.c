@@ -6,7 +6,6 @@
  * @brief
  */
 
-#undef __linux__ /* Temporary solution to fix intellisense detection */
 #include "wifi_com.h"
 #include <string.h>
 #include <stdlib.h>
@@ -18,8 +17,9 @@
 #include <esp_event.h>
 #include <esp_system.h>
 #include <esp_netif.h>
+#include <esp_netif_sntp.h>
+#include <time.h>
 #include <esp_smartconfig.h>
-#include <esp_sntp.h> /* TODO: use new netif sntp instead */
 #include <settings.h>
 #include "http/http_server.h"
 #include "kconfig_stub.h"
@@ -50,16 +50,6 @@ static void on_sntp_time_sync(struct timeval *tv)
 	localtime_r(&tv->tv_sec, &timeinfo);
 	strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
 	ESP_LOGI(TAG, "The current date/time in Paris is: %s", strftime_buf);
-}
-
-static void wifi_com_sntp_init(void)
-{
-	sntp_setoperatingmode(SNTP_OPMODE_POLL);
-	sntp_setservername(0, "pool.ntp.org");
-	sntp_set_time_sync_notification_cb(on_sntp_time_sync);
-	sntp_init();
-
-	ESP_LOGD(TAG, "SNTP initialized!");
 }
 
 static esp_err_t wifi_com_initiate_smartconfig(void)
@@ -183,7 +173,6 @@ static void wifi_com_conn_task(void *parm)
 			} else {
 				ESP_LOGI(TAG, "WiFi successfully connected to %s", ap_info.ssid);
 			}
-			wifi_com_sntp_init();
 
 			http_server_start(); /* TODO: replace with callback */
 
@@ -266,7 +255,7 @@ static void wifi_com_event_handler(void *arg, esp_event_base_t event_base, int32
 esp_err_t wifi_com_init(void)
 {
 	esp_err_t err;
-	wifi_init_config_t cfg = {
+	wifi_init_config_t wifi_config = {
 		.osi_funcs              = &g_wifi_osi_funcs,
 		.wpa_crypto_funcs       = g_wifi_default_wpa_crypto_funcs,
 		.static_rx_buf_num      = CONFIG_ESP32_WIFI_STATIC_RX_BUFFER_NUM,
@@ -291,6 +280,20 @@ esp_err_t wifi_com_init(void)
 		.magic                  = WIFI_INIT_CONFIG_MAGIC
 	};
 
+	esp_sntp_config_t sntp_config = {
+		.smooth_sync                = false,
+		.server_from_dhcp           = false,
+		.wait_for_sync              = true,
+		.start                      = true,
+		.sync_cb                    = on_sntp_time_sync,
+		.renew_servers_after_new_IP = false,
+		.ip_event_to_renew          = 0,
+		.index_of_first_server      = 0,
+		.num_of_servers             = 1,
+		.servers                    = { "pool.ntp.org" }
+	};
+
+
 	esp_log_level_set(TAG, ESP_LOG_VERBOSE);
 
 	ESP_LOGI(TAG, "Initializing wifi");
@@ -298,7 +301,7 @@ esp_err_t wifi_com_init(void)
 	wifi_com_task_queue = xQueueCreate(10, sizeof(struct wifi_com_task_queue_data));
 	if (wifi_com_task_queue == NULL) {
 		ESP_LOGE(TAG, "Failed to create queue");
-		return -ENOMEM;
+		return -ESP_ERR_NO_MEM;
 	}
 
 	err = esp_netif_init();
@@ -316,10 +319,10 @@ esp_err_t wifi_com_init(void)
 	esp_netif_t *sta_netif = esp_netif_create_default_wifi_sta();
 	if (!sta_netif) {
 		ESP_LOGE(TAG, "Failed to create netif default wifi sta");
-		return -ENOMEM;
+		return ESP_ERR_NO_MEM;
 	}
 
-	err = esp_wifi_init(&cfg);
+	err = esp_wifi_init(&wifi_config);
 	if (err) {
 		ESP_LOGE(TAG, "Failed to initialize wifi: %s", err2str(err));
 		return err;
@@ -352,6 +355,12 @@ esp_err_t wifi_com_init(void)
 	err = esp_wifi_start();
 	if (err) {
 		ESP_LOGE(TAG, "Failed to start wifi: %s", err2str(err));
+		return err;
+	}
+
+	err = esp_netif_sntp_init(&sntp_config);
+	if (err) {
+		ESP_LOGE(TAG, "Failed to initialize sntp: %s", err2str(err));
 		return err;
 	}
 

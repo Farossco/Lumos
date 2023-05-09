@@ -63,7 +63,7 @@ static bool settings_initialized;
 
 static struct settings_data settings_data;
 static const struct settings_data settings_data_default = SETTINGS_DATA_DEFAULTS;
-static struct settings_groups_full_names settings_groups_full_names;
+static struct settings_groups_full_names __unused settings_groups_full_names;
 
 /* Pre-definition to be used in SETTINGS_GROUPS */
 static const struct settings_key_item settings_keys[];
