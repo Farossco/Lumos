@@ -60,7 +60,6 @@ esp_err_t json_get(enum json_type type, char *buf, size_t size, bool format);
 esp_err_t json_get_error(char *buf, size_t size, const char *error_str, bool format);
 
 esp_err_t json_subscribe_to(enum json_type type, struct json_sub_data *obj);
-void json_dump_list(void);
 
 esp_err_t json_gen_add_bool(json_callback_ctx_t *ctx, const char *const name, bool value);
 esp_err_t json_gen_add_bool_array(json_callback_ctx_t *ctx, const char *const name, const bool *const array, size_t size);

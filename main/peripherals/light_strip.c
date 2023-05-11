@@ -1,8 +1,11 @@
 #include "light_strip.h"
 #include <led_strip_spi.h>
-#include "kconfig_stub.h"
 
-#define DIV_FACTOR (CONFIG_LUMOS_DIMMED_MODE * 4 + 1)
+#if CONFIG_LUMOS_LIGHT_DIMMED_MODE
+#define DIV_FACTOR (5)
+#else
+#define DIV_FACTOR (1)
+#endif
 
 static led_strip_spi_t light_strip = {
 	.buf             = NULL,

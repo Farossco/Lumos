@@ -4,7 +4,6 @@
 #include "driver/uart.h"
 #include "utils.h"
 #include "light.h"
-#include "kconfig_stub.h"
 
 #define UART_COM_RX_BUF_SIZE 200
 #define UART_COM_TX_BUF_SIZE 200
@@ -79,7 +78,7 @@ static struct urp_config urp_config = {
 	.handlers_size = ARRAY_SIZE(handlers),
 	.uart_num      = UART_NUM_0,
 	.uart_config   = {
-		.baud_rate  = CONFIG_LUMOS_UART_BAUD_RATE,
+		.baud_rate  = CONFIG_LUMOS_UART_COM_BAUD_RATE,
 		.data_bits  = UART_DATA_8_BITS,
 		.parity     = UART_PARITY_DISABLE,
 		.stop_bits  = UART_STOP_BITS_1,
@@ -87,7 +86,8 @@ static struct urp_config urp_config = {
 		.source_clk = UART_SCLK_DEFAULT,
 	},
 	.tx_io_num = 1,
-	.rx_io_num = 3
+	.rx_io_num = 3,
+	.core_id   = CONFIG_LUMOS_COM_CORE_ID
 };
 
 esp_err_t uart_com_init(void)

@@ -427,5 +427,5 @@ int light_mode_task_init(void)
 
 	light_mode_task_create_shutdown();
 
-	return 0;
+	return ESP_OK;
 }

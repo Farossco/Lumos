@@ -98,7 +98,7 @@ esp_err_t light_color_set(rgb_t rgb, uint8_t mode)
 
 	ESP_LOGI(TAG, "Light color for %s (%d) set to %lX", light_mode_string_get(mode), mode, rgb_to_code(rgb));
 
-	return 0;
+	return ESP_OK;
 }
 
 esp_err_t light_power_set(uint8_t power, uint8_t mode)
@@ -119,7 +119,7 @@ esp_err_t light_power_set(uint8_t power, uint8_t mode)
 
 	ESP_LOGI(TAG, "Light power for %s (%d) set to %d", light_mode_string_get(mode), mode, power);
 
-	return 0;
+	return ESP_OK;
 }
 
 esp_err_t light_speed_set(uint8_t speed, uint8_t mode)
@@ -140,7 +140,7 @@ esp_err_t light_speed_set(uint8_t speed, uint8_t mode)
 
 	ESP_LOGI(TAG, "Light speed for %s (%d) set to %d", light_mode_string_get(mode), mode, speed);
 
-	return 0;
+	return ESP_OK;
 }
 
 esp_err_t light_mode_set(uint8_t mode)
@@ -151,7 +151,7 @@ esp_err_t light_mode_set(uint8_t mode)
 	}
 
 	if (mode == light_mode) {
-		return 0;
+		return ESP_OK;
 	}
 
 	light_mode = mode;
@@ -164,13 +164,13 @@ esp_err_t light_mode_set(uint8_t mode)
 
 	ESP_LOGI(TAG, "Light mode set to %s (%d)", light_mode_string_get(mode), mode);
 
-	return 0;
+	return ESP_OK;
 }
 
 esp_err_t light_state_set(bool state)
 {
 	if (light_state == state) { /* No change to the light_state */
-		return 0;
+		return ESP_OK;
 	}
 
 	if (state == LIGHT_ON) {
@@ -190,7 +190,7 @@ esp_err_t light_state_set(bool state)
 
 	ESP_LOGI(TAG, "Light state set to %s", state == LIGHT_ON ? "ON" : "OFF");
 
-	return 0;
+	return ESP_OK;
 }
 
 static esp_err_t on_json_data_gen(json_callback_ctx_t *ctx)
@@ -216,7 +216,7 @@ static esp_err_t on_json_data_gen(json_callback_ctx_t *ctx)
 	}
 	JSON_GEN_ADD_INT_ARRAY("Speed", light_mode_data_array, LIGHT_MODE_N);
 
-	return 0;
+	return ESP_OK;
 }
 
 static esp_err_t on_json_res_colors_gen(json_callback_ctx_t *ctx)
@@ -225,7 +225,7 @@ static esp_err_t on_json_res_colors_gen(json_callback_ctx_t *ctx)
 		JSON_GEN_ARRAY_ADD_INT_ARRAY(web_color_list[i], WEB_COLOR_WIDTH);
 	}
 
-	return 0;
+	return ESP_OK;
 }
 
 static esp_err_t on_json_res_gen(json_callback_ctx_t *ctx)
@@ -234,7 +234,7 @@ static esp_err_t on_json_res_gen(json_callback_ctx_t *ctx)
 
 	JSON_GEN_ADD_GENERIC_ARRAY("Colors", on_json_res_colors_gen);
 
-	return 0;
+	return ESP_OK;
 }
 
 static struct json_sub_data json_data_sub = {
@@ -282,5 +282,5 @@ esp_err_t light_init(void)
 
 	ESP_LOGI(TAG, "Light initialized");
 
-	return 0;
+	return ESP_OK;
 }

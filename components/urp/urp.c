@@ -558,7 +558,8 @@ esp_err_t urp_init(struct urp_config *config)
 	esp_err_t err;
 
 	/* Configure UART */
-	err = uart_driver_install(config->uart_num, URP_RECV_BUF_SIZE, URP_SEND_BUF_SIZE, 20, &config->task_queue, 0);
+	err = uart_driver_install(config->uart_num, URP_RECV_BUF_SIZE, URP_SEND_BUF_SIZE,
+	                          20, &config->task_queue, 0);
 	if (err) {
 		ESP_LOGE(TAG, "Failed to install UART driver : %s", esp_err_to_name(err));
 		return err;
@@ -570,14 +571,16 @@ esp_err_t urp_init(struct urp_config *config)
 		return err;
 	}
 
-	err = uart_set_pin(config->uart_num, config->tx_io_num, config->rx_io_num, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+	err = uart_set_pin(config->uart_num, config->tx_io_num, config->rx_io_num,
+	                   UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
 	if (err) {
 		ESP_LOGE(TAG, "Failed to set UART pin : %s", esp_err_to_name(err));
 		return err;
 	}
 
 	/* Create recv task */
-	if (xTaskCreate(urp_recv_task, "urp_task", 4048, config, URP_RECV_TASK_PRIO, NULL) == 0) {
+	if (xTaskCreatePinnedToCore(urp_recv_task, "urp_task", 4048, config,
+	                            URP_RECV_TASK_PRIO, NULL, config->core_id) == 0) {
 		ESP_LOGE(TAG, "Failed to create recv task");
 	}
 

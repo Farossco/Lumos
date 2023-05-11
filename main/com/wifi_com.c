@@ -22,7 +22,6 @@
 #include <esp_smartconfig.h>
 #include <settings.h>
 #include "http/http_server.h"
-#include "kconfig_stub.h"
 #include "utils.h"
 
 struct wifi_com_task_queue_data {
@@ -59,7 +58,7 @@ static esp_err_t wifi_com_initiate_smartconfig(void)
 	ESP_ERROR_CHECK(esp_smartconfig_set_type(SC_TYPE_ESPTOUCH));
 	ESP_ERROR_CHECK(esp_smartconfig_start(&cfg));
 
-	return 0;
+	return ESP_OK;
 }
 
 static esp_err_t wifi_com_connect_from_smartconfig(smartconfig_event_got_ssid_pswd_t *evt)
@@ -97,7 +96,7 @@ static esp_err_t wifi_com_connect_from_smartconfig(smartconfig_event_got_ssid_ps
 		return err;
 	}
 
-	return 0;
+	return ESP_OK;
 }
 
 static esp_err_t wifi_com_connect_from_settings(void)
@@ -139,7 +138,7 @@ static esp_err_t wifi_com_connect_from_settings(void)
 		return err;
 	}
 
-	return 0;
+	return ESP_OK;
 }
 
 static void wifi_com_conn_task(void *parm)
@@ -255,6 +254,7 @@ static void wifi_com_event_handler(void *arg, esp_event_base_t event_base, int32
 esp_err_t wifi_com_init(void)
 {
 	esp_err_t err;
+	esp_netif_t *sta_netif;
 	wifi_init_config_t wifi_config = {
 		.osi_funcs              = &g_wifi_osi_funcs,
 		.wpa_crypto_funcs       = g_wifi_default_wpa_crypto_funcs,
@@ -271,7 +271,7 @@ esp_err_t wifi_com_init(void)
 		.nvs_enable             = WIFI_NVS_ENABLED,
 		.nano_enable            = WIFI_NANO_FORMAT_ENABLED,
 		.rx_ba_win              = WIFI_DEFAULT_RX_BA_WIN,
-		.wifi_task_core_id      = CONFIG_NETWORK_CORE_ID,
+		.wifi_task_core_id      = CONFIG_LUMOS_COM_CORE_ID,
 		.beacon_max_len         = WIFI_SOFTAP_BEACON_MAX_LEN,
 		.mgmt_sbuf_num          = WIFI_MGMT_SBUF_NUM,
 		.feature_caps           = g_wifi_feature_caps,
@@ -293,7 +293,6 @@ esp_err_t wifi_com_init(void)
 		.servers                    = { "pool.ntp.org" }
 	};
 
-
 	esp_log_level_set(TAG, ESP_LOG_VERBOSE);
 
 	ESP_LOGI(TAG, "Initializing wifi");
@@ -301,7 +300,7 @@ esp_err_t wifi_com_init(void)
 	wifi_com_task_queue = xQueueCreate(10, sizeof(struct wifi_com_task_queue_data));
 	if (wifi_com_task_queue == NULL) {
 		ESP_LOGE(TAG, "Failed to create queue");
-		return -ESP_ERR_NO_MEM;
+		return ESP_ERR_NO_MEM;
 	}
 
 	err = esp_netif_init();
@@ -316,7 +315,7 @@ esp_err_t wifi_com_init(void)
 		return err;
 	}
 
-	esp_netif_t *sta_netif = esp_netif_create_default_wifi_sta();
+	sta_netif = esp_netif_create_default_wifi_sta();
 	if (!sta_netif) {
 		ESP_LOGE(TAG, "Failed to create netif default wifi sta");
 		return ESP_ERR_NO_MEM;
@@ -368,7 +367,7 @@ esp_err_t wifi_com_init(void)
 		ESP_LOGE(TAG, "Failed to create wifi_com task");
 	}
 
-	return 0;
+	return ESP_OK;
 }
 
 void wifi_com_register_conn_callbacks(const struct wifi_com_conn_callbacks *callbacks)

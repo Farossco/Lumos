@@ -3,7 +3,6 @@
 #include <errno.h>
 #include "http_server_cmd.h"
 #include "json.h"
-#include "kconfig_stub.h"
 #include "spiffs.h"
 #include "utils.h"
 #include "light.h"
@@ -44,7 +43,7 @@ static bool load_from_spiffs(char *query, httpd_req_t *rqst, const char *path)
 	else if (str_endswith(path, ".zip")) data_type = "application/zip";
 
 	err = spiffs_read_file(NULL, 0, path);
-	if (err == ENOENT && strchr(path, '/') == strrchr(path, '/')) {
+	if (err == ESP_ERR_NOT_FOUND && strchr(path, '/') == strrchr(path, '/')) {
 		ESP_LOGD(TAG, "Redirecting %s to %s", path, "/index.html");
 		path      = "/index.html";
 		data_type = "text/html";
@@ -219,7 +218,7 @@ static esp_err_t http_server_cmd_send_response(httpd_req_t *rqst, const uint8_t 
 		return err;
 	}
 
-	return 0;
+	return ESP_OK;
 }
 
 static const struct http_server_cmd_config cmd_config = {
@@ -244,7 +243,7 @@ void http_server_start(void)
 	const httpd_config_t config = {
 		.task_priority                = tskIDLE_PRIORITY + 5,
 		.stack_size                   = 16384,
-		.core_id                      = CONFIG_NETWORK_CORE_ID,
+		.core_id                      = CONFIG_LUMOS_COM_CORE_ID,
 		.server_port                  = 80,
 		.ctrl_port                    = 32768,
 		.max_open_sockets             = 7,

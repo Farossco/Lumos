@@ -93,12 +93,12 @@ static esp_err_t call_callbacks(httpd_req_t *rqst, char *err_str, size_t size)
 	if (!handle_found) {
 		ESP_LOGI(TAG, "No handler found for \"%s\"", type);
 		snprintf(err_str, size, "Incorrect type: %s", type);
-		return -ESP_ERR_NOT_FOUND;
+		return ESP_ERR_NOT_FOUND;
 	}
 
 	snprintf(err_str, size, "All good");
 
-	return 0;
+	return ESP_OK;
 }
 
 static esp_err_t http_server_cmd_handler(httpd_req_t *rqst)
@@ -132,11 +132,12 @@ static const httpd_uri_t http_server_cmd_uri = {
 esp_err_t http_server_cmd_register(httpd_handle_t handle, const struct http_server_cmd_config *config)
 {
 	if (!handle || !config) {
-		return -ESP_ERR_INVALID_ARG;
+		return ESP_ERR_INVALID_ARG;
 	}
+
 	httpd_register_uri_handler(handle, &http_server_cmd_uri);
 
 	http_server_cmd_config = config;
 
-	return 0;
+	return ESP_OK;
 }

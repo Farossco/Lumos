@@ -1,0 +1,28 @@
+menu "Lumos project"
+	config LUMOS_COM_CORE_ID
+		int "Execution core for communication tasks"
+		default 1
+
+	config LUMOS_SPIFFS_MAX_OPENED_FILES
+		int "Maximum SPIFFS parrallel opened files"
+		default 5
+
+	config LUMOS_SPIFFS_MUTEX_TIMEOUT_MS
+		int "SPIFFS read timeout"
+		default 50
+		help
+			Read timeout in case of more than LUMOS_SPIFFS_MAX_OPENED_FILES
+			concurrent access of the SPIFFS
+
+	config LUMOS_UART_COM_BAUD_RATE
+		int "UART baud rate"
+		default 115200
+
+	config LUMOS_LIGHT_DIMMED_MODE
+		bool "Dimmed mode"
+		default n
+
+	config LUMOS_TIME_ZONE
+		string "Time Zone"
+		default "UTC"
+endmenu

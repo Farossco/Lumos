@@ -17,10 +17,10 @@ extern "C" {
 #include <driver/uart.h>
 #include <esp_err.h>
 
-#define URP_SIZE_VARIABLE             ((size_t)-1)
-#define URP_SIZE_INT                  ((size_t)-2)
-#define URP_SIZE_FLOAT                ((size_t)-3)
-#define URP_SIZE_STRING               ((size_t)-4)
+#define URP_SIZE_VARIABLE ((size_t)-1)
+#define URP_SIZE_INT      ((size_t)-2)
+#define URP_SIZE_FLOAT    ((size_t)-3)
+#define URP_SIZE_STRING   ((size_t)-4)
 
 /**
  * @brief Helper to declare a message handler with fixed size.
@@ -142,6 +142,7 @@ struct urp_config {
 	uart_config_t              uart_config;
 	uint8_t                    tx_io_num;
 	uint8_t                    rx_io_num;
+	uint8_t                    core_id;
 
 	/* Private */
 	QueueHandle_t              task_queue;

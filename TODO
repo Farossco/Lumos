@@ -5,12 +5,8 @@
 - Re-Implement Sound
 - Re-implement Infrared
 - Re-implement alarms
-- Automatically fill the json buffer with error buffer in case of a json error inside json.c (still return an error code)
-- Implement proper Kconfig for URP and project
 - Update README
-- move http_server_command as an external component
-- Use ESP errors when possible and use ESP_OK for return
+- move http_server_command and json as an external components
 - Use #pragma once in all headers
 - Document everything
-- Remove Kconfig stubs
 - replace http_server_start() call with callback (wifi.com.c ligne 178)

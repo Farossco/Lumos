@@ -4,7 +4,6 @@
 #include <esp_http_client.h>
 #include <esp_tls.h>
 #include "utils.h"
-#include "kconfig_stub.h"
 
 static const char *TAG = "http_client";
 
