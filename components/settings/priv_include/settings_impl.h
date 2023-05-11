@@ -6,8 +6,7 @@
  * @brief
  */
 
-#ifndef SETTINGS_IMPL_H
-#define SETTINGS_IMPL_H
+#pragma once
 
 #include "esp_err.h"
 
@@ -105,5 +104,3 @@ esp_err_t settings_impl_load(const char *group_name, settings_impl_load_cb_t cb,
  *         Error code dependant of the implementation otherwise.
  */
 esp_err_t settings_impl_init(void);
-
-#endif /* ifndef SETTINGS_IMPL_H */

@@ -8,6 +8,7 @@
 
 #include "settings.h"
 #include "settings_impl.h"
+#include "settings_internal.h"
 #include "settings_def_internal.h"
 
 #include <stdio.h>
@@ -16,7 +17,6 @@
 #include <freertos/semphr.h>
 #include <esp_log.h>
 #include <string.h>
-#include <errno.h>
 
 #if CONFIG_SETTINGS_BLOCKING
 #define BLOCKING_TIMEOUT_MS CONFIG_SETTINGS_BLOCKING_TIMEOUT_MS

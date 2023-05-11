@@ -7,7 +7,6 @@
  */
 
 #include "light_mode_task.h"
-#include <errno.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <freertos/queue.h>

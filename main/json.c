@@ -1,6 +1,5 @@
 #include "json.h"
 #include <cJSON.h>
-#include <errno.h>
 #include "utils.h"
 
 #include "sys/queue.h" /* TODO: Use this instead (slist) */
@@ -26,6 +25,8 @@ esp_err_t json_get(enum json_type type, char *buf, size_t size, bool format)
 	assert(buf);
 
 	if (type >= JSON_TYPE_N) {
+		snprintf(buf, size, "Json type %d is invalid (max is %d)", type, JSON_TYPE_N);
+		ESP_LOGE(TAG, "Json type %d is invalid (max is %d)", type, JSON_TYPE_N);
 		return ESP_ERR_INVALID_ARG;
 	}
 
@@ -64,8 +65,8 @@ esp_err_t json_get(enum json_type type, char *buf, size_t size, bool format)
 
 		err = sub_data->json_generate_cb(&ctx);
 		if (err) {
-			snprintf(error_str, sizeof(error_str), "Generation aborted by %s: %s", sub_data->sub_name, err2str(err));
-			ESP_LOGE(TAG, "Generation aborted by %s: %s", sub_data->sub_name, err2str(err));
+			snprintf(error_str, sizeof(error_str), "Generation aborted by %s: %s", sub_data->sub_name, esp_err_to_name(err));
+			ESP_LOGE(TAG, "Generation aborted by %s: %s", sub_data->sub_name, esp_err_to_name(err));
 			ret = err;
 			goto end;
 		}
@@ -80,7 +81,14 @@ esp_err_t json_get(enum json_type type, char *buf, size_t size, bool format)
 
 end:
 	cJSON_Delete(root);
-	json_get_error(buf, size, error_str, format);
+
+	if (ret != ESP_OK) {
+		err = json_get_error(buf, size, error_str, format);
+		if (err) {
+			return err;
+		}
+	}
+
 	return ret;
 }
 
@@ -311,7 +319,7 @@ esp_err_t json_gen_add_generic_array(json_callback_ctx_t *ctx, const char *const
 
 	err = array_generate_cb(&array_ctx);
 	if (err) {
-		ESP_LOGE(TAG, "Array generation aborted by %s: %s", ctx->sub_data->sub_name, err2str(err));
+		ESP_LOGE(TAG, "Array generation aborted by %s: %s", ctx->sub_data->sub_name, esp_err_to_name(err));
 		return err;
 	}
 
@@ -335,7 +343,7 @@ esp_err_t json_gen_add_generic_object(json_callback_ctx_t *ctx, const char *cons
 
 	err = array_generate_cb(&object_ctx);
 	if (err) {
-		ESP_LOGE(TAG, "Object generation aborted by %s: %s", ctx->sub_data->sub_name, err2str(err));
+		ESP_LOGE(TAG, "Object generation aborted by %s: %s", ctx->sub_data->sub_name, esp_err_to_name(err));
 		return err;
 	}
 

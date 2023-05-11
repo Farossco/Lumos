@@ -1,9 +1,12 @@
-#ifndef LUMOS_LIGHT_STRIP_H
-#define LUMOS_LIGHT_STRIP_H
+/**
+ * @file light_strip.h
+ * @author Farès Chati (faresticha@gmail.com)
+ * @date 2023-05-11
+ * 
+ * @brief 
+ */
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* ifdef __cplusplus */
+#pragma once
 
 #include "color.h"
 
@@ -48,9 +51,3 @@ void light_strip_color_all_set(rgb_t rgb, uint8_t power);
  *
  */
 void light_strip_update(void);
-
-#ifdef __cplusplus
-}
-#endif /* ifdef __cplusplus */
-
-#endif /* ifndef LUMOS_LIGHT_STRIP_H */

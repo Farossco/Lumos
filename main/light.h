@@ -6,8 +6,7 @@
  * @brief This module handles the lights.
  */
 
-#ifndef LUMOS_LIGHT_H
-#define LUMOS_LIGHT_H
+#pragma once
 
 #include "time.h"
 #include "color.h"
@@ -89,5 +88,3 @@ const char * light_mode_string_get(uint8_t mode);
  *
  */
 int light_init(void);
-
-#endif /* ifndef LUMOS_LIGHT_H */

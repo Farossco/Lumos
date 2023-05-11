@@ -6,8 +6,7 @@
  * @brief
  */
 
-#ifndef URP_H
-#define URP_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -192,5 +191,3 @@ esp_err_t urp_send_string(struct urp_config *config, const char *data_type_str, 
 #ifdef __cplusplus
 }
 #endif /* ifdef __cplusplus */
-
-#endif /* URP_H */

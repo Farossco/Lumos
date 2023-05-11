@@ -16,7 +16,8 @@
 	"idf.port": "/dev/ttyUSB0",
 	"files.associations": {
 		"esp_sntp.h": "c",
-		"led_strip_spi.h": "c"
+		"led_strip_spi.h": "c",
+		"settings_def.h": "c"
 	},
 	"idf.adapterTargetName": "esp32"
 }

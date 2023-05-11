@@ -32,22 +32,22 @@ esp_err_t spiffs_read_file(char *buf, size_t buf_size, const char *path)
 
 	/* Check if the requested file exists */
 	if (stat(full_path, &sbuf)) {
-		ESP_LOGE(TAG, "File %s doesn't exist or an error occured: %s", full_path, err2str(errno));
-		ret = errno;
+		if (errno == ENOENT) {
+			ret = ESP_ERR_NOT_FOUND;
+		} else {
+			ESP_LOGE(TAG, "File %s doesn't exist or an error occured: %d", full_path, errno);
+			ret = ESP_FAIL;
+		}
 	} else if (buf) {
 		file = fopen(full_path, "r");
 		if (file == NULL) {
-			if (errno == ENOENT) {
-				ESP_LOGE(TAG, "%s not found", full_path);
-				return ESP_ERR_NOT_FOUND;
-			}
-			ESP_LOGE(TAG, "Failed to open %s: %s", full_path, err2str(errno));
-			ret = errno;
+			ESP_LOGE(TAG, "Failed to open %s: %d", full_path, errno);
+			ret = ESP_FAIL;
 		} else {
 			read_size = fread(buf, 1, buf_size, file);
 			if (read_size == 0 && ferror(file) != 0) {
-				ESP_LOGE(TAG, "Failed to read file %s! %s", full_path, err2str(errno));
-				ret = errno;
+				ESP_LOGE(TAG, "Failed to read file %s! %d", full_path, errno);
+				ret = ESP_FAIL;
 			}
 
 			fclose(file);
@@ -88,23 +88,27 @@ esp_err_t spiffs_read_file_chunks(char *chunk_buf, size_t buf_size, const char *
 
 	/* Check if the requested file exists */
 	if (stat(full_path, &sbuf)) {
-		ESP_LOGE(TAG, "File %s doesn't exist or an error occured: %s", full_path, err2str(errno));
-		ret = errno;
+		if (errno == ENOENT) {
+			ret = ESP_ERR_NOT_FOUND;
+		} else {
+			ESP_LOGE(TAG, "File %s doesn't exist or an error occured: %d", full_path, errno);
+			ret = ESP_FAIL;
+		}
 	} else {
 		file = fopen(full_path, "r");
 		if (file == NULL) {
-			ESP_LOGE(TAG, "Failed to open %s: %s", full_path, err2str(errno));
-			ret = errno;
+			ESP_LOGE(TAG, "Failed to open %s: %d", full_path, errno);
+			ret = ESP_FAIL;
 		} else {
 			do{
 				read_size = fread(chunk_buf, 1, buf_size, file);
 				if (read_size == 0 && ferror(file) != 0) {
-					ESP_LOGE(TAG, "Failed to read file %s! %s", full_path, err2str(errno));
-					ret = errno;
+					ESP_LOGE(TAG, "Failed to read file %s! %d", full_path, errno);
+					ret = ESP_FAIL;
 				} else {
 					if (on_chunk_read_cb(chunk_buf, read_size, arg) == SPIFFS_READ_CB_STOP) {
 						ESP_LOGD(TAG, "File read stopped by user");
-						ret = -ESP_ERR_NOT_FINISHED;
+						ret = ESP_ERR_NOT_FINISHED;
 						break;
 					}
 				}
@@ -150,7 +154,7 @@ esp_err_t spiffs_init(void)
 	spiffs_sem = xSemaphoreCreateCounting(CONFIG_LUMOS_SPIFFS_MAX_OPENED_FILES,
 	                                      CONFIG_LUMOS_SPIFFS_MAX_OPENED_FILES);
 	if (spiffs_sem == NULL) {
-		ESP_LOGE(TAG, "Failed to create fs semaphore: %s", err2str(ESP_ERR_NO_MEM));
+		ESP_LOGE(TAG, "Failed to create fs semaphore");
 		return ESP_ERR_NO_MEM;
 	}
 

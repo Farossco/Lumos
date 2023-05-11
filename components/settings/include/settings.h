@@ -6,8 +6,7 @@
  * @brief
  */
 
-#ifndef SETTINGS_H
-#define SETTINGS_H
+#pragma once
 
 #include <settings_def.h>
 #include <esp_err.h>
@@ -197,5 +196,3 @@ esp_err_t settings_reload(void);
  *         Any other error code returned by the underlying non-volatile implementation.
  */
 esp_err_t settings_init(void);
-
-#endif /* ifndef SETTINGS_H */

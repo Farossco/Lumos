@@ -6,8 +6,7 @@
  * @brief
  */
 
-#ifndef SETTINGS_INTERNAL_H
-#define SETTINGS_INTERNAL_H
+#pragma once
 
 #include <stdbool.h>
 
@@ -98,5 +97,3 @@
 #else  /* if CONFIG_SETTINGS_INSTANCE_MAX < 10 */
 #define SETTINGS_INSTANCE_FULL_NAME_EXTRA_LENGTH 5
 #endif /* if CONFIG_SETTINGS_INSTANCE_MAX < 10 */
-
-#endif /* ifndef SETTINGS_INTERNAL_H */

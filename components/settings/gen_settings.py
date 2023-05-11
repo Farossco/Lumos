@@ -18,10 +18,6 @@ def remove_comments_from_csv(csv_file):
             yield raw
 
 
-import csv
-from packaging import version
-
-
 def parse_input_groups(input_groups_path, length_max):
     """
     This function reads a CSV file and extracts information about groups of configuration settings.
@@ -202,7 +198,7 @@ def generate(
     out_header_internal_path,
 ):
     with open(out_header_path, "w+") as out_header:
-        out_header.write("#ifndef SETTINGS_DEF_H\n#define SETTINGS_DEF_H\n\n")
+        out_header.write("#pragma once\n\n")
 
         try:
             try:
@@ -249,7 +245,7 @@ def generate(
 
                 out_header.write(row)
 
-            out_header.write("\n" "};\n\n" "#endif /* SETTINGS_DEF_H */\n")
+            out_header.write("\n};\n")
         except Exception as e:
             out_header.write(
                 "\n#error \"Got Python error '{e}' while generating this file\"\n"
@@ -259,10 +255,9 @@ def generate(
     with open(out_header_internal_path, "w+") as out_header_internal:
         try:
             out_header_internal.write(
-                f"#ifndef SETTINGS_INTERNAL_DEF_H\n"
-                f"#define SETTINGS_INTERNAL_DEF_H\n"
+                f"#pragma once\n"
                 "\n"
-                f"#include <settings_internal.h>\n"
+                f"#include <{os.path.basename(out_header_path)}>\n"
                 "\n"
                 "/* Settings version */\n"
                 f"#define SETTINGS_VERSION_MAJOR {version.major}\n"
@@ -344,8 +339,6 @@ def generate(
                     )
                 out_header_internal.write("),")
             out_header_internal.write("\n")
-
-            out_header_internal.write("\n" "#endif /* SETTINGS_INTERNAL_DEF_H " "*/\n")
         except Exception as e:
             out_header_internal.write(
                 "\n#error \"Got Python error '{e}' while generating this file\"\n"

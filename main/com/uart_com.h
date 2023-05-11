@@ -1,9 +1,12 @@
-#ifndef UART_COM_H
-#define UART_COM_H
+/**
+ * @file uart_com.h
+ * @author Farès Chati (faresticha@gmail.com)
+ * @date 2023-05-11
+ * 
+ * @brief 
+ */
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* ifdef __cplusplus */
+#pragma once
 
 #include <stdint.h>
 #include <stddef.h>
@@ -16,9 +19,3 @@ struct uart_com_callbacks {
 esp_err_t uart_com_init(void);
 
 void uart_com_register_callbacks(struct uart_com_callbacks cbks);
-
-#ifdef __cplusplus
-}
-#endif /* ifdef __cplusplus */
-
-#endif /* ifndef UART_COM_H */

@@ -16,31 +16,31 @@ void app_main(void)
 
 	err = settings_init();
 	if (err) {
-		ESP_LOGE(TAG, "FATAL: Failed to init settings: %s", err2str(err));
+		ESP_LOGE(TAG, "FATAL: Failed to init settings: %s", esp_err_to_name(err));
 		return;
 	}
 
 	err = spiffs_init();
 	if (err) {
-		ESP_LOGE(TAG, "FATAL: Failed to init memory: %s", err2str(err));
+		ESP_LOGE(TAG, "FATAL: Failed to init memory: %s", esp_err_to_name(err));
 		return;
 	}
 
 	err = uart_com_init();
 	if (err) {
-		ESP_LOGE(TAG, "FATAL: Failed to init uart_com: %s", err2str(err));
+		ESP_LOGE(TAG, "FATAL: Failed to init uart_com: %s", esp_err_to_name(err));
 		return;
 	}
 
 	err = light_init();
 	if (err) {
-		ESP_LOGE(TAG, "FATAL: Failed to init light: %s", err2str(err));
+		ESP_LOGE(TAG, "FATAL: Failed to init light: %s", esp_err_to_name(err));
 		return;
 	}
 
 	err = wifi_com_init();
 	if (err) {
-		ESP_LOGE(TAG, "FATAL: Failed to init wifi_com: %s", err2str(err));
+		ESP_LOGE(TAG, "FATAL: Failed to init wifi_com: %s", esp_err_to_name(err));
 		return;
 	}
 }

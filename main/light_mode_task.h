@@ -6,12 +6,7 @@
  * @brief
  */
 
-#ifndef LUMOS_LIGHT_MODE_TASK_H
-#define LUMOS_LIGHT_MODE_TASK_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif /* ifdef __cplusplus */
+#pragma once
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -40,9 +35,3 @@ void light_mode_task_start(uint8_t mode, struct light_mode_data *data);
 void light_mode_task_stop(void);
 void light_mode_task_register_callbacks(const struct light_mode_task_callbacks *cbks);
 int light_mode_task_init(void);
-
-#ifdef __cplusplus
-}
-#endif /* ifdef __cplusplus */
-
-#endif /* ifndef LUMOS_LIGHT_MODE_TASK_H */

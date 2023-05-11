@@ -1,15 +1,11 @@
-#ifndef NETWORK_HTTP_SERVER_H
-#define NETWORK_HTTP_SERVER_H
+/**
+ * @file http_server.h
+ * @author Farès Chati (faresticha@gmail.com)
+ * @date 2023-05-11
+ * 
+ * @brief 
+ */
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* ifdef __cplusplus */
+#pragma once
 
 void http_server_start();
-
-#ifdef __cplusplus
-}
-#endif /* ifdef __cplusplus */
-
-
-#endif /* ifndef NETWORK_HTTP_SERVER_H */

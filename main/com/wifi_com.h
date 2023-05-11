@@ -1,9 +1,12 @@
-#ifndef NETWORK_WIFI_COM_H
-#define NETWORK_WIFI_COM_H
+/**
+ * @file wifi_com.h
+ * @author Farès Chati (faresticha@gmail.com)
+ * @date 2023-05-11
+ * 
+ * @brief 
+ */
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* ifdef __cplusplus */
+#pragma once
 
 #include <esp_err.h>
 
@@ -14,9 +17,3 @@ struct wifi_com_conn_callbacks {
 esp_err_t wifi_com_init(void);
 
 void wifi_com_register_conn_callbacks(const struct wifi_com_conn_callbacks *callbacks);
-
-#ifdef __cplusplus
-}
-#endif /* ifdef __cplusplus */
-
-#endif /* ifndef NETWORK_WIFI_COM_H */

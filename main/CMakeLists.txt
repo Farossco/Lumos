@@ -15,8 +15,7 @@ set(src ${com_src}
         json.c
         light.c
         light_mode_task.c
-        spiffs.c
-        utils.c)
+        spiffs.c)
 
 idf_component_register(SRCS ${src} 
                        INCLUDE_DIRS .)

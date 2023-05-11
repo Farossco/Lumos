@@ -1,6 +1,5 @@
 #include "http_server.h"
 #include <esp_http_server.h>
-#include <errno.h>
 #include "http_server_cmd.h"
 #include "json.h"
 #include "spiffs.h"
@@ -18,7 +17,7 @@ static bool on_chunk_read(char *chunk_data, size_t chunk_size, void *arg)
 
 	err = httpd_resp_send_chunk(rqst, chunk_data, chunk_size);
 	if (err) {
-		ESP_LOGE(TAG, "Failed to send chunk: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to send chunk: %s", esp_err_to_name(err));
 		return SPIFFS_READ_CB_STOP;
 	}
 
@@ -48,7 +47,7 @@ static bool load_from_spiffs(char *query, httpd_req_t *rqst, const char *path)
 		path      = "/index.html";
 		data_type = "text/html";
 	} else if (err) {
-		ESP_LOGE(TAG, "Failed to read file %s: %s", path, err2str(err));
+		ESP_LOGE(TAG, "Failed to read file %s: %s", path, esp_err_to_name(err));
 		return false;
 	}
 
@@ -56,7 +55,7 @@ static bool load_from_spiffs(char *query, httpd_req_t *rqst, const char *path)
 
 	err = spiffs_read_file_chunks(chunk_buf, sizeof(chunk_buf), path, on_chunk_read, rqst);
 	if (err) {
-		ESP_LOGE(TAG, "Failed to read file %s: %s", path, err2str(err));
+		ESP_LOGE(TAG, "Failed to read file %s: %s", path, esp_err_to_name(err));
 		return false;
 	}
 
@@ -76,20 +75,20 @@ static esp_err_t handle_get_res(httpd_req_t *rqst)
 
 	err = json_get(JSON_TYPE_RES, resp_buf, sizeof(resp_buf), true);
 	if (err) {
-		ESP_LOGE(TAG, "Failed to generate JSON: %s", err2str(err));
-		snprintf(resp_buf, sizeof(resp_buf), "Failed to generate JSON: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to generate JSON: %s", esp_err_to_name(err));
+		snprintf(resp_buf, sizeof(resp_buf), "Failed to generate JSON: %s", esp_err_to_name(err));
 		resp_type = "text/plain";
 	}
 
 	err = httpd_resp_set_type(rqst, resp_type);
 	if (err) {
-		ESP_LOGE(TAG, "Failed to set response type: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to set response type: %s", esp_err_to_name(err));
 		return err;
 	}
 
 	err = httpd_resp_sendstr(rqst, resp_buf);
 	if (err) {
-		ESP_LOGE(TAG, "Failed to send response: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to send response: %s", esp_err_to_name(err));
 		return err;
 	}
 
@@ -112,7 +111,7 @@ static esp_err_t handle_web_requests(httpd_req_t *rqst, httpd_err_code_t error)
 	if (err == ESP_ERR_NOT_FOUND) {
 		query[0] = '\0';
 	} else if (err) {
-		ESP_LOGE(TAG, "Failed to get url query str: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to get url query str: %s", esp_err_to_name(err));
 		return err;
 	}
 
@@ -127,19 +126,19 @@ static esp_err_t handle_web_requests(httpd_req_t *rqst, httpd_err_code_t error)
 
 		err = httpd_resp_set_status(rqst, HTTPD_404);
 		if (err) {
-			ESP_LOGE(TAG, "Failed to set status: %s", err2str(err));
+			ESP_LOGE(TAG, "Failed to set status: %s", esp_err_to_name(err));
 			return err;
 		}
 
 		err = httpd_resp_set_type(rqst, "text/plain");
 		if (err) {
-			ESP_LOGE(TAG, "Failed to set status: %s", err2str(err));
+			ESP_LOGE(TAG, "Failed to set status: %s", esp_err_to_name(err));
 			return err;
 		}
 
 		err = httpd_resp_sendstr(rqst, response);
 		if (err) {
-			ESP_LOGE(TAG, "Failed to send page: %s", err2str(err));
+			ESP_LOGE(TAG, "Failed to send page: %s", esp_err_to_name(err));
 			return err;
 		}
 
@@ -194,27 +193,26 @@ static esp_err_t http_server_cmd_send_response(httpd_req_t *rqst, const uint8_t 
 	} else {
 		err = json_get(JSON_TYPE_DATA, resp_buf, sizeof(resp_buf), true);
 	}
-
 	if (err) {
-		ESP_LOGE(TAG, "Failed to generate JSON: %s", err2str(err));
-		snprintf(resp_buf, sizeof(resp_buf), "Failed to generate JSON: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to generate JSON: %s", esp_err_to_name(err));
+		snprintf(resp_buf, sizeof(resp_buf), "Failed to generate JSON: %s", esp_err_to_name(err));
 		resp_type = "text/plain";
 	}
 
 	err = httpd_resp_set_type(rqst, resp_type);
 	if (err) {
-		ESP_LOGE(TAG, "Failed to set response type: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to set response type: %s", esp_err_to_name(err));
 	}
 
 	/* Necessary for the web app to be hosted on a separate server */
 	err = httpd_resp_set_hdr(rqst, "Access-Control-Allow-Origin", "*");
 	if (err) {
-		ESP_LOGE(TAG, "Failed to set header: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to set header: %s", esp_err_to_name(err));
 	}
 
 	err = httpd_resp_sendstr(rqst, resp_buf);
 	if (err) {
-		ESP_LOGE(TAG, "Failed to send response: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to send response: %s", esp_err_to_name(err));
 		return err;
 	}
 
@@ -269,7 +267,7 @@ void http_server_start(void)
 
 	err = httpd_start(&httpd_handle, &config);
 	if (err) {
-		ESP_LOGE(TAG, "Failed to start server: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to start server: %s", esp_err_to_name(err));
 		return;
 	}
 

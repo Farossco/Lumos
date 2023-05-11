@@ -128,13 +128,13 @@ static esp_err_t wifi_com_connect_from_settings(void)
 
 	err = esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
 	if (err) {
-		ESP_LOGE(TAG, "Failed to set wifi config: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to set wifi config: %s", esp_err_to_name(err));
 		return err;
 	}
 
 	err = esp_wifi_connect();
 	if (err) {
-		ESP_LOGE(TAG, "Failed to initiate wifi connection: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to initiate wifi connection: %s", esp_err_to_name(err));
 		return err;
 	}
 
@@ -156,7 +156,7 @@ static void wifi_com_conn_task(void *parm)
 		case WIFI_COM_EVENT_WIFI_START:
 			err = wifi_com_connect_from_settings();
 			if (err) {
-				ESP_LOGW(TAG, "Could not connect from settings: %s", err2str(err));
+				ESP_LOGW(TAG, "Could not connect from settings: %s", esp_err_to_name(err));
 				wifi_com_initiate_smartconfig();
 			}
 			break;
@@ -168,7 +168,7 @@ static void wifi_com_conn_task(void *parm)
 
 			err = esp_wifi_sta_get_ap_info(&ap_info);
 			if (err) {
-				ESP_LOGE(TAG, "Failed to get AP info: %s", err2str(err));
+				ESP_LOGE(TAG, "Failed to get AP info: %s", esp_err_to_name(err));
 			} else {
 				ESP_LOGI(TAG, "WiFi successfully connected to %s", ap_info.ssid);
 			}
@@ -191,10 +191,10 @@ static void wifi_com_conn_task(void *parm)
 				ESP_LOGD(TAG, "Attempting reconnection");
 				err = esp_wifi_connect();
 				if (err) {
-					ESP_LOGE(TAG, "Failed to initiate wifi connection: %s", err2str(err));
+					ESP_LOGE(TAG, "Failed to initiate wifi connection: %s", esp_err_to_name(err));
 					err = wifi_com_initiate_smartconfig();
 					{
-						ESP_LOGE(TAG, "FATAL: Failed to configure smartconfig!: %s", err2str(err));
+						ESP_LOGE(TAG, "FATAL: Failed to configure smartconfig!: %s", esp_err_to_name(err));
 					}
 				}
 			}
@@ -305,13 +305,13 @@ esp_err_t wifi_com_init(void)
 
 	err = esp_netif_init();
 	if (err) {
-		ESP_LOGE(TAG, "Failed to initialize netif: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to initialize netif: %s", esp_err_to_name(err));
 		return err;
 	}
 
 	err = esp_event_loop_create_default();
 	if (err) {
-		ESP_LOGE(TAG, "Failed to create default event loop: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to create default event loop: %s", esp_err_to_name(err));
 		return err;
 	}
 
@@ -323,43 +323,43 @@ esp_err_t wifi_com_init(void)
 
 	err = esp_wifi_init(&wifi_config);
 	if (err) {
-		ESP_LOGE(TAG, "Failed to initialize wifi: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to initialize wifi: %s", esp_err_to_name(err));
 		return err;
 	}
 
 	err = esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_com_event_handler, NULL);
 	if (err) {
-		ESP_LOGE(TAG, "Failed to register handler: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to register handler: %s", esp_err_to_name(err));
 		return err;
 	}
 
 	err = esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &wifi_com_event_handler, NULL);
 	if (err) {
-		ESP_LOGE(TAG, "Failed to register handler: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to register handler: %s", esp_err_to_name(err));
 		return err;
 	}
 
 	err = esp_event_handler_register(SC_EVENT, ESP_EVENT_ANY_ID, &wifi_com_event_handler, NULL);
 	if (err) {
-		ESP_LOGE(TAG, "Failed to register handler: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to register handler: %s", esp_err_to_name(err));
 		return err;
 	}
 
 	err = esp_wifi_set_mode(WIFI_MODE_STA);
 	if (err) {
-		ESP_LOGE(TAG, "Failed to set wifi STA mode: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to set wifi STA mode: %s", esp_err_to_name(err));
 		return err;
 	}
 
 	err = esp_wifi_start();
 	if (err) {
-		ESP_LOGE(TAG, "Failed to start wifi: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to start wifi: %s", esp_err_to_name(err));
 		return err;
 	}
 
 	err = esp_netif_sntp_init(&sntp_config);
 	if (err) {
-		ESP_LOGE(TAG, "Failed to initialize sntp: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to initialize sntp: %s", esp_err_to_name(err));
 		return err;
 	}
 

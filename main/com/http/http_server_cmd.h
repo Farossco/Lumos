@@ -1,9 +1,4 @@
-#ifndef NETWORK_HTTP_SERVER_CMD_H
-#define NETWORK_HTTP_SERVER_CMD_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif /* ifdef __cplusplus */
+#pragma once
 
 #include <esp_http_server.h>
 #include <esp_err.h>
@@ -55,10 +50,3 @@ struct http_server_cmd_config {
 };
 
 esp_err_t http_server_cmd_register(httpd_handle_t handle, const struct http_server_cmd_config *config);
-
-#ifdef __cplusplus
-}
-#endif /* ifdef __cplusplus */
-
-
-#endif /* ifndef NETWORK_HTTP_SERVER_H */

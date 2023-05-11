@@ -1,9 +1,4 @@
-#ifndef LUMOS_JSON_H
-#define LUMOS_JSON_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif /* ifdef __cplusplus */
+#pragma once
 
 #include <esp_err.h>
 #include <stdint.h>
@@ -71,9 +66,3 @@ esp_err_t json_gen_add_string(json_callback_ctx_t *ctx, const char *const name, 
 esp_err_t json_gen_add_string_array(json_callback_ctx_t *ctx, const char *const name, const char *const *strings, size_t size);
 esp_err_t json_gen_add_generic_array(json_callback_ctx_t *ctx, const char *const name, json_generate_cb_t array_generate_cb);
 esp_err_t json_gen_add_generic_object(json_callback_ctx_t *ctx, const char *const name, json_generate_cb_t object_generate_cb);
-
-#ifdef __cplusplus
-}
-#endif /* ifdef __cplusplus */
-
-#endif /* ifndef LUMOS_JSON_H */

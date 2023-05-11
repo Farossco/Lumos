@@ -259,19 +259,19 @@ esp_err_t light_init(void)
 
 	err = light_mode_task_init();
 	if (err) {
-		ESP_LOGE(TAG, "Failed to init light_mode_task: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to init light_mode_task: %s", esp_err_to_name(err));
 		return err;
 	}
 
 	err = json_subscribe_to(JSON_TYPE_DATA, &json_data_sub);
 	if (err) {
-		ESP_LOGE(TAG, "Failed to subscribe to JSON data: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to subscribe to JSON data: %s", esp_err_to_name(err));
 		return err;
 	}
 
 	err = json_subscribe_to(JSON_TYPE_RES, &json_res_sub);
 	if (err) {
-		ESP_LOGE(TAG, "Failed to subscribe to JSON res: %s", err2str(err));
+		ESP_LOGE(TAG, "Failed to subscribe to JSON res: %s", esp_err_to_name(err));
 		return err;
 	}
 
