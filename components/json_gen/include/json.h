@@ -3,6 +3,7 @@
 #include <esp_err.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <sys/queue.h>
 
 #define JSON_GEN_CALL_AND_TEST(func_call) { \
 		esp_err_t err = func_call;               \
@@ -46,9 +47,9 @@ typedef struct json_callback_ctx json_callback_ctx_t;
 typedef esp_err_t (*json_generate_cb_t)(json_callback_ctx_t *ctx);
 
 struct json_sub_data {
-	const char           *sub_name;
-	json_generate_cb_t   json_generate_cb;
-	struct json_sub_data *next;
+	const char         *sub_name;
+	json_generate_cb_t json_generate_cb;
+	SLIST_ENTRY(json_sub_data) next;
 };
 
 esp_err_t json_get(enum json_type type, char *buf, size_t size, bool format);

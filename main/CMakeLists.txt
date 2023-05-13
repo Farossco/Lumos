@@ -11,10 +11,9 @@ set(peripherals_src peripherals/sd_card.c
 
 set(src ${com_src}
         ${peripherals_src}
-        main.c
-        json.c
-        light.c
         light_mode_task.c
+        light.c
+        main.c
         spiffs.c)
 
 idf_component_register(SRCS ${src} 

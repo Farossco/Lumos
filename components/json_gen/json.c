@@ -1,12 +1,10 @@
 #include "json.h"
 #include <cJSON.h>
-#include "utils.h"
-
-#include "sys/queue.h" /* TODO: Use this instead (slist) */
+#include <esp_log.h>
 
 static const char *TAG = "json";
 
-static struct json_sub_data *sub_list[JSON_TYPE_N];
+static SLIST_HEAD(, json_sub_data) sub_list[JSON_TYPE_N];
 
 typedef struct json_callback_ctx {
 	cJSON                *root;
@@ -18,6 +16,7 @@ esp_err_t json_get(enum json_type type, char *buf, size_t size, bool format)
 	json_callback_ctx_t ctx;
 	esp_err_t err;
 	esp_err_t ret = 0;
+	struct json_sub_data *browse_obj;
 	char error_str[100];
 
 	cJSON *root;
@@ -53,9 +52,9 @@ esp_err_t json_get(enum json_type type, char *buf, size_t size, bool format)
 		goto end;
 	}
 
-	for (struct json_sub_data *sub_data = sub_list[type]; sub_data != NULL; sub_data = sub_data->next) {
-		ctx.sub_data = sub_data;
-		ctx.root     = cJSON_AddObjectToObject(root, sub_data->sub_name);
+	SLIST_FOREACH(browse_obj, &sub_list[type], next) {
+		ctx.sub_data = browse_obj;
+		ctx.root     = cJSON_AddObjectToObject(root, browse_obj->sub_name);
 		if (!ctx.root) {
 			snprintf(error_str, sizeof(error_str), "Failed to add item to object");
 			ESP_LOGE(TAG, "Failed to add item to object");
@@ -63,10 +62,10 @@ esp_err_t json_get(enum json_type type, char *buf, size_t size, bool format)
 			goto end;
 		}
 
-		err = sub_data->json_generate_cb(&ctx);
+		err = browse_obj->json_generate_cb(&ctx);
 		if (err) {
-			snprintf(error_str, sizeof(error_str), "Generation aborted by %s: %s", sub_data->sub_name, esp_err_to_name(err));
-			ESP_LOGE(TAG, "Generation aborted by %s: %s", sub_data->sub_name, esp_err_to_name(err));
+			snprintf(error_str, sizeof(error_str), "Generation aborted by %s: %s", browse_obj->sub_name, esp_err_to_name(err));
+			ESP_LOGE(TAG, "Generation aborted by %s: %s", browse_obj->sub_name, esp_err_to_name(err));
 			ret = err;
 			goto end;
 		}
@@ -133,38 +132,24 @@ end:
 	return ret;
 }
 
-static esp_err_t json_sub_list_add(enum json_type type, struct json_sub_data *obj)
-{
-	struct json_sub_data **cur = &sub_list[type];
-
-	while (*cur != NULL) {
-		if (*cur == obj) {
-			ESP_LOGE(TAG, "Subscriber %s (%p) already in the list", obj->sub_name, obj);
-			return ESP_ERR_INVALID_STATE;
-		}
-		cur = &((*cur)->next);
-	}
-
-	*cur = obj;
-
-	return ESP_OK;
-}
-
 esp_err_t json_subscribe_to(enum json_type type, struct json_sub_data *obj)
 {
-	esp_err_t err;
+	struct json_sub_data *browse_obj;
 
 	if (!obj || type >= JSON_TYPE_N || !obj->json_generate_cb) {
 		return ESP_ERR_INVALID_ARG;
 	}
 
-	err = json_sub_list_add(type, obj);
-	if (err) {
-		return err;
+	/* Browse the list to check for duplicate */
+	SLIST_FOREACH(browse_obj, &sub_list[type], next) {
+		if (browse_obj == obj) {
+			ESP_LOGE(TAG, "Subscriber %s (%p) already in the list", obj->sub_name, obj);
+			return ESP_ERR_INVALID_STATE;
+		}
 	}
 
-	/* Object has been added at the end of the list, set it as last item */
-	obj->next = NULL;
+	/* Add the subscriber at the head of the list */
+	SLIST_INSERT_HEAD(&sub_list[type], obj, next);
 
 	return ESP_OK;
 }
