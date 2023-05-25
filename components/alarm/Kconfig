@@ -1,0 +1,27 @@
+menu "Alarms"
+	config ALARM_TASK_PRIO
+		int "Priority of the task"
+		default 12
+
+	config ALARM_TASK_CORE
+		int "Core of the task"
+		default 0
+
+	config ALARM_ITEM_MAX
+		int "Maximum alarm items that can be stored"
+		default 50
+		range 0 65535
+
+	config ALARM_NVS_PART_CUSTOM
+		bool "NVS: Use custom partition"
+		default n
+
+	config ALARM_NVS_PART_CUSTOM_NAME
+		string "NVS: Partition name"
+		default "alarms"
+		depends on ALARM_NVS_PART_CUSTOM
+	
+	config ALARM_NVS_NAMESPACE_NAME
+		string "NVS: Namespace name"
+		default "alarms"
+endmenu

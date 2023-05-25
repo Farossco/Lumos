@@ -1,6 +1,7 @@
 #include "uart_com.h"
 #include <string.h>
 #include <urp.h>
+#include "alarms.h"
 #include "driver/uart.h"
 #include "utils.h"
 #include "light.h"
@@ -16,6 +17,10 @@
 #define VALUE_TYPE_POW       "POW"
 #define VALUE_TYPE_SPE       "SPE"
 #define VALUE_TYPE_TZC       "TZC"
+#define VALUE_TYPE_AAD       "AAD"
+#define VALUE_TYPE_ARM       "ARM"
+#define VALUE_TYPE_ALS       "ALS"
+#define VALUE_TYPE_ACL       "ACL"
 
 static void onLightOnOff(long value, void *arg)
 {
@@ -64,6 +69,66 @@ static void on_time_zone_change(const char *data, void *arg)
 	ESP_LOGI(TAG, "The current date/time in Paris is: %s", strftime_buf);
 }
 
+static void on_alarm_add(const char *data, void *arg)
+{
+	esp_err_t err;
+	struct alarm_schedule schedule = { .active_on.u8 = 0xFF };
+	char *endptr;
+
+	if (strlen(data) != 8) {
+		ESP_LOGE(TAG, "Wrong time data");
+		return;
+	}
+
+	schedule.time.hour = strtod(data, &endptr);
+	schedule.time.min  = strtod(endptr, &endptr);
+	schedule.time.sec  = strtod(endptr, &endptr);
+
+	err = alarm_create(ALARM_TYPE_WAKEUP, &schedule, true);
+	if (err) {
+		ESP_LOGE(TAG, "on_alarm_add err %s", esp_err_to_name(err));
+	}
+
+	ESP_LOGI(TAG, "Alarm added - time : %d:%d:%d", schedule.time.hour, schedule.time.min, schedule.time.sec);
+}
+
+static void on_alarm_remove(long id, void *arg)
+{
+	esp_err_t err;
+
+	err = alarm_delete(id);
+	if (err) {
+		ESP_LOGE(TAG, "on_alarm_remove err %s", esp_err_to_name(err));
+	}
+}
+
+static bool on_alarm_iterate(alarm_id_t id, alarm_type_id_t type_id, bool active,
+                             struct alarm_schedule schedule, const void *user_data)
+{
+	ESP_LOGI(TAG, "\tAlarm %ld - Active: %s - Type: %d - Time: %dh %dmin %dsec", id,
+	         active ? "True " : "False", type_id, schedule.time.hour, schedule.time.min,
+	         schedule.time.sec);
+
+	return ESP_OK;
+}
+
+static void on_alarm_list(const void *data, void *arg)
+{
+	alarm_iterate(on_alarm_iterate, NULL);
+}
+
+static void on_alarm_clear(const void *data, void *arg)
+{
+	esp_err_t err;
+
+	err = alarm_clear();
+	if (err) {
+		ESP_LOGE(TAG, "Failed to clear alarms: %s", esp_err_to_name(err));
+	}
+
+	ESP_LOGI(TAG, "Alarms cleared");
+}
+
 static struct urp_message_handler handlers[] = {
 	URP_MESSAGE_INT_HANDLER(VALUE_TYPE_LON, onLightOnOff,     NULL),
 	URP_MESSAGE_INT_HANDLER(VALUE_TYPE_LMO, onLightMode,      NULL),
@@ -71,6 +136,10 @@ static struct urp_message_handler handlers[] = {
 	URP_MESSAGE_INT_HANDLER(VALUE_TYPE_POW, onLightModePower, NULL),
 	URP_MESSAGE_INT_HANDLER(VALUE_TYPE_SPE, onLightModeSpeed, NULL),
 	URP_MESSAGE_STRING_HANDLER(VALUE_TYPE_TZC, on_time_zone_change, NULL),
+	URP_MESSAGE_STRING_HANDLER(VALUE_TYPE_AAD, on_alarm_add, NULL),
+	URP_MESSAGE_INT_HANDLER(VALUE_TYPE_ARM, on_alarm_remove, NULL),
+	URP_MESSAGE_FIXED_HANDLER(VALUE_TYPE_ALS, 0, on_alarm_list,  NULL),
+	URP_MESSAGE_FIXED_HANDLER(VALUE_TYPE_ACL, 0, on_alarm_clear, NULL),
 };
 
 static struct urp_config urp_config = {

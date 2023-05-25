@@ -1,39 +1,37 @@
-#include "json.h"
-#include <cJSON.h>
+/**
+ * @file json_gen.c
+ * @author Farès Chati (faresticha@gmail.com)
+ * @date 2023-05-25
+ * 
+ * @brief 
+ */
+
+#include "json_gen.h"
 #include <esp_log.h>
 
 static const char *TAG = "json";
 
-static SLIST_HEAD(, json_sub_data) sub_list[JSON_TYPE_N];
+static SLIST_HEAD( , json_gen_sub_data) sub_list;
 
-typedef struct json_callback_ctx {
-	cJSON                *root;
-	struct json_sub_data *sub_data;
-} json_callback_ctx_t;
-
-esp_err_t json_get(enum json_type type, char *buf, size_t size, bool format)
+esp_err_t json_gen_get(char **output, json_gen_type_id_t type_id, bool format)
 {
-	json_callback_ctx_t ctx;
+	assert(output);
+
+	json_gen_cb_ctx_t ctx;
 	esp_err_t err;
-	esp_err_t ret = 0;
-	struct json_sub_data *browse_obj;
+	esp_err_t ret = ESP_OK;
+	struct json_gen_sub_data *browse_obj;
 	char error_str[100];
+	cJSON *root = NULL;
 
-	cJSON *root;
-
-	assert(buf);
-
-	if (type >= JSON_TYPE_N) {
-		snprintf(buf, size, "Json type %d is invalid (max is %d)", type, JSON_TYPE_N);
-		ESP_LOGE(TAG, "Json type %d is invalid (max is %d)", type, JSON_TYPE_N);
-		return ESP_ERR_INVALID_ARG;
-	}
+	*output = NULL;
 
 	root = cJSON_CreateObject();
 	if (!root) {
-		snprintf(buf, size, "Failed to create root object");
+		snprintf(error_str, sizeof(error_str), "Failed to create root object");
 		ESP_LOGE(TAG, "Failed to create root object");
-		return ESP_ERR_NO_MEM;
+		ret = ESP_ERR_NO_MEM;
+		goto end;
 	}
 
 	/******* Status *******/
@@ -52,9 +50,13 @@ esp_err_t json_get(enum json_type type, char *buf, size_t size, bool format)
 		goto end;
 	}
 
-	SLIST_FOREACH(browse_obj, &sub_list[type], next) {
+	SLIST_FOREACH(browse_obj, &sub_list, sle) {
+		if (browse_obj->type_id != type_id) {
+			continue;
+		}
+
 		ctx.sub_data = browse_obj;
-		ctx.root     = cJSON_AddObjectToObject(root, browse_obj->sub_name);
+		ctx.root     = cJSON_AddObjectToObject(root, browse_obj->name);
 		if (!ctx.root) {
 			snprintf(error_str, sizeof(error_str), "Failed to add item to object");
 			ESP_LOGE(TAG, "Failed to add item to object");
@@ -62,51 +64,51 @@ esp_err_t json_get(enum json_type type, char *buf, size_t size, bool format)
 			goto end;
 		}
 
-		err = browse_obj->json_generate_cb(&ctx);
+		err = browse_obj->cb(&ctx, browse_obj->user_data);
 		if (err) {
-			snprintf(error_str, sizeof(error_str), "Generation aborted by %s: %s", browse_obj->sub_name, esp_err_to_name(err));
-			ESP_LOGE(TAG, "Generation aborted by %s: %s", browse_obj->sub_name, esp_err_to_name(err));
+			snprintf(error_str, sizeof(error_str), "Generation aborted by %s: %s", browse_obj->name, esp_err_to_name(err));
+			ESP_LOGE(TAG, "Generation aborted by %s: %s", browse_obj->name, esp_err_to_name(err));
 			ret = err;
 			goto end;
 		}
 	}
 
-	if (!cJSON_PrintPreallocated(root, buf, size, format)) {
-		snprintf(buf, size, "Failed to print JSON, buffer is probably too small");
-		ESP_LOGE(TAG, "Failed to print JSON, buffer is probably too small");
-		cJSON_Delete(root);
-		return ESP_ERR_NO_MEM;
+	*output = format ? cJSON_Print(root) : cJSON_PrintUnformatted(root);
+	if (!*output) {
+		snprintf(error_str, sizeof(error_str), "Failed to print JSON, probably an allocation issue");
+		ESP_LOGE(TAG, "Failed to print JSON, probably an allocation issue");
+		ret = ESP_ERR_NO_MEM;
+		goto end;
 	}
 
 end:
 	cJSON_Delete(root);
 
 	if (ret != ESP_OK) {
-		err = json_get_error(buf, size, error_str, format);
-		if (err) {
-			return err;
-		}
+		assert(!*output); /* Output cannot be non-NULL at this point */
+		json_gen_get_error(output, error_str, format);
 	}
 
 	return ret;
 }
 
-esp_err_t json_get_error(char *buf, size_t size, const char *error_str, bool format)
+esp_err_t json_gen_get_error(char **output, const char *error_str, bool format)
 {
-	esp_err_t ret = ESP_OK;
+	assert(output);
+	assert(error_str);
 
-	cJSON *root;
+	esp_err_t ret = ESP_OK;
+	cJSON *root   = NULL;
 
 	root = cJSON_CreateObject();
 	if (!root) {
-		snprintf(buf, size, "Failed to create root object");
 		ESP_LOGE(TAG, "Failed to create root object");
-		return ESP_ERR_NO_MEM;
+		ret = ESP_ERR_NO_MEM;
+		goto end;
 	}
 
 	/******* Status *******/
 	if (!cJSON_AddStringToObject(root, "Status", "Error")) {
-		snprintf(buf, size, "Failed to add item to object");
 		ESP_LOGE(TAG, "Failed to add item to object");
 		ret = ESP_ERR_NO_MEM;
 		goto end;
@@ -114,48 +116,55 @@ esp_err_t json_get_error(char *buf, size_t size, const char *error_str, bool for
 
 	/******* Message *******/
 	if (!cJSON_AddStringToObject(root, "Message", error_str)) {
-		snprintf(buf, size, "Failed to add item to object");
 		ESP_LOGE(TAG, "Failed to add item to object");
 		ret = ESP_ERR_NO_MEM;
 		goto end;
 	}
 
-	if (!cJSON_PrintPreallocated(root, buf, size, format)) {
-		snprintf(buf, size, "Failed to print JSON, buffer is probably too small");
-		ESP_LOGE(TAG, "Failed to print JSON, buffer is probably too small");
+	*output = format ? cJSON_Print(root) : cJSON_PrintUnformatted(root);
+	if (!*output) {
+		ESP_LOGE(TAG, "Failed to print error JSON, probably an allocation issue");
 		ret = ESP_ERR_NO_MEM;
 		goto end;
 	}
 
 end:
+	if (ret) {
+		*output = NULL;
+	}
+
 	cJSON_Delete(root);
+
 	return ret;
 }
 
-esp_err_t json_subscribe_to(enum json_type type, struct json_sub_data *obj)
+esp_err_t json_gen_sub(struct json_gen_sub_data *sub_data)
 {
-	struct json_sub_data *browse_obj;
+	assert(sub_data);
+	assert(sub_data->cb);
 
-	if (!obj || type >= JSON_TYPE_N || !obj->json_generate_cb) {
-		return ESP_ERR_INVALID_ARG;
-	}
+	struct json_gen_sub_data *browse_obj;
 
 	/* Browse the list to check for duplicate */
-	SLIST_FOREACH(browse_obj, &sub_list[type], next) {
-		if (browse_obj == obj) {
-			ESP_LOGE(TAG, "Subscriber %s (%p) already in the list", obj->sub_name, obj);
+	SLIST_FOREACH(browse_obj, &sub_list, sle) {
+		if (browse_obj == sub_data) {
+			ESP_LOGE(TAG, "Subscriber %s (%p) already in the list", sub_data->name, sub_data);
 			return ESP_ERR_INVALID_STATE;
 		}
 	}
 
 	/* Add the subscriber at the head of the list */
-	SLIST_INSERT_HEAD(&sub_list[type], obj, next);
+	SLIST_INSERT_HEAD(&sub_list, sub_data, sle);
+
+	ESP_LOGD(TAG, "Successfully subscribed '%s' to json type %d", sub_data->name, sub_data->type_id);
 
 	return ESP_OK;
 }
 
-esp_err_t json_gen_add_bool(json_callback_ctx_t *ctx, const char *const name, bool value)
+esp_err_t json_gen_add_bool(const json_gen_cb_ctx_t *ctx, const char *const name, bool value)
 {
+	assert(ctx);
+
 	cJSON *item = cJSON_CreateBool(value);
 
 	if (!item) {
@@ -171,8 +180,10 @@ esp_err_t json_gen_add_bool(json_callback_ctx_t *ctx, const char *const name, bo
 	return ESP_OK;
 }
 
-esp_err_t json_gen_add_bool_array(json_callback_ctx_t *ctx, const char *const name, const bool *array, size_t size)
+esp_err_t json_gen_add_bool_array(const json_gen_cb_ctx_t *ctx, const char *const name, const bool *array, size_t size)
 {
+	assert(ctx);
+
 	cJSON *item = cJSON_CreateArray();
 
 	if (!item) {
@@ -196,14 +207,17 @@ esp_err_t json_gen_add_bool_array(json_callback_ctx_t *ctx, const char *const na
 	return ESP_OK;
 }
 
-esp_err_t json_gen_add_int(json_callback_ctx_t *ctx, const char *const name, int value)
+esp_err_t json_gen_add_int(const json_gen_cb_ctx_t *ctx, const char *const name, int value)
 {
 	/* Int end up as double in cJSON anyway */
 	return json_gen_add_double(ctx, name, value);
 }
 
-esp_err_t json_gen_add_int_array(json_callback_ctx_t *ctx, const char *const name, const int *array, size_t size)
+esp_err_t json_gen_add_int_array(const json_gen_cb_ctx_t *ctx, const char *const name,
+                                 const int *const array, size_t size)
 {
+	assert(ctx);
+
 	cJSON *item = cJSON_CreateIntArray(array, size);
 
 	if (!item) {
@@ -219,8 +233,10 @@ esp_err_t json_gen_add_int_array(json_callback_ctx_t *ctx, const char *const nam
 	return ESP_OK;
 }
 
-esp_err_t json_gen_add_double(json_callback_ctx_t *ctx, const char *const name, double value)
+esp_err_t json_gen_add_double(const json_gen_cb_ctx_t *ctx, const char *const name, double value)
 {
+	assert(ctx);
+
 	cJSON *item = cJSON_CreateNumber(value);
 
 	if (!item) {
@@ -236,8 +252,11 @@ esp_err_t json_gen_add_double(json_callback_ctx_t *ctx, const char *const name, 
 	return ESP_OK;
 }
 
-esp_err_t json_gen_add_double_array(json_callback_ctx_t *ctx, const char *const name, const double *array, size_t size)
+esp_err_t json_gen_add_double_array(const json_gen_cb_ctx_t *ctx, const char *const name,
+                                    const double * const array, size_t size)
 {
+	assert(ctx);
+
 	cJSON *item = cJSON_CreateDoubleArray(array, size);
 
 	if (!item) {
@@ -253,9 +272,11 @@ esp_err_t json_gen_add_double_array(json_callback_ctx_t *ctx, const char *const 
 	return ESP_OK;
 }
 
-esp_err_t json_gen_add_string(json_callback_ctx_t *ctx, const char *const name, const char *value)
+esp_err_t json_gen_add_string(const json_gen_cb_ctx_t *ctx, const char *const name, const char *str)
 {
-	cJSON *item = cJSON_CreateString(value);
+	assert(ctx);
+
+	cJSON *item = cJSON_CreateString(str);
 
 	if (!item) {
 		ESP_LOGE(TAG, "Failed to create object");
@@ -270,8 +291,11 @@ esp_err_t json_gen_add_string(json_callback_ctx_t *ctx, const char *const name, 
 	return ESP_OK;
 }
 
-esp_err_t json_gen_add_string_array(json_callback_ctx_t *ctx, const char *const name, const char *const *array, size_t size)
+esp_err_t json_gen_add_string_array(const json_gen_cb_ctx_t *ctx, const char *const name,
+                                    const char *const *array, size_t size)
 {
+	assert(ctx);
+
 	cJSON *item = cJSON_CreateStringArray(array, size);
 
 	if (!item) {
@@ -287,10 +311,11 @@ esp_err_t json_gen_add_string_array(json_callback_ctx_t *ctx, const char *const 
 	return ESP_OK;
 }
 
-esp_err_t json_gen_add_generic_array(json_callback_ctx_t *ctx, const char *const name, json_generate_cb_t array_generate_cb)
+esp_err_t json_gen_add_array(const json_gen_cb_ctx_t *ctx, const char *const name,
+                             json_gen_cb_ctx_t *array_ctx)
 {
-	json_callback_ctx_t array_ctx;
-	esp_err_t err;
+	assert(ctx);
+	assert(array_ctx);
 
 	cJSON *item = cJSON_AddArrayToObject(ctx->root, name);
 
@@ -299,22 +324,17 @@ esp_err_t json_gen_add_generic_array(json_callback_ctx_t *ctx, const char *const
 		return ESP_ERR_NO_MEM;
 	}
 
-	array_ctx.root     = item;
-	array_ctx.sub_data = ctx->sub_data;
-
-	err = array_generate_cb(&array_ctx);
-	if (err) {
-		ESP_LOGE(TAG, "Array generation aborted by %s: %s", ctx->sub_data->sub_name, esp_err_to_name(err));
-		return err;
-	}
+	array_ctx->root     = item;
+	array_ctx->sub_data = ctx->sub_data;
 
 	return ESP_OK;
 }
 
-esp_err_t json_gen_add_generic_object(json_callback_ctx_t *ctx, const char *const name, json_generate_cb_t array_generate_cb)
+esp_err_t json_gen_add_object(const json_gen_cb_ctx_t *ctx, const char *const name,
+                              json_gen_cb_ctx_t *object_ctx)
 {
-	json_callback_ctx_t object_ctx;
-	esp_err_t err;
+	assert(ctx);
+	assert(object_ctx);
 
 	cJSON *item = cJSON_AddObjectToObject(ctx->root, name);
 
@@ -323,14 +343,8 @@ esp_err_t json_gen_add_generic_object(json_callback_ctx_t *ctx, const char *cons
 		return ESP_ERR_NO_MEM;
 	}
 
-	object_ctx.root     = item;
-	object_ctx.sub_data = ctx->sub_data;
-
-	err = array_generate_cb(&object_ctx);
-	if (err) {
-		ESP_LOGE(TAG, "Object generation aborted by %s: %s", ctx->sub_data->sub_name, esp_err_to_name(err));
-		return err;
-	}
+	object_ctx->root     = item;
+	object_ctx->sub_data = ctx->sub_data;
 
 	return ESP_OK;
 }

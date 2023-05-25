@@ -4,9 +4,7 @@
 - Re-Implement SD Card
 - Re-Implement Sound
 - Re-implement Infrared
-- Re-implement alarms
 - Update README
 - move http_server_command and json as an external components
-- Use #pragma once in all headers
 - Document everything
 - replace http_server_start() call with callback (wifi.com.c ligne 178)

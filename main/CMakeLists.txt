@@ -11,6 +11,8 @@ set(peripherals_src peripherals/sd_card.c
 
 set(src ${com_src}
         ${peripherals_src}
+        alarms.c
+        json.c
         light_mode_task.c
         light.c
         main.c

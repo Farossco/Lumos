@@ -162,7 +162,7 @@ esp_err_t settings_group_reset(settings_group_id_t group_id);
 /**
  * @brief Get the current version of the settings.
  *
- * This value is defined at compile time and cannot be changed.
+ *        This value is defined at compile time and cannot be changed.
  *
  * @return The current version.
  */
@@ -171,8 +171,8 @@ struct settings_version settings_version_get(void);
 /**
  * @brief Reload all settings from persistent memory.
  *
- * This function must be called after a multi-group selector value has been
- * changed
+ *        This function must be called after a multi-group selector value has been
+ *        changed
  *
  * @return ESP_OK if success.
  *         ESP_ERR_INVALID_STATE if the library has not been initialized.
@@ -184,11 +184,14 @@ esp_err_t settings_reload(void);
 /**
  * @brief Initializes the settings library.
  *
- * This is necessary to initialize the non-volatile implementation and load
- * all the settings values.
+ *        This is necessary to initialize the non-volatile implementation and load
+ *        all the settings values.
  *
- * To reload data (after having changed a multi-group selector for instance),
- * use itl_settings_reload().
+ *        To reload data (after having changed a multi-group selector for instance),
+ *        use itl_settings_reload().
+ *
+ *        If using NVS implementation, NVS needs to be initialized before calling this
+ *        function.
  *
  * @return ESP_OK if success.
  *         ESP_ERR_INVALID_STATE if the library has already been initialized.

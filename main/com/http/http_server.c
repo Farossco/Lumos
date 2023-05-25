@@ -64,35 +64,57 @@ static bool load_from_spiffs(char *query, httpd_req_t *rqst, const char *path)
 	return true;
 }
 
-static esp_err_t handle_get_res(httpd_req_t *rqst)
+static esp_err_t json_send(httpd_req_t *rqst, json_gen_type_id_t type_id)
 {
-	char resp_buf[1000];
 	const char *resp_type = "application/json";
+	char *resp;
 	esp_err_t err;
 
 	ESP_LOGV(TAG, "Received request");
 	ESP_LOGD(TAG, "Request: |%s|", rqst->uri);
 
-	err = json_get(JSON_TYPE_RES, resp_buf, sizeof(resp_buf), true);
+	err = json_gen_get(&resp, type_id, true);
 	if (err) {
 		ESP_LOGE(TAG, "Failed to generate JSON: %s", esp_err_to_name(err));
-		snprintf(resp_buf, sizeof(resp_buf), "Failed to generate JSON: %s", esp_err_to_name(err));
 		resp_type = "text/plain";
 	}
 
 	err = httpd_resp_set_type(rqst, resp_type);
 	if (err) {
 		ESP_LOGE(TAG, "Failed to set response type: %s", esp_err_to_name(err));
+		char err_resp[10];
+		snprintf(err_resp, sizeof(err_resp), "Fatalerr\n");
+		httpd_resp_sendstr(rqst, err_resp); /* Try to send a response anyway */
 		return err;
 	}
 
-	err = httpd_resp_sendstr(rqst, resp_buf);
+	/* Necessary for the web app to be hosted on a separate server */
+	err = httpd_resp_set_hdr(rqst, "Access-Control-Allow-Origin", "*");
+	if (err) {
+		ESP_LOGE(TAG, "Failed to set header: %s", esp_err_to_name(err));
+	}
+
+	if (resp) {
+		err = httpd_resp_sendstr(rqst, resp);
+		free(resp);
+	} else {
+		/* Last fallback if no memory could be allocated */
+		char err_resp[10];
+		snprintf(err_resp, sizeof(err_resp), "No mem\n");
+		ESP_LOGE(TAG, "Fatal: No memory could be allocated to generate JSON");
+		err = httpd_resp_sendstr(rqst, err_resp);
+	}
 	if (err) {
 		ESP_LOGE(TAG, "Failed to send response: %s", esp_err_to_name(err));
 		return err;
 	}
 
 	return ESP_OK;
+}
+
+static esp_err_t handle_get_res(httpd_req_t *rqst)
+{
+	return json_send(rqst, JSON_TYPE_RES);
 }
 
 static esp_err_t handle_web_requests(httpd_req_t *rqst, httpd_err_code_t error)
@@ -184,39 +206,7 @@ static const http_server_cmd_handle_t cmd_handles[] = {
 
 static esp_err_t http_server_cmd_send_response(httpd_req_t *rqst, const uint8_t error, const char *error_str)
 {
-	esp_err_t err;
-	char resp_buf[1000];
-	const char *resp_type = "application/json";
-
-	if (error) {
-		err = json_get_error(resp_buf, sizeof(resp_buf), error_str, true);
-	} else {
-		err = json_get(JSON_TYPE_DATA, resp_buf, sizeof(resp_buf), true);
-	}
-	if (err) {
-		ESP_LOGE(TAG, "Failed to generate JSON: %s", esp_err_to_name(err));
-		snprintf(resp_buf, sizeof(resp_buf), "Failed to generate JSON: %s", esp_err_to_name(err));
-		resp_type = "text/plain";
-	}
-
-	err = httpd_resp_set_type(rqst, resp_type);
-	if (err) {
-		ESP_LOGE(TAG, "Failed to set response type: %s", esp_err_to_name(err));
-	}
-
-	/* Necessary for the web app to be hosted on a separate server */
-	err = httpd_resp_set_hdr(rqst, "Access-Control-Allow-Origin", "*");
-	if (err) {
-		ESP_LOGE(TAG, "Failed to set header: %s", esp_err_to_name(err));
-	}
-
-	err = httpd_resp_sendstr(rqst, resp_buf);
-	if (err) {
-		ESP_LOGE(TAG, "Failed to send response: %s", esp_err_to_name(err));
-		return err;
-	}
-
-	return ESP_OK;
+	return json_send(rqst, JSON_TYPE_DATA);
 }
 
 static const struct http_server_cmd_config cmd_config = {

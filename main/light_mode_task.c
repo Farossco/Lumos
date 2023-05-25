@@ -268,7 +268,7 @@ static void light_mode_sunset_task(void *arg)
 	}
 }
 
-static void light_mode_start(void *arg)
+static void light_mode_start_task(void *arg)
 {
 	struct light_mode_data *data = arg;
 	int32_t counter              = 0;
@@ -341,7 +341,7 @@ static const TaskFunction_t light_mode_tasks[] = {
 	light_mode_smooth_task,
 	light_mode_dawn_task,
 	light_mode_sunset_task,
-	light_mode_start
+	light_mode_start_task
 };
 
 static void light_mode_task_create(uint8_t mode, struct light_mode_data *data)

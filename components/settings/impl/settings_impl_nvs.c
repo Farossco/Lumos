@@ -19,7 +19,7 @@ esp_err_t settings_impl_write(const char *group_name, const char *key_name, void
 
 	err = nvs_open_from_partition(PARTITION_NAME, group_name, NVS_READWRITE, &handle);
 	if (err != ESP_OK) {
-		printf("Failed to open nvs for group %s: %s", group_name, esp_err_to_name(err));
+		ESP_LOGE(TAG, "Failed to open nvs for group %s: %s", group_name, esp_err_to_name(err));
 		return err;
 	}
 
@@ -51,7 +51,7 @@ esp_err_t settings_impl_delete(const char *group_name, const char *key_name)
 
 	err = nvs_open_from_partition(PARTITION_NAME, group_name, NVS_READWRITE, &handle);
 	if (err != ESP_OK) {
-		printf("Failed to open nvs for group %s: %s", group_name, esp_err_to_name(err));
+		ESP_LOGE(TAG, "Failed to open nvs for group %s: %s", group_name, esp_err_to_name(err));
 		return err;
 	}
 
@@ -120,7 +120,7 @@ esp_err_t settings_impl_load(const char *group_name, settings_impl_load_cb_t cb,
 
 	err = nvs_open_from_partition(PARTITION_NAME, group_name, NVS_READWRITE, &arg.handle);
 	if (err != ESP_OK) {
-		printf("Failed to open nvs for group %s: %s", group_name, esp_err_to_name(err));
+		ESP_LOGE(TAG, "Failed to open nvs for group %s: %s", group_name, esp_err_to_name(err));
 		return err;
 	}
 
@@ -154,12 +154,6 @@ esp_err_t settings_impl_init(void)
 
 	ESP_LOGI(TAG, "Initializing implementation");
 
-	err = nvs_flash_init();
-	if (err) {
-		ESP_LOGE(TAG, "Failed to initialize nvs_flash: %s", esp_err_to_name(err));
-		return err;
-	}
-
 /* No need to initialize the default "nvs" partition */
 #if CONFIG_SETTINGS_IMPL_NVS_PART_CUSTOM
 	err = nvs_flash_init_partition(PARTITION_NAME);
@@ -168,5 +162,6 @@ esp_err_t settings_impl_init(void)
 		return err;
 	}
 #endif /* if CONFIG_SETTINGS_IMPL_NVS_PART_CUSTOM */
+
 	return ESP_OK;
 }

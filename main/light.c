@@ -111,9 +111,11 @@ esp_err_t light_power_set(uint8_t power, uint8_t mode)
 		return ESP_ERR_INVALID_ARG;
 	}
 
+#if LIGHT_POWER_MAX < UINT8_MAX /* Avoids anoying marning */
 	if (power > LIGHT_POWER_MAX) {
 		return ESP_ERR_INVALID_ARG;
 	}
+#endif /* if LIGHT_POWER_MAX < 255 */
 
 	light_mode_data[mode].power = power;
 
@@ -193,58 +195,58 @@ esp_err_t light_state_set(bool state)
 	return ESP_OK;
 }
 
-static esp_err_t on_json_data_gen(json_callback_ctx_t *ctx)
+static esp_err_t on_json_data_gen(const json_gen_cb_ctx_t *ctx, const void *user_data)
 {
-	int light_mode_data_array[LIGHT_MODE_N];
+	json_gen_cb_ctx_t array_ctx;
 
-	JSON_GEN_ADD_BOOL("On", light_state);
+	JSON_GEN_ADD_BOOL(ctx, "On", light_state);
 
-	JSON_GEN_ADD_INT("Mode", light_mode);
+	JSON_GEN_ADD_INT(ctx, "Mode", light_mode);
 
+	JSON_GEN_ADD_ARRAY(ctx, "Rgb", &array_ctx);
 	for (uint8_t i = 0; i < LIGHT_MODE_N; i++) {
-		light_mode_data_array[i] = rgb_to_code(light_mode_data[i].rgb);
+		JSON_GEN_ARRAY_ADD_INT(&array_ctx, rgb_to_code(light_mode_data[i].rgb));
 	}
-	JSON_GEN_ADD_INT_ARRAY("Rgb", light_mode_data_array, LIGHT_MODE_N);
 
+	JSON_GEN_ADD_ARRAY(ctx, "Power", &array_ctx);
 	for (uint8_t i = 0; i < LIGHT_MODE_N; i++) {
-		light_mode_data_array[i] = light_mode_data[i].power;
+		JSON_GEN_ARRAY_ADD_INT(&array_ctx, light_mode_data[i].power);
 	}
-	JSON_GEN_ADD_INT_ARRAY("Power", light_mode_data_array, LIGHT_MODE_N);
 
+	JSON_GEN_ADD_ARRAY(ctx, "Speed", &array_ctx);
 	for (uint8_t i = 0; i < LIGHT_MODE_N; i++) {
-		light_mode_data_array[i] = light_mode_data[i].speed;
+		JSON_GEN_ARRAY_ADD_INT(&array_ctx, light_mode_data[i].speed);
 	}
-	JSON_GEN_ADD_INT_ARRAY("Speed", light_mode_data_array, LIGHT_MODE_N);
 
 	return ESP_OK;
 }
 
-static esp_err_t on_json_res_colors_gen(json_callback_ctx_t *ctx)
+static esp_err_t on_json_res_gen(const json_gen_cb_ctx_t *ctx, const void *user_data)
 {
+	json_gen_cb_ctx_t array_ctx;
+
+	JSON_GEN_ADD_STRING_ARRAY(ctx, "ModeNames", light_mode_strings, LIGHT_MODE_N);
+
+	JSON_GEN_ADD_ARRAY(ctx, "Colors", &array_ctx);
 	for (uint8_t i = 0; i < WEB_COLOR_HEIGHT; i++) {
-		JSON_GEN_ARRAY_ADD_INT_ARRAY(web_color_list[i], WEB_COLOR_WIDTH);
+		JSON_GEN_ARRAY_ADD_INT_ARRAY(&array_ctx, web_color_list[i], WEB_COLOR_WIDTH);
 	}
 
 	return ESP_OK;
 }
 
-static esp_err_t on_json_res_gen(json_callback_ctx_t *ctx)
-{
-	JSON_GEN_ADD_STRING_ARRAY("ModeNames", light_mode_strings, LIGHT_MODE_N);
-
-	JSON_GEN_ADD_GENERIC_ARRAY("Colors", on_json_res_colors_gen);
-
-	return ESP_OK;
-}
-
-static struct json_sub_data json_data_sub = {
-	.sub_name         = "Light",
-	.json_generate_cb = on_json_data_gen
+static struct json_gen_sub_data json_data_sub = {
+	.type_id   = JSON_TYPE_DATA,
+	.name  = "Light",
+	.cb        = on_json_data_gen,
+	.user_data = NULL
 };
 
-static struct json_sub_data json_res_sub = {
-	.sub_name         = "Light",
-	.json_generate_cb = on_json_res_gen
+static struct json_gen_sub_data json_res_sub = {
+	.type_id   = JSON_TYPE_RES,
+	.name  = "Light",
+	.cb        = on_json_res_gen,
+	.user_data = NULL
 };
 
 esp_err_t light_init(void)
@@ -263,13 +265,13 @@ esp_err_t light_init(void)
 		return err;
 	}
 
-	err = json_subscribe_to(JSON_TYPE_DATA, &json_data_sub);
+	err = json_gen_sub(&json_data_sub);
 	if (err) {
 		ESP_LOGE(TAG, "Failed to subscribe to JSON data: %s", esp_err_to_name(err));
 		return err;
 	}
 
-	err = json_subscribe_to(JSON_TYPE_RES, &json_res_sub);
+	err = json_gen_sub(&json_res_sub);
 	if (err) {
 		ESP_LOGE(TAG, "Failed to subscribe to JSON res: %s", esp_err_to_name(err));
 		return err;
