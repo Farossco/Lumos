@@ -4,8 +4,12 @@
     "recommendations": [
         "zachflower.uncrustify",
         "espressif.esp-idf-extension",
-        "ms-python.python",
-        "Vue.volar",
-        "Vue.vscode-typescript-vue-plugin"
+        "vue.vscode-typescript-vue-plugin",
+        "hediet.tasks-statusbar",
+        "ms-python.black-formatter",
+        "cschlosser.doxdocgen",
+        "dbaeumer.vscode-eslint",
+        "ms-python.pylint",
+        "antfu.vite"
     ]
 }

@@ -1,8 +1,10 @@
 # coding=utf-8
 import argparse
 import csv
+import os
+import re
+
 from packaging import version
-import re, os
 
 
 def remove_comments_from_csv(csv_file):
@@ -29,7 +31,7 @@ def parse_input_groups(input_groups_path, length_max):
 
     # Open the input_groups CSV file and remove comments
     try:
-        with open(input_groups_path) as csv_file:
+        with open(input_groups_path, encoding="UTF-8") as csv_file:
             csv_reader = csv.reader(remove_comments_from_csv(csv_file))
 
             # Iterate through each row in the CSV file
@@ -48,7 +50,7 @@ def parse_input_groups(input_groups_path, length_max):
 
                     # Check that the length of the group name is within the allowed maximum
                     if len(group_item["name"]) > length_max:
-                        raise Exception(
+                        raise ValueError(
                             f"Length of '{group_item['name']}' ({len(group_item['name'])}) "
                             f"exceeds maximum of {str(length_max)}. "
                             "Consider increasing CONFIG_SETTINGS_GROUP_LENGTH_MAX"
@@ -64,26 +66,28 @@ def parse_input_groups(input_groups_path, length_max):
                     if group_item["type"] == "MULTI":
                         try:
                             group_item["selector"] = row[2].strip().lower()
-                        except IndexError:
-                            raise Exception(
-                                f"No selector key specified for multi "
-                                "instances group: '{group_item['name']}'"
-                            )
+                        except IndexError as exc:
+                            raise ValueError(
+                                "No selector key specified for multi "
+                                f"instances group: '{group_item['name']}'"
+                            ) from exc
                     elif group_item["type"] != "SINGLE":
-                        raise Exception("Unknown group type " + group_item["type"])
+                        raise ValueError("Unknown group type " + group_item["type"])
 
                     # Add the group to the list
                     group_list.append(group_item)
-                except Exception as e:
-                    raise Exception(
-                        f"Group parsing error ! {e}. Bad entry: \"{','.join(row)}\""
-                    )
-    except FileNotFoundError:
-        raise FileNotFoundError("Configuration file not found: " + input_groups_path)
+                except Exception as exc:
+                    raise ValueError(
+                        f"Group parsing error ! {exc}. Bad entry: \"{','.join(row)}\""
+                    ) from exc
+    except FileNotFoundError as exc:
+        raise FileNotFoundError(
+            "Configuration file not found: " + input_groups_path
+        ) from exc
 
     # Check that a version number was provided
     if not group_version:
-        raise Exception(
+        raise ValueError(
             "Groups: No version provided - "
             f"Use @Vx.x.x in {os.path.basename(input_groups_path)} "
             f"to define the version"
@@ -98,7 +102,7 @@ def parse_input_keys(input_keys_path, groups_list, length_max):
     keys_version = None
 
     try:
-        with open(input_keys_path) as csv_file:
+        with open(input_keys_path, encoding="UTF-8") as csv_file:
             csv_reader = csv.reader(remove_comments_from_csv(csv_file))
 
             deprecated = False
@@ -117,42 +121,32 @@ def parse_input_keys(input_keys_path, groups_list, length_max):
 
                     key_item["group"] = row[0].strip().lower()
 
-                    if deprecated:
-                        deprecated = False
-                        key_item["deprecated"] = True
-                        key_item["name"] = ""
-                        key_item["type"] = ""
-                        key_item["default"] = ""
-                        keys_list.append(key_item)
-                        continue
-
-                    key_item["deprecated"] = False
-
                     groups_exists = False
                     for group_item in groups_list:
                         if group_item["name"] == key_item["group"]:
                             groups_exists = True
 
                     if not groups_exists:
-                        raise Exception(f"Group \"{key_item['group']}' doesn't exists")
+                        raise ValueError(f"Group \"{key_item['group']}' doesn't exists")
 
                     name = row[2].strip().lower()
 
                     # Check that the key is not already in the list
                     for checker_key_item in keys_list:
                         if checker_key_item["name"] == name:
-                            raise Exception(
+                            raise ValueError(
                                 f"Key '{checker_key_item['name']}' already exists"
                             )
 
                     key_item["type"] = row[1].strip().lower()
                     key_item["name"] = name
                     if len(key_item["name"]) > length_max:
-                        raise Exception(
-                            f"Length of '{group_item['name']}' ({len(group_item['name'])}) "
+                        raise ValueError(
+                            f"Length of '{key_item['name']}' ({len(key_item['name'])}) "
                             f"exceeds maximum of {str(length_max)}. "
-                            "Consider increasing CONFIG_SETTINGS_GROUP_LENGTH_MAX"
+                            "Consider increasing CONFIG_SETTINGS_KEYS_LENGTH_MAX"
                         )
+                    key_item["internal_type"] = f"stgs_{key_item['name']}_t"
 
                     try:
                         key_item["default"] = ""
@@ -160,78 +154,107 @@ def parse_input_keys(input_keys_path, groups_list, length_max):
                             if i != 0:
                                 key_item["default"] += ", "
                             key_item["default"] += sub_default.strip()
-                    except IndexError:
-                        raise Exception(
+                    except IndexError as exc:
+                        raise ValueError(
                             f"No default value provided for {key_item['name']}"
-                        )
+                        ) from exc
+
+                    if deprecated:
+                        deprecated = False
+                        key_item["deprecated"] = True
+                    else:
+                        key_item["deprecated"] = False
 
                     keys_list.append(key_item)
 
-                except Exception as e:
-                    raise Exception(
-                        f"Key parsingg error ! {e}. Bad entry: \"{','.join(row)}\""
-                    )
+                except Exception as exc:
+                    raise ValueError(
+                        f"Key parsing error ! {exc}. Bad entry: \"{','.join(row)}\""
+                    ) from exc
             if deprecated:
-                raise Exception(
+                raise ValueError(
                     'Tag "Deprecated" was specified but there is no key to apply it to'
                 )
-    except FileNotFoundError:
-        raise FileNotFoundError(f"Configuration not found: {input_keys_path}")
+    except FileNotFoundError as exc:
+        raise FileNotFoundError(f"Configuration not found: {input_keys_path}") from exc
 
     # Check that a version number was provided
     if not keys_version:
-        raise Exception(
+        raise ValueError(
             "Keys: No version provided - "
             f"Use @Vx.x.x in {os.path.basename(input_keys_path)} "
-            f"to define the version"
+            "to define the version"
         )
 
     return keys_version, keys_list
 
 
 def generate(
-    version,
+    vers,
     group_list,
     key_list,
     in_defs_path,
     out_header_path,
     out_header_internal_path,
 ):
-    with open(out_header_path, "w+") as out_header:
+    with open(out_header_path, "w+", encoding="UTF-8") as out_header:
         out_header.write("#pragma once\n\n")
 
         try:
             try:
-                with open(in_defs_path) as in_defs:
+                with open(in_defs_path, encoding="UTF-8") as in_defs:
                     out_header.write(in_defs.read())
                     out_header.write("\n\n")
-            except FileNotFoundError:
-                raise FileNotFoundError(f"Definition file not found: {in_defs_path}")
+            except FileNotFoundError as exc:
+                raise FileNotFoundError(
+                    f"Definition file not found: {in_defs_path}"
+                ) from exc
 
-            out_header.write("enum {\n")
+            # Setting types definition
+            out_header.write("/* Setting types definition */\n")
+            for key_item in key_list:
+                if key_item["deprecated"]:
+                    continue
+                match = re.fullmatch(
+                    r"([0-9a-zA-Z_]*)(\[[0-9a-zA-Z_]*\])", key_item["type"]
+                )
+                if match:
+                    out_header.write(
+                        f"typedef {match.group(1)} {key_item['internal_type']}{match.group(2)};\n"
+                    )
+                else:
+                    out_header.write(
+                        f"typedef {key_item['type']} {key_item['internal_type']};\n"
+                    )
 
-            first_row = True
-            for index, key_item in enumerate(key_list):
+            out_header.write("\n")
+            for key_item in key_list:
                 if key_item["deprecated"]:
                     continue
 
-                row = ""
+                out_header.write(
+                    f"#define SETTINGS_{str(key_item['name']).upper()}_TYPE {key_item['internal_type']}\n"
+                )
 
+            # Setting keys enum
+            out_header.write("\n/* Setting keys enum */\nenum {\n")
+
+            first_row = True
+            for index, key_item in enumerate(key_list):
                 if first_row:
                     first_row = False
                 else:
-                    row += ",\n"
+                    out_header.write(",\n")
 
-                row += "\tSETTINGS_"
-                row += str(key_item["name"]).upper()
-                row += " = "
-                row += str(index)
+                macro_name = f"SETTINGS_{str(key_item['name']).upper()}"
 
-                out_header.write(row)
+                if key_item["deprecated"]:
+                    macro_name += "_DEPRECATED"
 
-            out_header.write("\n" "};\n\n")
+                out_header.write(f"\t{macro_name} = {index}")
 
-            out_header.write("enum {\n")
+            # Setting groups enum
+            out_header.write("\n};\n\n/* Setting groups enum */\nenum {\n")
 
             for index, group_item in enumerate(group_list):
                 row = ""
@@ -246,13 +269,13 @@ def generate(
                 out_header.write(row)
 
             out_header.write("\n};\n")
-        except Exception as e:
+        except Exception as exc:
             out_header.write(
-                "\n#error \"Got Python error '{e}' while generating this file\"\n"
+                f"\n#error \"Got Python error '{exc}' while generating this file\"\n"
             )
-            raise Exception(e)
+            raise exc
 
-    with open(out_header_internal_path, "w+") as out_header_internal:
+    with open(out_header_internal_path, "w+", encoding="UTF-8") as out_header_internal:
         try:
             out_header_internal.write(
                 f"#pragma once\n"
@@ -260,9 +283,9 @@ def generate(
                 f"#include <{os.path.basename(out_header_path)}>\n"
                 "\n"
                 "/* Settings version */\n"
-                f"#define SETTINGS_VERSION_MAJOR {version.major}\n"
-                f"#define SETTINGS_VERSION_MINOR {version.minor}\n"
-                f"#define SETTINGS_VERSION_REV {version.micro}\n"
+                f"#define SETTINGS_VERSION_MAJOR {vers.major}\n"
+                f"#define SETTINGS_VERSION_MINOR {vers.minor}\n"
+                f"#define SETTINGS_VERSION_REV {vers.micro}\n"
                 "\n"
                 "/* Settings data */\n"
                 "#define SETTINGS_DATA"
@@ -271,31 +294,21 @@ def generate(
             for key_item in key_list:
                 if key_item["deprecated"]:
                     continue
-                match = re.fullmatch(
-                    "([0-9a-zA-Z_]*)(\[[0-9a-zA-Z_]*\])", key_item["type"]
+
+                out_header_internal.write(
+                    f" \\\n\t{key_item['internal_type']} {key_item['name']};"
                 )
-                if match:
-                    out_header_internal.write(
-                        f" \\\n\t{match.group(1)} {key_item['name']} {match.group(2)};"
-                    )
-                else:
-                    out_header_internal.write(
-                        f" \\\n\t{key_item['type']} {key_item['name']};"
-                    )
 
             out_header_internal.write(
-                "\n\n/* Settings data default values */\n#define SETTINGS_DATA_DEFAULTS {"
+                "\n\n/* Settings data default values */\n#define SETTINGS_DATA_DEFAULTS { \\\n"
             )
 
-            first_item = True
             for key_item in key_list:
                 if key_item["deprecated"]:
                     continue
-                if first_item:
-                    first_item = False
-                else:
-                    out_header_internal.write(", ")
-                out_header_internal.write(key_item["default"])
+                out_header_internal.write(
+                    f"\t{key_item['default']}, /* {key_item['name']} */ \\\n"
+                )
 
             out_header_internal.write(
                 "}\n\n"
@@ -339,16 +352,16 @@ def generate(
                     )
                 out_header_internal.write("),")
             out_header_internal.write("\n")
-        except Exception as e:
+        except Exception as exc:
             out_header_internal.write(
-                "\n#error \"Got Python error '{e}' while generating this file\"\n"
+                f"\n#error \"Got Python error '{exc}' while generating this file\"\n"
             )
-            raise Exception(e)
+            raise exc
 
 
 def check_versions(groups_version, keys_version):
     if groups_version != keys_version:
-        raise Exception(
+        raise ValueError(
             f"Versions mismatch! 'keys' is V{keys_version} and 'groups' is V{groups_version}"
         )
 
@@ -365,19 +378,19 @@ def check_selectors(group_list, key_list):
             if key_item["name"] == group_item["selector"]:
                 selector_exists = True
                 if key_item["group"] == group_item["name"]:
-                    raise Exception(
+                    raise ValueError(
                         f"The provided selector '{group_item['selector']}' for the group "
                         f"'{group_item['name']}' is in the group '{key_item['group']}'. "
                         f"This makes no sense..."
                     )
                 if key_item["type"] != "settings_group_id_t":
-                    raise Exception(
+                    raise ValueError(
                         f"The provided selector '{group_item['selector']}' for the group "
                         f"'{group_item['name']}' has incorrect type '{key_item['type']}'. "
                         f"Selector type must be 'settings_group_id_t'"
                     )
                 if key_item["deprecated"]:
-                    raise Exception(
+                    raise ValueError(
                         f"The provided selector '{group_item['selector']}' for the group "
                         f"'{group_item['name']}' is deprecated, this is not allowed. "
                         "If necessary, remove the group and deprecate all of its keys"
@@ -388,7 +401,7 @@ def check_selectors(group_list, key_list):
                         group_of_selector_before_current = True
                         break
                 if not group_of_selector_before_current:
-                    raise Exception(
+                    raise ValueError(
                         f"The provided selector '{group_item['selector']}' for the group "
                         f"'{group_item['name']}' is in the group '{key_item['group']}'."
                         f"Thus, the group '{key_item['group']}' must be declared before "
@@ -396,7 +409,7 @@ def check_selectors(group_list, key_list):
                     )
                 break
         if not selector_exists:
-            raise Exception(
+            raise ValueError(
                 f"The provided selector '{group_item['selector']}' for the group "
                 f"'{group_item['name']}' doesn't exist"
             )
@@ -416,16 +429,16 @@ def check_empty_groups(groups_list, keys_list):
 
         if not one_key_present:
             if deprecated_present:
-                raise Exception(
+                raise ValueError(
                     f"Group '{group_item['name']}' only contains deprecated keys, add keys to it or remove the group"
                 )
             else:
-                raise Exception(f"Group '{group_item['name']}' is empty")
+                raise ValueError(f"Group '{group_item['name']}' is empty")
 
 
 def parse_args():
     """Parse arguments"""
-    global args
+
     parser = argparse.ArgumentParser(
         description="Settings library resources generator",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -475,11 +488,11 @@ def parse_args():
         help="Configuration: Group maximum length",
     )
 
-    args = parser.parse_args()
+    return parser.parse_args()
 
 
-if __name__ == "__main__":
-    parse_args()
+def main():
+    args = parse_args()
 
     try:
         groups_version, groups = parse_input_groups(
@@ -488,17 +501,21 @@ if __name__ == "__main__":
         keys_version, keys = parse_input_keys(
             args.input_keys, groups, int(args.config_key_length_max)
         )
-        version = check_versions(groups_version, keys_version)
+        vers = check_versions(groups_version, keys_version)
         check_selectors(groups, keys)
         check_empty_groups(groups, keys)
         generate(
-            version,
+            vers,
             groups,
             keys,
             args.input_defs,
             args.header.name,
             args.header_internal.name,
         )
-    except Exception as exc:
+    except (ValueError, FileNotFoundError) as exc:
         print("[SETTINGS] Error: " + str(exc))
         exit(1)
+
+
+if __name__ == "__main__":
+    main()

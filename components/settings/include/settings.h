@@ -19,7 +19,11 @@
  *        (ex: use PROFILE intead of SETTINGS_PROFILE).
  *
  */
-#define SETTINGS_SET(key_id, value) settings_set(SETTINGS_ ## key_id, &value, sizeof(value))
+#define SETTINGS_SET(key_id, value) \
+		({ \
+		static_assert(sizeof(value) == sizeof(SETTINGS_ ## key_id ## _TYPE), "The size of " #value " does not match the size of SETTINGS_" #key_id); \
+		settings_set(SETTINGS_ ## key_id, &value, sizeof(value)); \
+	})
 
 /**
  * @brief Helper macro for the settings_get() function.
@@ -28,7 +32,11 @@
  *        (ex: use PROFILE intead of SETTINGS_PROFILE).
  *
  */
-#define SETTINGS_GET(key_id, value) settings_get(SETTINGS_ ## key_id, &value, sizeof(value))
+#define SETTINGS_GET(key_id, value) \
+		({ \
+		static_assert(sizeof(value) == sizeof(SETTINGS_ ## key_id ## _TYPE), "The size of " #value " does not match the size of SETTINGS_" #key_id); \
+					  settings_get(SETTINGS_ ## key_id, &value, sizeof(value)); \
+					  })
 
 /**
  * @brief Helper macro for the settings_reset() function.

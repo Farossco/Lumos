@@ -21,8 +21,4 @@ menu "Lumos project"
 	config LUMOS_LIGHT_DIMMED_MODE
 		bool "Dimmed mode"
 		default n
-
-	config LUMOS_TIME_ZONE
-		string "Time Zone"
-		default "UTC"
 endmenu

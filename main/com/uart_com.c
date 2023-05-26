@@ -1,6 +1,7 @@
 #include "uart_com.h"
 #include <string.h>
 #include <urp.h>
+#include <settings.h>
 #include "alarms.h"
 #include "driver/uart.h"
 #include "utils.h"
@@ -52,21 +53,31 @@ static void onLightModeSpeed(long value, void *arg)
 	light_speed_set(value, LIGHT_MODE_CURRENT);
 }
 
-static void on_time_zone_change(const char *data, void *arg)
+static void on_time_zone_change(const char *timezone, void *arg)
 {
-	char strftime_buf[64];
+	esp_err_t err;
 	time_t now;
 	struct tm timeinfo;
 
-	ESP_LOGI(TAG, "Setting timezone: \"%s\"", data);
+	if (strlen(timezone) >= sizeof(stgs_timezone_t)) {
+		ESP_LOGE(TAG, "Incorrect timezone length for %s (max is %d)", timezone, sizeof(stgs_timezone_t));
+		return;
+	}
 
-	setenv("TZ", data, 1);
+	ESP_LOGI(TAG, "Setting timezone: \"%s\"", timezone);
+	ESP_LOGI(TAG, "Saving timezone to settings");
+
+	err = settings_set(SETTINGS_TIMEZONE, timezone, sizeof(stgs_timezone_t));
+	if (err) {
+		ESP_LOGE(TAG, "Failed to save timezone to settings: %s", esp_err_to_name(err));
+	}
+
+	setenv("TZ", timezone, 1);
 	tzset();
 
 	time(&now);
 	localtime_r(&now, &timeinfo);
-	strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
-	ESP_LOGI(TAG, "The current date/time in Paris is: %s", strftime_buf);
+	ESP_LOGI(TAG, "Timezone set");
 }
 
 static void on_alarm_add(const char *data, void *arg)

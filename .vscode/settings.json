@@ -14,10 +14,11 @@
 	},
 	"idf.flashType": "UART",
 	"idf.port": "/dev/ttyUSB0",
-	"files.associations": {
-		"esp_sntp.h": "c",
-		"led_strip_spi.h": "c",
-		"settings_def.h": "c"
+	"idf.adapterTargetName": "esp32",
+	"[python]": {
+		"editor.defaultFormatter": "ms-python.black-formatter"
 	},
-	"idf.adapterTargetName": "esp32"
+	"python.formatting.provider": "none",
+	"tasksStatusbar.taskLabelFilter": "Lumos: (.*)",
+	"tasksStatusbar.nameTemplate": "$1"
 }

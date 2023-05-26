@@ -8,3 +8,4 @@
 - move http_server_command and json as an external components
 - Document everything
 - replace http_server_start() call with callback (wifi.com.c ligne 178)
+- Find a better way to handle strings in settings

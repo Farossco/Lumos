@@ -1,5 +1,6 @@
 # Settings version
 @V0.0.1, First version
+@V0.0.2, Added timezone
 
 # Name		Type		Selector
 base,		SINGLE		# No selector
